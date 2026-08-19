@@ -1,6 +1,6 @@
 {
   "name": "@vuscom/ui",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Componenti UI condivisi tra i frontend VUS COM (sidebar applicativa)",
   "license": "UNLICENSED",
   "type": "module",
