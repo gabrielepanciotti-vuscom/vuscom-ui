@@ -26,7 +26,8 @@ function AppSidebar({
   collapsed = false,
   onToggleCollapse,
   themeSlot,
-  footerSlot
+  footerSlot,
+  navClassName = ""
 }) {
   const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -166,24 +167,30 @@ function AppSidebar({
             ]
           }
         ),
-        /* @__PURE__ */ jsxs("nav", { className: "flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2", children: [
-          mainTree.map((item) => renderItem(item, isCollapsed)),
-          adminTree.length > 0 && /* @__PURE__ */ jsxs(Fragment, { children: [
-            /* @__PURE__ */ jsx(
-              "div",
-              {
-                className: `mt-4 mb-2 ${isCollapsed ? "px-0 flex justify-center" : "px-2.5"}`,
-                children: /* @__PURE__ */ jsx(
+        /* @__PURE__ */ jsxs(
+          "nav",
+          {
+            className: `flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2 ${navClassName}`.trim(),
+            children: [
+              mainTree.map((item) => renderItem(item, isCollapsed)),
+              adminTree.length > 0 && /* @__PURE__ */ jsxs(Fragment, { children: [
+                /* @__PURE__ */ jsx(
                   "div",
                   {
-                    className: `border-t border-slate-200 dark:border-white/[0.08] ${isCollapsed ? "w-6" : "w-full"}`
+                    className: `mt-4 mb-2 ${isCollapsed ? "px-0 flex justify-center" : "px-2.5"}`,
+                    children: /* @__PURE__ */ jsx(
+                      "div",
+                      {
+                        className: `border-t border-slate-200 dark:border-white/[0.08] ${isCollapsed ? "w-6" : "w-full"}`
+                      }
+                    )
                   }
-                )
-              }
-            ),
-            adminTree.map((item) => renderItem(item, isCollapsed))
-          ] })
-        ] }),
+                ),
+                adminTree.map((item) => renderItem(item, isCollapsed))
+              ] })
+            ]
+          }
+        ),
         /* @__PURE__ */ jsxs(
           "div",
           {

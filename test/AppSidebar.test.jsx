@@ -123,6 +123,23 @@ describe("AppSidebar — gruppi", () => {
   });
 });
 
+describe("AppSidebar — navClassName", () => {
+  it("applica le classi dell'app alla nav, senza perdere le proprie", () => {
+    render(<Harness navClassName="scrollbar-thin" />);
+    const nav = desktopSidebar().querySelector("nav");
+    expect(nav).toHaveClass("scrollbar-thin");
+    // La utility dell'app si aggiunge, non sostituisce: senza overflow-y-auto
+    // la nav non scrollerebbe affatto e la classe sarebbe inutile.
+    expect(nav).toHaveClass("overflow-y-auto");
+  });
+
+  it("senza la prop non lascia uno spazio in coda alle classi", () => {
+    render(<Harness />);
+    const nav = desktopSidebar().querySelector("nav");
+    expect(nav.className).toBe(nav.className.trim());
+  });
+});
+
 describe("AppSidebar — slot e menu utente", () => {
   it("mostra lo slot azioni da estesa e lo nasconde da compressa", async () => {
     const user = userEvent.setup();

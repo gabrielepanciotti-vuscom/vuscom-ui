@@ -24,6 +24,10 @@ import {
  *  - expandedGroups: Set<string> degli id gruppo aperti · onToggleGroup(id)
  *  - collapsed / onToggleCollapse: modalità stretta
  *  - isOpen / onClose: overlay mobile
+ *  - navClassName: classi extra sulla <nav> scrollabile. Serve alle utility che
+ *    il pacchetto non puo' dichiarare, perche' vivono nel CSS dell'app che lo
+ *    ospita (es. `scrollbar-thin` in Hub Offerte): il pacchetto non sa quali
+ *    esistano, quindi le riceve invece di indovinarle.
  */
 export default function AppSidebar({
   appName = "App",
@@ -43,6 +47,7 @@ export default function AppSidebar({
   onToggleCollapse,
   themeSlot,
   footerSlot,
+  navClassName = "",
 }) {
   const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -236,7 +241,9 @@ export default function AppSidebar({
         )}
       </div>
 
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2">
+      <nav
+        className={`flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2 ${navClassName}`.trim()}
+      >
         {mainTree.map((item) => renderItem(item, isCollapsed))}
 
         {adminTree.length > 0 && (
