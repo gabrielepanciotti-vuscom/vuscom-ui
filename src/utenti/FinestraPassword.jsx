@@ -24,6 +24,7 @@ export default function FinestraPassword({ client, basePath, utente, onChiudi, o
       <Finestra
         titolo={`Password di ${utente.username}`}
         onChiudi={onChiudi}
+        bloccata={Boolean(esito.password_generata)}
         piede={<button type="button" onClick={onChiudi} className={BOTTONE.secondario}>Chiudi</button>}
       >
         {esito.password_generata ? (

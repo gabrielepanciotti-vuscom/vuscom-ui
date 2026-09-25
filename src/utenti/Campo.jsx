@@ -2,7 +2,11 @@ import { useId } from "react";
 import { AlertCircle, Info } from "lucide-react";
 import { ETICHETTA, INPUT } from "./stili.js";
 
-/** Labelled text input; `nota` is a hint under the field. */
+/**
+ * Labelled text input; `nota` is a hint under the field. `autoFocus` becomes a
+ * `data-autofocus` marker that Finestra honours: React's own autoFocus fires
+ * before the dialog can record who opened it.
+ */
 export function Campo({ etichetta, valore, onCambia, tipo = "text", nota, autoFocus, ...resto }) {
   const id = useId();
   return (
@@ -15,7 +19,7 @@ export function Campo({ etichetta, valore, onCambia, tipo = "text", nota, autoFo
         type={tipo}
         value={valore}
         onChange={(e) => onCambia(e.target.value)}
-        autoFocus={autoFocus}
+        data-autofocus={autoFocus ? "" : undefined}
         className={INPUT}
         {...resto}
       />

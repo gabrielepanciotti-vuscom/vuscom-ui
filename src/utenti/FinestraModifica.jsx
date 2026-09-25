@@ -4,7 +4,7 @@ import SelettoreRuolo from "./SelettoreRuolo.jsx";
 import { ElencoPortali } from "./BadgePortale.jsx";
 import { Campo, MessaggioErrore, Nota } from "./Campo.jsx";
 import { BOTTONE, ETICHETTA } from "./stili.js";
-import { RUOLI, ruoliAssegnabili } from "./ruoli.js";
+import { RUOLI, livello, ruoliAssegnabili } from "./ruoli.js";
 import { useAzione } from "./useAzione.js";
 
 const ANAGRAFICA = ["nome", "cognome", "email"];
@@ -31,8 +31,12 @@ export default function FinestraModifica({ client, basePath, attore, utente, Sez
   const imposta = (k) => (v) => setBozza((b) => ({ ...b, [k]: v }));
 
   // The current role stays visible even if the actor could not assign it.
+  // On their own account nobody lowers their role (spec rule 6): hide those.
+  const io = utente.id === attore?.id;
   const assegnabili = ruoliAssegnabili(attore?.ruolo);
-  const ruoli = RUOLI.filter((r) => assegnabili.includes(r) || r === utente.ruolo);
+  const ruoli = RUOLI.filter(
+    (r) => (assegnabili.includes(r) || r === utente.ruolo) && (!io || livello(r) >= livello(utente.ruolo)),
+  );
   const cambiati = campiCambiati(utente, bozza);
   const nessunCambio = Object.keys(cambiati).length === 0;
 
@@ -65,6 +69,7 @@ export default function FinestraModifica({ client, basePath, attore, utente, Sez
         </div>
         <Campo etichetta="Email" tipo="email" valore={bozza.email} onCambia={imposta("email")} />
         {bozza.ruolo && <SelettoreRuolo ruoli={ruoli} valore={bozza.ruolo} onCambia={imposta("ruolo")} />}
+        {io && <Nota>È il tuo account: non puoi abbassarti il ruolo.</Nota>}
         <Nota>Cambiare il ruolo chiude le sessioni della persona su tutti i portali.</Nota>
         <div>
           <span className={ETICHETTA}>Altri portali (sola lettura)</span>

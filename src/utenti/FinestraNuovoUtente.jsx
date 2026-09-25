@@ -85,7 +85,7 @@ export default function FinestraNuovoUtente({ client, basePath, nomePortale, att
 
   if (esito) {
     return (
-      <Finestra titolo="Nuovo utente" onChiudi={onChiudi} piede={chiudi}>
+      <Finestra titolo="Nuovo utente" onChiudi={onChiudi} piede={chiudi} bloccata={Boolean(esito.password_generata)}>
         {esito.accesso && <p className="text-[13px] text-slate-700 dark:text-slate-300">{`Accesso a ${nomePortale} concesso.`}</p>}
         {!esito.accesso && <p className="text-[13px] text-slate-700 dark:text-slate-300">Utente creato.</p>}
         {esito.password_generata && <PasswordMostrata password={esito.password_generata} />}

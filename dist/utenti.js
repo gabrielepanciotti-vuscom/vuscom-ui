@@ -1,5 +1,5 @@
 // src/utenti/GestioneUtenti.jsx
-import { useMemo, useState as useState10 } from "react";
+import { useMemo, useState as useState11 } from "react";
 import { AlertCircle as AlertCircle2, Search as Search2, UserPlus, Users } from "lucide-react";
 
 // src/utenti/TabellaUtenti.jsx
@@ -187,30 +187,35 @@ function Interruttore({ attivo, onCambia, etichetta }) {
 }
 
 // src/utenti/FinestraNuovoUtente.jsx
-import { useState as useState3 } from "react";
+import { useState as useState4 } from "react";
 import { UserCheck } from "lucide-react";
 
 // src/utenti/Finestra.jsx
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { jsx as jsx4, jsxs as jsxs4 } from "react/jsx-runtime";
 var FOCUSABILI = 'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-function Finestra({ titolo, onChiudi, children, piede, larghezza = "max-w-lg" }) {
+function Finestra({ titolo, onChiudi, children, piede, larghezza = "max-w-lg", bloccata = false }) {
   const pannello = useRef(null);
   const idTitolo = useId();
   const chiudiRef = useRef(onChiudi);
   chiudiRef.current = onChiudi;
+  const [apritore] = useState(() => typeof document !== "undefined" ? document.activeElement : null);
   useEffect(() => {
-    const prima = document.activeElement;
     const nodo = pannello.current;
-    const iniziale = nodo?.querySelector("[autofocus]") || nodo?.querySelector(FOCUSABILI);
-    (iniziale || nodo)?.focus();
-    return () => prima?.focus?.();
-  }, []);
+    if (nodo && !nodo.contains(document.activeElement)) {
+      const iniziale = nodo.querySelector("[data-autofocus]") || nodo.querySelector(FOCUSABILI);
+      (iniziale || nodo).focus();
+    }
+    return () => {
+      if (apritore && apritore !== document.body && document.contains(apritore)) apritore.focus();
+    };
+  }, [apritore]);
+  const chiudibile = !bloccata;
   function tasto(e) {
     if (e.key === "Escape") {
       e.stopPropagation();
-      chiudiRef.current?.();
+      if (chiudibile) chiudiRef.current?.();
       return;
     }
     if (e.key !== "Tab") return;
@@ -236,7 +241,7 @@ function Finestra({ titolo, onChiudi, children, piede, larghezza = "max-w-lg" })
           "div",
           {
             className: "absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] dark:bg-black/60",
-            onMouseDown: () => chiudiRef.current?.(),
+            onMouseDown: () => chiudibile && chiudiRef.current?.(),
             "aria-hidden": "true"
           }
         ),
@@ -252,7 +257,7 @@ function Finestra({ titolo, onChiudi, children, piede, larghezza = "max-w-lg" })
             children: [
               /* @__PURE__ */ jsxs4("div", { className: "flex items-center justify-between border-b border-slate-100 px-5 py-3.5 dark:border-white/[0.06]", children: [
                 /* @__PURE__ */ jsx4("h2", { id: idTitolo, className: "text-[15px] font-semibold text-slate-800 dark:text-slate-100", children: titolo }),
-                /* @__PURE__ */ jsx4(
+                chiudibile && /* @__PURE__ */ jsx4(
                   "button",
                   {
                     type: "button",
@@ -318,32 +323,65 @@ function SelettoreRuolo({ ruoli, valore, onCambia, etichetta = "Ruolo" }) {
 }
 
 // src/utenti/PasswordMostrata.jsx
-import { useState } from "react";
+import { useEffect as useEffect2, useRef as useRef3, useState as useState2 } from "react";
 import { Check, Copy, KeyRound as KeyRound2 } from "lucide-react";
 import { jsx as jsx6, jsxs as jsxs6 } from "react/jsx-runtime";
-function PasswordMostrata({ password }) {
-  const [copiata, setCopiata] = useState(false);
-  async function copia() {
+function copiaDaSelezione(nodo) {
+  try {
+    const selezione = window.getSelection();
+    const intervallo = document.createRange();
+    intervallo.selectNodeContents(nodo);
+    selezione.removeAllRanges();
+    selezione.addRange(intervallo);
+    return typeof document.execCommand === "function" && document.execCommand("copy") === true;
+  } catch {
+    return false;
+  }
+}
+async function copia(testo, nodo) {
+  if (navigator.clipboard?.writeText) {
     try {
-      await navigator.clipboard.writeText(password);
-      setCopiata(true);
-      setTimeout(() => setCopiata(false), 2e3);
+      await navigator.clipboard.writeText(testo);
+      return true;
     } catch {
-      setCopiata(false);
     }
   }
+  return copiaDaSelezione(nodo);
+}
+function PasswordMostrata({ password }) {
+  const [stato, setStato] = useState2(null);
+  const codice = useRef3(null);
+  const timer = useRef3(null);
+  useEffect2(() => () => clearTimeout(timer.current), []);
+  async function alClick() {
+    const ok = await copia(password, codice.current);
+    setStato(ok ? "copiata" : "impossibile");
+    if (ok) {
+      clearTimeout(timer.current);
+      timer.current = setTimeout(() => setStato(null), 2e3);
+    }
+  }
+  const copiata = stato === "copiata";
   return /* @__PURE__ */ jsxs6("div", { className: "space-y-2 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-500/30 dark:bg-amber-500/10", children: [
     /* @__PURE__ */ jsxs6("p", { className: "flex items-center gap-1.5 text-[12.5px] font-medium text-amber-800 dark:text-amber-300", children: [
       /* @__PURE__ */ jsx6(KeyRound2, { className: "h-4 w-4" }),
       "Password generata: viene mostrata una sola volta, consegnala tu alla persona."
     ] }),
     /* @__PURE__ */ jsxs6("div", { className: "flex items-center gap-2", children: [
-      /* @__PURE__ */ jsx6("code", { className: "flex-1 select-all rounded-md bg-white px-3 py-2 font-mono text-[13px] text-slate-800 ring-1 ring-amber-200 dark:bg-slate-900 dark:text-slate-100 dark:ring-amber-500/30", children: password }),
-      /* @__PURE__ */ jsxs6("button", { type: "button", onClick: copia, className: BOTTONE.secondario, children: [
+      /* @__PURE__ */ jsx6(
+        "code",
+        {
+          ref: codice,
+          className: "flex-1 select-all rounded-md bg-white px-3 py-2 font-mono text-[13px] text-slate-800 ring-1 ring-amber-200 dark:bg-slate-900 dark:text-slate-100 dark:ring-amber-500/30",
+          children: password
+        }
+      ),
+      /* @__PURE__ */ jsxs6("button", { type: "button", onClick: alClick, className: BOTTONE.secondario, children: [
         copiata ? /* @__PURE__ */ jsx6(Check, { className: "h-4 w-4 text-emerald-600" }) : /* @__PURE__ */ jsx6(Copy, { className: "h-4 w-4" }),
         copiata ? "Copiata" : "Copia"
       ] })
-    ] })
+    ] }),
+    stato === "impossibile" && /* @__PURE__ */ jsx6("p", { role: "status", className: "text-[12px] text-amber-800 dark:text-amber-300", children: "Copia non disponibile: seleziona e copia a mano" })
   ] });
 }
 
@@ -362,7 +400,7 @@ function Campo({ etichetta, valore, onCambia, tipo = "text", nota, autoFocus, ..
         type: tipo,
         value: valore,
         onChange: (e) => onCambia(e.target.value),
-        autoFocus,
+        "data-autofocus": autoFocus ? "" : void 0,
         className: INPUT,
         ...resto
       }
@@ -392,12 +430,12 @@ function Nota({ children }) {
 }
 
 // src/utenti/useAzione.js
-import { useCallback, useEffect as useEffect2, useRef as useRef3, useState as useState2 } from "react";
+import { useCallback, useEffect as useEffect3, useRef as useRef4, useState as useState3 } from "react";
 function useAzione() {
-  const [inCorso, setInCorso] = useState2(false);
-  const [errore, setErrore] = useState2(null);
-  const montato = useRef3(true);
-  useEffect2(() => {
+  const [inCorso, setInCorso] = useState3(false);
+  const [errore, setErrore] = useState3(null);
+  const montato = useRef4(true);
+  useEffect3(() => {
     montato.current = true;
     return () => {
       montato.current = false;
@@ -440,10 +478,10 @@ function PersonaEsistente({ utente, nomePortale, onDaiAccesso, inCorso, selettor
 }
 function FinestraNuovoUtente({ client, basePath, nomePortale, attore, onChiudi, onFatto }) {
   const ruoli = ruoliAssegnabili(attore?.ruolo);
-  const [campi, setCampi] = useState3({ username: "", email: "", nome: "", cognome: "", password: "" });
-  const [ruolo, setRuolo] = useState3("viewer");
-  const [esistente, setEsistente] = useState3(null);
-  const [esito, setEsito] = useState3(null);
+  const [campi, setCampi] = useState4({ username: "", email: "", nome: "", cognome: "", password: "" });
+  const [ruolo, setRuolo] = useState4("viewer");
+  const [esistente, setEsistente] = useState4(null);
+  const [esito, setEsito] = useState4(null);
   const { inCorso, errore, esegui } = useAzione();
   const imposta = (k) => (v) => setCampi((c) => ({ ...c, [k]: v }));
   async function crea(e) {
@@ -479,7 +517,7 @@ function FinestraNuovoUtente({ client, basePath, nomePortale, attore, onChiudi, 
   }
   const chiudi = /* @__PURE__ */ jsx8("button", { type: "button", onClick: onChiudi, className: BOTTONE.secondario, children: "Chiudi" });
   if (esito) {
-    return /* @__PURE__ */ jsxs8(Finestra, { titolo: "Nuovo utente", onChiudi, piede: chiudi, children: [
+    return /* @__PURE__ */ jsxs8(Finestra, { titolo: "Nuovo utente", onChiudi, piede: chiudi, bloccata: Boolean(esito.password_generata), children: [
       esito.accesso && /* @__PURE__ */ jsx8("p", { className: "text-[13px] text-slate-700 dark:text-slate-300", children: `Accesso a ${nomePortale} concesso.` }),
       !esito.accesso && /* @__PURE__ */ jsx8("p", { className: "text-[13px] text-slate-700 dark:text-slate-300", children: "Utente creato." }),
       esito.password_generata && /* @__PURE__ */ jsx8(PasswordMostrata, { password: esito.password_generata }),
@@ -536,18 +574,18 @@ function FinestraNuovoUtente({ client, basePath, nomePortale, attore, onChiudi, 
 }
 
 // src/utenti/FinestraAggiungiEsistente.jsx
-import { useState as useState5 } from "react";
+import { useState as useState6 } from "react";
 import { Check as Check2, Loader2, Search } from "lucide-react";
 
 // src/utenti/useRicerca.js
-import { useEffect as useEffect3, useState as useState4 } from "react";
+import { useEffect as useEffect4, useState as useState5 } from "react";
 var RITARDO_RICERCA_MS = 300;
 var MINIMO_CARATTERI = 2;
 function useRicerca({ client, basePath, testo }) {
-  const [risultati, setRisultati] = useState4(null);
-  const [cercando, setCercando] = useState4(false);
-  const [errore, setErrore] = useState4(null);
-  useEffect3(() => {
+  const [risultati, setRisultati] = useState5(null);
+  const [cercando, setCercando] = useState5(false);
+  const [errore, setErrore] = useState5(null);
+  useEffect4(() => {
     const q = testo.trim();
     if (q.length < MINIMO_CARATTERI) {
       setRisultati(null);
@@ -603,9 +641,9 @@ function Risultato({ utente, scelto, onScegli }) {
 }
 function FinestraAggiungiEsistente({ client, basePath, nomePortale, attore, onChiudi, onFatto }) {
   const ruoli = ruoliAssegnabili(attore?.ruolo);
-  const [testo, setTesto] = useState5("");
-  const [scelto, setScelto] = useState5(null);
-  const [ruolo, setRuolo] = useState5("viewer");
+  const [testo, setTesto] = useState6("");
+  const [scelto, setScelto] = useState6(null);
+  const [ruolo, setRuolo] = useState6("viewer");
   const ricerca = useRicerca({ client, basePath, testo });
   const { inCorso, errore, esegui } = useAzione();
   async function conferma() {
@@ -629,7 +667,10 @@ function FinestraAggiungiEsistente({ client, basePath, nomePortale, attore, onCh
           {
             etichetta: "Cerca persona",
             valore: testo,
-            onCambia: setTesto,
+            onCambia: (v) => {
+              setTesto(v);
+              setScelto(null);
+            },
             placeholder: "Nome, cognome, username o email",
             autoFocus: true,
             autoComplete: "off",
@@ -657,7 +698,7 @@ function FinestraAggiungiEsistente({ client, basePath, nomePortale, attore, onCh
 }
 
 // src/utenti/FinestraModifica.jsx
-import { useState as useState6 } from "react";
+import { useState as useState7 } from "react";
 import { Fragment as Fragment3, jsx as jsx10, jsxs as jsxs10 } from "react/jsx-runtime";
 var ANAGRAFICA = ["nome", "cognome", "email"];
 function campiCambiati(utente, bozza) {
@@ -669,7 +710,7 @@ function campiCambiati(utente, bozza) {
   return cambiati;
 }
 function FinestraModifica({ client, basePath, attore, utente, SezioneExtra, onChiudi, onFatto }) {
-  const [bozza, setBozza] = useState6({
+  const [bozza, setBozza] = useState7({
     nome: utente.nome || "",
     cognome: utente.cognome || "",
     email: utente.email || "",
@@ -677,8 +718,11 @@ function FinestraModifica({ client, basePath, attore, utente, SezioneExtra, onCh
   });
   const { inCorso, errore, esegui } = useAzione();
   const imposta = (k) => (v) => setBozza((b) => ({ ...b, [k]: v }));
+  const io = utente.id === attore?.id;
   const assegnabili = ruoliAssegnabili(attore?.ruolo);
-  const ruoli = RUOLI.filter((r) => assegnabili.includes(r) || r === utente.ruolo);
+  const ruoli = RUOLI.filter(
+    (r) => (assegnabili.includes(r) || r === utente.ruolo) && (!io || livello(r) >= livello(utente.ruolo))
+  );
   const cambiati = campiCambiati(utente, bozza);
   const nessunCambio = Object.keys(cambiati).length === 0;
   async function salva(e) {
@@ -706,6 +750,7 @@ function FinestraModifica({ client, basePath, attore, utente, SezioneExtra, onCh
           ] }),
           /* @__PURE__ */ jsx10(Campo, { etichetta: "Email", tipo: "email", valore: bozza.email, onCambia: imposta("email") }),
           bozza.ruolo && /* @__PURE__ */ jsx10(SelettoreRuolo, { ruoli, valore: bozza.ruolo, onCambia: imposta("ruolo") }),
+          io && /* @__PURE__ */ jsx10(Nota, { children: "\xC8 il tuo account: non puoi abbassarti il ruolo." }),
           /* @__PURE__ */ jsx10(Nota, { children: "Cambiare il ruolo chiude le sessioni della persona su tutti i portali." }),
           /* @__PURE__ */ jsxs10("div", { children: [
             /* @__PURE__ */ jsx10("span", { className: ETICHETTA, children: "Altri portali (sola lettura)" }),
@@ -720,12 +765,12 @@ function FinestraModifica({ client, basePath, attore, utente, SezioneExtra, onCh
 }
 
 // src/utenti/FinestraPassword.jsx
-import { useState as useState7 } from "react";
+import { useState as useState8 } from "react";
 import { MailCheck } from "lucide-react";
 import { Fragment as Fragment4, jsx as jsx11, jsxs as jsxs11 } from "react/jsx-runtime";
 function FinestraPassword({ client, basePath, utente, onChiudi, onFatto }) {
-  const [password, setPassword] = useState7("");
-  const [esito, setEsito] = useState7(null);
+  const [password, setPassword] = useState8("");
+  const [esito, setEsito] = useState8(null);
   const { inCorso, errore, esegui } = useAzione();
   async function conferma(e) {
     e.preventDefault();
@@ -740,6 +785,7 @@ function FinestraPassword({ client, basePath, utente, onChiudi, onFatto }) {
       {
         titolo: `Password di ${utente.username}`,
         onChiudi,
+        bloccata: Boolean(esito.password_generata),
         piede: /* @__PURE__ */ jsx11("button", { type: "button", onClick: onChiudi, className: BOTTONE.secondario, children: "Chiudi" }),
         children: esito.password_generata ? /* @__PURE__ */ jsx11(PasswordMostrata, { password: esito.password_generata }) : /* @__PURE__ */ jsxs11("p", { className: "flex items-center gap-2 text-[13px] text-slate-700 dark:text-slate-300", children: [
           /* @__PURE__ */ jsx11(MailCheck, { className: "h-4 w-4 text-emerald-600 dark:text-emerald-400" }),
@@ -778,7 +824,7 @@ function FinestraPassword({ client, basePath, utente, onChiudi, onFatto }) {
 }
 
 // src/utenti/FinestraElimina.jsx
-import { useEffect as useEffect4, useState as useState8 } from "react";
+import { useEffect as useEffect5, useState as useState9 } from "react";
 import { Loader2 as Loader22 } from "lucide-react";
 import { Fragment as Fragment5, jsx as jsx12, jsxs as jsxs12 } from "react/jsx-runtime";
 function descriviRiferimenti(riferimenti) {
@@ -791,11 +837,11 @@ function Anteprima({ anteprima }) {
   return /* @__PURE__ */ jsx12("p", { className: "text-[13px] leading-relaxed text-slate-700 dark:text-slate-300", children: `L'account ha dati collegati (${descriviRiferimenti(anteprima.riferimenti)}): i dati personali verranno cancellati e l'account disattivato. I dati collegati restano.` });
 }
 function FinestraElimina({ client, basePath, utente, onChiudi, onFatto }) {
-  const [anteprima, setAnteprima] = useState8(null);
-  const [erroreAnteprima, setErroreAnteprima] = useState8(null);
-  const [digitato, setDigitato] = useState8("");
+  const [anteprima, setAnteprima] = useState9(null);
+  const [erroreAnteprima, setErroreAnteprima] = useState9(null);
+  const [digitato, setDigitato] = useState9("");
   const { inCorso, errore, esegui } = useAzione();
-  useEffect4(() => {
+  useEffect5(() => {
     let annullata = false;
     client.get(`${basePath}/${utente.id}/eliminazione`).then((d) => !annullata && setAnteprima(d)).catch((err) => !annullata && setErroreAnteprima(messaggioErrore(err)));
     return () => {
@@ -889,12 +935,12 @@ function FinestraConferma({
 }
 
 // src/utenti/useUtenti.js
-import { useCallback as useCallback2, useEffect as useEffect5, useRef as useRef4, useState as useState9 } from "react";
+import { useCallback as useCallback2, useEffect as useEffect6, useRef as useRef5, useState as useState10 } from "react";
 function useUtenti({ client, basePath = "/api/utenti", includiDisattivati = false }) {
-  const [utenti, setUtenti] = useState9([]);
-  const [caricando, setCaricando] = useState9(true);
-  const [errore, setErrore] = useState9(null);
-  const ultima = useRef4(0);
+  const [utenti, setUtenti] = useState10([]);
+  const [caricando, setCaricando] = useState10(true);
+  const [errore, setErrore] = useState10(null);
+  const ultima = useRef5(0);
   const ricarica = useCallback2(async () => {
     const numero = ++ultima.current;
     setCaricando(true);
@@ -910,7 +956,7 @@ function useUtenti({ client, basePath = "/api/utenti", includiDisattivati = fals
       if (numero === ultima.current) setCaricando(false);
     }
   }, [client, basePath, includiDisattivati]);
-  useEffect5(() => {
+  useEffect6(() => {
     ricarica();
   }, [ricarica]);
   return { utenti, caricando, errore, ricarica };
@@ -958,9 +1004,9 @@ function GestioneUtenti({
   basePath = "/api/utenti",
   SezioneExtra
 }) {
-  const [mostraDisattivati, setMostraDisattivati] = useState10(false);
-  const [filtro, setFiltro] = useState10("");
-  const [finestra, setFinestra] = useState10(null);
+  const [mostraDisattivati, setMostraDisattivati] = useState11(false);
+  const [filtro, setFiltro] = useState11("");
+  const [finestra, setFinestra] = useState11(null);
   const { utenti, caricando, errore, ricarica } = useUtenti({ client, basePath, includiDisattivati: mostraDisattivati });
   const visibili = useMemo(() => {
     const f = filtro.trim().toLowerCase();

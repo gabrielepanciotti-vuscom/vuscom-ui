@@ -73,6 +73,8 @@ describe("GestioneUtenti", () => {
     expect(await screen.findByText("Mario Rossi esiste già")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Dai accesso a Cruscotto" }));
     expect(client.post).toHaveBeenLastCalledWith("/api/utenti/5/accesso", { ruolo: "viewer" });
+    expect(await screen.findByText("Accesso a Cruscotto concesso.")).toBeInTheDocument();
+    await waitFor(() => expect(client.get).toHaveBeenCalledTimes(2));
   });
 
   it("shows the generated password once", async () => {
@@ -87,6 +89,7 @@ describe("GestioneUtenti", () => {
     await user.click(screen.getByRole("button", { name: "Crea utente" }));
     expect(await screen.findByText("abc123XYZ-secret")).toBeInTheDocument();
     expect(screen.getByText(/mostrata una sola volta/)).toBeInTheDocument();
+    await waitFor(() => expect(client.get).toHaveBeenCalledTimes(2));
   });
 
   it("searches existing users with a 300 ms debounce", async () => {
@@ -131,6 +134,7 @@ describe("GestioneUtenti", () => {
     await user.type(screen.getByLabelText(/Digita lo username/), "mario.bianchi");
     await user.click(conferma);
     expect(client.del).toHaveBeenCalledWith("/api/utenti/7");
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   });
 
   it("hides admin-only actions from a manager and self-actions from the actor", async () => {
@@ -157,6 +161,7 @@ describe("GestioneUtenti", () => {
     await user.click(screen.getByRole("radio", { name: "admin" }));
     await user.click(screen.getByRole("button", { name: "Salva" }));
     expect(client.put).toHaveBeenCalledWith("/api/utenti/7", { nome: "Marco", ruolo: "admin" });
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   });
 
   it("shows the backend error string inside the dialog", async () => {
@@ -185,4 +190,81 @@ describe("GestioneUtenti", () => {
     await user.click(screen.getByRole("button", { name: "Nuovo utente" }));
     expect(document.body.querySelector(nativi)).toBeNull();
   });
+
+  it("focuses the first field on open and restores focus to the opener on close", async () => {
+    const user = userEvent.setup();
+    renderPage(makeClient());
+    await screen.findByText("mario.bianchi");
+    const apri = screen.getByRole("button", { name: "Nuovo utente" });
+    await user.click(apri);
+    expect(screen.getByLabelText("Username")).toHaveFocus();
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(apri).toHaveFocus();
+  });
+
+  it.each([
+    ["already has access here", { ruolo: "viewer", is_active: true }, /ha già accesso a questo portale/i],
+    ["is disabled", { ruolo: null, is_active: false }, /account è disattivato/i],
+  ])("offers no access when the existing person %s", async (_nome, stato, testo) => {
+    const user = userEvent.setup();
+    const esistente = { id: 5, username: "mrossi", nome: "Mario", cognome: "Rossi", altri_portali: [], ...stato };
+    const client = makeClient({
+      post: vi.fn().mockRejectedValue(httpError(409, { detail: { codice: "esiste", utente: esistente } })),
+    });
+    renderPage(client);
+    await screen.findByText("mario.bianchi");
+    await user.click(screen.getByRole("button", { name: "Nuovo utente" }));
+    await user.type(screen.getByLabelText("Username"), "mrossi");
+    await user.click(screen.getByRole("button", { name: "Crea utente" }));
+    expect(await screen.findByText(testo)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Dai accesso/ })).toBeNull();
+  });
+
+  it("keeps the generated password dialog open on Esc, closes only with Chiudi", async () => {
+    const user = userEvent.setup();
+    const client = makeClient({
+      post: vi.fn().mockResolvedValue({ utente: MARIO, email_inviata: false, password_generata: "abc123XYZ-secret" }),
+    });
+    renderPage(client);
+    await screen.findByText("mario.bianchi");
+    await user.click(screen.getByRole("button", { name: "Nuovo utente" }));
+    await user.type(screen.getByLabelText("Username"), "nuovo");
+    await user.click(screen.getByRole("button", { name: "Crea utente" }));
+    await screen.findByText("abc123XYZ-secret");
+    await user.keyboard("{Escape}");
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Chiudi finestra" })).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Chiudi" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  });
+
+  it("clears the chosen person when the search text changes", async () => {
+    const user = userEvent.setup();
+    const client = makeClient();
+    client.get.mockImplementation((path) => Promise.resolve(path.includes("/cerca") ? [MARIO] : [MARIO, IO]));
+    renderPage(client);
+    await screen.findByText("mario.bianchi");
+    await user.click(screen.getByRole("button", { name: "Aggiungi utente esistente" }));
+    await user.type(screen.getByLabelText("Cerca persona"), "ma");
+    const dialogo = screen.getByRole("dialog");
+    await user.click(await within(dialogo).findByRole("button", { pressed: false }));
+    const conferma = within(dialogo).getByRole("button", { name: "Dai accesso" });
+    expect(conferma).toBeEnabled();
+    await user.type(screen.getByLabelText("Cerca persona"), "r");
+    expect(conferma).toBeDisabled();
+    await within(dialogo).findByRole("button", { pressed: false });
+  });
+
+  it("does not offer a lower role on the actor's own row", async () => {
+    const user = userEvent.setup();
+    renderPage(makeClient());
+    const mia = (await screen.findByText("io")).closest("tr");
+    await user.click(within(mia).getByTitle("Modifica"));
+    expect(screen.queryByRole("radio", { name: "viewer" })).toBeNull();
+    expect(screen.queryByRole("radio", { name: "manager" })).toBeNull();
+    expect(screen.getByRole("radio", { name: "admin" })).toBeInTheDocument();
+    expect(screen.getByText(/tuo account/)).toBeInTheDocument();
+  });
 });
+

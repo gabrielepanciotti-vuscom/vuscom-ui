@@ -68,7 +68,11 @@ export default function FinestraAggiungiEsistente({ client, basePath, nomePortal
       <Campo
         etichetta="Cerca persona"
         valore={testo}
-        onCambia={setTesto}
+        onCambia={(v) => {
+          // A new search invalidates the previous choice.
+          setTesto(v);
+          setScelto(null);
+        }}
         placeholder="Nome, cognome, username o email"
         autoFocus
         autoComplete="off"
