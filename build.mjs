@@ -4,14 +4,28 @@ import { build } from "esbuild";
 // already ships React, the router and the icons, and duplicating React here
 // would give the package its own hook dispatcher (the classic "invalid hook
 // call" crash).
-await build({
-  entryPoints: ["src/index.js"],
-  outfile: "dist/index.js",
+const common = {
   bundle: true,
   format: "esm",
   platform: "browser",
   target: "es2020",
   jsx: "automatic",
   loader: { ".js": "jsx", ".jsx": "jsx" },
+};
+
+await build({
+  ...common,
+  entryPoints: ["src/index.js"],
+  outfile: "dist/index.js",
   external: ["react", "react-dom", "react/jsx-runtime", "react-router-dom", "lucide-react"],
+});
+
+// Second entry "@vuscom/ui/utenti": no react-router-dom here, Outbound has no
+// router. Keep it a separate file so importing the users page never pulls the
+// sidebar (and its router import) in.
+await build({
+  ...common,
+  entryPoints: ["src/utenti/index.js"],
+  outfile: "dist/utenti.js",
+  external: ["react", "react-dom", "react/jsx-runtime", "lucide-react"],
 });

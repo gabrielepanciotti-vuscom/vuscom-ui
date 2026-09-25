@@ -1,0 +1,188 @@
+import { render, screen, waitFor, fireEvent, act, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { GestioneUtenti } from "../../src/utenti/index.js";
+
+const MARIO = {
+  id: 7,
+  username: "mario.bianchi",
+  email: "mario@example.com",
+  nome: "Mario",
+  cognome: "Bianchi",
+  is_active: true,
+  last_login: "2026-09-20T08:05:00",
+  ruolo: "manager",
+  altri_portali: [{ portale: "offerte", ruolo: "admin" }],
+};
+const IO = { ...MARIO, id: 21, username: "io", nome: "Io", cognome: "Admin", ruolo: "admin", altri_portali: [], last_login: null };
+
+function httpError(status, body) {
+  return Object.assign(new Error(`HTTP ${status}`), { status, body });
+}
+
+function makeClient(overrides = {}) {
+  return {
+    get: vi.fn().mockResolvedValue([MARIO, IO]),
+    post: vi.fn().mockResolvedValue({}),
+    put: vi.fn().mockResolvedValue({}),
+    del: vi.fn().mockResolvedValue(null),
+    ...overrides,
+  };
+}
+
+function renderPage(client, attore = { id: 21, ruolo: "admin" }) {
+  return render(
+    <GestioneUtenti portale="cruscotto" nomePortale="Cruscotto" client={client} attore={attore} />,
+  );
+}
+
+afterEach(() => vi.useRealTimers());
+
+describe("GestioneUtenti", () => {
+  it("renders the list with other-portal badges", async () => {
+    const client = makeClient();
+    renderPage(client);
+    expect(await screen.findByText("mario.bianchi")).toBeInTheDocument();
+    expect(screen.getByText("Utenti — Cruscotto")).toBeInTheDocument();
+    expect(screen.getAllByText(/Hub Offerte/).length).toBeGreaterThan(0);
+    expect(screen.getByText("20/09/2026 08:05")).toBeInTheDocument();
+    expect(screen.getByText("mai")).toBeInTheDocument();
+    expect(client.get).toHaveBeenCalledWith("/api/utenti?includi_disattivati=false");
+  });
+
+  it("offers access when the new user already exists", async () => {
+    const user = userEvent.setup();
+    const esistente = {
+      id: 5, username: "mrossi", nome: "Mario", cognome: "Rossi", ruolo: null, is_active: true,
+      altri_portali: [{ portale: "offerte", ruolo: "manager" }],
+    };
+    const client = makeClient({
+      post: vi
+        .fn()
+        .mockRejectedValueOnce(httpError(409, { detail: { codice: "esiste", messaggio: "x", utente: esistente } }))
+        .mockResolvedValueOnce({ ...esistente, ruolo: "viewer" }),
+    });
+    renderPage(client);
+    await screen.findByText("mario.bianchi");
+    await user.click(screen.getByRole("button", { name: "Nuovo utente" }));
+    await user.type(screen.getByLabelText("Username"), "mrossi");
+    await user.click(screen.getByRole("button", { name: "Crea utente" }));
+    expect(client.post).toHaveBeenCalledWith("/api/utenti", {
+      username: "mrossi", email: null, nome: null, cognome: null, ruolo: "viewer", password: null,
+    });
+    expect(await screen.findByText("Mario Rossi esiste già")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Dai accesso a Cruscotto" }));
+    expect(client.post).toHaveBeenLastCalledWith("/api/utenti/5/accesso", { ruolo: "viewer" });
+  });
+
+  it("shows the generated password once", async () => {
+    const user = userEvent.setup();
+    const client = makeClient({
+      post: vi.fn().mockResolvedValue({ utente: MARIO, email_inviata: false, password_generata: "abc123XYZ-secret" }),
+    });
+    renderPage(client);
+    await screen.findByText("mario.bianchi");
+    await user.click(screen.getByRole("button", { name: "Nuovo utente" }));
+    await user.type(screen.getByLabelText("Username"), "nuovo");
+    await user.click(screen.getByRole("button", { name: "Crea utente" }));
+    expect(await screen.findByText("abc123XYZ-secret")).toBeInTheDocument();
+    expect(screen.getByText(/mostrata una sola volta/)).toBeInTheDocument();
+  });
+
+  it("searches existing users with a 300 ms debounce", async () => {
+    vi.useFakeTimers();
+    const client = makeClient();
+    client.get.mockImplementation((path) =>
+      Promise.resolve(path.includes("/cerca") ? [] : [MARIO, IO]),
+    );
+    renderPage(client);
+    await act(async () => { await vi.runAllTimersAsync(); });
+    fireEvent.click(screen.getByRole("button", { name: "Aggiungi utente esistente" }));
+    fireEvent.change(screen.getByLabelText("Cerca persona"), { target: { value: "m" } });
+    await act(async () => { await vi.advanceTimersByTimeAsync(400); });
+    expect(client.get).not.toHaveBeenCalledWith(expect.stringContaining("/cerca"));
+    fireEvent.change(screen.getByLabelText("Cerca persona"), { target: { value: "ma" } });
+    await act(async () => { await vi.advanceTimersByTimeAsync(299); });
+    expect(client.get).not.toHaveBeenCalledWith("/api/utenti/cerca?q=ma");
+    await act(async () => { await vi.advanceTimersByTimeAsync(1); });
+    expect(client.get).toHaveBeenCalledWith("/api/utenti/cerca?q=ma");
+    await act(async () => { await vi.runAllTimersAsync(); });
+    expect(screen.getByText("Nessun risultato")).toBeInTheDocument();
+  });
+
+  it("previews anonymisation before deleting", async () => {
+    const user = userEvent.setup();
+    const client = makeClient();
+    client.get.mockImplementation((path) =>
+      Promise.resolve(
+        path.endsWith("/eliminazione")
+          ? { esito: "anonimizzato", riferimenti: { "estrazione.user_id": 12 } }
+          : [MARIO, IO],
+      ),
+    );
+    renderPage(client);
+    const riga = (await screen.findByText("mario.bianchi")).closest("tr");
+    await user.click(within(riga).getByTitle("Elimina"));
+    expect(client.get).toHaveBeenCalledWith("/api/utenti/7/eliminazione");
+    expect(await screen.findByText(/dati collegati/)).toBeInTheDocument();
+    expect(screen.getByText(/estrazione: 12/)).toBeInTheDocument();
+    const conferma = screen.getByRole("button", { name: "Elimina account" });
+    expect(conferma).toBeDisabled();
+    await user.type(screen.getByLabelText(/Digita lo username/), "mario.bianchi");
+    await user.click(conferma);
+    expect(client.del).toHaveBeenCalledWith("/api/utenti/7");
+  });
+
+  it("hides admin-only actions from a manager and self-actions from the actor", async () => {
+    const client = makeClient();
+    renderPage(client, { id: 21, ruolo: "manager" });
+    await screen.findByText("mario.bianchi");
+    expect(screen.queryByTitle("Elimina")).toBeNull();
+    expect(screen.queryByTitle("Disattiva")).toBeNull();
+    const mia = screen.getByText("io").closest("tr");
+    expect(within(mia).queryByTitle("Togli accesso")).toBeNull();
+    const sua = screen.getByText("mario.bianchi").closest("tr");
+    expect(within(sua).getByTitle("Togli accesso")).toBeInTheDocument();
+  });
+
+  it("sends only the changed fields on edit", async () => {
+    const user = userEvent.setup();
+    const client = makeClient({ put: vi.fn().mockResolvedValue(MARIO) });
+    renderPage(client);
+    const riga = (await screen.findByText("mario.bianchi")).closest("tr");
+    await user.click(within(riga).getByTitle("Modifica"));
+    const nome = screen.getByLabelText("Nome");
+    await user.clear(nome);
+    await user.type(nome, "Marco");
+    await user.click(screen.getByRole("radio", { name: "admin" }));
+    await user.click(screen.getByRole("button", { name: "Salva" }));
+    expect(client.put).toHaveBeenCalledWith("/api/utenti/7", { nome: "Marco", ruolo: "admin" });
+  });
+
+  it("shows the backend error string inside the dialog", async () => {
+    const user = userEvent.setup();
+    const client = makeClient({
+      post: vi.fn().mockRejectedValue(httpError(409, { detail: "Non si toglie l'accesso all'ultimo admin" })),
+      del: vi.fn().mockRejectedValue(httpError(409, { detail: "Non si toglie l'accesso all'ultimo admin" })),
+    });
+    renderPage(client);
+    const riga = (await screen.findByText("mario.bianchi")).closest("tr");
+    await user.click(within(riga).getByTitle("Togli accesso"));
+    const dialogo = screen.getByRole("dialog");
+    expect(within(dialogo).getByText(/disconnessa da tutti i portali/)).toBeInTheDocument();
+    await user.click(within(dialogo).getByRole("button", { name: "Togli accesso" }));
+    expect(client.del).toHaveBeenCalledWith("/api/utenti/7/accesso");
+    expect(await within(dialogo).findByText("Non si toglie l'accesso all'ultimo admin")).toBeInTheDocument();
+  });
+
+  it("never renders native select, checkbox or radio", async () => {
+    const user = userEvent.setup();
+    const client = makeClient();
+    const { container } = renderPage(client);
+    await screen.findByText("mario.bianchi");
+    const nativi = "select, input[type=checkbox], input[type=radio]";
+    expect(container.querySelector(nativi)).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Nuovo utente" }));
+    expect(document.body.querySelector(nativi)).toBeNull();
+  });
+});
