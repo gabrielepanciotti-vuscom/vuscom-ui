@@ -1,16 +1,24 @@
 /** Custom switch (never a native checkbox). */
-export default function Interruttore({ attivo, onCambia, etichetta }) {
+export default function Interruttore({
+  attivo,
+  onCambia,
+  etichetta,
+  disabilitato = false,
+}) {
   return (
     <button
       type="button"
       role="switch"
       aria-checked={attivo}
+      disabled={disabilitato}
       onClick={() => onCambia(!attivo)}
-      className="group inline-flex items-center gap-2 text-[13px] text-slate-600 focus:outline-none dark:text-slate-300"
+      className="group inline-flex items-center gap-2 text-[13px] text-slate-600 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-300"
     >
       <span
         className={`relative inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full transition-colors duration-200 group-focus-visible:ring-2 group-focus-visible:ring-blue-500/60 ${
-          attivo ? "bg-blue-600 dark:bg-blue-500" : "bg-slate-300 dark:bg-white/15"
+          attivo
+            ? "bg-blue-600 dark:bg-blue-500"
+            : "bg-slate-300 dark:bg-white/15"
         }`}
       >
         <span

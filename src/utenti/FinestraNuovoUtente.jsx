@@ -3,20 +3,36 @@ import { UserCheck } from "lucide-react";
 import Finestra from "./Finestra.jsx";
 import SelettoreRuolo from "./SelettoreRuolo.jsx";
 import PasswordMostrata from "./PasswordMostrata.jsx";
+import InterruttoreAvvisa from "./InterruttoreAvvisa.jsx";
 import { ElencoPortali } from "./BadgePortale.jsx";
 import { Campo, MessaggioErrore, Nota } from "./Campo.jsx";
 import { BOTTONE } from "./stili.js";
 import { ruoliAssegnabili } from "./ruoli.js";
-import { nomeCompleto, testoONull } from "./formato.js";
+import {
+  nomeCompleto,
+  testoONull,
+  testoEsitoAccesso,
+  vuoto,
+} from "./formato.js";
 import { useAzione } from "./useAzione.js";
 
-const NOTA_SESSIONI = "Dare l'accesso chiude le sessioni della persona su tutti i portali: dovrà rifare il login.";
+const NOTA_SESSIONI =
+  "Dare l'accesso chiude le sessioni della persona su tutti i portali: dovrà rifare il login.";
 
 /** Existing person found by the 409 "esiste": offer access instead of an error. */
-function PersonaEsistente({ utente, nomePortale, onDaiAccesso, inCorso, selettore }) {
+function PersonaEsistente({
+  utente,
+  nomePortale,
+  onDaiAccesso,
+  inCorso,
+  selettore,
+  avvisa,
+  onCambiaAvvisa,
+}) {
   let stato = null;
   if (utente.ruolo) stato = "Ha già accesso a questo portale.";
-  else if (!utente.is_active) stato = "L'account è disattivato: riattivalo prima di dargli accesso.";
+  else if (!utente.is_active)
+    stato = "L'account è disattivato: riattivalo prima di dargli accesso.";
   return (
     <div className="space-y-3 rounded-lg border border-blue-200 bg-blue-50/60 p-4 dark:border-blue-500/30 dark:bg-blue-500/10">
       <p className="flex items-center gap-2 text-[14px] font-semibold text-slate-800 dark:text-slate-100">
@@ -25,12 +41,24 @@ function PersonaEsistente({ utente, nomePortale, onDaiAccesso, inCorso, selettor
       </p>
       <ElencoPortali portali={utente.altri_portali} />
       {stato ? (
-        <p className="text-[13px] text-slate-600 dark:text-slate-300">{stato}</p>
+        <p className="text-[13px] text-slate-600 dark:text-slate-300">
+          {stato}
+        </p>
       ) : (
         <>
           {selettore}
+          <InterruttoreAvvisa
+            attivo={avvisa}
+            onCambia={onCambiaAvvisa}
+            haEmail={Boolean(utente.email)}
+          />
           <Nota>{NOTA_SESSIONI}</Nota>
-          <button type="button" onClick={onDaiAccesso} disabled={inCorso} className={BOTTONE.primario}>
+          <button
+            type="button"
+            onClick={onDaiAccesso}
+            disabled={inCorso}
+            className={BOTTONE.primario}
+          >
             {`Dai accesso a ${nomePortale}`}
           </button>
         </>
@@ -39,22 +67,37 @@ function PersonaEsistente({ utente, nomePortale, onDaiAccesso, inCorso, selettor
   );
 }
 
-export default function FinestraNuovoUtente({ client, basePath, nomePortale, attore, onChiudi, onFatto }) {
+export default function FinestraNuovoUtente({
+  client,
+  basePath,
+  nomePortale,
+  attore,
+  onChiudi,
+  onFatto,
+}) {
   const ruoli = ruoliAssegnabili(attore?.ruolo);
-  const [campi, setCampi] = useState({ username: "", email: "", nome: "", cognome: "", password: "" });
+  const [campi, setCampi] = useState({
+    username: "",
+    email: "",
+    nome: "",
+    cognome: "",
+    password: "",
+  });
   const [ruolo, setRuolo] = useState("viewer");
   const [esistente, setEsistente] = useState(null);
-  const [esito, setEsito] = useState(null); // { password_generata, email_inviata } | { accesso: true }
+  const [avvisa, setAvvisa] = useState(true);
+  const [esito, setEsito] = useState(null); // { password_generata, email_inviata } | { accesso: true, testo }
   const { inCorso, errore, esegui } = useAzione();
   const imposta = (k) => (v) => setCampi((c) => ({ ...c, [k]: v }));
+  const nomeIncompleto = vuoto(campi.nome) || vuoto(campi.cognome);
 
   async function crea(e) {
     e.preventDefault();
     const corpo = {
       username: campi.username.trim(),
       email: testoONull(campi.email),
-      nome: testoONull(campi.nome),
-      cognome: testoONull(campi.cognome),
+      nome: campi.nome.trim(),
+      cognome: campi.cognome.trim(),
       ruolo,
       password: campi.password ? campi.password : null,
     };
@@ -71,26 +114,55 @@ export default function FinestraNuovoUtente({ client, basePath, nomePortale, att
     );
     if (!r.ok) return;
     onFatto?.();
-    setEsito({ password_generata: r.valore?.password_generata, email_inviata: r.valore?.email_inviata });
+    setEsito({
+      password_generata: r.valore?.password_generata,
+      email_inviata: r.valore?.email_inviata,
+    });
   }
 
   async function daiAccesso() {
-    const r = await esegui(() => client.post(`${basePath}/${esistente.id}/accesso`, { ruolo }));
+    const r = await esegui(() =>
+      client.post(`${basePath}/${esistente.id}/accesso`, {
+        ruolo,
+        avvisa: Boolean(esistente.email) && avvisa,
+      }),
+    );
     if (!r.ok) return;
     onFatto?.();
-    setEsito({ accesso: true });
+    setEsito({ accesso: true, testo: testoEsitoAccesso(r.valore) });
   }
 
-  const chiudi = <button type="button" onClick={onChiudi} className={BOTTONE.secondario}>Chiudi</button>;
+  const chiudi = (
+    <button type="button" onClick={onChiudi} className={BOTTONE.secondario}>
+      Chiudi
+    </button>
+  );
 
   if (esito) {
     return (
-      <Finestra titolo="Nuovo utente" onChiudi={onChiudi} piede={chiudi} bloccata={Boolean(esito.password_generata)}>
-        {esito.accesso && <p className="text-[13px] text-slate-700 dark:text-slate-300">{`Accesso a ${nomePortale} concesso.`}</p>}
-        {!esito.accesso && <p className="text-[13px] text-slate-700 dark:text-slate-300">Utente creato.</p>}
-        {esito.password_generata && <PasswordMostrata password={esito.password_generata} />}
+      <Finestra
+        titolo="Nuovo utente"
+        onChiudi={onChiudi}
+        piede={chiudi}
+        bloccata={Boolean(esito.password_generata)}
+      >
+        {esito.accesso && (
+          <p className="text-[13px] text-slate-700 dark:text-slate-300">
+            {esito.testo}
+          </p>
+        )}
+        {!esito.accesso && (
+          <p className="text-[13px] text-slate-700 dark:text-slate-300">
+            Utente creato.
+          </p>
+        )}
+        {esito.password_generata && (
+          <PasswordMostrata password={esito.password_generata} />
+        )}
         {!esito.password_generata && esito.email_inviata && (
-          <p className="text-[13px] text-slate-600 dark:text-slate-400">Le credenziali sono state inviate per email.</p>
+          <p className="text-[13px] text-slate-600 dark:text-slate-400">
+            Le credenziali sono state inviate per email.
+          </p>
         )}
       </Finestra>
     );
@@ -104,7 +176,11 @@ export default function FinestraNuovoUtente({ client, basePath, nomePortale, att
           nomePortale={nomePortale}
           onDaiAccesso={daiAccesso}
           inCorso={inCorso}
-          selettore={<SelettoreRuolo ruoli={ruoli} valore={ruolo} onCambia={setRuolo} />}
+          selettore={
+            <SelettoreRuolo ruoli={ruoli} valore={ruolo} onCambia={setRuolo} />
+          }
+          avvisa={avvisa}
+          onCambiaAvvisa={setAvvisa}
         />
         <MessaggioErrore>{errore}</MessaggioErrore>
       </Finestra>
@@ -117,19 +193,54 @@ export default function FinestraNuovoUtente({ client, basePath, nomePortale, att
       onChiudi={onChiudi}
       piede={
         <>
-          <button type="button" onClick={onChiudi} className={BOTTONE.secondario}>Annulla</button>
-          <button type="submit" form="vuscom-nuovo-utente" disabled={inCorso || campi.username.trim().length < 3} className={BOTTONE.primario}>
+          <button
+            type="button"
+            onClick={onChiudi}
+            className={BOTTONE.secondario}
+          >
+            Annulla
+          </button>
+          <button
+            type="submit"
+            form="vuscom-nuovo-utente"
+            disabled={
+              inCorso || campi.username.trim().length < 3 || nomeIncompleto
+            }
+            className={BOTTONE.primario}
+          >
             Crea utente
           </button>
         </>
       }
     >
       <form id="vuscom-nuovo-utente" onSubmit={crea} className="space-y-3">
-        <Campo etichetta="Username" valore={campi.username} onCambia={imposta("username")} autoFocus autoComplete="off" />
-        <Campo etichetta="Email" tipo="email" valore={campi.email} onCambia={imposta("email")} autoComplete="off" />
+        <Campo
+          etichetta="Username"
+          valore={campi.username}
+          onCambia={imposta("username")}
+          autoFocus
+          autoComplete="off"
+        />
+        <Campo
+          etichetta="Email"
+          tipo="email"
+          valore={campi.email}
+          onCambia={imposta("email")}
+          autoComplete="off"
+        />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Campo etichetta="Nome" valore={campi.nome} onCambia={imposta("nome")} />
-          <Campo etichetta="Cognome" valore={campi.cognome} onCambia={imposta("cognome")} />
+          <Campo
+            etichetta="Nome"
+            valore={campi.nome}
+            onCambia={imposta("nome")}
+            obbligatorio
+          />
+          <Campo
+            etichetta="Cognome"
+            valore={campi.cognome}
+            onCambia={imposta("cognome")}
+            obbligatorio
+          />
         </div>
         <SelettoreRuolo ruoli={ruoli} valore={ruolo} onCambia={setRuolo} />
         <Campo

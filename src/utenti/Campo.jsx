@@ -7,12 +7,24 @@ import { ETICHETTA, INPUT } from "./stili.js";
  * `data-autofocus` marker that Finestra honours: React's own autoFocus fires
  * before the dialog can record who opened it.
  */
-export function Campo({ etichetta, valore, onCambia, tipo = "text", nota, autoFocus, ...resto }) {
+export function Campo({
+  etichetta,
+  valore,
+  onCambia,
+  tipo = "text",
+  nota,
+  autoFocus,
+  obbligatorio,
+  ...resto
+}) {
   const id = useId();
   return (
     <div>
       <label htmlFor={id} className={ETICHETTA}>
         {etichetta}
+        {obbligatorio && (
+          <span className="text-red-500 dark:text-red-400"> *</span>
+        )}
       </label>
       <input
         id={id}
@@ -20,10 +32,15 @@ export function Campo({ etichetta, valore, onCambia, tipo = "text", nota, autoFo
         value={valore}
         onChange={(e) => onCambia(e.target.value)}
         data-autofocus={autoFocus ? "" : undefined}
+        aria-required={obbligatorio || undefined}
         className={INPUT}
         {...resto}
       />
-      {nota && <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">{nota}</p>}
+      {nota && (
+        <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+          {nota}
+        </p>
+      )}
     </div>
   );
 }

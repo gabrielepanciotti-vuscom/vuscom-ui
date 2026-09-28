@@ -2,11 +2,12 @@ import { useState } from "react";
 import { Check, Loader2, Search } from "lucide-react";
 import Finestra from "./Finestra.jsx";
 import SelettoreRuolo from "./SelettoreRuolo.jsx";
+import InterruttoreAvvisa from "./InterruttoreAvvisa.jsx";
 import { ElencoPortali } from "./BadgePortale.jsx";
 import { Campo, MessaggioErrore, Nota } from "./Campo.jsx";
 import { BOTTONE } from "./stili.js";
 import { ruoliAssegnabili } from "./ruoli.js";
-import { nomeCompleto } from "./formato.js";
+import { nomeCompleto, testoEsitoAccesso } from "./formato.js";
 import { useAzione } from "./useAzione.js";
 import { MINIMO_CARATTERI, useRicerca } from "./useRicerca.js";
 
@@ -24,32 +25,72 @@ function Risultato({ utente, scelto, onScegli }) {
         }`}
       >
         <span className="min-w-0 flex-1 space-y-1">
-          <span className="block text-[13px] font-medium text-slate-800 dark:text-slate-100">{nomeCompleto(utente)}</span>
+          <span className="block text-[13px] font-medium text-slate-800 dark:text-slate-100">
+            {nomeCompleto(utente)}
+          </span>
           <span className="block truncate text-[12px] text-slate-500 dark:text-slate-400">
             {utente.username}
             {utente.email ? ` · ${utente.email}` : ""}
           </span>
           <ElencoPortali portali={utente.altri_portali} />
         </span>
-        {scelto && <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600 dark:text-blue-400" />}
+        {scelto && (
+          <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600 dark:text-blue-400" />
+        )}
       </button>
     </li>
   );
 }
 
-export default function FinestraAggiungiEsistente({ client, basePath, nomePortale, attore, onChiudi, onFatto }) {
+export default function FinestraAggiungiEsistente({
+  client,
+  basePath,
+  nomePortale,
+  attore,
+  onChiudi,
+  onFatto,
+}) {
   const ruoli = ruoliAssegnabili(attore?.ruolo);
   const [testo, setTesto] = useState("");
   const [scelto, setScelto] = useState(null);
   const [ruolo, setRuolo] = useState("viewer");
+  const [avvisa, setAvvisa] = useState(true);
+  const [esito, setEsito] = useState(null); // testo dell'esito, o null finché non concesso
   const ricerca = useRicerca({ client, basePath, testo });
   const { inCorso, errore, esegui } = useAzione();
 
   async function conferma() {
-    const r = await esegui(() => client.post(`${basePath}/${scelto.id}/accesso`, { ruolo }));
+    const r = await esegui(() =>
+      client.post(`${basePath}/${scelto.id}/accesso`, {
+        ruolo,
+        avvisa: Boolean(scelto.email) && avvisa,
+      }),
+    );
     if (!r.ok) return;
     onFatto?.();
-    onChiudi();
+    setEsito(testoEsitoAccesso(r.valore));
+  }
+
+  if (esito) {
+    return (
+      <Finestra
+        titolo={`Aggiungi utente esistente a ${nomePortale}`}
+        onChiudi={onChiudi}
+        piede={
+          <button
+            type="button"
+            onClick={onChiudi}
+            className={BOTTONE.secondario}
+          >
+            Chiudi
+          </button>
+        }
+      >
+        <p className="text-[13px] text-slate-700 dark:text-slate-300">
+          {esito}
+        </p>
+      </Finestra>
+    );
   }
 
   return (
@@ -58,8 +99,19 @@ export default function FinestraAggiungiEsistente({ client, basePath, nomePortal
       onChiudi={onChiudi}
       piede={
         <>
-          <button type="button" onClick={onChiudi} className={BOTTONE.secondario}>Annulla</button>
-          <button type="button" onClick={conferma} disabled={!scelto || inCorso} className={BOTTONE.primario}>
+          <button
+            type="button"
+            onClick={onChiudi}
+            className={BOTTONE.secondario}
+          >
+            Annulla
+          </button>
+          <button
+            type="button"
+            onClick={conferma}
+            disabled={!scelto || inCorso}
+            className={BOTTONE.primario}
+          >
             Dai accesso
           </button>
         </>
@@ -76,7 +128,11 @@ export default function FinestraAggiungiEsistente({ client, basePath, nomePortal
         placeholder="Nome, cognome, username o email"
         autoFocus
         autoComplete="off"
-        nota={testo.trim().length < MINIMO_CARATTERI ? `Almeno ${MINIMO_CARATTERI} caratteri.` : undefined}
+        nota={
+          testo.trim().length < MINIMO_CARATTERI
+            ? `Almeno ${MINIMO_CARATTERI} caratteri.`
+            : undefined
+        }
       />
       {ricerca.cercando && (
         <p className="flex items-center gap-2 text-[12.5px] text-slate-500 dark:text-slate-400">
@@ -92,14 +148,32 @@ export default function FinestraAggiungiEsistente({ client, basePath, nomePortal
       {ricerca.risultati?.length > 0 && (
         <ul className="max-h-64 space-y-1.5 overflow-y-auto pr-1">
           {ricerca.risultati.map((u) => (
-            <Risultato key={u.id} utente={u} scelto={scelto?.id === u.id} onScegli={() => setScelto(u)} />
+            <Risultato
+              key={u.id}
+              utente={u}
+              scelto={scelto?.id === u.id}
+              onScegli={() => setScelto(u)}
+            />
           ))}
         </ul>
       )}
       {scelto && (
         <>
-          <SelettoreRuolo ruoli={ruoli} valore={ruolo} onCambia={setRuolo} etichetta={`Ruolo su ${nomePortale}`} />
-          <Nota>Dare l'accesso chiude le sessioni della persona su tutti i portali: dovrà rifare il login.</Nota>
+          <SelettoreRuolo
+            ruoli={ruoli}
+            valore={ruolo}
+            onCambia={setRuolo}
+            etichetta={`Ruolo su ${nomePortale}`}
+          />
+          <InterruttoreAvvisa
+            attivo={avvisa}
+            onCambia={setAvvisa}
+            haEmail={Boolean(scelto.email)}
+          />
+          <Nota>
+            Dare l'accesso chiude le sessioni della persona su tutti i portali:
+            dovrà rifare il login.
+          </Nota>
         </>
       )}
       <MessaggioErrore>{errore}</MessaggioErrore>

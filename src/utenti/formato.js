@@ -32,3 +32,17 @@ export function testoONull(valore) {
   const v = (valore || "").trim();
   return v || null;
 }
+
+// Empty or whitespace-only text fails validation (nome/cognome are required
+// and, in edit, cannot be cleared).
+export function vuoto(valore) {
+  return !(valore || "").trim();
+}
+
+// Outcome of a POST {basePath}/{id}/accesso, shown by every window that
+// grants access ("Nuovo utente" on the 409 branch and "Aggiungi esistente").
+export function testoEsitoAccesso({ email_inviata, utente }) {
+  if (email_inviata)
+    return `Accesso concesso. Email inviata a ${utente?.email}.`;
+  return "Accesso concesso. Email non inviata.";
+}

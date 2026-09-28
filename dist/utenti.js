@@ -89,6 +89,14 @@ function testoONull(valore) {
   const v = (valore || "").trim();
   return v || null;
 }
+function vuoto(valore) {
+  return !(valore || "").trim();
+}
+function testoEsitoAccesso({ email_inviata, utente }) {
+  if (email_inviata)
+    return `Accesso concesso. Email inviata a ${utente?.email}.`;
+  return "Accesso concesso. Email non inviata.";
+}
 
 // src/utenti/TabellaUtenti.jsx
 import { jsx as jsx2, jsxs as jsxs2 } from "react/jsx-runtime";
@@ -158,15 +166,21 @@ function TabellaUtenti({ utenti, caricando, attore, onAzione }) {
 
 // src/utenti/Interruttore.jsx
 import { jsx as jsx3, jsxs as jsxs3 } from "react/jsx-runtime";
-function Interruttore({ attivo, onCambia, etichetta }) {
+function Interruttore({
+  attivo,
+  onCambia,
+  etichetta,
+  disabilitato = false
+}) {
   return /* @__PURE__ */ jsxs3(
     "button",
     {
       type: "button",
       role: "switch",
       "aria-checked": attivo,
+      disabled: disabilitato,
       onClick: () => onCambia(!attivo),
-      className: "group inline-flex items-center gap-2 text-[13px] text-slate-600 focus:outline-none dark:text-slate-300",
+      className: "group inline-flex items-center gap-2 text-[13px] text-slate-600 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-300",
       children: [
         /* @__PURE__ */ jsx3(
           "span",
@@ -389,10 +403,22 @@ function PasswordMostrata({ password }) {
 import { useId as useId2 } from "react";
 import { AlertCircle, Info } from "lucide-react";
 import { jsx as jsx7, jsxs as jsxs7 } from "react/jsx-runtime";
-function Campo({ etichetta, valore, onCambia, tipo = "text", nota, autoFocus, ...resto }) {
+function Campo({
+  etichetta,
+  valore,
+  onCambia,
+  tipo = "text",
+  nota,
+  autoFocus,
+  obbligatorio,
+  ...resto
+}) {
   const id = useId2();
   return /* @__PURE__ */ jsxs7("div", { children: [
-    /* @__PURE__ */ jsx7("label", { htmlFor: id, className: ETICHETTA, children: etichetta }),
+    /* @__PURE__ */ jsxs7("label", { htmlFor: id, className: ETICHETTA, children: [
+      etichetta,
+      obbligatorio && /* @__PURE__ */ jsx7("span", { className: "text-red-500 dark:text-red-400", children: " *" })
+    ] }),
     /* @__PURE__ */ jsx7(
       "input",
       {
@@ -401,6 +427,7 @@ function Campo({ etichetta, valore, onCambia, tipo = "text", nota, autoFocus, ..
         value: valore,
         onChange: (e) => onCambia(e.target.value),
         "data-autofocus": autoFocus ? "" : void 0,
+        "aria-required": obbligatorio || void 0,
         className: INPUT,
         ...resto
       }
@@ -426,6 +453,23 @@ function Nota({ children }) {
   return /* @__PURE__ */ jsxs7("div", { className: "flex items-start gap-2 rounded-lg bg-slate-50 px-3 py-2 text-[12px] text-slate-600 dark:bg-white/[0.04] dark:text-slate-400", children: [
     /* @__PURE__ */ jsx7(Info, { className: "mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-slate-400 dark:text-slate-500" }),
     /* @__PURE__ */ jsx7("span", { children })
+  ] });
+}
+
+// src/utenti/InterruttoreAvvisa.jsx
+import { jsx as jsx8, jsxs as jsxs8 } from "react/jsx-runtime";
+function InterruttoreAvvisa({ attivo, onCambia, haEmail }) {
+  return /* @__PURE__ */ jsxs8("div", { className: "space-y-1", children: [
+    /* @__PURE__ */ jsx8(
+      Interruttore,
+      {
+        attivo: haEmail && attivo,
+        onCambia,
+        etichetta: "Avvisa via email",
+        disabilitato: !haEmail
+      }
+    ),
+    !haEmail && /* @__PURE__ */ jsx8(Nota, { children: "Nessuna email in anagrafica: non \xE8 possibile avvisare." })
   ] });
 }
 
@@ -457,40 +501,81 @@ function useAzione() {
 }
 
 // src/utenti/FinestraNuovoUtente.jsx
-import { Fragment, jsx as jsx8, jsxs as jsxs8 } from "react/jsx-runtime";
+import { Fragment, jsx as jsx9, jsxs as jsxs9 } from "react/jsx-runtime";
 var NOTA_SESSIONI = "Dare l'accesso chiude le sessioni della persona su tutti i portali: dovr\xE0 rifare il login.";
-function PersonaEsistente({ utente, nomePortale, onDaiAccesso, inCorso, selettore }) {
+function PersonaEsistente({
+  utente,
+  nomePortale,
+  onDaiAccesso,
+  inCorso,
+  selettore,
+  avvisa,
+  onCambiaAvvisa
+}) {
   let stato = null;
   if (utente.ruolo) stato = "Ha gi\xE0 accesso a questo portale.";
-  else if (!utente.is_active) stato = "L'account \xE8 disattivato: riattivalo prima di dargli accesso.";
-  return /* @__PURE__ */ jsxs8("div", { className: "space-y-3 rounded-lg border border-blue-200 bg-blue-50/60 p-4 dark:border-blue-500/30 dark:bg-blue-500/10", children: [
-    /* @__PURE__ */ jsxs8("p", { className: "flex items-center gap-2 text-[14px] font-semibold text-slate-800 dark:text-slate-100", children: [
-      /* @__PURE__ */ jsx8(UserCheck, { className: "h-4 w-4 text-blue-600 dark:text-blue-400" }),
+  else if (!utente.is_active)
+    stato = "L'account \xE8 disattivato: riattivalo prima di dargli accesso.";
+  return /* @__PURE__ */ jsxs9("div", { className: "space-y-3 rounded-lg border border-blue-200 bg-blue-50/60 p-4 dark:border-blue-500/30 dark:bg-blue-500/10", children: [
+    /* @__PURE__ */ jsxs9("p", { className: "flex items-center gap-2 text-[14px] font-semibold text-slate-800 dark:text-slate-100", children: [
+      /* @__PURE__ */ jsx9(UserCheck, { className: "h-4 w-4 text-blue-600 dark:text-blue-400" }),
       `${nomeCompleto(utente) === "\u2014" ? utente.username : nomeCompleto(utente)} esiste gi\xE0`
     ] }),
-    /* @__PURE__ */ jsx8(ElencoPortali, { portali: utente.altri_portali }),
-    stato ? /* @__PURE__ */ jsx8("p", { className: "text-[13px] text-slate-600 dark:text-slate-300", children: stato }) : /* @__PURE__ */ jsxs8(Fragment, { children: [
+    /* @__PURE__ */ jsx9(ElencoPortali, { portali: utente.altri_portali }),
+    stato ? /* @__PURE__ */ jsx9("p", { className: "text-[13px] text-slate-600 dark:text-slate-300", children: stato }) : /* @__PURE__ */ jsxs9(Fragment, { children: [
       selettore,
-      /* @__PURE__ */ jsx8(Nota, { children: NOTA_SESSIONI }),
-      /* @__PURE__ */ jsx8("button", { type: "button", onClick: onDaiAccesso, disabled: inCorso, className: BOTTONE.primario, children: `Dai accesso a ${nomePortale}` })
+      /* @__PURE__ */ jsx9(
+        InterruttoreAvvisa,
+        {
+          attivo: avvisa,
+          onCambia: onCambiaAvvisa,
+          haEmail: Boolean(utente.email)
+        }
+      ),
+      /* @__PURE__ */ jsx9(Nota, { children: NOTA_SESSIONI }),
+      /* @__PURE__ */ jsx9(
+        "button",
+        {
+          type: "button",
+          onClick: onDaiAccesso,
+          disabled: inCorso,
+          className: BOTTONE.primario,
+          children: `Dai accesso a ${nomePortale}`
+        }
+      )
     ] })
   ] });
 }
-function FinestraNuovoUtente({ client, basePath, nomePortale, attore, onChiudi, onFatto }) {
+function FinestraNuovoUtente({
+  client,
+  basePath,
+  nomePortale,
+  attore,
+  onChiudi,
+  onFatto
+}) {
   const ruoli = ruoliAssegnabili(attore?.ruolo);
-  const [campi, setCampi] = useState4({ username: "", email: "", nome: "", cognome: "", password: "" });
+  const [campi, setCampi] = useState4({
+    username: "",
+    email: "",
+    nome: "",
+    cognome: "",
+    password: ""
+  });
   const [ruolo, setRuolo] = useState4("viewer");
   const [esistente, setEsistente] = useState4(null);
+  const [avvisa, setAvvisa] = useState4(true);
   const [esito, setEsito] = useState4(null);
   const { inCorso, errore, esegui } = useAzione();
   const imposta = (k) => (v) => setCampi((c) => ({ ...c, [k]: v }));
+  const nomeIncompleto = vuoto(campi.nome) || vuoto(campi.cognome);
   async function crea(e) {
     e.preventDefault();
     const corpo = {
       username: campi.username.trim(),
       email: testoONull(campi.email),
-      nome: testoONull(campi.nome),
-      cognome: testoONull(campi.cognome),
+      nome: campi.nome.trim(),
+      cognome: campi.cognome.trim(),
       ruolo,
       password: campi.password ? campi.password : null
     };
@@ -507,56 +592,126 @@ function FinestraNuovoUtente({ client, basePath, nomePortale, attore, onChiudi, 
     );
     if (!r.ok) return;
     onFatto?.();
-    setEsito({ password_generata: r.valore?.password_generata, email_inviata: r.valore?.email_inviata });
+    setEsito({
+      password_generata: r.valore?.password_generata,
+      email_inviata: r.valore?.email_inviata
+    });
   }
   async function daiAccesso() {
-    const r = await esegui(() => client.post(`${basePath}/${esistente.id}/accesso`, { ruolo }));
+    const r = await esegui(
+      () => client.post(`${basePath}/${esistente.id}/accesso`, {
+        ruolo,
+        avvisa: Boolean(esistente.email) && avvisa
+      })
+    );
     if (!r.ok) return;
     onFatto?.();
-    setEsito({ accesso: true });
+    setEsito({ accesso: true, testo: testoEsitoAccesso(r.valore) });
   }
-  const chiudi = /* @__PURE__ */ jsx8("button", { type: "button", onClick: onChiudi, className: BOTTONE.secondario, children: "Chiudi" });
+  const chiudi = /* @__PURE__ */ jsx9("button", { type: "button", onClick: onChiudi, className: BOTTONE.secondario, children: "Chiudi" });
   if (esito) {
-    return /* @__PURE__ */ jsxs8(Finestra, { titolo: "Nuovo utente", onChiudi, piede: chiudi, bloccata: Boolean(esito.password_generata), children: [
-      esito.accesso && /* @__PURE__ */ jsx8("p", { className: "text-[13px] text-slate-700 dark:text-slate-300", children: `Accesso a ${nomePortale} concesso.` }),
-      !esito.accesso && /* @__PURE__ */ jsx8("p", { className: "text-[13px] text-slate-700 dark:text-slate-300", children: "Utente creato." }),
-      esito.password_generata && /* @__PURE__ */ jsx8(PasswordMostrata, { password: esito.password_generata }),
-      !esito.password_generata && esito.email_inviata && /* @__PURE__ */ jsx8("p", { className: "text-[13px] text-slate-600 dark:text-slate-400", children: "Le credenziali sono state inviate per email." })
-    ] });
+    return /* @__PURE__ */ jsxs9(
+      Finestra,
+      {
+        titolo: "Nuovo utente",
+        onChiudi,
+        piede: chiudi,
+        bloccata: Boolean(esito.password_generata),
+        children: [
+          esito.accesso && /* @__PURE__ */ jsx9("p", { className: "text-[13px] text-slate-700 dark:text-slate-300", children: esito.testo }),
+          !esito.accesso && /* @__PURE__ */ jsx9("p", { className: "text-[13px] text-slate-700 dark:text-slate-300", children: "Utente creato." }),
+          esito.password_generata && /* @__PURE__ */ jsx9(PasswordMostrata, { password: esito.password_generata }),
+          !esito.password_generata && esito.email_inviata && /* @__PURE__ */ jsx9("p", { className: "text-[13px] text-slate-600 dark:text-slate-400", children: "Le credenziali sono state inviate per email." })
+        ]
+      }
+    );
   }
   if (esistente) {
-    return /* @__PURE__ */ jsxs8(Finestra, { titolo: "Nuovo utente", onChiudi, piede: chiudi, children: [
-      /* @__PURE__ */ jsx8(
+    return /* @__PURE__ */ jsxs9(Finestra, { titolo: "Nuovo utente", onChiudi, piede: chiudi, children: [
+      /* @__PURE__ */ jsx9(
         PersonaEsistente,
         {
           utente: esistente,
           nomePortale,
           onDaiAccesso: daiAccesso,
           inCorso,
-          selettore: /* @__PURE__ */ jsx8(SelettoreRuolo, { ruoli, valore: ruolo, onCambia: setRuolo })
+          selettore: /* @__PURE__ */ jsx9(SelettoreRuolo, { ruoli, valore: ruolo, onCambia: setRuolo }),
+          avvisa,
+          onCambiaAvvisa: setAvvisa
         }
       ),
-      /* @__PURE__ */ jsx8(MessaggioErrore, { children: errore })
+      /* @__PURE__ */ jsx9(MessaggioErrore, { children: errore })
     ] });
   }
-  return /* @__PURE__ */ jsx8(
+  return /* @__PURE__ */ jsx9(
     Finestra,
     {
       titolo: "Nuovo utente",
       onChiudi,
-      piede: /* @__PURE__ */ jsxs8(Fragment, { children: [
-        /* @__PURE__ */ jsx8("button", { type: "button", onClick: onChiudi, className: BOTTONE.secondario, children: "Annulla" }),
-        /* @__PURE__ */ jsx8("button", { type: "submit", form: "vuscom-nuovo-utente", disabled: inCorso || campi.username.trim().length < 3, className: BOTTONE.primario, children: "Crea utente" })
+      piede: /* @__PURE__ */ jsxs9(Fragment, { children: [
+        /* @__PURE__ */ jsx9(
+          "button",
+          {
+            type: "button",
+            onClick: onChiudi,
+            className: BOTTONE.secondario,
+            children: "Annulla"
+          }
+        ),
+        /* @__PURE__ */ jsx9(
+          "button",
+          {
+            type: "submit",
+            form: "vuscom-nuovo-utente",
+            disabled: inCorso || campi.username.trim().length < 3 || nomeIncompleto,
+            className: BOTTONE.primario,
+            children: "Crea utente"
+          }
+        )
       ] }),
-      children: /* @__PURE__ */ jsxs8("form", { id: "vuscom-nuovo-utente", onSubmit: crea, className: "space-y-3", children: [
-        /* @__PURE__ */ jsx8(Campo, { etichetta: "Username", valore: campi.username, onCambia: imposta("username"), autoFocus: true, autoComplete: "off" }),
-        /* @__PURE__ */ jsx8(Campo, { etichetta: "Email", tipo: "email", valore: campi.email, onCambia: imposta("email"), autoComplete: "off" }),
-        /* @__PURE__ */ jsxs8("div", { className: "grid grid-cols-1 gap-3 sm:grid-cols-2", children: [
-          /* @__PURE__ */ jsx8(Campo, { etichetta: "Nome", valore: campi.nome, onCambia: imposta("nome") }),
-          /* @__PURE__ */ jsx8(Campo, { etichetta: "Cognome", valore: campi.cognome, onCambia: imposta("cognome") })
+      children: /* @__PURE__ */ jsxs9("form", { id: "vuscom-nuovo-utente", onSubmit: crea, className: "space-y-3", children: [
+        /* @__PURE__ */ jsx9(
+          Campo,
+          {
+            etichetta: "Username",
+            valore: campi.username,
+            onCambia: imposta("username"),
+            autoFocus: true,
+            autoComplete: "off"
+          }
+        ),
+        /* @__PURE__ */ jsx9(
+          Campo,
+          {
+            etichetta: "Email",
+            tipo: "email",
+            valore: campi.email,
+            onCambia: imposta("email"),
+            autoComplete: "off"
+          }
+        ),
+        /* @__PURE__ */ jsxs9("div", { className: "grid grid-cols-1 gap-3 sm:grid-cols-2", children: [
+          /* @__PURE__ */ jsx9(
+            Campo,
+            {
+              etichetta: "Nome",
+              valore: campi.nome,
+              onCambia: imposta("nome"),
+              obbligatorio: true
+            }
+          ),
+          /* @__PURE__ */ jsx9(
+            Campo,
+            {
+              etichetta: "Cognome",
+              valore: campi.cognome,
+              onCambia: imposta("cognome"),
+              obbligatorio: true
+            }
+          )
         ] }),
-        /* @__PURE__ */ jsx8(SelettoreRuolo, { ruoli, valore: ruolo, onCambia: setRuolo }),
-        /* @__PURE__ */ jsx8(
+        /* @__PURE__ */ jsx9(SelettoreRuolo, { ruoli, valore: ruolo, onCambia: setRuolo }),
+        /* @__PURE__ */ jsx9(
           Campo,
           {
             etichetta: "Password (facoltativa)",
@@ -567,7 +722,7 @@ function FinestraNuovoUtente({ client, basePath, nomePortale, attore, onChiudi, 
             nota: "Se vuota viene generata e inviata per email. Almeno 8 caratteri."
           }
         ),
-        /* @__PURE__ */ jsx8(MessaggioErrore, { children: errore })
+        /* @__PURE__ */ jsx9(MessaggioErrore, { children: errore })
       ] })
     }
   );
@@ -616,9 +771,9 @@ function useRicerca({ client, basePath, testo }) {
 }
 
 // src/utenti/FinestraAggiungiEsistente.jsx
-import { Fragment as Fragment2, jsx as jsx9, jsxs as jsxs9 } from "react/jsx-runtime";
+import { Fragment as Fragment2, jsx as jsx10, jsxs as jsxs10 } from "react/jsx-runtime";
 function Risultato({ utente, scelto, onScegli }) {
-  return /* @__PURE__ */ jsx9("li", { children: /* @__PURE__ */ jsxs9(
+  return /* @__PURE__ */ jsx10("li", { children: /* @__PURE__ */ jsxs10(
     "button",
     {
       type: "button",
@@ -626,43 +781,93 @@ function Risultato({ utente, scelto, onScegli }) {
       onClick: onScegli,
       className: `flex w-full items-start gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 ${scelto ? "border-blue-400 bg-blue-50 dark:border-blue-400/60 dark:bg-blue-500/10" : "border-slate-200 hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/[0.04]"}`,
       children: [
-        /* @__PURE__ */ jsxs9("span", { className: "min-w-0 flex-1 space-y-1", children: [
-          /* @__PURE__ */ jsx9("span", { className: "block text-[13px] font-medium text-slate-800 dark:text-slate-100", children: nomeCompleto(utente) }),
-          /* @__PURE__ */ jsxs9("span", { className: "block truncate text-[12px] text-slate-500 dark:text-slate-400", children: [
+        /* @__PURE__ */ jsxs10("span", { className: "min-w-0 flex-1 space-y-1", children: [
+          /* @__PURE__ */ jsx10("span", { className: "block text-[13px] font-medium text-slate-800 dark:text-slate-100", children: nomeCompleto(utente) }),
+          /* @__PURE__ */ jsxs10("span", { className: "block truncate text-[12px] text-slate-500 dark:text-slate-400", children: [
             utente.username,
             utente.email ? ` \xB7 ${utente.email}` : ""
           ] }),
-          /* @__PURE__ */ jsx9(ElencoPortali, { portali: utente.altri_portali })
+          /* @__PURE__ */ jsx10(ElencoPortali, { portali: utente.altri_portali })
         ] }),
-        scelto && /* @__PURE__ */ jsx9(Check2, { className: "mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600 dark:text-blue-400" })
+        scelto && /* @__PURE__ */ jsx10(Check2, { className: "mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600 dark:text-blue-400" })
       ]
     }
   ) });
 }
-function FinestraAggiungiEsistente({ client, basePath, nomePortale, attore, onChiudi, onFatto }) {
+function FinestraAggiungiEsistente({
+  client,
+  basePath,
+  nomePortale,
+  attore,
+  onChiudi,
+  onFatto
+}) {
   const ruoli = ruoliAssegnabili(attore?.ruolo);
   const [testo, setTesto] = useState6("");
   const [scelto, setScelto] = useState6(null);
   const [ruolo, setRuolo] = useState6("viewer");
+  const [avvisa, setAvvisa] = useState6(true);
+  const [esito, setEsito] = useState6(null);
   const ricerca = useRicerca({ client, basePath, testo });
   const { inCorso, errore, esegui } = useAzione();
   async function conferma() {
-    const r = await esegui(() => client.post(`${basePath}/${scelto.id}/accesso`, { ruolo }));
+    const r = await esegui(
+      () => client.post(`${basePath}/${scelto.id}/accesso`, {
+        ruolo,
+        avvisa: Boolean(scelto.email) && avvisa
+      })
+    );
     if (!r.ok) return;
     onFatto?.();
-    onChiudi();
+    setEsito(testoEsitoAccesso(r.valore));
   }
-  return /* @__PURE__ */ jsxs9(
+  if (esito) {
+    return /* @__PURE__ */ jsx10(
+      Finestra,
+      {
+        titolo: `Aggiungi utente esistente a ${nomePortale}`,
+        onChiudi,
+        piede: /* @__PURE__ */ jsx10(
+          "button",
+          {
+            type: "button",
+            onClick: onChiudi,
+            className: BOTTONE.secondario,
+            children: "Chiudi"
+          }
+        ),
+        children: /* @__PURE__ */ jsx10("p", { className: "text-[13px] text-slate-700 dark:text-slate-300", children: esito })
+      }
+    );
+  }
+  return /* @__PURE__ */ jsxs10(
     Finestra,
     {
       titolo: `Aggiungi utente esistente a ${nomePortale}`,
       onChiudi,
-      piede: /* @__PURE__ */ jsxs9(Fragment2, { children: [
-        /* @__PURE__ */ jsx9("button", { type: "button", onClick: onChiudi, className: BOTTONE.secondario, children: "Annulla" }),
-        /* @__PURE__ */ jsx9("button", { type: "button", onClick: conferma, disabled: !scelto || inCorso, className: BOTTONE.primario, children: "Dai accesso" })
+      piede: /* @__PURE__ */ jsxs10(Fragment2, { children: [
+        /* @__PURE__ */ jsx10(
+          "button",
+          {
+            type: "button",
+            onClick: onChiudi,
+            className: BOTTONE.secondario,
+            children: "Annulla"
+          }
+        ),
+        /* @__PURE__ */ jsx10(
+          "button",
+          {
+            type: "button",
+            onClick: conferma,
+            disabled: !scelto || inCorso,
+            className: BOTTONE.primario,
+            children: "Dai accesso"
+          }
+        )
       ] }),
       children: [
-        /* @__PURE__ */ jsx9(
+        /* @__PURE__ */ jsx10(
           Campo,
           {
             etichetta: "Cerca persona",
@@ -677,21 +882,45 @@ function FinestraAggiungiEsistente({ client, basePath, nomePortale, attore, onCh
             nota: testo.trim().length < MINIMO_CARATTERI ? `Almeno ${MINIMO_CARATTERI} caratteri.` : void 0
           }
         ),
-        ricerca.cercando && /* @__PURE__ */ jsxs9("p", { className: "flex items-center gap-2 text-[12.5px] text-slate-500 dark:text-slate-400", children: [
-          /* @__PURE__ */ jsx9(Loader2, { className: "h-3.5 w-3.5 animate-spin" }),
+        ricerca.cercando && /* @__PURE__ */ jsxs10("p", { className: "flex items-center gap-2 text-[12.5px] text-slate-500 dark:text-slate-400", children: [
+          /* @__PURE__ */ jsx10(Loader2, { className: "h-3.5 w-3.5 animate-spin" }),
           " Ricerca in corso\u2026"
         ] }),
-        /* @__PURE__ */ jsx9(MessaggioErrore, { children: ricerca.errore }),
-        !ricerca.cercando && ricerca.risultati?.length === 0 && /* @__PURE__ */ jsxs9("p", { className: "flex items-center gap-2 text-[13px] text-slate-500 dark:text-slate-400", children: [
-          /* @__PURE__ */ jsx9(Search, { className: "h-4 w-4" }),
+        /* @__PURE__ */ jsx10(MessaggioErrore, { children: ricerca.errore }),
+        !ricerca.cercando && ricerca.risultati?.length === 0 && /* @__PURE__ */ jsxs10("p", { className: "flex items-center gap-2 text-[13px] text-slate-500 dark:text-slate-400", children: [
+          /* @__PURE__ */ jsx10(Search, { className: "h-4 w-4" }),
           " Nessun risultato"
         ] }),
-        ricerca.risultati?.length > 0 && /* @__PURE__ */ jsx9("ul", { className: "max-h-64 space-y-1.5 overflow-y-auto pr-1", children: ricerca.risultati.map((u) => /* @__PURE__ */ jsx9(Risultato, { utente: u, scelto: scelto?.id === u.id, onScegli: () => setScelto(u) }, u.id)) }),
-        scelto && /* @__PURE__ */ jsxs9(Fragment2, { children: [
-          /* @__PURE__ */ jsx9(SelettoreRuolo, { ruoli, valore: ruolo, onCambia: setRuolo, etichetta: `Ruolo su ${nomePortale}` }),
-          /* @__PURE__ */ jsx9(Nota, { children: "Dare l'accesso chiude le sessioni della persona su tutti i portali: dovr\xE0 rifare il login." })
+        ricerca.risultati?.length > 0 && /* @__PURE__ */ jsx10("ul", { className: "max-h-64 space-y-1.5 overflow-y-auto pr-1", children: ricerca.risultati.map((u) => /* @__PURE__ */ jsx10(
+          Risultato,
+          {
+            utente: u,
+            scelto: scelto?.id === u.id,
+            onScegli: () => setScelto(u)
+          },
+          u.id
+        )) }),
+        scelto && /* @__PURE__ */ jsxs10(Fragment2, { children: [
+          /* @__PURE__ */ jsx10(
+            SelettoreRuolo,
+            {
+              ruoli,
+              valore: ruolo,
+              onCambia: setRuolo,
+              etichetta: `Ruolo su ${nomePortale}`
+            }
+          ),
+          /* @__PURE__ */ jsx10(
+            InterruttoreAvvisa,
+            {
+              attivo: avvisa,
+              onCambia: setAvvisa,
+              haEmail: Boolean(scelto.email)
+            }
+          ),
+          /* @__PURE__ */ jsx10(Nota, { children: "Dare l'accesso chiude le sessioni della persona su tutti i portali: dovr\xE0 rifare il login." })
         ] }),
-        /* @__PURE__ */ jsx9(MessaggioErrore, { children: errore })
+        /* @__PURE__ */ jsx10(MessaggioErrore, { children: errore })
       ]
     }
   );
@@ -699,17 +928,26 @@ function FinestraAggiungiEsistente({ client, basePath, nomePortale, attore, onCh
 
 // src/utenti/FinestraModifica.jsx
 import { useState as useState7 } from "react";
-import { Fragment as Fragment3, jsx as jsx10, jsxs as jsxs10 } from "react/jsx-runtime";
+import { Fragment as Fragment3, jsx as jsx11, jsxs as jsxs11 } from "react/jsx-runtime";
 var ANAGRAFICA = ["nome", "cognome", "email"];
 function campiCambiati(utente, bozza) {
   const cambiati = {};
   for (const k of ANAGRAFICA) {
-    if ((bozza[k] || "").trim() !== (utente[k] || "")) cambiati[k] = bozza[k].trim();
+    if ((bozza[k] || "").trim() !== (utente[k] || ""))
+      cambiati[k] = bozza[k].trim();
   }
   if (bozza.ruolo !== utente.ruolo) cambiati.ruolo = bozza.ruolo;
   return cambiati;
 }
-function FinestraModifica({ client, basePath, attore, utente, SezioneExtra, onChiudi, onFatto }) {
+function FinestraModifica({
+  client,
+  basePath,
+  attore,
+  utente,
+  SezioneExtra,
+  onChiudi,
+  onFatto
+}) {
   const [bozza, setBozza] = useState7({
     nome: utente.nome || "",
     cognome: utente.cognome || "",
@@ -725,40 +963,92 @@ function FinestraModifica({ client, basePath, attore, utente, SezioneExtra, onCh
   );
   const cambiati = campiCambiati(utente, bozza);
   const nessunCambio = Object.keys(cambiati).length === 0;
+  const nomeIncompleto = vuoto(bozza.nome) || vuoto(bozza.cognome);
   async function salva(e) {
     e.preventDefault();
-    if (nessunCambio) return;
-    const r = await esegui(() => client.put(`${basePath}/${utente.id}`, cambiati));
+    if (nessunCambio || nomeIncompleto) return;
+    const r = await esegui(
+      () => client.put(`${basePath}/${utente.id}`, cambiati)
+    );
     if (!r.ok) return;
     onFatto?.();
     onChiudi();
   }
-  return /* @__PURE__ */ jsxs10(
+  return /* @__PURE__ */ jsxs11(
     Finestra,
     {
       titolo: `Modifica ${utente.username}`,
       onChiudi,
-      piede: /* @__PURE__ */ jsxs10(Fragment3, { children: [
-        /* @__PURE__ */ jsx10("button", { type: "button", onClick: onChiudi, className: BOTTONE.secondario, children: "Annulla" }),
-        /* @__PURE__ */ jsx10("button", { type: "submit", form: "vuscom-modifica-utente", disabled: inCorso || nessunCambio, className: BOTTONE.primario, children: "Salva" })
+      piede: /* @__PURE__ */ jsxs11(Fragment3, { children: [
+        /* @__PURE__ */ jsx11(
+          "button",
+          {
+            type: "button",
+            onClick: onChiudi,
+            className: BOTTONE.secondario,
+            children: "Annulla"
+          }
+        ),
+        /* @__PURE__ */ jsx11(
+          "button",
+          {
+            type: "submit",
+            form: "vuscom-modifica-utente",
+            disabled: inCorso || nessunCambio || nomeIncompleto,
+            className: BOTTONE.primario,
+            children: "Salva"
+          }
+        )
       ] }),
       children: [
-        /* @__PURE__ */ jsxs10("form", { id: "vuscom-modifica-utente", onSubmit: salva, className: "space-y-3", children: [
-          /* @__PURE__ */ jsxs10("div", { className: "grid grid-cols-1 gap-3 sm:grid-cols-2", children: [
-            /* @__PURE__ */ jsx10(Campo, { etichetta: "Nome", valore: bozza.nome, onCambia: imposta("nome"), autoFocus: true }),
-            /* @__PURE__ */ jsx10(Campo, { etichetta: "Cognome", valore: bozza.cognome, onCambia: imposta("cognome") })
+        /* @__PURE__ */ jsxs11("form", { id: "vuscom-modifica-utente", onSubmit: salva, className: "space-y-3", children: [
+          /* @__PURE__ */ jsxs11("div", { className: "grid grid-cols-1 gap-3 sm:grid-cols-2", children: [
+            /* @__PURE__ */ jsx11(
+              Campo,
+              {
+                etichetta: "Nome",
+                valore: bozza.nome,
+                onCambia: imposta("nome"),
+                autoFocus: true,
+                obbligatorio: true
+              }
+            ),
+            /* @__PURE__ */ jsx11(
+              Campo,
+              {
+                etichetta: "Cognome",
+                valore: bozza.cognome,
+                onCambia: imposta("cognome"),
+                obbligatorio: true
+              }
+            )
           ] }),
-          /* @__PURE__ */ jsx10(Campo, { etichetta: "Email", tipo: "email", valore: bozza.email, onCambia: imposta("email") }),
-          bozza.ruolo && /* @__PURE__ */ jsx10(SelettoreRuolo, { ruoli, valore: bozza.ruolo, onCambia: imposta("ruolo") }),
-          io && /* @__PURE__ */ jsx10(Nota, { children: "\xC8 il tuo account: non puoi abbassarti il ruolo." }),
-          /* @__PURE__ */ jsx10(Nota, { children: "Cambiare il ruolo chiude le sessioni della persona su tutti i portali." }),
-          /* @__PURE__ */ jsxs10("div", { children: [
-            /* @__PURE__ */ jsx10("span", { className: ETICHETTA, children: "Altri portali (sola lettura)" }),
-            /* @__PURE__ */ jsx10(ElencoPortali, { portali: utente.altri_portali })
+          /* @__PURE__ */ jsx11(
+            Campo,
+            {
+              etichetta: "Email",
+              tipo: "email",
+              valore: bozza.email,
+              onCambia: imposta("email")
+            }
+          ),
+          bozza.ruolo && /* @__PURE__ */ jsx11(
+            SelettoreRuolo,
+            {
+              ruoli,
+              valore: bozza.ruolo,
+              onCambia: imposta("ruolo")
+            }
+          ),
+          io && /* @__PURE__ */ jsx11(Nota, { children: "\xC8 il tuo account: non puoi abbassarti il ruolo." }),
+          /* @__PURE__ */ jsx11(Nota, { children: "Cambiare il ruolo chiude le sessioni della persona su tutti i portali." }),
+          /* @__PURE__ */ jsxs11("div", { children: [
+            /* @__PURE__ */ jsx11("span", { className: ETICHETTA, children: "Altri portali (sola lettura)" }),
+            /* @__PURE__ */ jsx11(ElencoPortali, { portali: utente.altri_portali })
           ] }),
-          /* @__PURE__ */ jsx10(MessaggioErrore, { children: errore })
+          /* @__PURE__ */ jsx11(MessaggioErrore, { children: errore })
         ] }),
-        SezioneExtra && /* @__PURE__ */ jsx10("div", { className: "border-t border-slate-100 pt-4 dark:border-white/[0.06]", children: /* @__PURE__ */ jsx10(SezioneExtra, { utente }) })
+        SezioneExtra && /* @__PURE__ */ jsx11("div", { className: "border-t border-slate-100 pt-4 dark:border-white/[0.06]", children: /* @__PURE__ */ jsx11(SezioneExtra, { utente }) })
       ]
     }
   );
@@ -767,7 +1057,7 @@ function FinestraModifica({ client, basePath, attore, utente, SezioneExtra, onCh
 // src/utenti/FinestraPassword.jsx
 import { useState as useState8 } from "react";
 import { MailCheck } from "lucide-react";
-import { Fragment as Fragment4, jsx as jsx11, jsxs as jsxs11 } from "react/jsx-runtime";
+import { Fragment as Fragment4, jsx as jsx12, jsxs as jsxs12 } from "react/jsx-runtime";
 function FinestraPassword({ client, basePath, utente, onChiudi, onFatto }) {
   const [password, setPassword] = useState8("");
   const [esito, setEsito] = useState8(null);
@@ -780,31 +1070,31 @@ function FinestraPassword({ client, basePath, utente, onChiudi, onFatto }) {
     setEsito(r.valore || {});
   }
   if (esito) {
-    return /* @__PURE__ */ jsx11(
+    return /* @__PURE__ */ jsx12(
       Finestra,
       {
         titolo: `Password di ${utente.username}`,
         onChiudi,
         bloccata: Boolean(esito.password_generata),
-        piede: /* @__PURE__ */ jsx11("button", { type: "button", onClick: onChiudi, className: BOTTONE.secondario, children: "Chiudi" }),
-        children: esito.password_generata ? /* @__PURE__ */ jsx11(PasswordMostrata, { password: esito.password_generata }) : /* @__PURE__ */ jsxs11("p", { className: "flex items-center gap-2 text-[13px] text-slate-700 dark:text-slate-300", children: [
-          /* @__PURE__ */ jsx11(MailCheck, { className: "h-4 w-4 text-emerald-600 dark:text-emerald-400" }),
+        piede: /* @__PURE__ */ jsx12("button", { type: "button", onClick: onChiudi, className: BOTTONE.secondario, children: "Chiudi" }),
+        children: esito.password_generata ? /* @__PURE__ */ jsx12(PasswordMostrata, { password: esito.password_generata }) : /* @__PURE__ */ jsxs12("p", { className: "flex items-center gap-2 text-[13px] text-slate-700 dark:text-slate-300", children: [
+          /* @__PURE__ */ jsx12(MailCheck, { className: "h-4 w-4 text-emerald-600 dark:text-emerald-400" }),
           esito.email_inviata ? "Email inviata" : "Password aggiornata"
         ] })
       }
     );
   }
-  return /* @__PURE__ */ jsx11(
+  return /* @__PURE__ */ jsx12(
     Finestra,
     {
       titolo: `Reimposta password di ${utente.username}`,
       onChiudi,
-      piede: /* @__PURE__ */ jsxs11(Fragment4, { children: [
-        /* @__PURE__ */ jsx11("button", { type: "button", onClick: onChiudi, className: BOTTONE.secondario, children: "Annulla" }),
-        /* @__PURE__ */ jsx11("button", { type: "submit", form: "vuscom-password-utente", disabled: inCorso, className: BOTTONE.primario, children: "Reimposta" })
+      piede: /* @__PURE__ */ jsxs12(Fragment4, { children: [
+        /* @__PURE__ */ jsx12("button", { type: "button", onClick: onChiudi, className: BOTTONE.secondario, children: "Annulla" }),
+        /* @__PURE__ */ jsx12("button", { type: "submit", form: "vuscom-password-utente", disabled: inCorso, className: BOTTONE.primario, children: "Reimposta" })
       ] }),
-      children: /* @__PURE__ */ jsxs11("form", { id: "vuscom-password-utente", onSubmit: conferma, className: "space-y-3", children: [
-        /* @__PURE__ */ jsx11(
+      children: /* @__PURE__ */ jsxs12("form", { id: "vuscom-password-utente", onSubmit: conferma, className: "space-y-3", children: [
+        /* @__PURE__ */ jsx12(
           Campo,
           {
             etichetta: "Nuova password (facoltativa)",
@@ -816,8 +1106,8 @@ function FinestraPassword({ client, basePath, utente, onChiudi, onFatto }) {
             nota: "Se vuota viene generata e inviata per email. Almeno 8 caratteri."
           }
         ),
-        /* @__PURE__ */ jsx11(Nota, { children: "Vale per l'account su tutti i portali: le sessioni aperte vengono chiuse e al prossimo accesso la persona dovr\xE0 cambiarla." }),
-        /* @__PURE__ */ jsx11(MessaggioErrore, { children: errore })
+        /* @__PURE__ */ jsx12(Nota, { children: "Vale per l'account su tutti i portali: le sessioni aperte vengono chiuse e al prossimo accesso la persona dovr\xE0 cambiarla." }),
+        /* @__PURE__ */ jsx12(MessaggioErrore, { children: errore })
       ] })
     }
   );
@@ -826,15 +1116,15 @@ function FinestraPassword({ client, basePath, utente, onChiudi, onFatto }) {
 // src/utenti/FinestraElimina.jsx
 import { useEffect as useEffect5, useState as useState9 } from "react";
 import { Loader2 as Loader22 } from "lucide-react";
-import { Fragment as Fragment5, jsx as jsx12, jsxs as jsxs12 } from "react/jsx-runtime";
+import { Fragment as Fragment5, jsx as jsx13, jsxs as jsxs13 } from "react/jsx-runtime";
 function descriviRiferimenti(riferimenti) {
   return Object.entries(riferimenti || {}).map(([chiave, n]) => `${chiave.split(".")[0]}: ${n}`).join(", ");
 }
 function Anteprima({ anteprima }) {
   if (anteprima.esito === "eliminato") {
-    return /* @__PURE__ */ jsx12("p", { className: "text-[13px] text-slate-700 dark:text-slate-300", children: "L'account non \xE8 mai stato usato: verr\xE0 cancellato definitivamente." });
+    return /* @__PURE__ */ jsx13("p", { className: "text-[13px] text-slate-700 dark:text-slate-300", children: "L'account non \xE8 mai stato usato: verr\xE0 cancellato definitivamente." });
   }
-  return /* @__PURE__ */ jsx12("p", { className: "text-[13px] leading-relaxed text-slate-700 dark:text-slate-300", children: `L'account ha dati collegati (${descriviRiferimenti(anteprima.riferimenti)}): i dati personali verranno cancellati e l'account disattivato. I dati collegati restano.` });
+  return /* @__PURE__ */ jsx13("p", { className: "text-[13px] leading-relaxed text-slate-700 dark:text-slate-300", children: `L'account ha dati collegati (${descriviRiferimenti(anteprima.riferimenti)}): i dati personali verranno cancellati e l'account disattivato. I dati collegati restano.` });
 }
 function FinestraElimina({ client, basePath, utente, onChiudi, onFatto }) {
   const [anteprima, setAnteprima] = useState9(null);
@@ -855,24 +1145,24 @@ function FinestraElimina({ client, basePath, utente, onChiudi, onFatto }) {
     onChiudi();
   }
   const pronto = anteprima && digitato === utente.username;
-  return /* @__PURE__ */ jsxs12(
+  return /* @__PURE__ */ jsxs13(
     Finestra,
     {
       titolo: `Elimina ${utente.username}`,
       onChiudi,
-      piede: /* @__PURE__ */ jsxs12(Fragment5, { children: [
-        /* @__PURE__ */ jsx12("button", { type: "button", onClick: onChiudi, className: BOTTONE.secondario, children: "Annulla" }),
-        /* @__PURE__ */ jsx12("button", { type: "button", onClick: elimina, disabled: !pronto || inCorso, className: BOTTONE.pericolo, children: "Elimina account" })
+      piede: /* @__PURE__ */ jsxs13(Fragment5, { children: [
+        /* @__PURE__ */ jsx13("button", { type: "button", onClick: onChiudi, className: BOTTONE.secondario, children: "Annulla" }),
+        /* @__PURE__ */ jsx13("button", { type: "button", onClick: elimina, disabled: !pronto || inCorso, className: BOTTONE.pericolo, children: "Elimina account" })
       ] }),
       children: [
-        /* @__PURE__ */ jsx12("p", { className: "text-[12.5px] text-slate-500 dark:text-slate-400", children: "Vale per l'account su tutti i portali." }),
-        !anteprima && !erroreAnteprima && /* @__PURE__ */ jsxs12("p", { className: "flex items-center gap-2 text-[13px] text-slate-500 dark:text-slate-400", children: [
-          /* @__PURE__ */ jsx12(Loader22, { className: "h-4 w-4 animate-spin" }),
+        /* @__PURE__ */ jsx13("p", { className: "text-[12.5px] text-slate-500 dark:text-slate-400", children: "Vale per l'account su tutti i portali." }),
+        !anteprima && !erroreAnteprima && /* @__PURE__ */ jsxs13("p", { className: "flex items-center gap-2 text-[13px] text-slate-500 dark:text-slate-400", children: [
+          /* @__PURE__ */ jsx13(Loader22, { className: "h-4 w-4 animate-spin" }),
           " Verifica dei dati collegati\u2026"
         ] }),
-        /* @__PURE__ */ jsx12(MessaggioErrore, { children: erroreAnteprima }),
-        anteprima && /* @__PURE__ */ jsx12(Anteprima, { anteprima }),
-        anteprima && /* @__PURE__ */ jsx12(
+        /* @__PURE__ */ jsx13(MessaggioErrore, { children: erroreAnteprima }),
+        anteprima && /* @__PURE__ */ jsx13(Anteprima, { anteprima }),
+        anteprima && /* @__PURE__ */ jsx13(
           Campo,
           {
             etichetta: `Digita lo username (${utente.username}) per confermare`,
@@ -881,14 +1171,14 @@ function FinestraElimina({ client, basePath, utente, onChiudi, onFatto }) {
             autoComplete: "off"
           }
         ),
-        /* @__PURE__ */ jsx12(MessaggioErrore, { children: errore })
+        /* @__PURE__ */ jsx13(MessaggioErrore, { children: errore })
       ]
     }
   );
 }
 
 // src/utenti/FinestraConferma.jsx
-import { Fragment as Fragment6, jsx as jsx13, jsxs as jsxs13 } from "react/jsx-runtime";
+import { Fragment as Fragment6, jsx as jsx14, jsxs as jsxs14 } from "react/jsx-runtime";
 function FinestraConferma({
   titolo,
   messaggio,
@@ -907,14 +1197,14 @@ function FinestraConferma({
       onChiudi();
     }
   }
-  return /* @__PURE__ */ jsxs13(
+  return /* @__PURE__ */ jsxs14(
     Finestra,
     {
       titolo,
       onChiudi,
-      piede: /* @__PURE__ */ jsxs13(Fragment6, { children: [
-        /* @__PURE__ */ jsx13("button", { type: "button", onClick: onChiudi, className: BOTTONE.secondario, children: "Annulla" }),
-        /* @__PURE__ */ jsx13(
+      piede: /* @__PURE__ */ jsxs14(Fragment6, { children: [
+        /* @__PURE__ */ jsx14("button", { type: "button", onClick: onChiudi, className: BOTTONE.secondario, children: "Annulla" }),
+        /* @__PURE__ */ jsx14(
           "button",
           {
             type: "button",
@@ -926,9 +1216,9 @@ function FinestraConferma({
         )
       ] }),
       children: [
-        /* @__PURE__ */ jsx13("p", { className: "text-[13px] leading-relaxed text-slate-700 dark:text-slate-300", children: messaggio }),
-        nota && /* @__PURE__ */ jsx13(Nota, { children: nota }),
-        /* @__PURE__ */ jsx13(MessaggioErrore, { children: errore })
+        /* @__PURE__ */ jsx14("p", { className: "text-[13px] leading-relaxed text-slate-700 dark:text-slate-300", children: messaggio }),
+        nota && /* @__PURE__ */ jsx14(Nota, { children: nota }),
+        /* @__PURE__ */ jsx14(MessaggioErrore, { children: errore })
       ]
     }
   );
@@ -963,7 +1253,7 @@ function useUtenti({ client, basePath = "/api/utenti", includiDisattivati = fals
 }
 
 // src/utenti/GestioneUtenti.jsx
-import { jsx as jsx14, jsxs as jsxs14 } from "react/jsx-runtime";
+import { jsx as jsx15, jsxs as jsxs15 } from "react/jsx-runtime";
 var NOTA_SESSIONI2 = "La persona verr\xE0 disconnessa da tutti i portali e dovr\xE0 rifare il login.";
 function corrisponde(u, filtro) {
   if (!filtro) return true;
@@ -1016,27 +1306,27 @@ function GestioneUtenti({
   const chiudi = () => setFinestra(null);
   const comuni = { client, basePath, attore, nomePortale: nome, onChiudi: chiudi, onFatto: ricarica };
   const conferma = finestra && conferme({ client, basePath, nomePortale: nome })[finestra.tipo];
-  return /* @__PURE__ */ jsxs14("div", { className: "space-y-4", children: [
-    /* @__PURE__ */ jsxs14("div", { className: "flex flex-wrap items-center justify-between gap-3", children: [
-      /* @__PURE__ */ jsxs14("h1", { className: "flex items-center gap-2 text-[18px] font-semibold text-slate-800 dark:text-slate-100", children: [
-        /* @__PURE__ */ jsx14(Users, { className: "h-5 w-5 text-blue-600 dark:text-blue-400" }),
+  return /* @__PURE__ */ jsxs15("div", { className: "space-y-4", children: [
+    /* @__PURE__ */ jsxs15("div", { className: "flex flex-wrap items-center justify-between gap-3", children: [
+      /* @__PURE__ */ jsxs15("h1", { className: "flex items-center gap-2 text-[18px] font-semibold text-slate-800 dark:text-slate-100", children: [
+        /* @__PURE__ */ jsx15(Users, { className: "h-5 w-5 text-blue-600 dark:text-blue-400" }),
         `Utenti \u2014 ${nome}`
       ] }),
-      /* @__PURE__ */ jsxs14("div", { className: "flex flex-wrap gap-2", children: [
-        /* @__PURE__ */ jsxs14("button", { type: "button", onClick: () => setFinestra({ tipo: "aggiungi" }), className: BOTTONE.secondario, children: [
-          /* @__PURE__ */ jsx14(Search2, { className: "h-4 w-4" }),
+      /* @__PURE__ */ jsxs15("div", { className: "flex flex-wrap gap-2", children: [
+        /* @__PURE__ */ jsxs15("button", { type: "button", onClick: () => setFinestra({ tipo: "aggiungi" }), className: BOTTONE.secondario, children: [
+          /* @__PURE__ */ jsx15(Search2, { className: "h-4 w-4" }),
           "Aggiungi utente esistente"
         ] }),
-        /* @__PURE__ */ jsxs14("button", { type: "button", onClick: () => setFinestra({ tipo: "nuovo" }), className: BOTTONE.primario, children: [
-          /* @__PURE__ */ jsx14(UserPlus, { className: "h-4 w-4" }),
+        /* @__PURE__ */ jsxs15("button", { type: "button", onClick: () => setFinestra({ tipo: "nuovo" }), className: BOTTONE.primario, children: [
+          /* @__PURE__ */ jsx15(UserPlus, { className: "h-4 w-4" }),
           "Nuovo utente"
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ jsxs14("div", { className: "flex flex-wrap items-center gap-4", children: [
-      /* @__PURE__ */ jsxs14("div", { className: "relative w-full max-w-xs", children: [
-        /* @__PURE__ */ jsx14(Search2, { className: "pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" }),
-        /* @__PURE__ */ jsx14(
+    /* @__PURE__ */ jsxs15("div", { className: "flex flex-wrap items-center gap-4", children: [
+      /* @__PURE__ */ jsxs15("div", { className: "relative w-full max-w-xs", children: [
+        /* @__PURE__ */ jsx15(Search2, { className: "pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" }),
+        /* @__PURE__ */ jsx15(
           "input",
           {
             type: "search",
@@ -1048,23 +1338,23 @@ function GestioneUtenti({
           }
         )
       ] }),
-      /* @__PURE__ */ jsx14(Interruttore, { attivo: mostraDisattivati, onCambia: setMostraDisattivati, etichetta: "Mostra disattivati" })
+      /* @__PURE__ */ jsx15(Interruttore, { attivo: mostraDisattivati, onCambia: setMostraDisattivati, etichetta: "Mostra disattivati" })
     ] }),
-    errore && /* @__PURE__ */ jsxs14("div", { role: "alert", className: "flex items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300", children: [
-      /* @__PURE__ */ jsxs14("span", { className: "flex items-center gap-2", children: [
-        /* @__PURE__ */ jsx14(AlertCircle2, { className: "h-4 w-4" }),
+    errore && /* @__PURE__ */ jsxs15("div", { role: "alert", className: "flex items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300", children: [
+      /* @__PURE__ */ jsxs15("span", { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsx15(AlertCircle2, { className: "h-4 w-4" }),
         errore
       ] }),
-      /* @__PURE__ */ jsx14("button", { type: "button", onClick: ricarica, className: BOTTONE.secondario, children: "Riprova" })
+      /* @__PURE__ */ jsx15("button", { type: "button", onClick: ricarica, className: BOTTONE.secondario, children: "Riprova" })
     ] }),
-    !errore && /* @__PURE__ */ jsx14(TabellaUtenti, { utenti: visibili, caricando, attore, onAzione: (tipo, utente) => setFinestra({ tipo, utente }) }),
-    !errore && !caricando && visibili.length === 0 && /* @__PURE__ */ jsx14("p", { className: "py-8 text-center text-[13px] text-slate-500 dark:text-slate-400", children: filtro.trim() ? "Nessun utente corrisponde al filtro." : `Nessun utente ha accesso a ${nome}.` }),
-    finestra?.tipo === "nuovo" && /* @__PURE__ */ jsx14(FinestraNuovoUtente, { ...comuni }),
-    finestra?.tipo === "aggiungi" && /* @__PURE__ */ jsx14(FinestraAggiungiEsistente, { ...comuni }),
-    finestra?.tipo === "modifica" && /* @__PURE__ */ jsx14(FinestraModifica, { ...comuni, utente: finestra.utente, SezioneExtra }),
-    finestra?.tipo === "password" && /* @__PURE__ */ jsx14(FinestraPassword, { ...comuni, utente: finestra.utente }),
-    finestra?.tipo === "elimina" && /* @__PURE__ */ jsx14(FinestraElimina, { ...comuni, utente: finestra.utente }),
-    conferma && /* @__PURE__ */ jsx14(FinestraConferma, { ...conferma(finestra.utente), onChiudi: chiudi, onFatto: ricarica })
+    !errore && /* @__PURE__ */ jsx15(TabellaUtenti, { utenti: visibili, caricando, attore, onAzione: (tipo, utente) => setFinestra({ tipo, utente }) }),
+    !errore && !caricando && visibili.length === 0 && /* @__PURE__ */ jsx15("p", { className: "py-8 text-center text-[13px] text-slate-500 dark:text-slate-400", children: filtro.trim() ? "Nessun utente corrisponde al filtro." : `Nessun utente ha accesso a ${nome}.` }),
+    finestra?.tipo === "nuovo" && /* @__PURE__ */ jsx15(FinestraNuovoUtente, { ...comuni }),
+    finestra?.tipo === "aggiungi" && /* @__PURE__ */ jsx15(FinestraAggiungiEsistente, { ...comuni }),
+    finestra?.tipo === "modifica" && /* @__PURE__ */ jsx15(FinestraModifica, { ...comuni, utente: finestra.utente, SezioneExtra }),
+    finestra?.tipo === "password" && /* @__PURE__ */ jsx15(FinestraPassword, { ...comuni, utente: finestra.utente }),
+    finestra?.tipo === "elimina" && /* @__PURE__ */ jsx15(FinestraElimina, { ...comuni, utente: finestra.utente }),
+    conferma && /* @__PURE__ */ jsx15(FinestraConferma, { ...conferma(finestra.utente), onChiudi: chiudi, onFatto: ricarica })
   ] });
 }
 export {
