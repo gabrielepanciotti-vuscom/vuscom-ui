@@ -4547,8 +4547,256 @@ function useToast() {
   if (!ctx) throw new Error("useToast must be used inside <ToastProvider>");
   return ctx;
 }
+
+// src/templates/AppShell.jsx
+import { useMemo as useMemo3, useState as useState8 } from "react";
+import { useLocation as useLocation2 } from "react-router-dom";
+import { Menu } from "lucide-react";
+import { jsx as jsx30, jsxs as jsxs25 } from "react/jsx-runtime";
+var STORAGE_KEY = "vuscom.sidebar.collapsed";
+var WIDTHS = { "7xl": "max-w-7xl", full: "max-w-none" };
+function readCollapsed() {
+  try {
+    return localStorage.getItem(STORAGE_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+function matches(node, pathname) {
+  if (!node.to) return false;
+  return node.to === "/" ? pathname === "/" : pathname === node.to || pathname.startsWith(`${node.to}/`);
+}
+function activeGroupIds(nodes, pathname) {
+  const ids = [];
+  for (const node of nodes) {
+    if (!node?.children) continue;
+    const inner = activeGroupIds(node.children, pathname);
+    const hit = inner.length > 0 || node.children.some((c) => matches(c, pathname));
+    if (hit) ids.push(node.id || node.label, ...inner);
+  }
+  return ids;
+}
+function AppShell({
+  sidebar,
+  topbarRight,
+  maxWidth = "7xl",
+  children
+}) {
+  const { nav = [], adminNav = [], ...sidebarProps } = sidebar;
+  const { pathname } = useLocation2();
+  const mainTree = useMemo3(() => normalizeNavTree(nav), [nav]);
+  const adminTree = useMemo3(() => normalizeNavTree(adminNav), [adminNav]);
+  const [collapsed, setCollapsed] = useState8(readCollapsed);
+  const [isOpen, setIsOpen] = useState8(false);
+  const [expanded, setExpanded] = useState8(
+    () => new Set(activeGroupIds([...mainTree, ...adminTree], pathname))
+  );
+  const toggleCollapse = () => setCollapsed((prev) => {
+    const next = !prev;
+    try {
+      localStorage.setItem(STORAGE_KEY, String(next));
+    } catch {
+    }
+    return next;
+  });
+  const toggleGroup = (id) => setExpanded((prev) => {
+    const next = new Set(prev);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    return next;
+  });
+  return /* @__PURE__ */ jsxs25("div", { className: "flex h-screen bg-app", children: [
+    /* @__PURE__ */ jsx30(
+      AppSidebar,
+      {
+        ...sidebarProps,
+        mainTree,
+        adminTree,
+        expandedGroups: expanded,
+        onToggleGroup: toggleGroup,
+        isOpen,
+        onClose: () => setIsOpen(false),
+        collapsed,
+        onToggleCollapse: toggleCollapse,
+        themeSlot: /* @__PURE__ */ jsx30(ThemeToggle, {}),
+        navClassName: "scrollbar-thin"
+      }
+    ),
+    /* @__PURE__ */ jsxs25("div", { className: "flex min-w-0 flex-1 flex-col", children: [
+      /* @__PURE__ */ jsxs25("header", { className: "flex h-14 shrink-0 items-center justify-between gap-3 border-b bg-background/80 px-4 backdrop-blur", children: [
+        /* @__PURE__ */ jsx30(
+          IconButton_default,
+          {
+            icon: Menu,
+            label: "Apri menu",
+            className: "md:hidden",
+            onClick: () => setIsOpen(true)
+          }
+        ),
+        /* @__PURE__ */ jsx30("div", { className: "ml-auto flex items-center gap-2", children: topbarRight })
+      ] }),
+      /* @__PURE__ */ jsx30("main", { className: "flex-1 overflow-y-auto scrollbar-thin p-4 md:p-6", children: /* @__PURE__ */ jsx30("div", { className: cn("mx-auto", WIDTHS[maxWidth] ?? WIDTHS["7xl"]), children }) })
+    ] })
+  ] });
+}
+
+// src/templates/PageHeader.jsx
+import { BookOpen } from "lucide-react";
+import { jsx as jsx31, jsxs as jsxs26 } from "react/jsx-runtime";
+function PageHeader({
+  title,
+  description,
+  icon: Icon,
+  help,
+  helpHref,
+  actions,
+  tabs
+}) {
+  return /* @__PURE__ */ jsxs26("div", { className: "mb-6 space-y-4", children: [
+    /* @__PURE__ */ jsxs26("div", { className: "flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between", children: [
+      /* @__PURE__ */ jsxs26("div", { className: "min-w-0 space-y-1", children: [
+        /* @__PURE__ */ jsxs26("div", { className: "flex items-center gap-2", children: [
+          Icon && /* @__PURE__ */ jsx31(Icon, { className: "h-6 w-6 text-primary", "aria-hidden": true }),
+          /* @__PURE__ */ jsx31("h1", { className: "text-2xl font-bold tracking-tight", children: title }),
+          help && /* @__PURE__ */ jsx31(InfoTip, { children: help }),
+          helpHref && /* @__PURE__ */ jsxs26(
+            "a",
+            {
+              href: helpHref,
+              className: "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+              children: [
+                /* @__PURE__ */ jsx31(BookOpen, { className: "h-3.5 w-3.5", "aria-hidden": true }),
+                "Guida"
+              ]
+            }
+          )
+        ] }),
+        description && /* @__PURE__ */ jsx31("p", { className: "text-muted-foreground", children: description })
+      ] }),
+      actions && /* @__PURE__ */ jsx31("div", { className: "flex shrink-0 flex-wrap items-center gap-2", children: actions })
+    ] }),
+    tabs
+  ] });
+}
+
+// src/templates/Section.jsx
+import { jsx as jsx32, jsxs as jsxs27 } from "react/jsx-runtime";
+function Section({ title, description, actions, children }) {
+  return /* @__PURE__ */ jsxs27("section", { className: "space-y-3", children: [
+    (title || description || actions) && /* @__PURE__ */ jsxs27("div", { className: "flex items-start justify-between gap-3", children: [
+      /* @__PURE__ */ jsxs27("div", { className: "min-w-0", children: [
+        title && /* @__PURE__ */ jsx32("h2", { className: "text-lg font-semibold", children: title }),
+        description && /* @__PURE__ */ jsx32("p", { className: "text-sm text-muted-foreground", children: description })
+      ] }),
+      actions && /* @__PURE__ */ jsx32("div", { className: "flex shrink-0 items-center gap-2", children: actions })
+    ] }),
+    children
+  ] });
+}
+
+// src/templates/LoginPage.jsx
+import { useId as useId7, useState as useState9 } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { jsx as jsx33, jsxs as jsxs28 } from "react/jsx-runtime";
+function LoginPage({
+  title,
+  subtitle = "Accedi al tuo account",
+  logoLight,
+  logoDark,
+  onSubmit,
+  usernameLabel = "Username o email",
+  footer = "\xA9 VUS COM SRL"
+}) {
+  const passwordId = useId7();
+  const [username, setUsername] = useState9("");
+  const [password, setPassword] = useState9("");
+  const [show, setShow] = useState9(false);
+  const [loading, setLoading] = useState9(false);
+  const [error, setError] = useState9("");
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      await onSubmit(username, password);
+    } catch (err) {
+      setError(err?.message || "Accesso non riuscito");
+    } finally {
+      setLoading(false);
+    }
+  }
+  return /* @__PURE__ */ jsxs28("div", { className: "relative flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4 dark:from-slate-900 dark:to-slate-800", children: [
+    /* @__PURE__ */ jsx33("div", { className: "absolute right-4 top-4", children: /* @__PURE__ */ jsx33(ThemeToggle, {}) }),
+    /* @__PURE__ */ jsxs28("div", { className: "w-full max-w-md space-y-8 rounded-xl bg-card p-8 shadow-2xl", children: [
+      /* @__PURE__ */ jsxs28("div", { className: "text-center", children: [
+        /* @__PURE__ */ jsx33(
+          "img",
+          {
+            src: logoLight,
+            alt: "VUS COM",
+            className: "mx-auto h-20 w-auto object-contain dark:hidden"
+          }
+        ),
+        /* @__PURE__ */ jsx33(
+          "img",
+          {
+            src: logoDark,
+            alt: "VUS COM",
+            className: "mx-auto hidden h-20 w-auto object-contain dark:block"
+          }
+        ),
+        /* @__PURE__ */ jsx33("h1", { className: "mt-6 text-3xl font-bold text-foreground", children: title }),
+        /* @__PURE__ */ jsx33("p", { className: "mt-2 text-sm text-muted-foreground", children: subtitle })
+      ] }),
+      /* @__PURE__ */ jsxs28("form", { className: "space-y-5", onSubmit: handleSubmit, children: [
+        error && /* @__PURE__ */ jsx33(Alert, { tone: "danger", children: error }),
+        /* @__PURE__ */ jsx33(Field, { label: usernameLabel, children: /* @__PURE__ */ jsx33(
+          Input_default,
+          {
+            name: "username",
+            autoComplete: "username",
+            value: username,
+            onChange: (e) => setUsername(e.target.value),
+            required: true
+          }
+        ) }),
+        /* @__PURE__ */ jsxs28("div", { className: "flex flex-col gap-1.5", children: [
+          /* @__PURE__ */ jsx33("label", { htmlFor: passwordId, className: "text-sm font-medium text-foreground", children: "Password" }),
+          /* @__PURE__ */ jsxs28("div", { className: "relative", children: [
+            /* @__PURE__ */ jsx33(
+              Input_default,
+              {
+                id: passwordId,
+                name: "password",
+                type: show ? "text" : "password",
+                autoComplete: "current-password",
+                value: password,
+                onChange: (e) => setPassword(e.target.value),
+                className: "pr-11",
+                required: true
+              }
+            ),
+            /* @__PURE__ */ jsx33(
+              IconButton_default,
+              {
+                icon: show ? EyeOff : Eye,
+                label: show ? "Nascondi password" : "Mostra password",
+                size: "sm",
+                className: "absolute right-1 top-1",
+                onClick: () => setShow((s) => !s)
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsx33(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Accedi" })
+      ] }),
+      footer && /* @__PURE__ */ jsx33("p", { className: "text-center text-xs text-muted-foreground", children: footer })
+    ] })
+  ] });
+}
 export {
   Alert,
+  AppShell,
   AppSidebar,
   Badge,
   Button_default as Button,
@@ -4569,8 +4817,11 @@ export {
   Input_default as Input,
   Kbd,
   KpiCard,
+  LoginPage,
+  PageHeader,
   Pagination,
   ProgressBar,
+  Section,
   SegmentedControl,
   Select,
   Skeleton,
