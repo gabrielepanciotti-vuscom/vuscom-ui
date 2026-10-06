@@ -2927,9 +2927,339 @@ function ThemeToggle({ className }) {
 
 // src/theme/initScript.js
 var THEME_INIT_SCRIPT = "try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',!!d);}catch(e){}";
+
+// src/atoms/Button.jsx
+import { forwardRef } from "react";
+import { Loader2 } from "lucide-react";
+import { jsx as jsx3, jsxs as jsxs2 } from "react/jsx-runtime";
+var VARIANTI = {
+  primary: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm",
+  secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+  outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+  ghost: "hover:bg-accent hover:text-accent-foreground",
+  destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm",
+  link: "text-primary underline-offset-4 hover:underline"
+};
+var TAGLIE = {
+  sm: "h-8 px-3 text-xs gap-1.5",
+  md: "h-10 px-4 text-sm gap-2",
+  lg: "h-12 px-6 text-base gap-2"
+};
+var buttonClasses = (variant = "primary", size = "md") => cn(
+  "inline-flex items-center justify-center rounded-lg font-medium transition-all duration-150",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+  "active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50",
+  VARIANTI[variant],
+  TAGLIE[size]
+);
+var Button = forwardRef(function Button2({
+  variant = "primary",
+  size = "md",
+  loading = false,
+  icon: Icon,
+  iconRight: IconRight,
+  fullWidth,
+  className,
+  children,
+  type = "button",
+  disabled,
+  ...props
+}, ref) {
+  return /* @__PURE__ */ jsxs2(
+    "button",
+    {
+      ref,
+      type,
+      ...props,
+      disabled: disabled || loading,
+      "aria-busy": loading || void 0,
+      className: cn(
+        buttonClasses(variant, size),
+        fullWidth && "w-full",
+        className
+      ),
+      children: [
+        loading ? /* @__PURE__ */ jsx3(Loader2, { className: "h-4 w-4 animate-spin", "aria-hidden": true }) : Icon && /* @__PURE__ */ jsx3(Icon, { className: "h-4 w-4", "aria-hidden": true }),
+        children,
+        !loading && IconRight && /* @__PURE__ */ jsx3(IconRight, { className: "h-4 w-4", "aria-hidden": true })
+      ]
+    }
+  );
+});
+var Button_default = Button;
+
+// src/atoms/IconButton.jsx
+import { forwardRef as forwardRef2 } from "react";
+import { jsx as jsx4 } from "react/jsx-runtime";
+var QUADRATI = { sm: "h-8 w-8", md: "h-10 w-10", lg: "h-12 w-12" };
+var IconButton = forwardRef2(function IconButton2({
+  icon: Icon,
+  label,
+  variant = "ghost",
+  size = "md",
+  className,
+  type = "button",
+  ...props
+}, ref) {
+  return /* @__PURE__ */ jsx4(
+    "button",
+    {
+      ref,
+      type,
+      "aria-label": label,
+      ...props,
+      className: cn(
+        buttonClasses(variant, size),
+        "px-0 gap-0",
+        QUADRATI[size],
+        className
+      ),
+      children: Icon && /* @__PURE__ */ jsx4(Icon, { className: "h-4 w-4", "aria-hidden": true })
+    }
+  );
+});
+var IconButton_default = IconButton;
+
+// src/atoms/Input.jsx
+import { forwardRef as forwardRef3 } from "react";
+import { jsx as jsx5, jsxs as jsxs3 } from "react/jsx-runtime";
+var CAMPO = "w-full rounded-lg border bg-background text-sm text-foreground placeholder:text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50";
+var campoClasses = (invalid) => cn(
+  CAMPO,
+  invalid ? "border-destructive focus-visible:ring-destructive/40" : "border-input hover:border-ring/60 focus-visible:border-ring focus-visible:ring-ring/40"
+);
+var Input = forwardRef3(function Input2({ invalid, icon: Icon, className, ...props }, ref) {
+  const input = /* @__PURE__ */ jsx5(
+    "input",
+    {
+      ref,
+      "aria-invalid": invalid ? "true" : void 0,
+      ...props,
+      className: cn(
+        campoClasses(invalid),
+        "h-10 px-3",
+        Icon && "pl-9",
+        className
+      )
+    }
+  );
+  if (!Icon) return input;
+  return /* @__PURE__ */ jsxs3("div", { className: "relative w-full", children: [
+    /* @__PURE__ */ jsx5(
+      Icon,
+      {
+        className: "pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground",
+        "aria-hidden": true
+      }
+    ),
+    input
+  ] });
+});
+var Input_default = Input;
+
+// src/atoms/Textarea.jsx
+import { forwardRef as forwardRef4 } from "react";
+import { jsx as jsx6 } from "react/jsx-runtime";
+var Textarea = forwardRef4(function Textarea2({ invalid, className, rows = 3, ...props }, ref) {
+  return /* @__PURE__ */ jsx6(
+    "textarea",
+    {
+      ref,
+      rows,
+      "aria-invalid": invalid ? "true" : void 0,
+      ...props,
+      className: cn(
+        campoClasses(invalid),
+        "min-h-[80px] resize-y px-3 py-2",
+        className
+      )
+    }
+  );
+});
+var Textarea_default = Textarea;
+
+// src/atoms/tones.js
+var TINTE = {
+  neutral: "bg-muted text-muted-foreground",
+  primary: "bg-primary/15 text-primary",
+  success: "bg-success/15 text-success",
+  warning: "bg-warning/15 text-warning",
+  danger: "bg-destructive/15 text-destructive",
+  info: "bg-info/15 text-info"
+};
+var PIENI = {
+  neutral: "bg-muted-foreground",
+  primary: "bg-primary",
+  success: "bg-success",
+  warning: "bg-warning",
+  danger: "bg-destructive",
+  info: "bg-info"
+};
+
+// src/atoms/Badge.jsx
+import { jsx as jsx7, jsxs as jsxs4 } from "react/jsx-runtime";
+function Badge({
+  tone = "neutral",
+  dot = false,
+  className,
+  children,
+  ...props
+}) {
+  return /* @__PURE__ */ jsxs4(
+    "span",
+    {
+      ...props,
+      className: cn(
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium",
+        TINTE[tone],
+        className
+      ),
+      children: [
+        dot && /* @__PURE__ */ jsx7(
+          "span",
+          {
+            className: cn("h-1.5 w-1.5 rounded-full", PIENI[tone]),
+            "aria-hidden": true
+          }
+        ),
+        children
+      ]
+    }
+  );
+}
+
+// src/atoms/StatusDot.jsx
+import { jsx as jsx8, jsxs as jsxs5 } from "react/jsx-runtime";
+function StatusDot({
+  tone = "neutral",
+  label,
+  pulse = false,
+  className
+}) {
+  const a11y = label ? { role: "img", "aria-label": label } : { "aria-hidden": true };
+  return /* @__PURE__ */ jsxs5(
+    "span",
+    {
+      ...a11y,
+      className: cn("relative inline-flex h-2.5 w-2.5", className),
+      children: [
+        pulse && /* @__PURE__ */ jsx8(
+          "span",
+          {
+            className: cn(
+              "absolute inline-flex h-full w-full animate-ping rounded-full opacity-60",
+              PIENI[tone]
+            )
+          }
+        ),
+        /* @__PURE__ */ jsx8(
+          "span",
+          {
+            className: cn(
+              "relative inline-flex h-2.5 w-2.5 rounded-full",
+              PIENI[tone]
+            )
+          }
+        )
+      ]
+    }
+  );
+}
+
+// src/atoms/Spinner.jsx
+import { Loader2 as Loader22 } from "lucide-react";
+import { jsx as jsx9, jsxs as jsxs6 } from "react/jsx-runtime";
+var TAGLIE2 = { sm: "h-4 w-4", md: "h-6 w-6", lg: "h-10 w-10" };
+function Spinner({
+  size = "sm",
+  label = "Caricamento",
+  className
+}) {
+  return /* @__PURE__ */ jsxs6(
+    "span",
+    {
+      role: "status",
+      className: cn("inline-flex items-center text-primary", className),
+      children: [
+        /* @__PURE__ */ jsx9(Loader22, { className: cn("animate-spin", TAGLIE2[size]), "aria-hidden": true }),
+        /* @__PURE__ */ jsx9("span", { className: "sr-only", children: label })
+      ]
+    }
+  );
+}
+
+// src/atoms/ProgressBar.jsx
+import { jsx as jsx10, jsxs as jsxs7 } from "react/jsx-runtime";
+function ProgressBar({
+  value,
+  max = 100,
+  tone = "primary",
+  label,
+  showValue = false,
+  className
+}) {
+  const tetto = max > 0 ? max : 0;
+  const now = tetto > 0 ? Math.min(Math.max(Number(value) || 0, 0), tetto) : 0;
+  const pct = tetto > 0 ? now / tetto * 100 : 0;
+  return /* @__PURE__ */ jsxs7("div", { className: cn("w-full", className), children: [
+    (label || showValue) && /* @__PURE__ */ jsxs7("div", { className: "mb-1 flex items-center justify-between text-xs", children: [
+      /* @__PURE__ */ jsx10("span", { className: "font-medium text-foreground", children: label }),
+      showValue && /* @__PURE__ */ jsxs7("span", { className: "tabular-nums text-muted-foreground", children: [
+        Math.round(pct),
+        "%"
+      ] })
+    ] }),
+    /* @__PURE__ */ jsx10(
+      "div",
+      {
+        role: "progressbar",
+        "aria-label": label,
+        "aria-valuenow": now,
+        "aria-valuemin": 0,
+        "aria-valuemax": tetto,
+        className: "h-2 w-full overflow-hidden rounded-full bg-muted",
+        children: /* @__PURE__ */ jsx10(
+          "div",
+          {
+            className: cn(
+              "h-full rounded-full transition-all duration-300",
+              PIENI[tone]
+            ),
+            style: { width: `${pct}%` }
+          }
+        )
+      }
+    )
+  ] });
+}
+
+// src/atoms/Kbd.jsx
+import { jsx as jsx11 } from "react/jsx-runtime";
+function Kbd({ children, className }) {
+  return /* @__PURE__ */ jsx11(
+    "kbd",
+    {
+      className: cn(
+        "inline-flex h-5 min-w-[20px] items-center justify-center rounded border border-border bg-muted px-1.5",
+        "font-sans text-[11px] font-medium text-muted-foreground",
+        className
+      ),
+      children
+    }
+  );
+}
 export {
   AppSidebar,
+  Badge,
+  Button_default as Button,
+  IconButton_default as IconButton,
+  Input_default as Input,
+  Kbd,
+  ProgressBar,
+  Spinner,
+  StatusDot,
   THEME_INIT_SCRIPT,
+  Textarea_default as Textarea,
   ThemeToggle,
   cn,
   collectGroupIds,
