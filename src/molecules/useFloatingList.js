@@ -33,14 +33,20 @@ export default function useFloatingList(triggerRef, open) {
   useLayoutEffect(() => {
     if (!open) return undefined;
     misura();
-    // Capture: a scroll inside any ancestor (table, dialog body) moves the trigger.
-    window.addEventListener("scroll", misura, true);
+    // Capture: a scroll inside any ancestor (table, dialog body) moves the
+    // trigger. Scrolling the list itself does not, so it is ignored.
+    const suScroll = (e) => {
+      const t = e.target;
+      if (!(t instanceof Element) || t.contains(triggerRef.current))
+        misura();
+    };
+    window.addEventListener("scroll", suScroll, true);
     window.addEventListener("resize", misura);
     return () => {
-      window.removeEventListener("scroll", misura, true);
+      window.removeEventListener("scroll", suScroll, true);
       window.removeEventListener("resize", misura);
     };
-  }, [open, misura]);
+  }, [open, misura, triggerRef]);
 
   return style;
 }

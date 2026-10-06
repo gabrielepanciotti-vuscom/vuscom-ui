@@ -6,7 +6,7 @@
 export const TESTO = {
   neutral: "text-muted-foreground",
   primary: "text-blue-700 dark:text-primary",
-  success: "text-green-700 dark:text-success",
+  success: "text-green-800 dark:text-success",
   warning: "text-amber-800 dark:text-warning",
   danger: "text-red-700 dark:text-red-400",
   info: "text-sky-800 dark:text-info",

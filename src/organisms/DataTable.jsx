@@ -131,7 +131,7 @@ export default function DataTable({
                     onRowClick
                       ? (e) => {
                           const hit = e.target.closest?.(INTERATTIVI);
-                          if (hit && hit !== e.currentTarget) return;
+                          if (hit && e.currentTarget.contains(hit)) return;
                           onRowClick(row);
                         }
                       : undefined

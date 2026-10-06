@@ -96,25 +96,30 @@ export function ToastProvider({ children }) {
   }, []);
 
   const value = useMemo(() => ({ toast, dismiss }), [toast, dismiss]);
+  const urgenti = toasts.filter((t) => t.tone === "danger");
+  const altri = toasts.filter((t) => t.tone !== "danger");
 
   return (
     <ToastContext.Provider value={value}>
       {children}
       {/* Live regions exist before any toast, or screen readers miss the first one. */}
-      <div className="pointer-events-none fixed right-4 top-4 z-[60] flex flex-col gap-2">
+      <div className="pointer-events-none fixed right-4 top-4 z-[60] flex flex-col">
         <div aria-live="assertive" className="flex flex-col gap-2">
-          {toasts
-            .filter((t) => t.tone === "danger")
-            .map((t) => (
-              <ToastItem key={t.id} t={t} onDismiss={dismiss} />
-            ))}
+          {urgenti.map((t) => (
+            <ToastItem key={t.id} t={t} onDismiss={dismiss} />
+          ))}
         </div>
-        <div aria-live="polite" className="flex flex-col gap-2">
-          {toasts
-            .filter((t) => t.tone !== "danger")
-            .map((t) => (
-              <ToastItem key={t.id} t={t} onDismiss={dismiss} />
-            ))}
+        {/* No container gap: two empty live regions would push the stack down. */}
+        <div
+          aria-live="polite"
+          className={cn(
+            "flex flex-col gap-2",
+            urgenti.length > 0 && altri.length > 0 && "mt-2",
+          )}
+        >
+          {altri.map((t) => (
+            <ToastItem key={t.id} t={t} onDismiss={dismiss} />
+          ))}
         </div>
       </div>
     </ToastContext.Provider>

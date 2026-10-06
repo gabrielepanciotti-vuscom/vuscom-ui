@@ -27,7 +27,7 @@ test("package.json has no prepare script and declares css side effects", () => {
 });
 
 test("tone text is darker in light mode and token-based in dark", () => {
-  expect(TESTO.success).toBe("text-green-700 dark:text-success");
+  expect(TESTO.success).toBe("text-green-800 dark:text-success");
   expect(TESTO.warning).toBe("text-amber-800 dark:text-warning");
   expect(TESTO.info).toBe("text-sky-800 dark:text-info");
   expect(TESTO.danger).toBe("text-red-700 dark:text-red-400");
@@ -37,7 +37,7 @@ test("tone text is darker in light mode and token-based in dark", () => {
 test("badge uses the accessible tone text", () => {
   render(<Badge tone="success">Attivo</Badge>);
   expect(screen.getByText("Attivo")).toHaveClass(
-    "text-green-700",
+    "text-green-800",
     "dark:text-success",
   );
 });

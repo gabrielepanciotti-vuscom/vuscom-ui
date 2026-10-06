@@ -66,7 +66,11 @@ export default function Toggle({
             </div>
           )}
           {description && (
-            <div id={`${uid}-d`} className="text-xs text-muted-foreground">
+            <div
+              id={`${uid}-d`}
+              data-no-row-click
+              className="text-xs text-muted-foreground"
+            >
               {description}
             </div>
           )}

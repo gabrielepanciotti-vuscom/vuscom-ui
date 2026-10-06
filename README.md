@@ -75,7 +75,7 @@ Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 
 1. `package.json`:
    ```json
-   "@vuscom/ui": "github:gabrielepanciotti-vuscom/vuscom-ui#v1.0.1"
+   "@vuscom/ui": "github:gabrielepanciotti-vuscom/vuscom-ui#v1.0.2"
    ```
 2. `tailwind.config.js` — preset e `content` (ESM, come nei progetti Vite):
    ```js

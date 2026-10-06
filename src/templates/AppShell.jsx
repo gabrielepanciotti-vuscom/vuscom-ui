@@ -9,6 +9,8 @@ import { cn } from "../lib/cn.js";
 
 const STORAGE_KEY = "vuscom.sidebar.collapsed";
 const WIDTHS = { "7xl": "max-w-7xl", full: "max-w-none" };
+// Stable defaults: a fresh `[]` per render would re-run every memo below.
+const NESSUNA_VOCE = [];
 
 function readCollapsed() {
   try {
@@ -48,7 +50,8 @@ export default function AppShell({
   maxWidth = "7xl",
   children,
 }) {
-  const { nav = [], adminNav = [], ...sidebarProps } = sidebar;
+  const { nav = NESSUNA_VOCE, adminNav = NESSUNA_VOCE, ...sidebarProps } =
+    sidebar;
   const { pathname } = useLocation();
   const mainTree = useMemo(() => normalizeNavTree(nav), [nav]);
   const adminTree = useMemo(() => normalizeNavTree(adminNav), [adminNav]);
@@ -60,11 +63,16 @@ export default function AppShell({
   );
 
   const mainRef = useRef(null);
+  // The effect below must fire on navigation only: callers may pass `nav`
+  // inline (a new array each render), and re-running on that would scroll
+  // the page to the top and reopen groups the user closed on every render.
+  const treesRef = useRef(null);
+  treesRef.current = [...mainTree, ...adminTree];
 
   // Navigating into a collapsed group opens it (never closes the user's
   // others), and a new page starts from the top, not where the last one was.
   useEffect(() => {
-    const attivi = activeGroupIds([...mainTree, ...adminTree], pathname);
+    const attivi = activeGroupIds(treesRef.current, pathname);
     if (attivi.length > 0)
       setExpanded((prev) =>
         attivi.every((id) => prev.has(id))
@@ -72,7 +80,7 @@ export default function AppShell({
           : new Set([...prev, ...attivi]),
       );
     if (mainRef.current) mainRef.current.scrollTop = 0;
-  }, [pathname, mainTree, adminTree]);
+  }, [pathname]);
 
   const toggleCollapse = () =>
     setCollapsed((prev) => {

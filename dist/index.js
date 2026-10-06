@@ -3094,7 +3094,7 @@ var Textarea_default = Textarea;
 var TESTO = {
   neutral: "text-muted-foreground",
   primary: "text-blue-700 dark:text-primary",
-  success: "text-green-700 dark:text-success",
+  success: "text-green-800 dark:text-success",
   warning: "text-amber-800 dark:text-warning",
   danger: "text-red-700 dark:text-red-400",
   info: "text-sky-800 dark:text-info"
@@ -3345,13 +3345,18 @@ function useFloatingList(triggerRef, open) {
   useLayoutEffect(() => {
     if (!open) return void 0;
     misura();
-    window.addEventListener("scroll", misura, true);
+    const suScroll = (e) => {
+      const t = e.target;
+      if (!(t instanceof Element) || t.contains(triggerRef.current))
+        misura();
+    };
+    window.addEventListener("scroll", suScroll, true);
     window.addEventListener("resize", misura);
     return () => {
-      window.removeEventListener("scroll", misura, true);
+      window.removeEventListener("scroll", suScroll, true);
       window.removeEventListener("resize", misura);
     };
-  }, [open, misura]);
+  }, [open, misura, triggerRef]);
   return style;
 }
 
@@ -3589,7 +3594,15 @@ function Toggle({
           children: label
         }
       ),
-      description && /* @__PURE__ */ jsx14("div", { id: `${uid}-d`, className: "text-xs text-muted-foreground", children: description })
+      description && /* @__PURE__ */ jsx14(
+        "div",
+        {
+          id: `${uid}-d`,
+          "data-no-row-click": true,
+          className: "text-xs text-muted-foreground",
+          children: description
+        }
+      )
     ] })
   ] });
 }
@@ -4329,7 +4342,7 @@ function DataTable({
         tabIndex: onRowClick ? 0 : void 0,
         onClick: onRowClick ? (e) => {
           const hit = e.target.closest?.(INTERATTIVI);
-          if (hit && hit !== e.currentTarget) return;
+          if (hit && e.currentTarget.contains(hit)) return;
           onRowClick(row);
         } : void 0,
         onKeyDown: onRowClick ? (e) => {
@@ -4682,11 +4695,23 @@ function ToastProvider({ children }) {
     };
   }, []);
   const value = useMemo2(() => ({ toast, dismiss }), [toast, dismiss]);
+  const urgenti = toasts.filter((t) => t.tone === "danger");
+  const altri = toasts.filter((t) => t.tone !== "danger");
   return /* @__PURE__ */ jsxs24(ToastContext.Provider, { value, children: [
     children,
-    /* @__PURE__ */ jsxs24("div", { className: "pointer-events-none fixed right-4 top-4 z-[60] flex flex-col gap-2", children: [
-      /* @__PURE__ */ jsx29("div", { "aria-live": "assertive", className: "flex flex-col gap-2", children: toasts.filter((t) => t.tone === "danger").map((t) => /* @__PURE__ */ jsx29(ToastItem, { t, onDismiss: dismiss }, t.id)) }),
-      /* @__PURE__ */ jsx29("div", { "aria-live": "polite", className: "flex flex-col gap-2", children: toasts.filter((t) => t.tone !== "danger").map((t) => /* @__PURE__ */ jsx29(ToastItem, { t, onDismiss: dismiss }, t.id)) })
+    /* @__PURE__ */ jsxs24("div", { className: "pointer-events-none fixed right-4 top-4 z-[60] flex flex-col", children: [
+      /* @__PURE__ */ jsx29("div", { "aria-live": "assertive", className: "flex flex-col gap-2", children: urgenti.map((t) => /* @__PURE__ */ jsx29(ToastItem, { t, onDismiss: dismiss }, t.id)) }),
+      /* @__PURE__ */ jsx29(
+        "div",
+        {
+          "aria-live": "polite",
+          className: cn(
+            "flex flex-col gap-2",
+            urgenti.length > 0 && altri.length > 0 && "mt-2"
+          ),
+          children: altri.map((t) => /* @__PURE__ */ jsx29(ToastItem, { t, onDismiss: dismiss }, t.id))
+        }
+      )
     ] })
   ] });
 }
@@ -4703,6 +4728,7 @@ import { Menu } from "lucide-react";
 import { jsx as jsx30, jsxs as jsxs25 } from "react/jsx-runtime";
 var STORAGE_KEY = "vuscom.sidebar.collapsed";
 var WIDTHS = { "7xl": "max-w-7xl", full: "max-w-none" };
+var NESSUNA_VOCE = [];
 function readCollapsed() {
   try {
     return localStorage.getItem(STORAGE_KEY) === "true";
@@ -4730,7 +4756,7 @@ function AppShell({
   maxWidth = "7xl",
   children
 }) {
-  const { nav = [], adminNav = [], ...sidebarProps } = sidebar;
+  const { nav = NESSUNA_VOCE, adminNav = NESSUNA_VOCE, ...sidebarProps } = sidebar;
   const { pathname } = useLocation2();
   const mainTree = useMemo3(() => normalizeNavTree(nav), [nav]);
   const adminTree = useMemo3(() => normalizeNavTree(adminNav), [adminNav]);
@@ -4740,14 +4766,16 @@ function AppShell({
     () => new Set(activeGroupIds([...mainTree, ...adminTree], pathname))
   );
   const mainRef = useRef8(null);
+  const treesRef = useRef8(null);
+  treesRef.current = [...mainTree, ...adminTree];
   useEffect8(() => {
-    const attivi = activeGroupIds([...mainTree, ...adminTree], pathname);
+    const attivi = activeGroupIds(treesRef.current, pathname);
     if (attivi.length > 0)
       setExpanded(
         (prev) => attivi.every((id) => prev.has(id)) ? prev : /* @__PURE__ */ new Set([...prev, ...attivi])
       );
     if (mainRef.current) mainRef.current.scrollTop = 0;
-  }, [pathname, mainTree, adminTree]);
+  }, [pathname]);
   const toggleCollapse = () => setCollapsed((prev) => {
     const next = !prev;
     try {
