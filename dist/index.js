@@ -2861,13 +2861,82 @@ function formatRelativo(v, ora = /* @__PURE__ */ new Date()) {
   const giorni = Math.round(ore / 24);
   return giorni === 1 ? "ieri" : `${giorni} giorni fa`;
 }
+
+// src/theme/useTheme.js
+import { useCallback, useEffect as useEffect2, useState as useState2 } from "react";
+var leggi = () => typeof document !== "undefined" && document.documentElement.classList.contains("dark") ? "dark" : "light";
+function useTheme() {
+  const [theme, setThemeState] = useState2(leggi);
+  useEffect2(() => {
+    const obs = new MutationObserver(() => setThemeState(leggi()));
+    obs.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"]
+    });
+    return () => obs.disconnect();
+  }, []);
+  const setTheme = useCallback((t) => {
+    document.documentElement.classList.toggle("dark", t === "dark");
+    try {
+      localStorage.setItem("theme", t);
+    } catch {
+    }
+    setThemeState(t);
+  }, []);
+  const toggleTheme = useCallback(
+    () => setTheme(leggi() === "dark" ? "light" : "dark"),
+    [setTheme]
+  );
+  return { theme, setTheme, toggleTheme };
+}
+
+// src/theme/ThemeToggle.jsx
+import { Moon, Sun } from "lucide-react";
+import { jsx as jsx2 } from "react/jsx-runtime";
+function ThemeToggle({ className }) {
+  const { theme, toggleTheme } = useTheme();
+  const dark = theme === "dark";
+  return /* @__PURE__ */ jsx2(
+    "button",
+    {
+      type: "button",
+      role: "switch",
+      "aria-checked": dark,
+      "aria-label": "Tema scuro",
+      onClick: toggleTheme,
+      className: cn(
+        "relative h-6 w-11 shrink-0 rounded-full transition-colors duration-200",
+        "bg-slate-200 hover:bg-slate-300 active:bg-slate-400/70",
+        "dark:bg-indigo-600 dark:hover:bg-indigo-500 dark:active:bg-indigo-700",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        className
+      ),
+      children: /* @__PURE__ */ jsx2(
+        "span",
+        {
+          className: cn(
+            "absolute top-0.5 flex h-5 w-5 items-center justify-center rounded-full shadow-sm transition-all duration-200",
+            dark ? "left-[22px] bg-indigo-950" : "left-0.5 bg-white"
+          ),
+          children: dark ? /* @__PURE__ */ jsx2(Sun, { className: "h-3 w-3 text-amber-400" }) : /* @__PURE__ */ jsx2(Moon, { className: "h-3 w-3 text-slate-500" })
+        }
+      )
+    }
+  );
+}
+
+// src/theme/initScript.js
+var THEME_INIT_SCRIPT = "try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',!!d);}catch(e){}";
 export {
   AppSidebar,
+  THEME_INIT_SCRIPT,
+  ThemeToggle,
   cn,
   collectGroupIds,
   formatData,
   formatDataOra,
   formatNumero,
   formatRelativo,
-  normalizeNavTree
+  normalizeNavTree,
+  useTheme
 };
