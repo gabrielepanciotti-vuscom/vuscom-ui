@@ -1,6 +1,8 @@
 import { useId } from "react";
 import { cn } from "../lib/cn.js";
 
+// `id`, `aria-*` and other extra props land on the switch button, so a Field
+// wrapper can label and describe it. The label text toggles too.
 export default function Toggle({
   checked,
   onChange,
@@ -8,18 +10,29 @@ export default function Toggle({
   description,
   disabled,
   className,
+  id,
+  "aria-describedby": describedBy,
+  ...rest
 }) {
   const uid = useId();
+  const cambia = () => {
+    if (!disabled) onChange?.(!checked);
+  };
+  const descrizione =
+    [describedBy, description ? `${uid}-d` : null].filter(Boolean).join(" ") ||
+    undefined;
   return (
     <div className={cn("flex items-start gap-3", className)}>
       <button
+        aria-labelledby={label ? `${uid}-l` : undefined}
+        {...rest}
+        id={id}
         type="button"
         role="switch"
         aria-checked={!!checked}
-        aria-labelledby={label ? `${uid}-l` : undefined}
-        aria-describedby={description ? `${uid}-d` : undefined}
+        aria-describedby={descrizione}
         disabled={disabled}
-        onClick={() => onChange?.(!checked)}
+        onClick={cambia}
         className={cn(
           "relative mt-0.5 inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
@@ -42,7 +55,12 @@ export default function Toggle({
           {label && (
             <div
               id={`${uid}-l`}
-              className="text-sm font-medium text-foreground"
+              onClick={cambia}
+              data-no-row-click
+              className={cn(
+                "select-none text-sm font-medium text-foreground",
+                disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
+              )}
             >
               {label}
             </div>

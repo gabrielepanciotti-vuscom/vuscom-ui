@@ -1,5 +1,6 @@
 import { Children, cloneElement, isValidElement, useId } from "react";
 import { cn } from "../lib/cn.js";
+import { TESTO } from "../atoms/tones.js";
 
 export default function Field({
   label,
@@ -37,7 +38,7 @@ export default function Field({
         >
           {label}
           {required && (
-            <span className="ml-0.5 text-destructive" aria-hidden>
+            <span className={cn("ml-0.5", TESTO.danger)} aria-hidden>
               *
             </span>
           )}
@@ -50,7 +51,7 @@ export default function Field({
         </p>
       )}
       {error && (
-        <p id={errorId} role="alert" className="text-xs text-destructive">
+        <p id={errorId} role="alert" className={cn("text-xs", TESTO.danger)}>
           {error}
         </p>
       )}

@@ -21,8 +21,8 @@ await build({
   external: ["react", "react-dom", "react/jsx-runtime", "react-router-dom", "lucide-react"],
 });
 
-// Second entry "@vuscom/ui/utenti": no react-router-dom here, Outbound has no
-// router. Keep it a separate file so importing the users page never pulls the
+// Second entry "@vuscom/ui/utenti": no react-router-dom here, so the users page
+// mounts even outside a Router. Keep it a separate file so importing the users page never pulls the
 // sidebar (and its router import) in.
 await build({
   ...common,

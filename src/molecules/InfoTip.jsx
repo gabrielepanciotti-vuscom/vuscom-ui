@@ -7,8 +7,10 @@ export default function InfoTip({
   children,
   label = "Maggiori informazioni",
   side = "top",
+  wide,
 }) {
-  const long = typeof children === "string" && children.length > LONG;
+  // Long strings wrap on their own; JSX content opts in with `wide`.
+  const long = wide ?? (typeof children === "string" && children.length > LONG);
   return (
     <Tooltip content={children} side={side} wide={long}>
       <button

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Menu } from "lucide-react";
 import AppSidebar from "../AppSidebar.jsx";
@@ -43,7 +43,7 @@ function activeGroupIds(nodes, pathname) {
  * scrolling content area. Must be rendered inside a Router.
  */
 export default function AppShell({
-  sidebar,
+  sidebar = {},
   topbarRight,
   maxWidth = "7xl",
   children,
@@ -58,6 +58,21 @@ export default function AppShell({
   const [expanded, setExpanded] = useState(
     () => new Set(activeGroupIds([...mainTree, ...adminTree], pathname)),
   );
+
+  const mainRef = useRef(null);
+
+  // Navigating into a collapsed group opens it (never closes the user's
+  // others), and a new page starts from the top, not where the last one was.
+  useEffect(() => {
+    const attivi = activeGroupIds([...mainTree, ...adminTree], pathname);
+    if (attivi.length > 0)
+      setExpanded((prev) =>
+        attivi.every((id) => prev.has(id))
+          ? prev
+          : new Set([...prev, ...attivi]),
+      );
+    if (mainRef.current) mainRef.current.scrollTop = 0;
+  }, [pathname, mainTree, adminTree]);
 
   const toggleCollapse = () =>
     setCollapsed((prev) => {
@@ -103,7 +118,10 @@ export default function AppShell({
           />
           <div className="ml-auto flex items-center gap-2">{topbarRight}</div>
         </header>
-        <main className="flex-1 overflow-y-auto scrollbar-thin p-4 md:p-6">
+        <main
+          ref={mainRef}
+          className="flex-1 overflow-y-auto scrollbar-thin p-4 md:p-6"
+        >
           <div className={cn("mx-auto", WIDTHS[maxWidth] ?? WIDTHS["7xl"])}>
             {children}
           </div>
@@ -112,4 +130,3 @@ export default function AppShell({
     </div>
   );
 }
-

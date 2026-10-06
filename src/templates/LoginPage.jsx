@@ -69,7 +69,10 @@ export default function LoginPage({
             />
           </Field>
           <div className="flex flex-col gap-1.5">
-            <label htmlFor={passwordId} className="text-sm font-medium text-foreground">
+            <label
+              htmlFor={passwordId}
+              className="text-sm font-medium text-foreground"
+            >
               Password
             </label>
             <div className="relative">
@@ -97,7 +100,9 @@ export default function LoginPage({
           </Button>
         </form>
         {footer && (
-          <p className="text-center text-xs text-muted-foreground">{footer}</p>
+          <div className="text-center text-xs text-muted-foreground">
+            {footer}
+          </div>
         )}
       </div>
     </div>

@@ -7,7 +7,12 @@ const valida = (v) => {
 };
 
 export function formatNumero(v, opts = {}) {
-  const maximumFractionDigits = opts.style === "percent" ? 0 : 2;
+  const predefinito = opts.style === "percent" ? 0 : 2;
+  // Intl throws a RangeError when min > max: an explicit min raises the default max.
+  const maximumFractionDigits = Math.max(
+    opts.minimumFractionDigits ?? 0,
+    predefinito,
+  );
   return Number(v ?? 0).toLocaleString(LOCALE, {
     maximumFractionDigits,
     // it-IT skips the thousands separator on 4-digit numbers (1581); we want 1.581.
@@ -43,12 +48,18 @@ export function formatDataOra(v) {
 export function formatRelativo(v, ora = new Date()) {
   const d = valida(v);
   if (!d) return "—";
-  const sec = Math.round((ora - d) / 1000);
+  const diff = Math.round((ora - d) / 1000);
+  const futuro = diff < 0;
+  const sec = Math.abs(diff);
   if (sec < 60) return "adesso";
   const min = Math.round(sec / 60);
-  if (min < 60) return `${min} min fa`;
+  if (min < 60) return futuro ? `tra ${min} min` : `${min} min fa`;
   const ore = Math.round(min / 60);
-  if (ore < 24) return ore === 1 ? "1 ora fa" : `${ore} ore fa`;
+  if (ore < 24) {
+    const n = ore === 1 ? "1 ora" : `${ore} ore`;
+    return futuro ? `tra ${n}` : `${n} fa`;
+  }
   const giorni = Math.round(ore / 24);
+  if (futuro) return giorni === 1 ? "domani" : `tra ${giorni} giorni`;
   return giorni === 1 ? "ieri" : `${giorni} giorni fa`;
 }

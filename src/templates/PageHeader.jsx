@@ -1,5 +1,6 @@
 import { BookOpen } from "lucide-react";
 import InfoTip from "../molecules/InfoTip.jsx";
+import { cn } from "../lib/cn.js";
 
 /** Standard page title block: title, description, help, actions and tabs. */
 export default function PageHeader({
@@ -10,9 +11,10 @@ export default function PageHeader({
   helpHref,
   actions,
   tabs,
+  className,
 }) {
   return (
-    <div className="mb-6 space-y-4">
+    <div className={cn("mb-6 space-y-4", className)}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 space-y-1">
           <div className="flex items-center gap-2">

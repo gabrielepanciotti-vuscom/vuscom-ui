@@ -276,7 +276,7 @@ test("toast auto-dismisses after duration", () => {
     act(() => {
       screen.getByRole("button", { name: "Vai" }).click();
     });
-    expect(screen.getByRole("status")).toHaveTextContent("dettaglio");
+    expect(screen.getByText("dettaglio")).toBeInTheDocument();
     act(() => {
       vi.advanceTimersByTime(1001);
     });

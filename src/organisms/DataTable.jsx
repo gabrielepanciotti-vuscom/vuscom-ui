@@ -5,6 +5,10 @@ import { SkeletonTable } from "./Skeleton.jsx";
 import EmptyState from "./EmptyState.jsx";
 import useSort from "./useSort.js";
 
+// Clicks on these (or inside them) belong to the control, not to the row.
+const INTERATTIVI =
+  "a,button,input,textarea,select,[role=listbox],[role=option],[role=switch],[role=checkbox],[data-no-row-click]";
+
 const ALIGN = { left: "text-left", right: "text-right", center: "text-center" };
 const JUSTIFY = {
   left: "justify-start",
@@ -30,6 +34,7 @@ export default function DataTable({
   initialSort,
   dense = false,
   caption,
+  className,
 }) {
   const accessors = {};
   columns.forEach((c) => {
@@ -63,7 +68,7 @@ export default function DataTable({
   }
 
   return (
-    <Card className="p-0">
+    <Card className={cn("p-0", className)}>
       <div className="overflow-x-auto">
         {body ? (
           body
@@ -122,7 +127,15 @@ export default function DataTable({
                 <tr
                   key={rowKey(row)}
                   tabIndex={onRowClick ? 0 : undefined}
-                  onClick={onRowClick ? () => onRowClick(row) : undefined}
+                  onClick={
+                    onRowClick
+                      ? (e) => {
+                          const hit = e.target.closest?.(INTERATTIVI);
+                          if (hit && hit !== e.currentTarget) return;
+                          onRowClick(row);
+                        }
+                      : undefined
+                  }
                   onKeyDown={
                     onRowClick
                       ? (e) => {

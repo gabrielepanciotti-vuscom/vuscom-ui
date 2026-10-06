@@ -2,6 +2,8 @@ import { useId } from "react";
 import { Check, Minus } from "lucide-react";
 import { cn } from "../lib/cn.js";
 
+// `id`, `aria-*` and other extra props land on the checkbox button, so a Field
+// wrapper can label and describe it. The label text toggles too.
 export default function Checkbox({
   checked,
   indeterminate,
@@ -9,18 +11,25 @@ export default function Checkbox({
   label,
   disabled,
   className,
+  id,
+  ...rest
 }) {
   const uid = useId();
   const on = indeterminate || checked;
+  const cambia = () => {
+    if (!disabled) onChange?.(indeterminate ? true : !checked);
+  };
   return (
     <div className={cn("flex items-center gap-2", className)}>
       <button
+        aria-labelledby={label ? uid : undefined}
+        {...rest}
+        id={id}
         type="button"
         role="checkbox"
         aria-checked={indeterminate ? "mixed" : !!checked}
-        aria-labelledby={label ? uid : undefined}
         disabled={disabled}
-        onClick={() => onChange?.(indeterminate ? true : !checked)}
+        onClick={cambia}
         className={cn(
           "flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
@@ -39,7 +48,12 @@ export default function Checkbox({
       {label && (
         <span
           id={uid}
-          className={cn("text-sm text-foreground", disabled && "opacity-50")}
+          onClick={cambia}
+          data-no-row-click
+          className={cn(
+            "select-none text-sm text-foreground",
+            disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
+          )}
         >
           {label}
         </span>

@@ -19,32 +19,46 @@ export default function ConfirmDialog({
 }) {
   // A ref, not state: two clicks in the same tick both see the stale `loading`.
   const inCorso = useRef(false);
+  // Bumped on every close: a request still pending from a previous opening
+  // must not close, unlock or show an error in the next one.
+  const generazione = useRef(0);
   const [loading, setLoading] = useState(false);
   const [errore, setErrore] = useState(null);
   const [testo, setTesto] = useState("");
 
   useEffect(() => {
     if (!open) {
+      generazione.current += 1;
+      inCorso.current = false;
+      setLoading(false);
       setErrore(null);
       setTesto("");
     }
   }, [open]);
 
-  const sbloccato = !requireText || testo === requireText;
+  const sbloccato = !requireText || testo.trim() === requireText;
 
   async function conferma() {
     if (inCorso.current || !sbloccato) return; // a second click while pending must not fire again
+    const mia = generazione.current;
     inCorso.current = true;
     setLoading(true);
     setErrore(null);
     try {
       await onConfirm();
-      onClose();
+      if (mia === generazione.current) onClose();
     } catch (e) {
-      setErrore(e?.message || "Operazione non riuscita");
+      if (mia === generazione.current)
+        setErrore(
+          typeof e === "string" && e
+            ? e
+            : e?.message || "Operazione non riuscita",
+        );
     } finally {
-      inCorso.current = false;
-      setLoading(false);
+      if (mia === generazione.current) {
+        inCorso.current = false;
+        setLoading(false);
+      }
     }
   }
 
@@ -60,6 +74,7 @@ export default function ConfirmDialog({
       title={title}
       size="sm"
       closeOnBackdrop={!loading}
+      closeDisabled={loading}
       footer={
         <>
           <Button variant="outline" onClick={chiudi} disabled={loading}>

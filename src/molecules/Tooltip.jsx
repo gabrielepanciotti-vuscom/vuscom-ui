@@ -43,13 +43,21 @@ export default function Tooltip({
     fn(e);
   };
 
+  const proprio = child.props["aria-describedby"];
   const trigger = cloneElement(child, {
-    "aria-describedby": open ? id : child.props["aria-describedby"],
+    "aria-describedby": open
+      ? [proprio, id].filter(Boolean).join(" ")
+      : proprio,
     onMouseEnter: chain("onMouseEnter", show),
     onMouseLeave: chain("onMouseLeave", hide),
     onFocus: chain("onFocus", show),
     onBlur: chain("onBlur", hide),
-    onKeyDown: chain("onKeyDown", (e) => e.key === "Escape" && hide()),
+    onKeyDown: chain("onKeyDown", (e) => {
+      if (e.key !== "Escape" || !open) return;
+      // Consumed here: an enclosing Dialog must not close on the same Esc.
+      e.preventDefault();
+      hide();
+    }),
   });
 
   return (

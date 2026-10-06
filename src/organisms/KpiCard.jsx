@@ -4,14 +4,10 @@ import { formatNumero } from "../lib/format.js";
 import InfoTip from "../molecules/InfoTip.jsx";
 import { Card } from "./Card.jsx";
 import { Skeleton } from "./Skeleton.jsx";
+import { TESTO, TINTE } from "../atoms/tones.js";
 
-const ICONE = {
-  neutral: "bg-muted text-muted-foreground",
-  primary: "bg-primary/15 text-primary",
-  success: "bg-success/15 text-success",
-  warning: "bg-warning/15 text-warning",
-  danger: "bg-destructive/15 text-destructive",
-};
+const vuoto = (v) =>
+  v === null || v === undefined || (typeof v === "number" && Number.isNaN(v));
 
 function Delta({ delta }) {
   const su = delta.value > 0;
@@ -21,8 +17,8 @@ function Delta({ delta }) {
     <span
       className={cn(
         "inline-flex items-center gap-0.5 text-xs font-medium",
-        su && "text-success",
-        giu && "text-destructive",
+        su && TESTO.success,
+        giu && TESTO.danger,
         !su && !giu && "text-muted-foreground",
       )}
     >
@@ -49,7 +45,11 @@ export default function KpiCard({
   help,
   className,
 }) {
-  const mostrato = typeof value === "number" ? formatNumero(value) : value;
+  const mostrato = vuoto(value)
+    ? "—"
+    : typeof value === "number"
+      ? formatNumero(value)
+      : value;
   return (
     <Card className={cn("p-5", className)}>
       <div className="flex items-start justify-between gap-3">
@@ -70,7 +70,7 @@ export default function KpiCard({
           <span
             className={cn(
               "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
-              ICONE[tone] ?? ICONE.neutral,
+              TINTE[tone] ?? TINTE.neutral,
             )}
           >
             <Icon className="h-5 w-5" aria-hidden />

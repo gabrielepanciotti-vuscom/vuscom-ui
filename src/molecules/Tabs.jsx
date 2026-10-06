@@ -1,13 +1,35 @@
-import { useRef } from "react";
+import { useId, useRef } from "react";
 import { cn } from "../lib/cn.js";
 
+const tabId = (prefix, id) => (prefix ? `${prefix}-tab-${id}` : `tab-${id}`);
+const panelId = (prefix, id) =>
+  prefix ? `${prefix}-panel-${id}` : `panel-${id}`;
+
+/**
+ * Ids scoped to one Tabs instance, so two tab bars on the same page with the
+ * same item ids do not collide:
+ *   const ids = useTabIds();
+ *   <Tabs idPrefix={ids.prefix} … />
+ *   <div role="tabpanel" id={ids.panel(x)} aria-labelledby={ids.tab(x)}>
+ */
+export function useTabIds() {
+  const prefix = useId().replace(/:/g, "");
+  return {
+    prefix,
+    tab: (id) => tabId(prefix, id),
+    panel: (id) => panelId(prefix, id),
+  };
+}
+
 // Underline tabs. The caller renders each panel with role="tabpanel"
-// id="panel-<id>" aria-labelledby="tab-<id>".
+// id="panel-<id>" aria-labelledby="tab-<id>" (legacy, page-global ids), or
+// passes `idPrefix` from useTabIds() and uses its `panel`/`tab` helpers.
 export default function Tabs({
   value,
   onChange,
   items = [],
   "aria-label": ariaLabel,
+  idPrefix,
   className,
 }) {
   const refs = useRef([]);
@@ -36,9 +58,9 @@ export default function Tabs({
             }}
             type="button"
             role="tab"
-            id={`tab-${t.id}`}
+            id={tabId(idPrefix, t.id)}
             aria-selected={attiva}
-            aria-controls={attiva ? `panel-${t.id}` : undefined}
+            aria-controls={attiva ? panelId(idPrefix, t.id) : undefined}
             tabIndex={attiva ? 0 : -1}
             onClick={() => onChange?.(t.id)}
             onKeyDown={(e) => {

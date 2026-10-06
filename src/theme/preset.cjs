@@ -25,6 +25,8 @@ module.exports = {
         app: c("app-bg"),
         chart: { 1: c("chart-1"), 2: c("chart-2"), 3: c("chart-3"), 4: c("chart-4"), 5: c("chart-5"), 6: c("chart-6"), 7: c("chart-7"), 8: c("chart-8") },
       },
+      // Bare `border` / `divide-y` (preflight) would otherwise fall back to gray-200 in dark mode.
+      borderColor: { DEFAULT: c("border") },
       borderRadius: { lg: "var(--radius)", md: "calc(var(--radius) - 2px)", sm: "calc(var(--radius) - 4px)" },
       keyframes: {
         "fade-in": { from: { opacity: "0", transform: "translateY(4px)" }, to: { opacity: "1", transform: "translateY(0)" } },

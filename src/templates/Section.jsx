@@ -1,7 +1,15 @@
+import { cn } from "../lib/cn.js";
+
 /** Titled block of a page; the heading row is omitted when there is nothing to show. */
-export default function Section({ title, description, actions, children }) {
+export default function Section({
+  title,
+  description,
+  actions,
+  className,
+  children,
+}) {
   return (
-    <section className="space-y-3">
+    <section className={cn("space-y-3", className)}>
       {(title || description || actions) && (
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">

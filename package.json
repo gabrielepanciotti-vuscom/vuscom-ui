@@ -1,6 +1,6 @@
 {
   "name": "@vuscom/ui",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Design system VUS COM: token, componenti e struttura delle pagine",
   "license": "UNLICENSED",
   "type": "module",
@@ -25,9 +25,11 @@
     "dist",
     "src"
   ],
+  "sideEffects": [
+    "*.css"
+  ],
   "scripts": {
     "build": "node build.mjs",
-    "prepare": "node build.mjs",
     "test": "vitest run",
     "catalogo": "vite catalogo"
   },

@@ -33,6 +33,7 @@ export default function Dialog({
   footer,
   children,
   closeOnBackdrop = true,
+  closeDisabled = false,
   className,
 }) {
   const titleId = useId();
@@ -55,6 +56,8 @@ export default function Dialog({
     const onKey = (e) => {
       if (pila[pila.length - 1] !== token) return;
       if (e.key === "Escape") {
+        // A child (open Select list, visible tooltip) already consumed this Esc.
+        if (e.defaultPrevented) return;
         e.stopPropagation();
         onCloseRef.current?.();
         return;
@@ -136,6 +139,7 @@ export default function Dialog({
               label="Chiudi"
               size="sm"
               onClick={() => onClose?.()}
+              disabled={closeDisabled}
               className="-mr-1 -mt-1 shrink-0"
             />
           </div>

@@ -2825,7 +2825,11 @@ var valida = (v) => {
   return Number.isNaN(d.getTime()) ? null : d;
 };
 function formatNumero(v, opts = {}) {
-  const maximumFractionDigits = opts.style === "percent" ? 0 : 2;
+  const predefinito = opts.style === "percent" ? 0 : 2;
+  const maximumFractionDigits = Math.max(
+    opts.minimumFractionDigits ?? 0,
+    predefinito
+  );
   return Number(v ?? 0).toLocaleString(LOCALE, {
     maximumFractionDigits,
     // it-IT skips the thousands separator on 4-digit numbers (1581); we want 1.581.
@@ -2854,13 +2858,19 @@ function formatDataOra(v) {
 function formatRelativo(v, ora = /* @__PURE__ */ new Date()) {
   const d = valida(v);
   if (!d) return "\u2014";
-  const sec = Math.round((ora - d) / 1e3);
+  const diff = Math.round((ora - d) / 1e3);
+  const futuro = diff < 0;
+  const sec = Math.abs(diff);
   if (sec < 60) return "adesso";
   const min = Math.round(sec / 60);
-  if (min < 60) return `${min} min fa`;
+  if (min < 60) return futuro ? `tra ${min} min` : `${min} min fa`;
   const ore = Math.round(min / 60);
-  if (ore < 24) return ore === 1 ? "1 ora fa" : `${ore} ore fa`;
+  if (ore < 24) {
+    const n = ore === 1 ? "1 ora" : `${ore} ore`;
+    return futuro ? `tra ${n}` : `${n} fa`;
+  }
   const giorni = Math.round(ore / 24);
+  if (futuro) return giorni === 1 ? "domani" : `tra ${giorni} giorni`;
   return giorni === 1 ? "ieri" : `${giorni} giorni fa`;
 }
 
@@ -2928,7 +2938,7 @@ function ThemeToggle({ className }) {
 }
 
 // src/theme/initScript.js
-var THEME_INIT_SCRIPT = "try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',!!d);}catch(e){}";
+var THEME_INIT_SCRIPT = "try{var t=null;try{t=localStorage.getItem('theme')}catch(e){}var d=t?t==='dark':window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',!!d);}catch(e){}";
 
 // src/atoms/Button.jsx
 import { forwardRef } from "react";
@@ -3081,14 +3091,25 @@ var Textarea = forwardRef4(function Textarea2({ invalid, className, rows = 3, ..
 var Textarea_default = Textarea;
 
 // src/atoms/tones.js
-var TINTE = {
-  neutral: "bg-muted text-muted-foreground",
-  primary: "bg-primary/15 text-primary",
-  success: "bg-success/15 text-success",
-  warning: "bg-warning/15 text-warning",
-  danger: "bg-destructive/15 text-destructive",
-  info: "bg-info/15 text-info"
+var TESTO = {
+  neutral: "text-muted-foreground",
+  primary: "text-blue-700 dark:text-primary",
+  success: "text-green-700 dark:text-success",
+  warning: "text-amber-800 dark:text-warning",
+  danger: "text-red-700 dark:text-red-400",
+  info: "text-sky-800 dark:text-info"
 };
+var SFONDI = {
+  neutral: "bg-muted",
+  primary: "bg-primary/15",
+  success: "bg-success/15",
+  warning: "bg-warning/15",
+  danger: "bg-destructive/15",
+  info: "bg-info/15"
+};
+var TINTE = Object.fromEntries(
+  Object.keys(SFONDI).map((k) => [k, `${SFONDI[k]} ${TESTO[k]}`])
+);
 var PIENI = {
   neutral: "bg-muted-foreground",
   primary: "bg-primary",
@@ -3198,24 +3219,24 @@ function ProgressBar({
   tone = "primary",
   label,
   showValue = false,
-  className
+  className,
+  "aria-label": ariaLabel
 }) {
   const tetto = max > 0 ? max : 0;
   const now = tetto > 0 ? Math.min(Math.max(Number(value) || 0, 0), tetto) : 0;
   const pct = tetto > 0 ? now / tetto * 100 : 0;
+  const larghezza = pct > 0 && pct < 2 ? 2 : pct;
+  const testo = pct > 0 && pct < 1 ? "<1%" : `${Math.round(pct)}%`;
   return /* @__PURE__ */ jsxs7("div", { className: cn("w-full", className), children: [
     (label || showValue) && /* @__PURE__ */ jsxs7("div", { className: "mb-1 flex items-center justify-between text-xs", children: [
       /* @__PURE__ */ jsx10("span", { className: "font-medium text-foreground", children: label }),
-      showValue && /* @__PURE__ */ jsxs7("span", { className: "tabular-nums text-muted-foreground", children: [
-        Math.round(pct),
-        "%"
-      ] })
+      showValue && /* @__PURE__ */ jsx10("span", { className: "tabular-nums text-muted-foreground", children: testo })
     ] }),
     /* @__PURE__ */ jsx10(
       "div",
       {
         role: "progressbar",
-        "aria-label": label,
+        "aria-label": ariaLabel ?? label,
         "aria-valuenow": now,
         "aria-valuemin": 0,
         "aria-valuemax": tetto,
@@ -3227,7 +3248,7 @@ function ProgressBar({
               "h-full rounded-full transition-all duration-300",
               PIENI[tone]
             ),
-            style: { width: `${pct}%` }
+            style: { width: `${larghezza}%` }
           }
         )
       }
@@ -3282,19 +3303,59 @@ function Field({
         className: "text-sm font-medium text-foreground",
         children: [
           label,
-          required && /* @__PURE__ */ jsx12("span", { className: "ml-0.5 text-destructive", "aria-hidden": true, children: "*" })
+          required && /* @__PURE__ */ jsx12("span", { className: cn("ml-0.5", TESTO.danger), "aria-hidden": true, children: "*" })
         ]
       }
     ),
     control,
     hint && !error && /* @__PURE__ */ jsx12("p", { id: hintId, className: "text-xs text-muted-foreground", children: hint }),
-    error && /* @__PURE__ */ jsx12("p", { id: errorId, role: "alert", className: "text-xs text-destructive", children: error })
+    error && /* @__PURE__ */ jsx12("p", { id: errorId, role: "alert", className: cn("text-xs", TESTO.danger), children: error })
   ] });
 }
 
 // src/molecules/Select.jsx
-import { useEffect as useEffect3, useId as useId2, useRef, useState as useState3 } from "react";
+import { useEffect as useEffect3, useId as useId2, useRef, useState as useState4 } from "react";
+import { createPortal } from "react-dom";
 import { Check, ChevronDown } from "lucide-react";
+
+// src/molecules/useFloatingList.js
+import { useCallback as useCallback2, useLayoutEffect, useState as useState3 } from "react";
+var GAP = 4;
+var MAX_HEIGHT = 256;
+var MARGIN = 8;
+function useFloatingList(triggerRef, open) {
+  const [style, setStyle] = useState3(null);
+  const misura = useCallback2(() => {
+    const el = triggerRef.current;
+    if (!el) return;
+    const r2 = el.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const sotto = vh - r2.bottom - GAP - MARGIN;
+    const sopra = r2.top - GAP - MARGIN;
+    const suSu = sotto < MAX_HEIGHT && sopra > sotto;
+    const spazio = Math.max(suSu ? sopra : sotto, 0);
+    setStyle({
+      position: "fixed",
+      left: r2.left,
+      width: r2.width,
+      maxHeight: Math.min(MAX_HEIGHT, spazio) || MAX_HEIGHT,
+      ...suSu ? { bottom: vh - r2.top + GAP } : { top: r2.bottom + GAP }
+    });
+  }, [triggerRef]);
+  useLayoutEffect(() => {
+    if (!open) return void 0;
+    misura();
+    window.addEventListener("scroll", misura, true);
+    window.addEventListener("resize", misura);
+    return () => {
+      window.removeEventListener("scroll", misura, true);
+      window.removeEventListener("resize", misura);
+    };
+  }, [open, misura]);
+  return style;
+}
+
+// src/molecules/Select.jsx
 import { jsx as jsx13, jsxs as jsxs9 } from "react/jsx-runtime";
 var CLEAR = "__clear__";
 function Select({
@@ -3307,12 +3368,18 @@ function Select({
   invalid,
   "aria-label": ariaLabel,
   className,
+  onKeyDown: onKeyDownProp,
+  onKeyUp: onKeyUpProp,
+  onClick: onClickProp,
   ...rest
 }) {
-  const [open, setOpen] = useState3(false);
-  const [active, setActive] = useState3(-1);
+  const [open, setOpen] = useState4(false);
+  const [active, setActive] = useState4(-1);
   const rootRef = useRef(null);
+  const triggerRef = useRef(null);
+  const listRef = useRef(null);
   const uid = useId2();
+  const listStyle = useFloatingList(triggerRef, open);
   const entries = [
     ...allowClear ? [{ value: CLEAR, label: "Nessuno", clear: true }] : [],
     ...options
@@ -3322,8 +3389,8 @@ function Select({
   useEffect3(() => {
     if (!open) return void 0;
     const fuori = (e) => {
-      if (rootRef.current && !rootRef.current.contains(e.target))
-        setOpen(false);
+      const dentro = rootRef.current?.contains(e.target) || listRef.current?.contains(e.target);
+      if (!dentro) setOpen(false);
     };
     document.addEventListener("mousedown", fuori);
     return () => document.removeEventListener("mousedown", fuori);
@@ -3352,7 +3419,8 @@ function Select({
     }
   };
   const onKeyDown = (e) => {
-    if (disabled) return;
+    onKeyDownProp?.(e);
+    if (disabled || e.defaultPrevented) return;
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
       if (!open) apri();
@@ -3372,6 +3440,8 @@ function Select({
     /* @__PURE__ */ jsxs9(
       "button",
       {
+        ...rest,
+        ref: triggerRef,
         type: "button",
         disabled,
         "aria-label": ariaLabel,
@@ -3380,14 +3450,19 @@ function Select({
         "aria-controls": open ? `${uid}-list` : void 0,
         "aria-activedescendant": open && active >= 0 ? optId(active) : void 0,
         "aria-invalid": invalid ? "true" : void 0,
-        onClick: () => open ? setOpen(false) : apri(),
+        onClick: (e) => {
+          onClickProp?.(e);
+          if (!e.defaultPrevented) open ? setOpen(false) : apri();
+        },
         onKeyDown,
-        onKeyUp: (e) => e.key === " " && e.preventDefault(),
+        onKeyUp: (e) => {
+          onKeyUpProp?.(e);
+          if (e.key === " ") e.preventDefault();
+        },
         className: cn(
           campoClasses(invalid),
           "flex h-10 items-center justify-between gap-2 px-3 text-left"
         ),
-        ...rest,
         children: [
           /* @__PURE__ */ jsx13("span", { className: cn("truncate", !selected && "text-muted-foreground"), children: selected ? selected.label : placeholder }),
           /* @__PURE__ */ jsx13(
@@ -3403,43 +3478,49 @@ function Select({
         ]
       }
     ),
-    open && /* @__PURE__ */ jsx13(
-      "ul",
-      {
-        id: `${uid}-list`,
-        role: "listbox",
-        "aria-label": ariaLabel,
-        className: "absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-lg border border-border bg-card py-1 shadow-lg",
-        children: entries.map((o, i) => {
-          const sel = !o.clear && o.value === value;
-          return /* @__PURE__ */ jsxs9(
-            "li",
-            {
-              id: optId(i),
-              role: "option",
-              "aria-selected": sel,
-              "aria-disabled": o.disabled || void 0,
-              onMouseEnter: () => !o.disabled && setActive(i),
-              onClick: () => scegli(o),
-              className: cn(
-                "flex cursor-pointer items-start gap-2 px-3 py-2 text-sm transition-colors",
-                o.disabled && "cursor-not-allowed opacity-50",
-                i === active && "bg-muted",
-                sel ? "text-primary" : "text-foreground",
-                o.clear && "italic text-muted-foreground"
-              ),
-              children: [
-                /* @__PURE__ */ jsxs9("div", { className: "min-w-0 flex-1", children: [
-                  /* @__PURE__ */ jsx13("div", { className: "font-medium", children: o.label }),
-                  o.description && /* @__PURE__ */ jsx13("div", { className: "mt-0.5 text-xs text-muted-foreground", children: o.description })
-                ] }),
-                sel && /* @__PURE__ */ jsx13(Check, { className: "mt-0.5 h-4 w-4 shrink-0", "aria-hidden": true })
-              ]
-            },
-            o.value
-          );
-        })
-      }
+    open && createPortal(
+      /* @__PURE__ */ jsx13(
+        "ul",
+        {
+          ref: listRef,
+          id: `${uid}-list`,
+          role: "listbox",
+          "aria-label": ariaLabel,
+          style: listStyle ?? { position: "fixed" },
+          onMouseDown: (e) => e.preventDefault(),
+          className: "z-[70] max-h-64 overflow-y-auto rounded-lg border border-border bg-card py-1 shadow-lg",
+          children: entries.map((o, i) => {
+            const sel = !o.clear && o.value === value;
+            return /* @__PURE__ */ jsxs9(
+              "li",
+              {
+                id: optId(i),
+                role: "option",
+                "aria-selected": sel,
+                "aria-disabled": o.disabled || void 0,
+                onMouseEnter: () => !o.disabled && setActive(i),
+                onClick: () => scegli(o),
+                className: cn(
+                  "flex cursor-pointer items-start gap-2 px-3 py-2 text-sm transition-colors",
+                  o.disabled && "cursor-not-allowed opacity-50",
+                  i === active && "bg-muted",
+                  sel ? "text-primary" : "text-foreground",
+                  o.clear && "italic text-muted-foreground"
+                ),
+                children: [
+                  /* @__PURE__ */ jsxs9("div", { className: "min-w-0 flex-1", children: [
+                    /* @__PURE__ */ jsx13("div", { className: "font-medium", children: o.label }),
+                    o.description && /* @__PURE__ */ jsx13("div", { className: "mt-0.5 text-xs text-muted-foreground", children: o.description })
+                  ] }),
+                  sel && /* @__PURE__ */ jsx13(Check, { className: "mt-0.5 h-4 w-4 shrink-0", "aria-hidden": true })
+                ]
+              },
+              o.value
+            );
+          })
+        }
+      ),
+      document.body
     )
   ] });
 }
@@ -3453,20 +3534,29 @@ function Toggle({
   label,
   description,
   disabled,
-  className
+  className,
+  id,
+  "aria-describedby": describedBy,
+  ...rest
 }) {
   const uid = useId3();
+  const cambia = () => {
+    if (!disabled) onChange?.(!checked);
+  };
+  const descrizione = [describedBy, description ? `${uid}-d` : null].filter(Boolean).join(" ") || void 0;
   return /* @__PURE__ */ jsxs10("div", { className: cn("flex items-start gap-3", className), children: [
     /* @__PURE__ */ jsx14(
       "button",
       {
+        "aria-labelledby": label ? `${uid}-l` : void 0,
+        ...rest,
+        id,
         type: "button",
         role: "switch",
         "aria-checked": !!checked,
-        "aria-labelledby": label ? `${uid}-l` : void 0,
-        "aria-describedby": description ? `${uid}-d` : void 0,
+        "aria-describedby": descrizione,
         disabled,
-        onClick: () => onChange?.(!checked),
+        onClick: cambia,
         className: cn(
           "relative mt-0.5 inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
@@ -3490,7 +3580,12 @@ function Toggle({
         "div",
         {
           id: `${uid}-l`,
-          className: "text-sm font-medium text-foreground",
+          onClick: cambia,
+          "data-no-row-click": true,
+          className: cn(
+            "select-none text-sm font-medium text-foreground",
+            disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+          ),
           children: label
         }
       ),
@@ -3509,20 +3604,27 @@ function Checkbox({
   onChange,
   label,
   disabled,
-  className
+  className,
+  id,
+  ...rest
 }) {
   const uid = useId4();
   const on = indeterminate || checked;
+  const cambia = () => {
+    if (!disabled) onChange?.(indeterminate ? true : !checked);
+  };
   return /* @__PURE__ */ jsxs11("div", { className: cn("flex items-center gap-2", className), children: [
     /* @__PURE__ */ jsx15(
       "button",
       {
+        "aria-labelledby": label ? uid : void 0,
+        ...rest,
+        id,
         type: "button",
         role: "checkbox",
         "aria-checked": indeterminate ? "mixed" : !!checked,
-        "aria-labelledby": label ? uid : void 0,
         disabled,
-        onClick: () => onChange?.(indeterminate ? true : !checked),
+        onClick: cambia,
         className: cn(
           "flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
@@ -3536,7 +3638,12 @@ function Checkbox({
       "span",
       {
         id: uid,
-        className: cn("text-sm text-foreground", disabled && "opacity-50"),
+        onClick: cambia,
+        "data-no-row-click": true,
+        className: cn(
+          "select-none text-sm text-foreground",
+          disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+        ),
         children: label
       }
     )
@@ -3544,13 +3651,24 @@ function Checkbox({
 }
 
 // src/molecules/Tabs.jsx
-import { useRef as useRef2 } from "react";
+import { useId as useId5, useRef as useRef2 } from "react";
 import { jsx as jsx16, jsxs as jsxs12 } from "react/jsx-runtime";
+var tabId = (prefix, id) => prefix ? `${prefix}-tab-${id}` : `tab-${id}`;
+var panelId = (prefix, id) => prefix ? `${prefix}-panel-${id}` : `panel-${id}`;
+function useTabIds() {
+  const prefix = useId5().replace(/:/g, "");
+  return {
+    prefix,
+    tab: (id) => tabId(prefix, id),
+    panel: (id) => panelId(prefix, id)
+  };
+}
 function Tabs({
   value,
   onChange,
   items = [],
   "aria-label": ariaLabel,
+  idPrefix,
   className
 }) {
   const refs = useRef2([]);
@@ -3579,9 +3697,9 @@ function Tabs({
             },
             type: "button",
             role: "tab",
-            id: `tab-${t.id}`,
+            id: tabId(idPrefix, t.id),
             "aria-selected": attiva,
-            "aria-controls": attiva ? `panel-${t.id}` : void 0,
+            "aria-controls": attiva ? panelId(idPrefix, t.id) : void 0,
             tabIndex: attiva ? 0 : -1,
             onClick: () => onChange?.(t.id),
             onKeyDown: (e) => {
@@ -3680,11 +3798,11 @@ function SegmentedControl({
 import {
   Children as Children2,
   cloneElement as cloneElement2,
-  useCallback as useCallback2,
+  useCallback as useCallback3,
   useEffect as useEffect4,
-  useId as useId5,
+  useId as useId6,
   useRef as useRef4,
-  useState as useState4
+  useState as useState5
 } from "react";
 import { jsx as jsx18, jsxs as jsxs14 } from "react/jsx-runtime";
 var DELAY_MS = 150;
@@ -3700,15 +3818,15 @@ function Tooltip({
   wide = false,
   children
 }) {
-  const id = useId5();
-  const [open, setOpen] = useState4(false);
+  const id = useId6();
+  const [open, setOpen] = useState5(false);
   const timer = useRef4(null);
   const child = Children2.only(children);
-  const show = useCallback2(() => {
+  const show = useCallback3(() => {
     clearTimeout(timer.current);
     timer.current = setTimeout(() => setOpen(true), DELAY_MS);
   }, []);
-  const hide = useCallback2(() => {
+  const hide = useCallback3(() => {
     clearTimeout(timer.current);
     setOpen(false);
   }, []);
@@ -3717,13 +3835,18 @@ function Tooltip({
     child.props[name]?.(e);
     fn(e);
   };
+  const proprio = child.props["aria-describedby"];
   const trigger = cloneElement2(child, {
-    "aria-describedby": open ? id : child.props["aria-describedby"],
+    "aria-describedby": open ? [proprio, id].filter(Boolean).join(" ") : proprio,
     onMouseEnter: chain("onMouseEnter", show),
     onMouseLeave: chain("onMouseLeave", hide),
     onFocus: chain("onFocus", show),
     onBlur: chain("onBlur", hide),
-    onKeyDown: chain("onKeyDown", (e) => e.key === "Escape" && hide())
+    onKeyDown: chain("onKeyDown", (e) => {
+      if (e.key !== "Escape" || !open) return;
+      e.preventDefault();
+      hide();
+    })
   });
   return /* @__PURE__ */ jsxs14("span", { className: "relative inline-flex", children: [
     trigger,
@@ -3750,9 +3873,10 @@ var LONG = 40;
 function InfoTip({
   children,
   label = "Maggiori informazioni",
-  side = "top"
+  side = "top",
+  wide
 }) {
-  const long = typeof children === "string" && children.length > LONG;
+  const long = wide ?? (typeof children === "string" && children.length > LONG);
   return /* @__PURE__ */ jsx19(Tooltip, { content: children, side, wide: long, children: /* @__PURE__ */ jsx19(
     "button",
     {
@@ -3875,13 +3999,7 @@ function SkeletonTable({ rows = 5, cols = 4 }) {
 
 // src/organisms/KpiCard.jsx
 import { jsx as jsx22, jsxs as jsxs17 } from "react/jsx-runtime";
-var ICONE = {
-  neutral: "bg-muted text-muted-foreground",
-  primary: "bg-primary/15 text-primary",
-  success: "bg-success/15 text-success",
-  warning: "bg-warning/15 text-warning",
-  danger: "bg-destructive/15 text-destructive"
-};
+var vuoto = (v) => v === null || v === void 0 || typeof v === "number" && Number.isNaN(v);
 function Delta({ delta }) {
   const su = delta.value > 0;
   const giu = delta.value < 0;
@@ -3891,8 +4009,8 @@ function Delta({ delta }) {
     {
       className: cn(
         "inline-flex items-center gap-0.5 text-xs font-medium",
-        su && "text-success",
-        giu && "text-destructive",
+        su && TESTO.success,
+        giu && TESTO.danger,
         !su && !giu && "text-muted-foreground"
       ),
       children: [
@@ -3915,7 +4033,7 @@ function KpiCard({
   help,
   className
 }) {
-  const mostrato = typeof value === "number" ? formatNumero(value) : value;
+  const mostrato = vuoto(value) ? "\u2014" : typeof value === "number" ? formatNumero(value) : value;
   return /* @__PURE__ */ jsxs17(Card, { className: cn("p-5", className), children: [
     /* @__PURE__ */ jsxs17("div", { className: "flex items-start justify-between gap-3", children: [
       /* @__PURE__ */ jsxs17("div", { className: "min-w-0", children: [
@@ -3930,7 +4048,7 @@ function KpiCard({
         {
           className: cn(
             "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
-            ICONE[tone] ?? ICONE.neutral
+            TINTE[tone] ?? TINTE.neutral
           ),
           children: /* @__PURE__ */ jsx22(Icon, { className: "h-5 w-5", "aria-hidden": true })
         }
@@ -4038,18 +4156,25 @@ function Alert({
 // src/organisms/Pagination.jsx
 import { ChevronLeft, ChevronRight as ChevronRight2 } from "lucide-react";
 import { jsx as jsx25, jsxs as jsxs20 } from "react/jsx-runtime";
-function Pagination({ page, pageSize, total, onPageChange }) {
-  if (total <= pageSize) return null;
-  const pagine = Math.ceil(total / pageSize);
-  const da = (page - 1) * pageSize + 1;
-  const a = Math.min(page * pageSize, total);
+function Pagination({
+  page,
+  pageSize,
+  total,
+  onPageChange,
+  className
+}) {
+  if (total <= pageSize && page <= 1) return null;
+  const pagine = Math.max(1, Math.ceil(total / pageSize));
+  const p = Math.min(Math.max(1, page), pagine);
+  const da = (p - 1) * pageSize + 1;
+  const a = Math.min(p * pageSize, total);
   return /* @__PURE__ */ jsxs20(
     "nav",
     {
       "aria-label": "Paginazione",
-      className: "flex items-center justify-between gap-3",
+      className: cn("flex items-center justify-between gap-3", className),
       children: [
-        /* @__PURE__ */ jsx25("p", { className: "text-sm text-muted-foreground tabular-nums", children: `${formatNumero(da)}\u2013${formatNumero(a)} di ${formatNumero(total)}` }),
+        /* @__PURE__ */ jsx25("p", { className: "text-sm text-muted-foreground tabular-nums", children: total > 0 ? `${formatNumero(da)}\u2013${formatNumero(a)} di ${formatNumero(total)}` : "Nessun risultato" }),
         /* @__PURE__ */ jsxs20("div", { className: "flex items-center gap-2", children: [
           /* @__PURE__ */ jsx25(
             Button_default,
@@ -4058,7 +4183,7 @@ function Pagination({ page, pageSize, total, onPageChange }) {
               size: "sm",
               icon: ChevronLeft,
               disabled: page <= 1,
-              onClick: () => onPageChange(page - 1),
+              onClick: () => onPageChange(Math.min(page - 1, pagine)),
               "aria-label": "Pagina precedente",
               children: "Precedente"
             }
@@ -4069,8 +4194,8 @@ function Pagination({ page, pageSize, total, onPageChange }) {
               variant: "outline",
               size: "sm",
               iconRight: ChevronRight2,
-              disabled: page >= pagine,
-              onClick: () => onPageChange(page + 1),
+              disabled: p >= pagine,
+              onClick: () => onPageChange(p + 1),
               "aria-label": "Pagina successiva",
               children: "Successiva"
             }
@@ -4085,15 +4210,22 @@ function Pagination({ page, pageSize, total, onPageChange }) {
 import { ChevronDown as ChevronDown2, ChevronUp, ChevronsUpDown, Inbox } from "lucide-react";
 
 // src/organisms/useSort.js
-import { useCallback as useCallback3, useMemo, useState as useState5 } from "react";
+import { useCallback as useCallback4, useMemo, useState as useState6 } from "react";
+function normalizza(v) {
+  const x = v instanceof Date ? v.valueOf() : v;
+  return typeof x === "number" && Number.isNaN(x) ? null : x;
+}
 var isNil = (v) => v === null || v === void 0;
 function compare(a, b) {
   if (typeof a === "number" && typeof b === "number") return a - b;
-  return String(a).localeCompare(String(b), "it", { sensitivity: "base" });
+  return String(a).localeCompare(String(b), "it", {
+    numeric: true,
+    sensitivity: "base"
+  });
 }
 function useSort(rows, { initial = null, accessors = {} } = {}) {
-  const [sort, setSort] = useState5(initial);
-  const toggle = useCallback3((key) => {
+  const [sort, setSort] = useState6(initial);
+  const toggle = useCallback4((key) => {
     setSort(
       (prev) => prev && prev.key === key ? { key, dir: prev.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }
     );
@@ -4103,8 +4235,8 @@ function useSort(rows, { initial = null, accessors = {} } = {}) {
     const get = accessors[sort.key] || ((row) => row[sort.key]);
     const sign = sort.dir === "desc" ? -1 : 1;
     return [...rows].sort((ra, rb) => {
-      const a = get(ra);
-      const b = get(rb);
+      const a = normalizza(get(ra));
+      const b = normalizza(get(rb));
       if (isNil(a) && isNil(b)) return 0;
       if (isNil(a)) return 1;
       if (isNil(b)) return -1;
@@ -4116,6 +4248,7 @@ function useSort(rows, { initial = null, accessors = {} } = {}) {
 
 // src/organisms/DataTable.jsx
 import { jsx as jsx26, jsxs as jsxs21 } from "react/jsx-runtime";
+var INTERATTIVI = "a,button,input,textarea,select,[role=listbox],[role=option],[role=switch],[role=checkbox],[data-no-row-click]";
 var ALIGN = { left: "text-left", right: "text-right", center: "text-center" };
 var JUSTIFY = {
   left: "justify-start",
@@ -4135,7 +4268,8 @@ function DataTable({
   empty,
   initialSort,
   dense = false,
-  caption
+  caption,
+  className
 }) {
   const accessors = {};
   columns.forEach((c) => {
@@ -4152,7 +4286,7 @@ function DataTable({
   } else if (rows.length === 0) {
     body = empty === void 0 ? /* @__PURE__ */ jsx26(EmptyState, { icon: Inbox, title: "Nessun dato" }) : typeof empty === "string" ? /* @__PURE__ */ jsx26("p", { className: "px-6 py-12 text-center text-sm text-muted-foreground", children: empty }) : empty;
   }
-  return /* @__PURE__ */ jsx26(Card, { className: "p-0", children: /* @__PURE__ */ jsx26("div", { className: "overflow-x-auto", children: body ? body : /* @__PURE__ */ jsxs21("table", { className: "w-full text-sm", children: [
+  return /* @__PURE__ */ jsx26(Card, { className: cn("p-0", className), children: /* @__PURE__ */ jsx26("div", { className: "overflow-x-auto", children: body ? body : /* @__PURE__ */ jsxs21("table", { className: "w-full text-sm", children: [
     caption && /* @__PURE__ */ jsx26("caption", { className: "sr-only", children: caption }),
     /* @__PURE__ */ jsx26("thead", { className: "border-b bg-muted/50 font-medium text-muted-foreground", children: /* @__PURE__ */ jsx26("tr", { children: columns.map((c) => {
       const active = sort && sort.key === c.key ? sort.dir : null;
@@ -4193,7 +4327,11 @@ function DataTable({
       "tr",
       {
         tabIndex: onRowClick ? 0 : void 0,
-        onClick: onRowClick ? () => onRowClick(row) : void 0,
+        onClick: onRowClick ? (e) => {
+          const hit = e.target.closest?.(INTERATTIVI);
+          if (hit && hit !== e.currentTarget) return;
+          onRowClick(row);
+        } : void 0,
         onKeyDown: onRowClick ? (e) => {
           if (e.key === "Enter" && e.target === e.currentTarget)
             onRowClick(row);
@@ -4221,8 +4359,8 @@ function DataTable({
 }
 
 // src/organisms/Dialog.jsx
-import { useEffect as useEffect5, useId as useId6, useRef as useRef5 } from "react";
-import { createPortal } from "react-dom";
+import { useEffect as useEffect5, useId as useId7, useRef as useRef5 } from "react";
+import { createPortal as createPortal2 } from "react-dom";
 import { X as X2 } from "lucide-react";
 import { jsx as jsx27, jsxs as jsxs22 } from "react/jsx-runtime";
 var SIZES = {
@@ -4246,10 +4384,11 @@ function Dialog({
   footer,
   children,
   closeOnBackdrop = true,
+  closeDisabled = false,
   className
 }) {
-  const titleId = useId6();
-  const descId = useId6();
+  const titleId = useId7();
+  const descId = useId7();
   const panelRef = useRef5(null);
   const onCloseRef = useRef5(onClose);
   onCloseRef.current = onClose;
@@ -4264,6 +4403,7 @@ function Dialog({
     const onKey = (e) => {
       if (pila[pila.length - 1] !== token) return;
       if (e.key === "Escape") {
+        if (e.defaultPrevented) return;
         e.stopPropagation();
         onCloseRef.current?.();
         return;
@@ -4298,7 +4438,7 @@ function Dialog({
     };
   }, [open]);
   if (!open) return null;
-  return createPortal(
+  return createPortal2(
     /* @__PURE__ */ jsxs22("div", { className: "fixed inset-0 z-50 overflow-y-auto", children: [
       /* @__PURE__ */ jsx27(
         "div",
@@ -4343,6 +4483,7 @@ function Dialog({
                   label: "Chiudi",
                   size: "sm",
                   onClick: () => onClose?.(),
+                  disabled: closeDisabled,
                   className: "-mr-1 -mt-1 shrink-0"
                 }
               )
@@ -4358,7 +4499,7 @@ function Dialog({
 }
 
 // src/organisms/ConfirmDialog.jsx
-import { useEffect as useEffect6, useRef as useRef6, useState as useState6 } from "react";
+import { useEffect as useEffect6, useRef as useRef6, useState as useState7 } from "react";
 import { Fragment as Fragment2, jsx as jsx28, jsxs as jsxs23 } from "react/jsx-runtime";
 function ConfirmDialog({
   open,
@@ -4372,29 +4513,39 @@ function ConfirmDialog({
   requireText
 }) {
   const inCorso = useRef6(false);
-  const [loading, setLoading] = useState6(false);
-  const [errore, setErrore] = useState6(null);
-  const [testo, setTesto] = useState6("");
+  const generazione = useRef6(0);
+  const [loading, setLoading] = useState7(false);
+  const [errore, setErrore] = useState7(null);
+  const [testo, setTesto] = useState7("");
   useEffect6(() => {
     if (!open) {
+      generazione.current += 1;
+      inCorso.current = false;
+      setLoading(false);
       setErrore(null);
       setTesto("");
     }
   }, [open]);
-  const sbloccato = !requireText || testo === requireText;
+  const sbloccato = !requireText || testo.trim() === requireText;
   async function conferma() {
     if (inCorso.current || !sbloccato) return;
+    const mia = generazione.current;
     inCorso.current = true;
     setLoading(true);
     setErrore(null);
     try {
       await onConfirm();
-      onClose();
+      if (mia === generazione.current) onClose();
     } catch (e) {
-      setErrore(e?.message || "Operazione non riuscita");
+      if (mia === generazione.current)
+        setErrore(
+          typeof e === "string" && e ? e : e?.message || "Operazione non riuscita"
+        );
     } finally {
-      inCorso.current = false;
-      setLoading(false);
+      if (mia === generazione.current) {
+        inCorso.current = false;
+        setLoading(false);
+      }
     }
   }
   const chiudi = () => {
@@ -4408,6 +4559,7 @@ function ConfirmDialog({
       title,
       size: "sm",
       closeOnBackdrop: !loading,
+      closeDisabled: loading,
       footer: /* @__PURE__ */ jsxs23(Fragment2, { children: [
         /* @__PURE__ */ jsx28(Button_default, { variant: "outline", onClick: chiudi, disabled: loading, children: cancelLabel }),
         /* @__PURE__ */ jsx28(
@@ -4442,12 +4594,12 @@ function ConfirmDialog({
 // src/organisms/Toast.jsx
 import {
   createContext,
-  useCallback as useCallback4,
+  useCallback as useCallback5,
   useContext,
   useEffect as useEffect7,
   useMemo as useMemo2,
   useRef as useRef7,
-  useState as useState7
+  useState as useState8
 } from "react";
 import { AlertTriangle as AlertTriangle2, CheckCircle2 as CheckCircle22, Info as Info2, X as X3, XCircle as XCircle2 } from "lucide-react";
 import { jsx as jsx29, jsxs as jsxs24 } from "react/jsx-runtime";
@@ -4456,30 +4608,59 @@ var TONI2 = {
   success: {
     Icona: CheckCircle22,
     accent: "border-l-success",
-    icon: "text-success"
+    icon: TESTO.success
   },
   danger: {
     Icona: XCircle2,
     accent: "border-l-destructive",
-    icon: "text-destructive"
+    icon: TESTO.danger
   },
   warning: {
     Icona: AlertTriangle2,
     accent: "border-l-warning",
-    icon: "text-warning"
+    icon: TESTO.warning
   },
-  info: { Icona: Info2, accent: "border-l-info", icon: "text-info" }
+  info: { Icona: Info2, accent: "border-l-info", icon: TESTO.info }
 };
+function ToastItem({ t, onDismiss }) {
+  const s = TONI2[t.tone] ?? TONI2.info;
+  return /* @__PURE__ */ jsxs24(
+    "div",
+    {
+      className: cn(
+        "pointer-events-auto flex w-[360px] max-w-[calc(100vw-2rem)] items-start gap-3 rounded-lg border border-l-4 border-border bg-card p-3 text-card-foreground shadow-lg animate-slide-in",
+        s.accent
+      ),
+      children: [
+        /* @__PURE__ */ jsx29(s.Icona, { className: cn("mt-0.5 h-5 w-5 shrink-0", s.icon), "aria-hidden": true }),
+        /* @__PURE__ */ jsxs24("div", { className: "min-w-0 flex-1 text-sm", children: [
+          /* @__PURE__ */ jsx29("p", { className: "font-semibold", children: t.title }),
+          t.description && /* @__PURE__ */ jsx29("p", { className: "mt-0.5 text-muted-foreground", children: t.description })
+        ] }),
+        /* @__PURE__ */ jsx29(
+          IconButton_default,
+          {
+            icon: X3,
+            label: "Chiudi notifica",
+            size: "sm",
+            onClick: () => onDismiss(t.id),
+            className: "-my-1 -mr-1 shrink-0"
+          }
+        )
+      ]
+    }
+  );
+}
 function ToastProvider({ children }) {
-  const [toasts, setToasts] = useState7([]);
+  const [toasts, setToasts] = useState8([]);
   const timers = useRef7(/* @__PURE__ */ new Map());
   const seq = useRef7(0);
-  const dismiss = useCallback4((id) => {
+  const dismiss = useCallback5((id) => {
     setToasts((l) => l.filter((t) => t.id !== id));
     clearTimeout(timers.current.get(id));
     timers.current.delete(id);
   }, []);
-  const toast = useCallback4(
+  const toast = useCallback5(
     ({ title, description, tone = "success", duration = 4e3 }) => {
       const id = ++seq.current;
       setToasts((l) => [...l, { id, title, description, tone }]);
@@ -4503,43 +4684,10 @@ function ToastProvider({ children }) {
   const value = useMemo2(() => ({ toast, dismiss }), [toast, dismiss]);
   return /* @__PURE__ */ jsxs24(ToastContext.Provider, { value, children: [
     children,
-    /* @__PURE__ */ jsx29("div", { className: "pointer-events-none fixed right-4 top-4 z-[60] flex flex-col gap-2", children: toasts.map((t) => {
-      const s = TONI2[t.tone] ?? TONI2.info;
-      return /* @__PURE__ */ jsxs24(
-        "div",
-        {
-          role: "status",
-          className: cn(
-            "pointer-events-auto flex w-[360px] max-w-[calc(100vw-2rem)] items-start gap-3 rounded-lg border border-l-4 border-border bg-card p-3 text-card-foreground shadow-lg animate-slide-in",
-            s.accent
-          ),
-          children: [
-            /* @__PURE__ */ jsx29(
-              s.Icona,
-              {
-                className: cn("mt-0.5 h-5 w-5 shrink-0", s.icon),
-                "aria-hidden": true
-              }
-            ),
-            /* @__PURE__ */ jsxs24("div", { className: "min-w-0 flex-1 text-sm", children: [
-              /* @__PURE__ */ jsx29("p", { className: "font-semibold", children: t.title }),
-              t.description && /* @__PURE__ */ jsx29("p", { className: "mt-0.5 text-muted-foreground", children: t.description })
-            ] }),
-            /* @__PURE__ */ jsx29(
-              IconButton_default,
-              {
-                icon: X3,
-                label: "Chiudi notifica",
-                size: "sm",
-                onClick: () => dismiss(t.id),
-                className: "-my-1 -mr-1 shrink-0"
-              }
-            )
-          ]
-        },
-        t.id
-      );
-    }) })
+    /* @__PURE__ */ jsxs24("div", { className: "pointer-events-none fixed right-4 top-4 z-[60] flex flex-col gap-2", children: [
+      /* @__PURE__ */ jsx29("div", { "aria-live": "assertive", className: "flex flex-col gap-2", children: toasts.filter((t) => t.tone === "danger").map((t) => /* @__PURE__ */ jsx29(ToastItem, { t, onDismiss: dismiss }, t.id)) }),
+      /* @__PURE__ */ jsx29("div", { "aria-live": "polite", className: "flex flex-col gap-2", children: toasts.filter((t) => t.tone !== "danger").map((t) => /* @__PURE__ */ jsx29(ToastItem, { t, onDismiss: dismiss }, t.id)) })
+    ] })
   ] });
 }
 function useToast() {
@@ -4549,7 +4697,7 @@ function useToast() {
 }
 
 // src/templates/AppShell.jsx
-import { useMemo as useMemo3, useState as useState8 } from "react";
+import { useEffect as useEffect8, useMemo as useMemo3, useRef as useRef8, useState as useState9 } from "react";
 import { useLocation as useLocation2 } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { jsx as jsx30, jsxs as jsxs25 } from "react/jsx-runtime";
@@ -4577,7 +4725,7 @@ function activeGroupIds(nodes, pathname) {
   return ids;
 }
 function AppShell({
-  sidebar,
+  sidebar = {},
   topbarRight,
   maxWidth = "7xl",
   children
@@ -4586,11 +4734,20 @@ function AppShell({
   const { pathname } = useLocation2();
   const mainTree = useMemo3(() => normalizeNavTree(nav), [nav]);
   const adminTree = useMemo3(() => normalizeNavTree(adminNav), [adminNav]);
-  const [collapsed, setCollapsed] = useState8(readCollapsed);
-  const [isOpen, setIsOpen] = useState8(false);
-  const [expanded, setExpanded] = useState8(
+  const [collapsed, setCollapsed] = useState9(readCollapsed);
+  const [isOpen, setIsOpen] = useState9(false);
+  const [expanded, setExpanded] = useState9(
     () => new Set(activeGroupIds([...mainTree, ...adminTree], pathname))
   );
+  const mainRef = useRef8(null);
+  useEffect8(() => {
+    const attivi = activeGroupIds([...mainTree, ...adminTree], pathname);
+    if (attivi.length > 0)
+      setExpanded(
+        (prev) => attivi.every((id) => prev.has(id)) ? prev : /* @__PURE__ */ new Set([...prev, ...attivi])
+      );
+    if (mainRef.current) mainRef.current.scrollTop = 0;
+  }, [pathname, mainTree, adminTree]);
   const toggleCollapse = () => setCollapsed((prev) => {
     const next = !prev;
     try {
@@ -4635,7 +4792,14 @@ function AppShell({
         ),
         /* @__PURE__ */ jsx30("div", { className: "ml-auto flex items-center gap-2", children: topbarRight })
       ] }),
-      /* @__PURE__ */ jsx30("main", { className: "flex-1 overflow-y-auto scrollbar-thin p-4 md:p-6", children: /* @__PURE__ */ jsx30("div", { className: cn("mx-auto", WIDTHS[maxWidth] ?? WIDTHS["7xl"]), children }) })
+      /* @__PURE__ */ jsx30(
+        "main",
+        {
+          ref: mainRef,
+          className: "flex-1 overflow-y-auto scrollbar-thin p-4 md:p-6",
+          children: /* @__PURE__ */ jsx30("div", { className: cn("mx-auto", WIDTHS[maxWidth] ?? WIDTHS["7xl"]), children })
+        }
+      )
     ] })
   ] });
 }
@@ -4650,9 +4814,10 @@ function PageHeader({
   help,
   helpHref,
   actions,
-  tabs
+  tabs,
+  className
 }) {
-  return /* @__PURE__ */ jsxs26("div", { className: "mb-6 space-y-4", children: [
+  return /* @__PURE__ */ jsxs26("div", { className: cn("mb-6 space-y-4", className), children: [
     /* @__PURE__ */ jsxs26("div", { className: "flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between", children: [
       /* @__PURE__ */ jsxs26("div", { className: "min-w-0 space-y-1", children: [
         /* @__PURE__ */ jsxs26("div", { className: "flex items-center gap-2", children: [
@@ -4681,8 +4846,14 @@ function PageHeader({
 
 // src/templates/Section.jsx
 import { jsx as jsx32, jsxs as jsxs27 } from "react/jsx-runtime";
-function Section({ title, description, actions, children }) {
-  return /* @__PURE__ */ jsxs27("section", { className: "space-y-3", children: [
+function Section({
+  title,
+  description,
+  actions,
+  className,
+  children
+}) {
+  return /* @__PURE__ */ jsxs27("section", { className: cn("space-y-3", className), children: [
     (title || description || actions) && /* @__PURE__ */ jsxs27("div", { className: "flex items-start justify-between gap-3", children: [
       /* @__PURE__ */ jsxs27("div", { className: "min-w-0", children: [
         title && /* @__PURE__ */ jsx32("h2", { className: "text-lg font-semibold", children: title }),
@@ -4695,7 +4866,7 @@ function Section({ title, description, actions, children }) {
 }
 
 // src/templates/LoginPage.jsx
-import { useId as useId7, useState as useState9 } from "react";
+import { useId as useId8, useState as useState10 } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { jsx as jsx33, jsxs as jsxs28 } from "react/jsx-runtime";
 function LoginPage({
@@ -4707,12 +4878,12 @@ function LoginPage({
   usernameLabel = "Username o email",
   footer = "\xA9 VUS COM SRL"
 }) {
-  const passwordId = useId7();
-  const [username, setUsername] = useState9("");
-  const [password, setPassword] = useState9("");
-  const [show, setShow] = useState9(false);
-  const [loading, setLoading] = useState9(false);
-  const [error, setError] = useState9("");
+  const passwordId = useId8();
+  const [username, setUsername] = useState10("");
+  const [password, setPassword] = useState10("");
+  const [show, setShow] = useState10(false);
+  const [loading, setLoading] = useState10(false);
+  const [error, setError] = useState10("");
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
@@ -4761,7 +4932,14 @@ function LoginPage({
           }
         ) }),
         /* @__PURE__ */ jsxs28("div", { className: "flex flex-col gap-1.5", children: [
-          /* @__PURE__ */ jsx33("label", { htmlFor: passwordId, className: "text-sm font-medium text-foreground", children: "Password" }),
+          /* @__PURE__ */ jsx33(
+            "label",
+            {
+              htmlFor: passwordId,
+              className: "text-sm font-medium text-foreground",
+              children: "Password"
+            }
+          ),
           /* @__PURE__ */ jsxs28("div", { className: "relative", children: [
             /* @__PURE__ */ jsx33(
               Input_default,
@@ -4790,7 +4968,7 @@ function LoginPage({
         ] }),
         /* @__PURE__ */ jsx33(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Accedi" })
       ] }),
-      footer && /* @__PURE__ */ jsx33("p", { className: "text-center text-xs text-muted-foreground", children: footer })
+      footer && /* @__PURE__ */ jsx33("div", { className: "text-center text-xs text-muted-foreground", children: footer })
     ] })
   ] });
 }
@@ -4845,6 +5023,7 @@ export {
   formatRelativo,
   normalizeNavTree,
   useSort,
+  useTabIds,
   useTheme,
   useToast
 };
