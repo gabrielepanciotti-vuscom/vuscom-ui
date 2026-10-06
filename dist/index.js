@@ -3248,19 +3248,540 @@ function Kbd({ children, className }) {
     }
   );
 }
+
+// src/molecules/Field.jsx
+import { Children, cloneElement, isValidElement, useId } from "react";
+import { jsx as jsx12, jsxs as jsxs8 } from "react/jsx-runtime";
+function Field({
+  label,
+  hint,
+  error,
+  required,
+  id,
+  className,
+  children
+}) {
+  const auto = useId();
+  const child = Children.only(children);
+  const fieldId = id || child.props?.id || auto;
+  const hintId = hint ? `${fieldId}-hint` : null;
+  const errorId = error ? `${fieldId}-error` : null;
+  const describedBy = [child.props?.["aria-describedby"], hintId, errorId].filter(Boolean).join(" ") || void 0;
+  const control = isValidElement(child) ? cloneElement(child, {
+    id: fieldId,
+    "aria-describedby": describedBy,
+    ...error ? { "aria-invalid": "true" } : {}
+  }) : child;
+  return /* @__PURE__ */ jsxs8("div", { className: cn("flex flex-col gap-1.5", className), children: [
+    label && /* @__PURE__ */ jsxs8(
+      "label",
+      {
+        htmlFor: fieldId,
+        className: "text-sm font-medium text-foreground",
+        children: [
+          label,
+          required && /* @__PURE__ */ jsx12("span", { className: "ml-0.5 text-destructive", "aria-hidden": true, children: "*" })
+        ]
+      }
+    ),
+    control,
+    hint && !error && /* @__PURE__ */ jsx12("p", { id: hintId, className: "text-xs text-muted-foreground", children: hint }),
+    error && /* @__PURE__ */ jsx12("p", { id: errorId, role: "alert", className: "text-xs text-destructive", children: error })
+  ] });
+}
+
+// src/molecules/Select.jsx
+import { useEffect as useEffect3, useId as useId2, useRef, useState as useState3 } from "react";
+import { Check, ChevronDown } from "lucide-react";
+import { jsx as jsx13, jsxs as jsxs9 } from "react/jsx-runtime";
+var CLEAR = "__clear__";
+function Select({
+  value,
+  onChange,
+  options = [],
+  placeholder = "Seleziona\u2026",
+  allowClear = false,
+  disabled = false,
+  invalid,
+  "aria-label": ariaLabel,
+  className,
+  ...rest
+}) {
+  const [open, setOpen] = useState3(false);
+  const [active, setActive] = useState3(-1);
+  const rootRef = useRef(null);
+  const uid = useId2();
+  const entries = [
+    ...allowClear ? [{ value: CLEAR, label: "Nessuno", clear: true }] : [],
+    ...options
+  ];
+  const selected = options.find((o) => o.value === value);
+  const optId = (i) => `${uid}-opt-${i}`;
+  useEffect3(() => {
+    if (!open) return void 0;
+    const fuori = (e) => {
+      if (rootRef.current && !rootRef.current.contains(e.target))
+        setOpen(false);
+    };
+    document.addEventListener("mousedown", fuori);
+    return () => document.removeEventListener("mousedown", fuori);
+  }, [open]);
+  const apri = () => {
+    if (disabled) return;
+    const i = entries.findIndex(
+      (o) => !o.clear && o.value === value && !o.disabled
+    );
+    setActive(i >= 0 ? i : entries.findIndex((o) => !o.disabled));
+    setOpen(true);
+  };
+  const scegli = (o) => {
+    if (!o || o.disabled) return;
+    onChange?.(o.clear ? null : o.value);
+    setOpen(false);
+  };
+  const muovi = (dir) => {
+    let i = active;
+    for (let n = 0; n < entries.length; n += 1) {
+      i = (i + dir + entries.length) % entries.length;
+      if (!entries[i].disabled) {
+        setActive(i);
+        return;
+      }
+    }
+  };
+  const onKeyDown = (e) => {
+    if (disabled) return;
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      if (!open) apri();
+      else muovi(e.key === "ArrowDown" ? 1 : -1);
+    } else if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      if (!open) apri();
+      else scegli(entries[active]);
+    } else if (e.key === "Escape" && open) {
+      e.preventDefault();
+      setOpen(false);
+    } else if (e.key === "Tab") {
+      setOpen(false);
+    }
+  };
+  return /* @__PURE__ */ jsxs9("div", { ref: rootRef, className: cn("relative", className), children: [
+    /* @__PURE__ */ jsxs9(
+      "button",
+      {
+        type: "button",
+        disabled,
+        "aria-label": ariaLabel,
+        "aria-haspopup": "listbox",
+        "aria-expanded": open,
+        "aria-controls": open ? `${uid}-list` : void 0,
+        "aria-activedescendant": open && active >= 0 ? optId(active) : void 0,
+        "aria-invalid": invalid ? "true" : void 0,
+        onClick: () => open ? setOpen(false) : apri(),
+        onKeyDown,
+        onKeyUp: (e) => e.key === " " && e.preventDefault(),
+        className: cn(
+          campoClasses(invalid),
+          "flex h-10 items-center justify-between gap-2 px-3 text-left"
+        ),
+        ...rest,
+        children: [
+          /* @__PURE__ */ jsx13("span", { className: cn("truncate", !selected && "text-muted-foreground"), children: selected ? selected.label : placeholder }),
+          /* @__PURE__ */ jsx13(
+            ChevronDown,
+            {
+              className: cn(
+                "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
+                open && "rotate-180"
+              ),
+              "aria-hidden": true
+            }
+          )
+        ]
+      }
+    ),
+    open && /* @__PURE__ */ jsx13(
+      "ul",
+      {
+        id: `${uid}-list`,
+        role: "listbox",
+        "aria-label": ariaLabel,
+        className: "absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-lg border border-border bg-card py-1 shadow-lg",
+        children: entries.map((o, i) => {
+          const sel = !o.clear && o.value === value;
+          return /* @__PURE__ */ jsxs9(
+            "li",
+            {
+              id: optId(i),
+              role: "option",
+              "aria-selected": sel,
+              "aria-disabled": o.disabled || void 0,
+              onMouseEnter: () => !o.disabled && setActive(i),
+              onClick: () => scegli(o),
+              className: cn(
+                "flex cursor-pointer items-start gap-2 px-3 py-2 text-sm transition-colors",
+                o.disabled && "cursor-not-allowed opacity-50",
+                i === active && "bg-muted",
+                sel ? "text-primary" : "text-foreground",
+                o.clear && "italic text-muted-foreground"
+              ),
+              children: [
+                /* @__PURE__ */ jsxs9("div", { className: "min-w-0 flex-1", children: [
+                  /* @__PURE__ */ jsx13("div", { className: "font-medium", children: o.label }),
+                  o.description && /* @__PURE__ */ jsx13("div", { className: "mt-0.5 text-xs text-muted-foreground", children: o.description })
+                ] }),
+                sel && /* @__PURE__ */ jsx13(Check, { className: "mt-0.5 h-4 w-4 shrink-0", "aria-hidden": true })
+              ]
+            },
+            o.value
+          );
+        })
+      }
+    )
+  ] });
+}
+
+// src/molecules/Toggle.jsx
+import { useId as useId3 } from "react";
+import { jsx as jsx14, jsxs as jsxs10 } from "react/jsx-runtime";
+function Toggle({
+  checked,
+  onChange,
+  label,
+  description,
+  disabled,
+  className
+}) {
+  const uid = useId3();
+  return /* @__PURE__ */ jsxs10("div", { className: cn("flex items-start gap-3", className), children: [
+    /* @__PURE__ */ jsx14(
+      "button",
+      {
+        type: "button",
+        role: "switch",
+        "aria-checked": !!checked,
+        "aria-labelledby": label ? `${uid}-l` : void 0,
+        "aria-describedby": description ? `${uid}-d` : void 0,
+        disabled,
+        onClick: () => onChange?.(!checked),
+        className: cn(
+          "relative mt-0.5 inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          "active:scale-95 disabled:cursor-not-allowed disabled:opacity-50",
+          checked ? "bg-primary hover:bg-primary/90" : "bg-muted-foreground/30 hover:bg-muted-foreground/40"
+        ),
+        children: /* @__PURE__ */ jsx14(
+          "span",
+          {
+            "aria-hidden": true,
+            className: cn(
+              "inline-block h-4 w-4 rounded-full bg-background shadow transition-transform",
+              checked ? "translate-x-[18px]" : "translate-x-0.5"
+            )
+          }
+        )
+      }
+    ),
+    (label || description) && /* @__PURE__ */ jsxs10("div", { className: "min-w-0", children: [
+      label && /* @__PURE__ */ jsx14(
+        "div",
+        {
+          id: `${uid}-l`,
+          className: "text-sm font-medium text-foreground",
+          children: label
+        }
+      ),
+      description && /* @__PURE__ */ jsx14("div", { id: `${uid}-d`, className: "text-xs text-muted-foreground", children: description })
+    ] })
+  ] });
+}
+
+// src/molecules/Checkbox.jsx
+import { useId as useId4 } from "react";
+import { Check as Check2, Minus } from "lucide-react";
+import { jsx as jsx15, jsxs as jsxs11 } from "react/jsx-runtime";
+function Checkbox({
+  checked,
+  indeterminate,
+  onChange,
+  label,
+  disabled,
+  className
+}) {
+  const uid = useId4();
+  const on = indeterminate || checked;
+  return /* @__PURE__ */ jsxs11("div", { className: cn("flex items-center gap-2", className), children: [
+    /* @__PURE__ */ jsx15(
+      "button",
+      {
+        type: "button",
+        role: "checkbox",
+        "aria-checked": indeterminate ? "mixed" : !!checked,
+        "aria-labelledby": label ? uid : void 0,
+        disabled,
+        onClick: () => onChange?.(indeterminate ? true : !checked),
+        className: cn(
+          "flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          "active:scale-90 disabled:cursor-not-allowed disabled:opacity-50",
+          on ? "border-primary bg-primary text-primary-foreground hover:bg-primary/90" : "border-input bg-background hover:border-ring/60"
+        ),
+        children: indeterminate ? /* @__PURE__ */ jsx15(Minus, { className: "h-3 w-3", strokeWidth: 3, "aria-hidden": true }) : checked && /* @__PURE__ */ jsx15(Check2, { className: "h-3 w-3", strokeWidth: 3, "aria-hidden": true })
+      }
+    ),
+    label && /* @__PURE__ */ jsx15(
+      "span",
+      {
+        id: uid,
+        className: cn("text-sm text-foreground", disabled && "opacity-50"),
+        children: label
+      }
+    )
+  ] });
+}
+
+// src/molecules/Tabs.jsx
+import { useRef as useRef2 } from "react";
+import { jsx as jsx16, jsxs as jsxs12 } from "react/jsx-runtime";
+function Tabs({
+  value,
+  onChange,
+  items = [],
+  "aria-label": ariaLabel,
+  className
+}) {
+  const refs = useRef2([]);
+  const vai = (i) => {
+    const n = (i + items.length) % items.length;
+    onChange?.(items[n].id);
+    refs.current[n]?.focus();
+  };
+  return /* @__PURE__ */ jsx16(
+    "div",
+    {
+      role: "tablist",
+      "aria-label": ariaLabel,
+      className: cn(
+        "flex gap-6 overflow-x-auto overflow-y-hidden border-b border-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        className
+      ),
+      children: items.map((t, i) => {
+        const attiva = t.id === value;
+        const Icon = t.icon;
+        return /* @__PURE__ */ jsxs12(
+          "button",
+          {
+            ref: (el) => {
+              refs.current[i] = el;
+            },
+            type: "button",
+            role: "tab",
+            id: `tab-${t.id}`,
+            "aria-selected": attiva,
+            "aria-controls": attiva ? `panel-${t.id}` : void 0,
+            tabIndex: attiva ? 0 : -1,
+            onClick: () => onChange?.(t.id),
+            onKeyDown: (e) => {
+              if (e.key === "ArrowRight") {
+                e.preventDefault();
+                vai(i + 1);
+              } else if (e.key === "ArrowLeft") {
+                e.preventDefault();
+                vai(i - 1);
+              }
+            },
+            className: cn(
+              "-mb-px inline-flex items-center gap-2 whitespace-nowrap border-b-2 py-2.5 text-sm font-medium transition-colors",
+              "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+              attiva ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
+            ),
+            children: [
+              Icon && /* @__PURE__ */ jsx16(Icon, { className: "h-4 w-4", "aria-hidden": true }),
+              t.label,
+              t.count != null && /* @__PURE__ */ jsx16("span", { className: "rounded-full bg-muted px-1.5 text-xs tabular-nums text-muted-foreground", children: t.count })
+            ]
+          },
+          t.id
+        );
+      })
+    }
+  );
+}
+
+// src/molecules/SegmentedControl.jsx
+import { useRef as useRef3 } from "react";
+import { jsx as jsx17, jsxs as jsxs13 } from "react/jsx-runtime";
+var SIZE = { sm: "h-7 px-3 text-xs", md: "h-9 px-4 text-sm" };
+function SegmentedControl({
+  value,
+  onChange,
+  options = [],
+  size = "sm",
+  "aria-label": ariaLabel,
+  className
+}) {
+  const refs = useRef3([]);
+  const vai = (i) => {
+    const n = (i + options.length) % options.length;
+    onChange?.(options[n].value);
+    refs.current[n]?.focus();
+  };
+  return /* @__PURE__ */ jsx17(
+    "div",
+    {
+      role: "radiogroup",
+      "aria-label": ariaLabel,
+      className: cn("inline-flex rounded-lg bg-muted p-1", className),
+      children: options.map((o, i) => {
+        const attivo = o.value === value;
+        const Icon = o.icon;
+        return /* @__PURE__ */ jsxs13(
+          "button",
+          {
+            ref: (el) => {
+              refs.current[i] = el;
+            },
+            type: "button",
+            role: "radio",
+            "aria-checked": attivo,
+            tabIndex: attivo ? 0 : -1,
+            onClick: () => onChange?.(o.value),
+            onKeyDown: (e) => {
+              if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+                e.preventDefault();
+                vai(i + 1);
+              } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+                e.preventDefault();
+                vai(i - 1);
+              }
+            },
+            className: cn(
+              "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md font-medium transition-all",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+              SIZE[size] || SIZE.sm,
+              attivo ? "bg-background text-primary shadow" : "text-muted-foreground hover:text-foreground"
+            ),
+            children: [
+              Icon && /* @__PURE__ */ jsx17(Icon, { className: "h-3.5 w-3.5", "aria-hidden": true }),
+              o.label
+            ]
+          },
+          o.value
+        );
+      })
+    }
+  );
+}
+
+// src/molecules/Tooltip.jsx
+import {
+  Children as Children2,
+  cloneElement as cloneElement2,
+  useCallback as useCallback2,
+  useEffect as useEffect4,
+  useId as useId5,
+  useRef as useRef4,
+  useState as useState4
+} from "react";
+import { jsx as jsx18, jsxs as jsxs14 } from "react/jsx-runtime";
+var DELAY_MS = 150;
+var SIDE = {
+  top: "bottom-full left-1/2 mb-2 -translate-x-1/2",
+  bottom: "top-full left-1/2 mt-2 -translate-x-1/2",
+  left: "right-full top-1/2 mr-2 -translate-y-1/2",
+  right: "left-full top-1/2 ml-2 -translate-y-1/2"
+};
+function Tooltip({
+  content,
+  side = "top",
+  wide = false,
+  children
+}) {
+  const id = useId5();
+  const [open, setOpen] = useState4(false);
+  const timer = useRef4(null);
+  const child = Children2.only(children);
+  const show = useCallback2(() => {
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => setOpen(true), DELAY_MS);
+  }, []);
+  const hide = useCallback2(() => {
+    clearTimeout(timer.current);
+    setOpen(false);
+  }, []);
+  useEffect4(() => () => clearTimeout(timer.current), []);
+  const chain = (name, fn) => (e) => {
+    child.props[name]?.(e);
+    fn(e);
+  };
+  const trigger = cloneElement2(child, {
+    "aria-describedby": open ? id : child.props["aria-describedby"],
+    onMouseEnter: chain("onMouseEnter", show),
+    onMouseLeave: chain("onMouseLeave", hide),
+    onFocus: chain("onFocus", show),
+    onBlur: chain("onBlur", hide),
+    onKeyDown: chain("onKeyDown", (e) => e.key === "Escape" && hide())
+  });
+  return /* @__PURE__ */ jsxs14("span", { className: "relative inline-flex", children: [
+    trigger,
+    open && content != null && /* @__PURE__ */ jsx18(
+      "span",
+      {
+        id,
+        role: "tooltip",
+        className: cn(
+          "pointer-events-none absolute z-50 rounded-md bg-foreground px-2 py-1 text-xs text-background shadow-md",
+          wide ? "w-max max-w-xs whitespace-normal text-left" : "whitespace-nowrap",
+          SIDE[side] || SIDE.top
+        ),
+        children: content
+      }
+    )
+  ] });
+}
+
+// src/molecules/InfoTip.jsx
+import { HelpCircle } from "lucide-react";
+import { jsx as jsx19 } from "react/jsx-runtime";
+var LONG = 40;
+function InfoTip({
+  children,
+  label = "Maggiori informazioni",
+  side = "top"
+}) {
+  const long = typeof children === "string" && children.length > LONG;
+  return /* @__PURE__ */ jsx19(Tooltip, { content: children, side, wide: long, children: /* @__PURE__ */ jsx19(
+    "button",
+    {
+      type: "button",
+      "aria-label": label,
+      className: "inline-flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+      children: /* @__PURE__ */ jsx19(HelpCircle, { className: "h-4 w-4", "aria-hidden": true })
+    }
+  ) });
+}
 export {
   AppSidebar,
   Badge,
   Button_default as Button,
+  Checkbox,
+  Field,
   IconButton_default as IconButton,
+  InfoTip,
   Input_default as Input,
   Kbd,
   ProgressBar,
+  SegmentedControl,
+  Select,
   Spinner,
   StatusDot,
   THEME_INIT_SCRIPT,
+  Tabs,
   Textarea_default as Textarea,
   ThemeToggle,
+  Toggle,
+  Tooltip,
   cn,
   collectGroupIds,
   formatData,
