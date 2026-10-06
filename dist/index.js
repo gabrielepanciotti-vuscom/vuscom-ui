@@ -4080,6 +4080,145 @@ function Pagination({ page, pageSize, total, onPageChange }) {
     }
   );
 }
+
+// src/organisms/DataTable.jsx
+import { ChevronDown as ChevronDown2, ChevronUp, ChevronsUpDown, Inbox } from "lucide-react";
+
+// src/organisms/useSort.js
+import { useCallback as useCallback3, useMemo, useState as useState5 } from "react";
+var isNil = (v) => v === null || v === void 0;
+function compare(a, b) {
+  if (typeof a === "number" && typeof b === "number") return a - b;
+  return String(a).localeCompare(String(b), "it", { sensitivity: "base" });
+}
+function useSort(rows, { initial = null, accessors = {} } = {}) {
+  const [sort, setSort] = useState5(initial);
+  const toggle = useCallback3((key) => {
+    setSort(
+      (prev) => prev && prev.key === key ? { key, dir: prev.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }
+    );
+  }, []);
+  const sorted = useMemo(() => {
+    if (!sort) return rows;
+    const get = accessors[sort.key] || ((row) => row[sort.key]);
+    const sign = sort.dir === "desc" ? -1 : 1;
+    return [...rows].sort((ra, rb) => {
+      const a = get(ra);
+      const b = get(rb);
+      if (isNil(a) && isNil(b)) return 0;
+      if (isNil(a)) return 1;
+      if (isNil(b)) return -1;
+      return sign * compare(a, b);
+    });
+  }, [rows, sort]);
+  return { sorted, sort, toggle };
+}
+
+// src/organisms/DataTable.jsx
+import { jsx as jsx26, jsxs as jsxs21 } from "react/jsx-runtime";
+var ALIGN = { left: "text-left", right: "text-right", center: "text-center" };
+var JUSTIFY = {
+  left: "justify-start",
+  right: "justify-end",
+  center: "justify-center"
+};
+function SortIcon({ dir }) {
+  const Icon = dir === "asc" ? ChevronUp : dir === "desc" ? ChevronDown2 : ChevronsUpDown;
+  return /* @__PURE__ */ jsx26(Icon, { className: cn("h-3.5 w-3.5", !dir && "opacity-40"), "aria-hidden": true });
+}
+function DataTable({
+  columns,
+  rows,
+  rowKey,
+  onRowClick,
+  loading = false,
+  empty,
+  initialSort,
+  dense = false,
+  caption
+}) {
+  const accessors = {};
+  columns.forEach((c) => {
+    if (c.sortAccessor) accessors[c.key] = c.sortAccessor;
+  });
+  const { sorted, sort, toggle } = useSort(rows, {
+    initial: initialSort,
+    accessors
+  });
+  const pad = dense ? "px-3 py-1.5" : "px-4 py-3";
+  let body;
+  if (loading && rows.length === 0) {
+    body = /* @__PURE__ */ jsx26("div", { className: "p-4", children: /* @__PURE__ */ jsx26(SkeletonTable, { rows: 5, cols: columns.length }) });
+  } else if (rows.length === 0) {
+    body = empty === void 0 ? /* @__PURE__ */ jsx26(EmptyState, { icon: Inbox, title: "Nessun dato" }) : typeof empty === "string" ? /* @__PURE__ */ jsx26("p", { className: "px-6 py-12 text-center text-sm text-muted-foreground", children: empty }) : empty;
+  }
+  return /* @__PURE__ */ jsx26(Card, { className: "p-0", children: /* @__PURE__ */ jsx26("div", { className: "overflow-x-auto", children: body ? body : /* @__PURE__ */ jsxs21("table", { className: "w-full text-sm", children: [
+    caption && /* @__PURE__ */ jsx26("caption", { className: "sr-only", children: caption }),
+    /* @__PURE__ */ jsx26("thead", { className: "border-b bg-muted/50 font-medium text-muted-foreground", children: /* @__PURE__ */ jsx26("tr", { children: columns.map((c) => {
+      const active = sort && sort.key === c.key ? sort.dir : null;
+      const align = ALIGN[c.align] || ALIGN.left;
+      return /* @__PURE__ */ jsx26(
+        "th",
+        {
+          scope: "col",
+          style: c.width ? { width: c.width } : void 0,
+          "aria-sort": c.sortable ? active === "asc" ? "ascending" : active === "desc" ? "descending" : "none" : void 0,
+          className: cn(
+            pad,
+            "whitespace-nowrap font-medium",
+            align,
+            c.className
+          ),
+          children: c.sortable ? /* @__PURE__ */ jsxs21(
+            "button",
+            {
+              type: "button",
+              onClick: () => toggle(c.key),
+              className: cn(
+                "inline-flex items-center gap-1 rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                JUSTIFY[c.align] || JUSTIFY.left,
+                active && "text-foreground"
+              ),
+              children: [
+                c.header,
+                /* @__PURE__ */ jsx26(SortIcon, { dir: active })
+              ]
+            }
+          ) : c.header
+        },
+        c.key
+      );
+    }) }) }),
+    /* @__PURE__ */ jsx26("tbody", { className: "divide-y", children: sorted.map((row) => /* @__PURE__ */ jsx26(
+      "tr",
+      {
+        tabIndex: onRowClick ? 0 : void 0,
+        onClick: onRowClick ? () => onRowClick(row) : void 0,
+        onKeyDown: onRowClick ? (e) => {
+          if (e.key === "Enter" && e.target === e.currentTarget)
+            onRowClick(row);
+        } : void 0,
+        className: cn(
+          "transition-colors hover:bg-muted/40",
+          onRowClick && "cursor-pointer focus-visible:outline-none focus-visible:bg-muted/60 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+        ),
+        children: columns.map((c) => /* @__PURE__ */ jsx26(
+          "td",
+          {
+            className: cn(
+              pad,
+              ALIGN[c.align] || ALIGN.left,
+              c.className
+            ),
+            children: c.cell ? c.cell(row) : row[c.key] ?? ""
+          },
+          c.key
+        ))
+      },
+      rowKey(row)
+    )) })
+  ] }) }) });
+}
 export {
   Alert,
   AppSidebar,
@@ -4092,6 +4231,7 @@ export {
   CardHeader,
   CardTitle,
   Checkbox,
+  DataTable,
   EmptyState,
   Field,
   IconButton_default as IconButton,
@@ -4122,5 +4262,6 @@ export {
   formatNumero,
   formatRelativo,
   normalizeNavTree,
+  useSort,
   useTheme
 };

@@ -40,3 +40,5 @@ export {
 export { default as EmptyState } from "./organisms/EmptyState.jsx";
 export { default as Alert } from "./organisms/Alert.jsx";
 export { default as Pagination } from "./organisms/Pagination.jsx";
+export { default as DataTable } from "./organisms/DataTable.jsx";
+export { default as useSort } from "./organisms/useSort.js";
