@@ -285,3 +285,52 @@ test("toast auto-dismisses after duration", () => {
     vi.useRealTimers();
   }
 });
+
+function Nested({ onConfirm, onOuterClose }) {
+  const [inner, setInner] = useState(false);
+  return (
+    <Dialog open onClose={onOuterClose} title="Esterno">
+      <button onClick={() => setInner(true)}>Richiedi</button>
+      <ConfirmDialog open={inner} onClose={() => setInner(false)} onConfirm={onConfirm} title="Interno">x</ConfirmDialog>
+    </Dialog>
+  );
+}
+
+test("nested: one Escape closes only the inner dialog", async () => {
+  const onOuterClose = vi.fn();
+  render(<Nested onConfirm={() => {}} onOuterClose={onOuterClose} />);
+  await userEvent.click(screen.getByRole("button", { name: "Richiedi" }));
+  expect(screen.getByRole("dialog", { name: "Interno" })).toBeInTheDocument();
+  await userEvent.keyboard("{Escape}");
+  expect(screen.queryByRole("dialog", { name: "Interno" })).not.toBeInTheDocument();
+  expect(onOuterClose).not.toHaveBeenCalled();
+  await userEvent.keyboard("{Escape}");
+  expect(onOuterClose).toHaveBeenCalledTimes(1);
+});
+
+test("nested: Escape while inner confirm is pending closes nothing", async () => {
+  let risolvi;
+  const onOuterClose = vi.fn();
+  render(<Nested onConfirm={() => new Promise((r) => { risolvi = r; })} onOuterClose={onOuterClose} />);
+  await userEvent.click(screen.getByRole("button", { name: "Richiedi" }));
+  await userEvent.click(screen.getByRole("button", { name: "Conferma" }));
+  await userEvent.keyboard("{Escape}");
+  expect(onOuterClose).not.toHaveBeenCalled();
+  expect(screen.getByRole("dialog", { name: "Interno" })).toBeInTheDocument();
+  await act(async () => { risolvi(); });
+  expect(screen.queryByRole("dialog", { name: "Interno" })).not.toBeInTheDocument();
+});
+
+test("nested: Tab cycles inside the inner dialog and reaches Conferma", async () => {
+  render(<Nested onConfirm={() => {}} onOuterClose={() => {}} />);
+  await userEvent.click(screen.getByRole("button", { name: "Richiedi" }));
+  const inner = screen.getByRole("dialog", { name: "Interno" });
+  const visti = new Set();
+  for (let i = 0; i < 6; i++) {
+    await userEvent.tab();
+    expect(inner).toContainElement(document.activeElement);
+    visti.add(document.activeElement.textContent || document.activeElement.getAttribute("aria-label"));
+  }
+  expect(visti.has("Conferma")).toBe(true);
+  expect(visti.has("Annulla")).toBe(true);
+});

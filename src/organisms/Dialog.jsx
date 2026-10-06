@@ -14,6 +14,9 @@ const SIZES = {
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
+// Open dialogs, oldest first: only the topmost one handles Esc and Tab.
+const pila = [];
+
 const focusables = (root) =>
   Array.from(root.querySelectorAll(FOCUSABLE)).filter(
     (el) =>
@@ -42,12 +45,15 @@ export default function Dialog({
   useEffect(() => {
     if (!open) return undefined;
     const opener = document.activeElement;
+    const token = {};
+    pila.push(token);
     const panel = panelRef.current;
     const iniziale =
       panel.querySelector("[data-autofocus]") || focusables(panel)[0] || panel;
     iniziale.focus();
 
     const onKey = (e) => {
+      if (pila[pila.length - 1] !== token) return;
       if (e.key === "Escape") {
         e.stopPropagation();
         onCloseRef.current?.();
@@ -77,6 +83,8 @@ export default function Dialog({
     document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("keydown", onKey);
+      const i = pila.indexOf(token);
+      if (i !== -1) pila.splice(i, 1);
       if (opener && typeof opener.focus === "function") opener.focus();
     };
   }, [open]);
