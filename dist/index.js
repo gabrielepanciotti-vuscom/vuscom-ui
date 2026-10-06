@@ -4219,6 +4219,328 @@ function DataTable({
     )) })
   ] }) }) });
 }
+
+// src/organisms/Dialog.jsx
+import { useEffect as useEffect5, useId as useId6, useRef as useRef5 } from "react";
+import { createPortal } from "react-dom";
+import { X as X2 } from "lucide-react";
+import { jsx as jsx27, jsxs as jsxs22 } from "react/jsx-runtime";
+var SIZES = {
+  sm: "max-w-sm",
+  md: "max-w-md",
+  lg: "max-w-2xl",
+  xl: "max-w-4xl"
+};
+var FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+var focusables = (root) => Array.from(root.querySelectorAll(FOCUSABLE)).filter(
+  (el) => !el.hasAttribute("hidden") && el.getAttribute("aria-hidden") !== "true"
+);
+function Dialog({
+  open,
+  onClose,
+  title,
+  description,
+  icon: Icon,
+  size = "sm",
+  footer,
+  children,
+  closeOnBackdrop = true,
+  className
+}) {
+  const titleId = useId6();
+  const descId = useId6();
+  const panelRef = useRef5(null);
+  const onCloseRef = useRef5(onClose);
+  onCloseRef.current = onClose;
+  useEffect5(() => {
+    if (!open) return void 0;
+    const opener = document.activeElement;
+    const panel = panelRef.current;
+    const iniziale = panel.querySelector("[data-autofocus]") || focusables(panel)[0] || panel;
+    iniziale.focus();
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        onCloseRef.current?.();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const lista = focusables(panel);
+      if (lista.length === 0) {
+        e.preventDefault();
+        panel.focus();
+        return;
+      }
+      const primo = lista[0];
+      const ultimo = lista[lista.length - 1];
+      const attivo = document.activeElement;
+      if (!panel.contains(attivo)) {
+        e.preventDefault();
+        primo.focus();
+      } else if (e.shiftKey && attivo === primo) {
+        e.preventDefault();
+        ultimo.focus();
+      } else if (!e.shiftKey && attivo === ultimo) {
+        e.preventDefault();
+        primo.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      if (opener && typeof opener.focus === "function") opener.focus();
+    };
+  }, [open]);
+  if (!open) return null;
+  return createPortal(
+    /* @__PURE__ */ jsxs22("div", { className: "fixed inset-0 z-50 overflow-y-auto", children: [
+      /* @__PURE__ */ jsx27(
+        "div",
+        {
+          "data-testid": "dialog-backdrop",
+          className: "fixed inset-0 bg-black/50 backdrop-blur-sm",
+          onClick: closeOnBackdrop ? () => onClose?.() : void 0
+        }
+      ),
+      /* @__PURE__ */ jsx27("div", { className: "flex min-h-full items-start justify-center p-3 sm:items-center sm:p-6", children: /* @__PURE__ */ jsxs22(
+        "div",
+        {
+          ref: panelRef,
+          role: "dialog",
+          "aria-modal": "true",
+          "aria-labelledby": titleId,
+          "aria-describedby": description ? descId : void 0,
+          tabIndex: -1,
+          className: cn(
+            "relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-xl bg-card text-card-foreground shadow-2xl ring-1 ring-black/5 animate-fade-in focus:outline-none dark:ring-white/10",
+            SIZES[size] ?? SIZES.sm,
+            className
+          ),
+          children: [
+            /* @__PURE__ */ jsxs22("div", { className: "flex items-start gap-3 border-b border-border px-6 py-4", children: [
+              Icon && /* @__PURE__ */ jsx27("div", { className: "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15", children: /* @__PURE__ */ jsx27(Icon, { className: "h-5 w-5 text-primary", "aria-hidden": true }) }),
+              /* @__PURE__ */ jsxs22("div", { className: "min-w-0 flex-1", children: [
+                /* @__PURE__ */ jsx27(
+                  "h2",
+                  {
+                    id: titleId,
+                    className: "text-base font-semibold leading-tight text-foreground sm:text-lg",
+                    children: title
+                  }
+                ),
+                description && /* @__PURE__ */ jsx27("p", { id: descId, className: "mt-0.5 text-sm text-muted-foreground", children: description })
+              ] }),
+              /* @__PURE__ */ jsx27(
+                IconButton_default,
+                {
+                  icon: X2,
+                  label: "Chiudi",
+                  size: "sm",
+                  onClick: () => onClose?.(),
+                  className: "-mr-1 -mt-1 shrink-0"
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsx27("div", { className: "flex-1 overflow-y-auto px-6 py-5", children }),
+            footer && /* @__PURE__ */ jsx27("div", { className: "flex items-center justify-end gap-2 border-t border-border bg-muted/40 px-6 py-3", children: footer })
+          ]
+        }
+      ) })
+    ] }),
+    document.body
+  );
+}
+
+// src/organisms/ConfirmDialog.jsx
+import { useEffect as useEffect6, useRef as useRef6, useState as useState6 } from "react";
+import { Fragment as Fragment2, jsx as jsx28, jsxs as jsxs23 } from "react/jsx-runtime";
+function ConfirmDialog({
+  open,
+  onClose,
+  onConfirm,
+  title,
+  children,
+  confirmLabel = "Conferma",
+  cancelLabel = "Annulla",
+  tone = "primary",
+  requireText
+}) {
+  const inCorso = useRef6(false);
+  const [loading, setLoading] = useState6(false);
+  const [errore, setErrore] = useState6(null);
+  const [testo, setTesto] = useState6("");
+  useEffect6(() => {
+    if (!open) {
+      setErrore(null);
+      setTesto("");
+    }
+  }, [open]);
+  const sbloccato = !requireText || testo === requireText;
+  async function conferma() {
+    if (inCorso.current || !sbloccato) return;
+    inCorso.current = true;
+    setLoading(true);
+    setErrore(null);
+    try {
+      await onConfirm();
+      onClose();
+    } catch (e) {
+      setErrore(e?.message || "Operazione non riuscita");
+    } finally {
+      inCorso.current = false;
+      setLoading(false);
+    }
+  }
+  const chiudi = () => {
+    if (!inCorso.current) onClose();
+  };
+  return /* @__PURE__ */ jsx28(
+    Dialog,
+    {
+      open,
+      onClose: chiudi,
+      title,
+      size: "sm",
+      closeOnBackdrop: !loading,
+      footer: /* @__PURE__ */ jsxs23(Fragment2, { children: [
+        /* @__PURE__ */ jsx28(Button_default, { variant: "outline", onClick: chiudi, disabled: loading, children: cancelLabel }),
+        /* @__PURE__ */ jsx28(
+          Button_default,
+          {
+            variant: tone === "danger" ? "destructive" : "primary",
+            onClick: conferma,
+            loading,
+            disabled: !sbloccato,
+            children: confirmLabel
+          }
+        )
+      ] }),
+      children: /* @__PURE__ */ jsxs23("div", { className: "space-y-4 text-sm text-muted-foreground", children: [
+        children,
+        requireText && /* @__PURE__ */ jsx28(Field, { label: `Scrivi ${requireText} per confermare`, children: /* @__PURE__ */ jsx28(
+          Input_default,
+          {
+            value: testo,
+            onChange: (e) => setTesto(e.target.value),
+            autoComplete: "off",
+            disabled: loading,
+            "data-autofocus": true
+          }
+        ) }),
+        errore && /* @__PURE__ */ jsx28(Alert, { tone: "danger", children: errore })
+      ] })
+    }
+  );
+}
+
+// src/organisms/Toast.jsx
+import {
+  createContext,
+  useCallback as useCallback4,
+  useContext,
+  useEffect as useEffect7,
+  useMemo as useMemo2,
+  useRef as useRef7,
+  useState as useState7
+} from "react";
+import { AlertTriangle as AlertTriangle2, CheckCircle2 as CheckCircle22, Info as Info2, X as X3, XCircle as XCircle2 } from "lucide-react";
+import { jsx as jsx29, jsxs as jsxs24 } from "react/jsx-runtime";
+var ToastContext = createContext(null);
+var TONI2 = {
+  success: {
+    Icona: CheckCircle22,
+    accent: "border-l-success",
+    icon: "text-success"
+  },
+  danger: {
+    Icona: XCircle2,
+    accent: "border-l-destructive",
+    icon: "text-destructive"
+  },
+  warning: {
+    Icona: AlertTriangle2,
+    accent: "border-l-warning",
+    icon: "text-warning"
+  },
+  info: { Icona: Info2, accent: "border-l-info", icon: "text-info" }
+};
+function ToastProvider({ children }) {
+  const [toasts, setToasts] = useState7([]);
+  const timers = useRef7(/* @__PURE__ */ new Map());
+  const seq = useRef7(0);
+  const dismiss = useCallback4((id) => {
+    setToasts((l) => l.filter((t) => t.id !== id));
+    clearTimeout(timers.current.get(id));
+    timers.current.delete(id);
+  }, []);
+  const toast = useCallback4(
+    ({ title, description, tone = "success", duration = 4e3 }) => {
+      const id = ++seq.current;
+      setToasts((l) => [...l, { id, title, description, tone }]);
+      if (duration > 0) {
+        timers.current.set(
+          id,
+          setTimeout(() => dismiss(id), duration)
+        );
+      }
+      return id;
+    },
+    [dismiss]
+  );
+  useEffect7(() => {
+    const attivi = timers.current;
+    return () => {
+      attivi.forEach(clearTimeout);
+      attivi.clear();
+    };
+  }, []);
+  const value = useMemo2(() => ({ toast, dismiss }), [toast, dismiss]);
+  return /* @__PURE__ */ jsxs24(ToastContext.Provider, { value, children: [
+    children,
+    /* @__PURE__ */ jsx29("div", { className: "pointer-events-none fixed right-4 top-4 z-[60] flex flex-col gap-2", children: toasts.map((t) => {
+      const s = TONI2[t.tone] ?? TONI2.info;
+      return /* @__PURE__ */ jsxs24(
+        "div",
+        {
+          role: "status",
+          className: cn(
+            "pointer-events-auto flex w-[360px] max-w-[calc(100vw-2rem)] items-start gap-3 rounded-lg border border-l-4 border-border bg-card p-3 text-card-foreground shadow-lg animate-slide-in",
+            s.accent
+          ),
+          children: [
+            /* @__PURE__ */ jsx29(
+              s.Icona,
+              {
+                className: cn("mt-0.5 h-5 w-5 shrink-0", s.icon),
+                "aria-hidden": true
+              }
+            ),
+            /* @__PURE__ */ jsxs24("div", { className: "min-w-0 flex-1 text-sm", children: [
+              /* @__PURE__ */ jsx29("p", { className: "font-semibold", children: t.title }),
+              t.description && /* @__PURE__ */ jsx29("p", { className: "mt-0.5 text-muted-foreground", children: t.description })
+            ] }),
+            /* @__PURE__ */ jsx29(
+              IconButton_default,
+              {
+                icon: X3,
+                label: "Chiudi notifica",
+                size: "sm",
+                onClick: () => dismiss(t.id),
+                className: "-my-1 -mr-1 shrink-0"
+              }
+            )
+          ]
+        },
+        t.id
+      );
+    }) })
+  ] });
+}
+function useToast() {
+  const ctx = useContext(ToastContext);
+  if (!ctx) throw new Error("useToast must be used inside <ToastProvider>");
+  return ctx;
+}
 export {
   Alert,
   AppSidebar,
@@ -4231,7 +4553,9 @@ export {
   CardHeader,
   CardTitle,
   Checkbox,
+  ConfirmDialog,
   DataTable,
+  Dialog,
   EmptyState,
   Field,
   IconButton_default as IconButton,
@@ -4253,6 +4577,7 @@ export {
   Tabs,
   Textarea_default as Textarea,
   ThemeToggle,
+  ToastProvider,
   Toggle,
   Tooltip,
   cn,
@@ -4263,5 +4588,6 @@ export {
   formatRelativo,
   normalizeNavTree,
   useSort,
-  useTheme
+  useTheme,
+  useToast
 };
