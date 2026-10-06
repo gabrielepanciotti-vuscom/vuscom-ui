@@ -1,3 +1,4 @@
+import { copyFileSync } from "node:fs";
 import { build } from "esbuild";
 
 // Bundled as ESM with every runtime dependency left external: the consuming app
@@ -29,3 +30,8 @@ await build({
   outfile: "dist/utenti.js",
   external: ["react", "react-dom", "react/jsx-runtime", "lucide-react"],
 });
+
+// Theme assets ship as-is: the preset is CommonJS (Tailwind configs are loaded
+// with require) and theme.css is plain CSS, so neither goes through esbuild.
+copyFileSync("src/theme/preset.cjs", "dist/preset.cjs");
+copyFileSync("src/theme/theme.css", "dist/theme.css");
