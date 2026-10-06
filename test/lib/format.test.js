@@ -6,6 +6,7 @@ import {
 } from "../../src/lib/format.js";
 test("formatNumero uses it-IT and tolerates null", () => {
   expect(formatNumero(12345)).toBe("12.345");
+  expect(formatNumero(1581)).toBe("1.581");
   expect(formatNumero(null)).toBe("0");
   expect(formatNumero(0.256, { style: "percent" })).toBe("26%");
   expect(

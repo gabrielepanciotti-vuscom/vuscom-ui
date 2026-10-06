@@ -2828,6 +2828,8 @@ function formatNumero(v, opts = {}) {
   const maximumFractionDigits = opts.style === "percent" ? 0 : 2;
   return Number(v ?? 0).toLocaleString(LOCALE, {
     maximumFractionDigits,
+    // it-IT skips the thousands separator on 4-digit numbers (1581); we want 1.581.
+    useGrouping: "always",
     ...opts
   });
 }
@@ -3761,19 +3763,350 @@ function InfoTip({
     }
   ) });
 }
+
+// src/organisms/Card.jsx
+import { jsx as jsx20, jsxs as jsxs15 } from "react/jsx-runtime";
+function Card({ className, interactive = false, children, ...props }) {
+  return /* @__PURE__ */ jsx20(
+    "div",
+    {
+      ...props,
+      className: cn(
+        "rounded-xl border bg-card text-card-foreground shadow-sm",
+        interactive && "transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md hover:border-primary/40",
+        className
+      ),
+      children
+    }
+  );
+}
+function CardHeader({
+  title,
+  description,
+  actions,
+  className,
+  children
+}) {
+  return /* @__PURE__ */ jsxs15(
+    "div",
+    {
+      className: cn(
+        "flex items-start justify-between gap-4 p-5 pb-0",
+        className
+      ),
+      children: [
+        /* @__PURE__ */ jsxs15("div", { className: "min-w-0 space-y-1", children: [
+          title && /* @__PURE__ */ jsx20(CardTitle, { children: title }),
+          description && /* @__PURE__ */ jsx20(CardDescription, { children: description }),
+          children
+        ] }),
+        actions && /* @__PURE__ */ jsx20("div", { className: "flex shrink-0 items-center gap-2", children: actions })
+      ]
+    }
+  );
+}
+function CardTitle({ className, children, ...props }) {
+  return /* @__PURE__ */ jsx20(
+    "h3",
+    {
+      ...props,
+      className: cn("text-base font-semibold leading-tight", className),
+      children
+    }
+  );
+}
+function CardDescription({ className, children, ...props }) {
+  return /* @__PURE__ */ jsx20("p", { ...props, className: cn("text-sm text-muted-foreground", className), children });
+}
+function CardContent({ className, children, ...props }) {
+  return /* @__PURE__ */ jsx20("div", { ...props, className: cn("p-5", className), children });
+}
+function CardFooter({ className, children, ...props }) {
+  return /* @__PURE__ */ jsx20(
+    "div",
+    {
+      ...props,
+      className: cn("flex items-center gap-2 border-t p-4", className),
+      children
+    }
+  );
+}
+
+// src/organisms/KpiCard.jsx
+import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+
+// src/organisms/Skeleton.jsx
+import { jsx as jsx21, jsxs as jsxs16 } from "react/jsx-runtime";
+function Skeleton({ className, ...props }) {
+  return /* @__PURE__ */ jsx21(
+    "div",
+    {
+      "aria-hidden": true,
+      ...props,
+      className: cn("animate-pulse rounded-md bg-muted", className)
+    }
+  );
+}
+function SkeletonText({ lines = 3 }) {
+  return /* @__PURE__ */ jsx21("div", { className: "space-y-2", role: "status", "aria-label": "Caricamento", children: Array.from({ length: lines }, (_, i) => /* @__PURE__ */ jsx21(
+    Skeleton,
+    {
+      className: cn(
+        "h-4",
+        i === lines - 1 && lines > 1 ? "w-2/3" : "w-full"
+      )
+    },
+    i
+  )) });
+}
+function SkeletonCard() {
+  return /* @__PURE__ */ jsxs16("div", { className: "rounded-xl border bg-card p-5 shadow-sm space-y-4", children: [
+    /* @__PURE__ */ jsx21(Skeleton, { className: "h-4 w-1/3" }),
+    /* @__PURE__ */ jsx21(Skeleton, { className: "h-8 w-1/2" }),
+    /* @__PURE__ */ jsx21(SkeletonText, { lines: 2 })
+  ] });
+}
+function SkeletonTable({ rows = 5, cols = 4 }) {
+  return /* @__PURE__ */ jsxs16("div", { className: "space-y-3", role: "status", "aria-label": "Caricamento", children: [
+    /* @__PURE__ */ jsx21("div", { className: "flex gap-4", children: Array.from({ length: cols }, (_, c) => /* @__PURE__ */ jsx21(Skeleton, { className: "h-4 flex-1" }, c)) }),
+    Array.from({ length: rows }, (_, r2) => /* @__PURE__ */ jsx21("div", { className: "flex gap-4", children: Array.from({ length: cols }, (_2, c) => /* @__PURE__ */ jsx21(Skeleton, { className: "h-6 flex-1" }, c)) }, r2))
+  ] });
+}
+
+// src/organisms/KpiCard.jsx
+import { jsx as jsx22, jsxs as jsxs17 } from "react/jsx-runtime";
+var ICONE = {
+  neutral: "bg-muted text-muted-foreground",
+  primary: "bg-primary/15 text-primary",
+  success: "bg-success/15 text-success",
+  warning: "bg-warning/15 text-warning",
+  danger: "bg-destructive/15 text-destructive"
+};
+function Delta({ delta }) {
+  const su = delta.value > 0;
+  const giu = delta.value < 0;
+  const Icona = giu ? ArrowDownRight : ArrowUpRight;
+  return /* @__PURE__ */ jsxs17(
+    "span",
+    {
+      className: cn(
+        "inline-flex items-center gap-0.5 text-xs font-medium",
+        su && "text-success",
+        giu && "text-destructive",
+        !su && !giu && "text-muted-foreground"
+      ),
+      children: [
+        (su || giu) && /* @__PURE__ */ jsx22(Icona, { className: "h-3.5 w-3.5", "aria-hidden": true }),
+        su ? "+" : "",
+        formatNumero(delta.value),
+        delta.label && /* @__PURE__ */ jsx22("span", { className: "ml-1 font-normal text-muted-foreground", children: delta.label })
+      ]
+    }
+  );
+}
+function KpiCard({
+  label,
+  value,
+  hint,
+  delta,
+  tone = "neutral",
+  icon: Icon,
+  loading = false,
+  help,
+  className
+}) {
+  const mostrato = typeof value === "number" ? formatNumero(value) : value;
+  return /* @__PURE__ */ jsxs17(Card, { className: cn("p-5", className), children: [
+    /* @__PURE__ */ jsxs17("div", { className: "flex items-start justify-between gap-3", children: [
+      /* @__PURE__ */ jsxs17("div", { className: "min-w-0", children: [
+        /* @__PURE__ */ jsxs17("div", { className: "flex items-center gap-1 text-sm text-muted-foreground", children: [
+          /* @__PURE__ */ jsx22("span", { className: "truncate", children: label }),
+          help && /* @__PURE__ */ jsx22(InfoTip, { children: help })
+        ] }),
+        loading ? /* @__PURE__ */ jsx22(Skeleton, { className: "mt-2 h-8 w-24" }) : /* @__PURE__ */ jsx22("p", { className: "mt-1 text-3xl font-bold tabular-nums tracking-tight", children: mostrato })
+      ] }),
+      Icon && /* @__PURE__ */ jsx22(
+        "span",
+        {
+          className: cn(
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
+            ICONE[tone] ?? ICONE.neutral
+          ),
+          children: /* @__PURE__ */ jsx22(Icon, { className: "h-5 w-5", "aria-hidden": true })
+        }
+      )
+    ] }),
+    !loading && (delta || hint) && /* @__PURE__ */ jsxs17("div", { className: "mt-2 flex flex-wrap items-center gap-2", children: [
+      delta && /* @__PURE__ */ jsx22(Delta, { delta }),
+      hint && /* @__PURE__ */ jsx22("span", { className: "text-xs text-muted-foreground", children: hint })
+    ] })
+  ] });
+}
+
+// src/organisms/EmptyState.jsx
+import { jsx as jsx23, jsxs as jsxs18 } from "react/jsx-runtime";
+function EmptyState({
+  icon: Icon,
+  title,
+  description,
+  action,
+  className
+}) {
+  return /* @__PURE__ */ jsxs18(
+    "div",
+    {
+      className: cn(
+        "flex flex-col items-center justify-center gap-3 px-6 py-12 text-center",
+        className
+      ),
+      children: [
+        /* @__PURE__ */ jsx23("span", { className: "flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground", children: /* @__PURE__ */ jsx23(Icon, { className: "h-6 w-6", "aria-hidden": true }) }),
+        /* @__PURE__ */ jsxs18("div", { className: "space-y-1", children: [
+          /* @__PURE__ */ jsx23("p", { className: "text-base font-semibold", children: title }),
+          description && /* @__PURE__ */ jsx23("p", { className: "max-w-sm text-sm text-muted-foreground", children: description })
+        ] }),
+        action && /* @__PURE__ */ jsx23("div", { className: "mt-1", children: action })
+      ]
+    }
+  );
+}
+
+// src/organisms/Alert.jsx
+import { AlertTriangle, CheckCircle2, Info, X, XCircle } from "lucide-react";
+import { jsx as jsx24, jsxs as jsxs19 } from "react/jsx-runtime";
+var TONI = {
+  info: {
+    box: "border-info/30 bg-info/10 text-sky-900 dark:text-sky-100",
+    icon: "text-info",
+    Icona: Info
+  },
+  success: {
+    box: "border-success/30 bg-success/10 text-green-900 dark:text-green-100",
+    icon: "text-success",
+    Icona: CheckCircle2
+  },
+  warning: {
+    box: "border-warning/40 bg-warning/10 text-amber-900 dark:text-amber-100",
+    icon: "text-warning",
+    Icona: AlertTriangle
+  },
+  danger: {
+    box: "border-destructive/30 bg-destructive/10 text-red-900 dark:text-red-100",
+    icon: "text-destructive",
+    Icona: XCircle
+  }
+};
+function Alert({
+  tone = "info",
+  title,
+  children,
+  onClose,
+  className
+}) {
+  const t = TONI[tone] ?? TONI.info;
+  const urgente = tone === "danger" || tone === "warning";
+  return /* @__PURE__ */ jsxs19(
+    "div",
+    {
+      role: urgente ? "alert" : "status",
+      className: cn(
+        "flex gap-3 rounded-lg border p-4 text-sm",
+        t.box,
+        className
+      ),
+      children: [
+        /* @__PURE__ */ jsx24(t.Icona, { className: cn("mt-0.5 h-5 w-5 shrink-0", t.icon), "aria-hidden": true }),
+        /* @__PURE__ */ jsxs19("div", { className: "min-w-0 flex-1", children: [
+          title && /* @__PURE__ */ jsx24("p", { className: "font-semibold", children: title }),
+          children && /* @__PURE__ */ jsx24("div", { className: cn(title && "mt-0.5"), children })
+        ] }),
+        onClose && /* @__PURE__ */ jsx24(
+          IconButton_default,
+          {
+            icon: X,
+            label: "Chiudi",
+            size: "sm",
+            onClick: onClose,
+            className: "-my-1 -mr-1 shrink-0"
+          }
+        )
+      ]
+    }
+  );
+}
+
+// src/organisms/Pagination.jsx
+import { ChevronLeft, ChevronRight as ChevronRight2 } from "lucide-react";
+import { jsx as jsx25, jsxs as jsxs20 } from "react/jsx-runtime";
+function Pagination({ page, pageSize, total, onPageChange }) {
+  if (total <= pageSize) return null;
+  const pagine = Math.ceil(total / pageSize);
+  const da = (page - 1) * pageSize + 1;
+  const a = Math.min(page * pageSize, total);
+  return /* @__PURE__ */ jsxs20(
+    "nav",
+    {
+      "aria-label": "Paginazione",
+      className: "flex items-center justify-between gap-3",
+      children: [
+        /* @__PURE__ */ jsx25("p", { className: "text-sm text-muted-foreground tabular-nums", children: `${formatNumero(da)}\u2013${formatNumero(a)} di ${formatNumero(total)}` }),
+        /* @__PURE__ */ jsxs20("div", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ jsx25(
+            Button_default,
+            {
+              variant: "outline",
+              size: "sm",
+              icon: ChevronLeft,
+              disabled: page <= 1,
+              onClick: () => onPageChange(page - 1),
+              "aria-label": "Pagina precedente",
+              children: "Precedente"
+            }
+          ),
+          /* @__PURE__ */ jsx25(
+            Button_default,
+            {
+              variant: "outline",
+              size: "sm",
+              iconRight: ChevronRight2,
+              disabled: page >= pagine,
+              onClick: () => onPageChange(page + 1),
+              "aria-label": "Pagina successiva",
+              children: "Successiva"
+            }
+          )
+        ] })
+      ]
+    }
+  );
+}
 export {
+  Alert,
   AppSidebar,
   Badge,
   Button_default as Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
   Checkbox,
+  EmptyState,
   Field,
   IconButton_default as IconButton,
   InfoTip,
   Input_default as Input,
   Kbd,
+  KpiCard,
+  Pagination,
   ProgressBar,
   SegmentedControl,
   Select,
+  Skeleton,
+  SkeletonCard,
+  SkeletonTable,
+  SkeletonText,
   Spinner,
   StatusDot,
   THEME_INIT_SCRIPT,

@@ -10,6 +10,8 @@ export function formatNumero(v, opts = {}) {
   const maximumFractionDigits = opts.style === "percent" ? 0 : 2;
   return Number(v ?? 0).toLocaleString(LOCALE, {
     maximumFractionDigits,
+    // it-IT skips the thousands separator on 4-digit numbers (1581); we want 1.581.
+    useGrouping: "always",
     ...opts,
   });
 }
