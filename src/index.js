@@ -45,7 +45,10 @@ export { default as useSort } from "./organisms/useSort.js";
 export { default as Dialog } from "./organisms/Dialog.jsx";
 export { default as ConfirmDialog } from "./organisms/ConfirmDialog.jsx";
 export { ToastProvider, useToast } from "./organisms/Toast.jsx";
-export { default as AppShell } from "./templates/AppShell.jsx";
+export {
+  default as AppShell,
+  useSidebarCompatta,
+} from "./templates/AppShell.jsx";
 export { default as PageHeader } from "./templates/PageHeader.jsx";
 export { default as Section } from "./templates/Section.jsx";
 export { default as LoginPage } from "./templates/LoginPage.jsx";

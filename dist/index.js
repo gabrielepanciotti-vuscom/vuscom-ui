@@ -4722,13 +4722,28 @@ function useToast() {
 }
 
 // src/templates/AppShell.jsx
-import { useEffect as useEffect8, useMemo as useMemo3, useRef as useRef8, useState as useState9 } from "react";
+import {
+  createContext as createContext2,
+  useContext as useContext2,
+  useEffect as useEffect8,
+  useMemo as useMemo3,
+  useRef as useRef8,
+  useState as useState9
+} from "react";
 import { useLocation as useLocation2 } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { jsx as jsx30, jsxs as jsxs25 } from "react/jsx-runtime";
 var STORAGE_KEY = "vuscom.sidebar.collapsed";
 var WIDTHS = { "7xl": "max-w-7xl", full: "max-w-none" };
 var NESSUNA_VOCE = [];
+var CompattaContext = createContext2(null);
+function useSidebarCompatta(attiva = true) {
+  const richiedi = useContext2(CompattaContext);
+  useEffect8(() => {
+    if (!attiva || !richiedi) return void 0;
+    return richiedi();
+  }, [attiva, richiedi]);
+}
 function readCollapsed() {
   try {
     return localStorage.getItem(STORAGE_KEY) === "true";
@@ -4761,6 +4776,19 @@ function AppShell({
   const mainTree = useMemo3(() => normalizeNavTree(nav), [nav]);
   const adminTree = useMemo3(() => normalizeNavTree(adminNav), [adminNav]);
   const [collapsed, setCollapsed] = useState9(readCollapsed);
+  const [richieste, setRichieste] = useState9(0);
+  const [riaperta, setRiaperta] = useState9(false);
+  const forzata = richieste > 0 && !riaperta;
+  const richiediCompatta = useMemo3(
+    () => () => {
+      setRichieste((n) => n + 1);
+      return () => setRichieste((n) => n - 1);
+    },
+    []
+  );
+  useEffect8(() => {
+    if (richieste === 0) setRiaperta(false);
+  }, [richieste]);
   const [isOpen, setIsOpen] = useState9(false);
   const [expanded, setExpanded] = useState9(
     () => new Set(activeGroupIds([...mainTree, ...adminTree], pathname))
@@ -4776,21 +4804,27 @@ function AppShell({
       );
     if (mainRef.current) mainRef.current.scrollTop = 0;
   }, [pathname]);
-  const toggleCollapse = () => setCollapsed((prev) => {
-    const next = !prev;
-    try {
-      localStorage.setItem(STORAGE_KEY, String(next));
-    } catch {
+  const toggleCollapse = () => {
+    if (forzata) {
+      setRiaperta(true);
+      if (!collapsed) return;
     }
-    return next;
-  });
+    setCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(STORAGE_KEY, String(next));
+      } catch {
+      }
+      return next;
+    });
+  };
   const toggleGroup = (id) => setExpanded((prev) => {
     const next = new Set(prev);
     if (next.has(id)) next.delete(id);
     else next.add(id);
     return next;
   });
-  return /* @__PURE__ */ jsxs25("div", { className: "flex h-screen bg-app", children: [
+  return /* @__PURE__ */ jsx30(CompattaContext.Provider, { value: richiediCompatta, children: /* @__PURE__ */ jsxs25("div", { className: "flex h-screen bg-app", children: [
     /* @__PURE__ */ jsx30(
       AppSidebar,
       {
@@ -4801,7 +4835,7 @@ function AppShell({
         onToggleGroup: toggleGroup,
         isOpen,
         onClose: () => setIsOpen(false),
-        collapsed,
+        collapsed: collapsed || forzata,
         onToggleCollapse: toggleCollapse,
         themeSlot: /* @__PURE__ */ jsx30(ThemeToggle, {}),
         navClassName: "scrollbar-thin"
@@ -4829,7 +4863,7 @@ function AppShell({
         }
       )
     ] })
-  ] });
+  ] }) });
 }
 
 // src/templates/PageHeader.jsx
@@ -5050,6 +5084,7 @@ export {
   formatNumero,
   formatRelativo,
   normalizeNavTree,
+  useSidebarCompatta,
   useSort,
   useTabIds,
   useTheme,

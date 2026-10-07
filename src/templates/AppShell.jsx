@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useLocation } from "react-router-dom";
 import { Menu } from "lucide-react";
 import AppSidebar from "../AppSidebar.jsx";
@@ -11,6 +18,23 @@ const STORAGE_KEY = "vuscom.sidebar.collapsed";
 const WIDTHS = { "7xl": "max-w-7xl", full: "max-w-none" };
 // Stable defaults: a fresh `[]` per render would re-run every memo below.
 const NESSUNA_VOCE = [];
+
+// Pages that want room (a report builder, a wide table) ask for a compact
+// sidebar while they are mounted; outside an AppShell the request is a no-op.
+const CompattaContext = createContext(null);
+
+/**
+ * Keeps the sidebar compact while the calling page is mounted (`attiva`), and
+ * gives it back to the user's saved preference when the page goes away. The
+ * preference itself is never overwritten: only a click on the toggle does.
+ */
+export function useSidebarCompatta(attiva = true) {
+  const richiedi = useContext(CompattaContext);
+  useEffect(() => {
+    if (!attiva || !richiedi) return undefined;
+    return richiedi();
+  }, [attiva, richiedi]);
+}
 
 function readCollapsed() {
   try {
@@ -57,6 +81,21 @@ export default function AppShell({
   const adminTree = useMemo(() => normalizeNavTree(adminNav), [adminNav]);
 
   const [collapsed, setCollapsed] = useState(readCollapsed);
+  // Pages currently asking for a compact sidebar, and whether the user
+  // reopened it anyway (reset when the last request goes away).
+  const [richieste, setRichieste] = useState(0);
+  const [riaperta, setRiaperta] = useState(false);
+  const forzata = richieste > 0 && !riaperta;
+  const richiediCompatta = useMemo(
+    () => () => {
+      setRichieste((n) => n + 1);
+      return () => setRichieste((n) => n - 1);
+    },
+    [],
+  );
+  useEffect(() => {
+    if (richieste === 0) setRiaperta(false);
+  }, [richieste]);
   const [isOpen, setIsOpen] = useState(false);
   const [expanded, setExpanded] = useState(
     () => new Set(activeGroupIds([...mainTree, ...adminTree], pathname)),
@@ -82,7 +121,13 @@ export default function AppShell({
     if (mainRef.current) mainRef.current.scrollTop = 0;
   }, [pathname]);
 
-  const toggleCollapse = () =>
+  const toggleCollapse = () => {
+    // Forced compact by a page: the click opens it for this page only, and
+    // the saved preference (whatever it was) becomes «open».
+    if (forzata) {
+      setRiaperta(true);
+      if (!collapsed) return;
+    }
     setCollapsed((prev) => {
       const next = !prev;
       try {
@@ -92,6 +137,7 @@ export default function AppShell({
       }
       return next;
     });
+  };
 
   const toggleGroup = (id) =>
     setExpanded((prev) => {
@@ -102,6 +148,7 @@ export default function AppShell({
     });
 
   return (
+    <CompattaContext.Provider value={richiediCompatta}>
     <div className="flex h-screen bg-app">
       <AppSidebar
         {...sidebarProps}
@@ -111,7 +158,7 @@ export default function AppShell({
         onToggleGroup={toggleGroup}
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        collapsed={collapsed}
+        collapsed={collapsed || forzata}
         onToggleCollapse={toggleCollapse}
         themeSlot={<ThemeToggle />}
         navClassName="scrollbar-thin"
@@ -136,5 +183,6 @@ export default function AppShell({
         </main>
       </div>
     </div>
+    </CompattaContext.Provider>
   );
 }
