@@ -1,4 +1,8 @@
-import { mascheraAzioni, mascheraEventi } from "./maschera.js";
+import {
+  mascheraAzioni,
+  mascheraElemento,
+  mascheraEventi,
+} from "./maschera.js";
 import { troncaVideo } from "./useRegistrazione.js";
 
 // The portal's limits (vuscom_auth.segnalazioni): 4 MB per file, 5 MB in all.
@@ -56,7 +60,9 @@ export function componiInvio(bozza, { commento, video, maschera }) {
     "report",
     JSON.stringify({
       report_id: bozza.segnalazione_id,
-      element: bozza.elemento ?? null,
+      element: maschera
+        ? mascheraElemento(bozza.elemento)
+        : (bozza.elemento ?? null),
       comment: commento.trim(),
       page_url: urlPagina(bozza.page_url ?? "", maschera),
     }),

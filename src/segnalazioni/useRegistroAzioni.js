@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { IGNORA } from "./maschera.js";
+import { IGNORA, MASCHERA, PRIVATO } from "./maschera.js";
 import { leggiSegnala } from "./segnalaAttr.js";
 
 const MAX_AZIONI = 200;
@@ -64,7 +64,11 @@ function descriviClick(bersaglio) {
       : el.textContent) ||
     el.getAttribute("title") ||
     tag;
-  const azione = { elemento: breve(etichetta, MAX_ETICHETTA), fonte: "testo" };
+  // Private areas are masked always, even when the user later turns the mask off.
+  const azione = {
+    elemento: el.closest(PRIVATO) ? MASCHERA : breve(etichetta, MAX_ETICHETTA),
+    fonte: "testo",
+  };
   if (nomeArea) azione.area = nomeArea;
   return azione;
 }

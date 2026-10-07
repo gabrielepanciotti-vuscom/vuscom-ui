@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { Crosshair } from "lucide-react";
 import Button from "../atoms/Button.jsx";
 import Kbd from "../atoms/Kbd.jsx";
-import { IGNORA } from "./maschera.js";
+import { IGNORA, MASCHERA, PRIVATO } from "./maschera.js";
 import { leggiSegnala } from "./segnalaAttr.js";
 
 const MAX_TESTO = 200;
@@ -65,8 +65,10 @@ export function descriviElemento(el) {
   const letto = area ? leggiSegnala(area.getAttribute("data-segnala")) : null;
   if (letto) return { ...letto };
   const r = el.getBoundingClientRect();
+  // Private areas are masked always, whatever the user chooses at send time.
+  const privato = Boolean(el.closest?.(PRIVATO));
   return {
-    testo: breve(el.innerText || el.textContent),
+    testo: privato ? MASCHERA : breve(el.innerText || el.textContent),
     selettore: selettoreBreve(el),
     rect: {
       x: Math.round(r.x),

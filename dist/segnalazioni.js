@@ -2821,9 +2821,17 @@ function mascheraDom(radice, { tutto = true } = {}) {
   visita(radice, false);
 }
 function mascheraAzioni(azioni) {
-  return (azioni ?? []).map(
-    (a) => a.tipo === "click" && a.fonte !== "data-segnala" ? { ...a, elemento: maschera(a.elemento) } : { ...a }
-  );
+  return (azioni ?? []).map((a) => {
+    if (a.tipo === "click" && a.fonte !== "data-segnala")
+      return { ...a, elemento: maschera(a.elemento) };
+    if (a.tipo === "errore" && a.messaggio)
+      return { ...a, messaggio: maschera(a.messaggio) };
+    return { ...a };
+  });
+}
+function mascheraElemento(elemento) {
+  if (!elemento || !elemento.testo) return elemento ?? null;
+  return { ...elemento, testo: maschera(elemento.testo) };
 }
 
 // src/segnalazioni/cattura.js
@@ -3021,7 +3029,7 @@ function componiInvio(bozza, { commento, video, maschera: maschera2 }) {
     "report",
     JSON.stringify({
       report_id: bozza.segnalazione_id,
-      element: bozza.elemento ?? null,
+      element: maschera2 ? mascheraElemento(bozza.elemento) : bozza.elemento ?? null,
       comment: commento.trim(),
       page_url: urlPagina(bozza.page_url ?? "", maschera2)
     })
@@ -3725,8 +3733,9 @@ function descriviElemento(el) {
   const letto = area ? leggiSegnala(area.getAttribute("data-segnala")) : null;
   if (letto) return { ...letto };
   const r2 = el.getBoundingClientRect();
+  const privato = Boolean(el.closest?.(PRIVATO));
   return {
-    testo: breve(el.innerText || el.textContent),
+    testo: privato ? MASCHERA : breve(el.innerText || el.textContent),
     selettore: selettoreBreve(el),
     rect: {
       x: Math.round(r2.x),
@@ -3879,7 +3888,10 @@ function descriviClick(bersaglio) {
   const el = controllo || bersaglio;
   const tag = el.tagName.toLowerCase();
   const etichetta = el.getAttribute("aria-label") || (tag === "input" || tag === "textarea" || tag === "select" ? el.getAttribute("name") || el.getAttribute("placeholder") || tag : el.textContent) || el.getAttribute("title") || tag;
-  const azione = { elemento: breve2(etichetta, MAX_ETICHETTA), fonte: "testo" };
+  const azione = {
+    elemento: el.closest(PRIVATO) ? MASCHERA : breve2(etichetta, MAX_ETICHETTA),
+    fonte: "testo"
+  };
   if (nomeArea) azione.area = nomeArea;
   return azione;
 }
@@ -4073,14 +4085,24 @@ function SegnalazioniProvider({
   endpoint = "/api/segnalazioni",
   configEndpoint = "/api/segnalazioni/config",
   durataVideoSec = 30,
+  getToken,
   fetchImpl = fetchPredefinito,
   children
 }) {
   const [config, setConfig] = useState4(null);
   const [stato, setStato] = useState4("inattivo");
   const [bozza, setBozza] = useState4(null);
-  const fetchRef = useRef6(fetchImpl);
-  fetchRef.current = fetchImpl;
+  const baseRef = useRef6(fetchImpl);
+  baseRef.current = fetchImpl;
+  const tokenRef = useRef6(getToken);
+  tokenRef.current = getToken;
+  const fetchRef = useRef6((url, opzioni = {}) => {
+    const token = tokenRef.current?.();
+    if (!token) return baseRef.current(url, opzioni);
+    const headers = new Headers(opzioni.headers);
+    headers.set("Authorization", `Bearer ${token}`);
+    return baseRef.current(url, { ...opzioni, headers });
+  });
   useEffect7(() => {
     let annullato = false;
     (async () => {
@@ -4088,6 +4110,10 @@ function SegnalazioniProvider({
         const r2 = await fetchRef.current(configEndpoint, {
           credentials: "include"
         });
+        if (r2.status === 401 || r2.status === 403)
+          console.warn(
+            `[segnalazioni] ${configEndpoint} ha risposto ${r2.status}: il pulsante resta nascosto. Il portale autentica con un header? Passa \`getToken\` a SegnalazioniProvider.`
+          );
         const corpo = r2.ok ? await r2.json() : {};
         if (!annullato)
           setConfig({

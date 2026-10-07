@@ -146,9 +146,22 @@ export function mascheraDom(radice, { tutto = true } = {}) {
  * from `data-segnala` are chosen by developers and stay.
  */
 export function mascheraAzioni(azioni) {
-  return (azioni ?? []).map((a) =>
-    a.tipo === "click" && a.fonte !== "data-segnala"
-      ? { ...a, elemento: maschera(a.elemento) }
-      : { ...a },
-  );
+  return (azioni ?? []).map((a) => {
+    if (a.tipo === "click" && a.fonte !== "data-segnala")
+      return { ...a, elemento: maschera(a.elemento) };
+    // Error messages can quote data ("cliente Rossi non trovato").
+    if (a.tipo === "errore" && a.messaggio)
+      return { ...a, messaggio: maschera(a.messaggio) };
+    return { ...a };
+  });
+}
+
+/**
+ * The picked element as sent with the mask on: its free text is hidden (it
+ * would land in the ticket title); `nome`/`id`/`tipo`/`contesto` come from
+ * `data-segnala`, chosen by developers, and stay.
+ */
+export function mascheraElemento(elemento) {
+  if (!elemento || !elemento.testo) return elemento ?? null;
+  return { ...elemento, testo: maschera(elemento.testo) };
 }

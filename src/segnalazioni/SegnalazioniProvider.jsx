@@ -20,14 +20,26 @@ export default function SegnalazioniProvider({
   endpoint = "/api/segnalazioni",
   configEndpoint = "/api/segnalazioni/config",
   durataVideoSec = 30,
+  getToken,
   fetchImpl = fetchPredefinito,
   children,
 }) {
   const [config, setConfig] = useState(null);
   const [stato, setStato] = useState("inattivo");
   const [bozza, setBozza] = useState(null);
-  const fetchRef = useRef(fetchImpl);
-  fetchRef.current = fetchImpl;
+  const baseRef = useRef(fetchImpl);
+  baseRef.current = fetchImpl;
+  const tokenRef = useRef(getToken);
+  tokenRef.current = getToken;
+  // Portals that authenticate with a Bearer header (not only the session
+  // cookie) pass `getToken`: every call of the widget then carries it.
+  const fetchRef = useRef((url, opzioni = {}) => {
+    const token = tokenRef.current?.();
+    if (!token) return baseRef.current(url, opzioni);
+    const headers = new Headers(opzioni.headers);
+    headers.set("Authorization", `Bearer ${token}`);
+    return baseRef.current(url, { ...opzioni, headers });
+  });
 
   useEffect(() => {
     let annullato = false;
@@ -36,6 +48,12 @@ export default function SegnalazioniProvider({
         const r = await fetchRef.current(configEndpoint, {
           credentials: "include",
         });
+        if (r.status === 401 || r.status === 403)
+          // Otherwise the button would just vanish: say why, for whoever wires a portal.
+          console.warn(
+            `[segnalazioni] ${configEndpoint} ha risposto ${r.status}: il pulsante resta nascosto. ` +
+              "Il portale autentica con un header? Passa `getToken` a SegnalazioniProvider.",
+          );
         const corpo = r.ok ? await r.json() : {};
         if (!annullato)
           setConfig({
