@@ -5,6 +5,7 @@ import InfoTip from "../molecules/InfoTip.jsx";
 import { Card } from "./Card.jsx";
 import { Skeleton } from "./Skeleton.jsx";
 import { TESTO, TINTE } from "../atoms/tones.js";
+import { segnalaAttr } from "../segnalazioni/segnalaAttr.js";
 
 const vuoto = (v) =>
   v === null || v === undefined || (typeof v === "number" && Number.isNaN(v));
@@ -43,6 +44,7 @@ export default function KpiCard({
   icon: Icon,
   loading = false,
   help,
+  segnala,
   className,
 }) {
   const mostrato = vuoto(value)
@@ -51,7 +53,7 @@ export default function KpiCard({
       ? formatNumero(value)
       : value;
   return (
-    <Card className={cn("p-5", className)}>
+    <Card className={cn("p-5", className)} {...segnalaAttr(segnala)}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-1 text-sm text-muted-foreground">

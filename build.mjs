@@ -31,6 +31,24 @@ await build({
   external: ["react", "react-dom", "react/jsx-runtime", "lucide-react"],
 });
 
+// Third entry "@vuscom/ui/segnalazioni": the bug-report widget. rrweb and
+// modern-screenshot stay external (real dependencies of the package, loaded
+// with import() only when reports are on), and nothing here is reachable from
+// the main entry, so dist/index.js never mentions them.
+await build({
+  ...common,
+  entryPoints: ["src/segnalazioni/index.js"],
+  outfile: "dist/segnalazioni.js",
+  external: [
+    "react",
+    "react-dom",
+    "react/jsx-runtime",
+    "lucide-react",
+    "rrweb",
+    "modern-screenshot",
+  ],
+});
+
 // Theme assets ship as-is: the preset is CommonJS (Tailwind configs are loaded
 // with require) and theme.css is plain CSS, so neither goes through esbuild.
 copyFileSync("src/theme/preset.cjs", "dist/preset.cjs");

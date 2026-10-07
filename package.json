@@ -1,6 +1,6 @@
 {
   "name": "@vuscom/ui",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Design system VUS COM: token, componenti e struttura delle pagine",
   "license": "UNLICENSED",
   "type": "module",
@@ -14,6 +14,10 @@
     "./utenti": {
       "import": "./dist/utenti.js",
       "default": "./dist/utenti.js"
+    },
+    "./segnalazioni": {
+      "import": "./dist/segnalazioni.js",
+      "default": "./dist/segnalazioni.js"
     },
     "./preset": {
       "require": "./dist/preset.cjs",
@@ -63,6 +67,8 @@
   },
   "dependencies": {
     "clsx": "^2.1.1",
+    "modern-screenshot": "4.7.0",
+    "rrweb": "2.1.7",
     "tailwind-merge": "^2.6.1"
   }
 }

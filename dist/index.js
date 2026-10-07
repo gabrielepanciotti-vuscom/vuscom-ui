@@ -4010,6 +4010,18 @@ function SkeletonTable({ rows = 5, cols = 4 }) {
   ] });
 }
 
+// src/segnalazioni/segnalaAttr.js
+function segnalaAttr(descrittore) {
+  if (!descrittore || typeof descrittore !== "object") return {};
+  const { tipo, id, nome, contesto } = descrittore;
+  const pulito = {};
+  if (tipo !== void 0) pulito.tipo = tipo;
+  if (id !== void 0) pulito.id = id;
+  if (nome !== void 0) pulito.nome = nome;
+  if (contesto !== void 0) pulito.contesto = contesto;
+  return { "data-segnala": JSON.stringify(pulito) };
+}
+
 // src/organisms/KpiCard.jsx
 import { jsx as jsx22, jsxs as jsxs17 } from "react/jsx-runtime";
 var vuoto = (v) => v === null || v === void 0 || typeof v === "number" && Number.isNaN(v);
@@ -4044,10 +4056,11 @@ function KpiCard({
   icon: Icon,
   loading = false,
   help,
+  segnala,
   className
 }) {
   const mostrato = vuoto(value) ? "\u2014" : typeof value === "number" ? formatNumero(value) : value;
-  return /* @__PURE__ */ jsxs17(Card, { className: cn("p-5", className), children: [
+  return /* @__PURE__ */ jsxs17(Card, { className: cn("p-5", className), ...segnalaAttr(segnala), children: [
     /* @__PURE__ */ jsxs17("div", { className: "flex items-start justify-between gap-3", children: [
       /* @__PURE__ */ jsxs17("div", { className: "min-w-0", children: [
         /* @__PURE__ */ jsxs17("div", { className: "flex items-center gap-1 text-sm text-muted-foreground", children: [
@@ -4282,6 +4295,7 @@ function DataTable({
   initialSort,
   dense = false,
   caption,
+  segnala,
   className
 }) {
   const accessors = {};
@@ -4299,7 +4313,7 @@ function DataTable({
   } else if (rows.length === 0) {
     body = empty === void 0 ? /* @__PURE__ */ jsx26(EmptyState, { icon: Inbox, title: "Nessun dato" }) : typeof empty === "string" ? /* @__PURE__ */ jsx26("p", { className: "px-6 py-12 text-center text-sm text-muted-foreground", children: empty }) : empty;
   }
-  return /* @__PURE__ */ jsx26(Card, { className: cn("p-0", className), children: /* @__PURE__ */ jsx26("div", { className: "overflow-x-auto", children: body ? body : /* @__PURE__ */ jsxs21("table", { className: "w-full text-sm", children: [
+  return /* @__PURE__ */ jsx26(Card, { className: cn("p-0", className), ...segnalaAttr(segnala), children: /* @__PURE__ */ jsx26("div", { className: "overflow-x-auto", children: body ? body : /* @__PURE__ */ jsxs21("table", { className: "w-full text-sm", children: [
     caption && /* @__PURE__ */ jsx26("caption", { className: "sr-only", children: caption }),
     /* @__PURE__ */ jsx26("thead", { className: "border-b bg-muted/50 font-medium text-muted-foreground", children: /* @__PURE__ */ jsx26("tr", { children: columns.map((c) => {
       const active = sort && sort.key === c.key ? sort.dir : null;
@@ -4308,6 +4322,7 @@ function DataTable({
         "th",
         {
           scope: "col",
+          ...segnalaAttr(c.segnala),
           style: c.width ? { width: c.width } : void 0,
           "aria-sort": c.sortable ? active === "asc" ? "ascending" : active === "desc" ? "descending" : "none" : void 0,
           className: cn(
@@ -4356,6 +4371,7 @@ function DataTable({
         children: columns.map((c) => /* @__PURE__ */ jsx26(
           "td",
           {
+            ...segnalaAttr(c.segnala),
             className: cn(
               pad,
               ALIGN[c.align] || ALIGN.left,
@@ -4768,10 +4784,15 @@ function activeGroupIds(nodes, pathname) {
 function AppShell({
   sidebar = {},
   topbarRight,
+  azioniSidebar,
   maxWidth = "7xl",
   children
 }) {
-  const { nav = NESSUNA_VOCE, adminNav = NESSUNA_VOCE, ...sidebarProps } = sidebar;
+  const {
+    nav = NESSUNA_VOCE,
+    adminNav = NESSUNA_VOCE,
+    ...sidebarProps
+  } = sidebar;
   const { pathname } = useLocation2();
   const mainTree = useMemo3(() => normalizeNavTree(nav), [nav]);
   const adminTree = useMemo3(() => normalizeNavTree(adminNav), [adminNav]);
@@ -4837,7 +4858,22 @@ function AppShell({
         onClose: () => setIsOpen(false),
         collapsed: collapsed || forzata,
         onToggleCollapse: toggleCollapse,
-        themeSlot: /* @__PURE__ */ jsx30(ThemeToggle, {}),
+        themeSlot: azioniSidebar ? (
+          // Collapsed (60px) there is no room side by side: stack them.
+          /* @__PURE__ */ jsxs25(
+            "div",
+            {
+              className: cn(
+                "flex items-center gap-1.5",
+                (collapsed || forzata) && "flex-col"
+              ),
+              children: [
+                azioniSidebar,
+                /* @__PURE__ */ jsx30(ThemeToggle, {})
+              ]
+            }
+          )
+        ) : /* @__PURE__ */ jsx30(ThemeToggle, {}),
         navClassName: "scrollbar-thin"
       }
     ),

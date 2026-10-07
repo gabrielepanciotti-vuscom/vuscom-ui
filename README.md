@@ -16,7 +16,8 @@ Quattro strati, dal più piccolo al più grande:
 3. **Organismi** — blocchi composti (tabelle, finestre, notifiche).
 4. **Template** — struttura delle pagine (`AppShell`, `PageHeader`, `Section`, `LoginPage`).
 
-Più `AppSidebar` / `normalizeNavTree` / `collectGroupIds` e l'entry `@vuscom/ui/utenti`.
+Più `AppSidebar` / `normalizeNavTree` / `collectGroupIds` e gli entry `@vuscom/ui/utenti`
+e `@vuscom/ui/segnalazioni`.
 Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 (`select`, checkbox, radio): i controlli sono propri.
 
@@ -52,8 +53,8 @@ Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 | Componente | Props principali |
 |---|---|
 | `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `CardFooter` | `interactive` (Card); `title`, `description`, `actions` (CardHeader) |
-| `KpiCard` | `label`, `value` (`null`/`NaN` → «—»), `hint`, `delta` (`{value,label}`), `tone` (anche `info`), `icon`, `loading`, `help` |
-| `DataTable` | `columns` (`{key,header,cell,sortable,sortAccessor,align,width}`), `rows`, `rowKey`, `onRowClick`, `loading`, `empty`, `initialSort`, `dense`, `caption`, `className` — `onRowClick` non scatta sui controlli nella cella (link, pulsanti, `[data-no-row-click]`) |
+| `KpiCard` | `label`, `value` (`null`/`NaN` → «—»), `hint`, `delta` (`{value,label}`), `tone` (anche `info`), `icon`, `loading`, `help`, `segnala` (vedi Segnalazioni) |
+| `DataTable` | `columns` (`{key,header,cell,sortable,sortAccessor,align,width}`), `rows`, `rowKey`, `onRowClick`, `loading`, `empty`, `initialSort`, `dense`, `caption`, `className`, `segnala` (anche per colonna: `colonna.segnala`) — `onRowClick` non scatta sui controlli nella cella (link, pulsanti, `[data-no-row-click]`) |
 | `Pagination` | `page`, `pageSize`, `total`, `onPageChange`, `className` |
 | `useSort` | `useSort(rows, { initial, accessors })` — numeri e date per valore, stringhe con ordinamento numerico («9» prima di «10»), `null`/`NaN` sempre in fondo |
 | `Dialog` | `open`, `onClose`, `title`, `description`, `icon`, `size`, `footer`, `closeOnBackdrop`, `closeDisabled` |
@@ -66,7 +67,7 @@ Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 ### Template
 | Componente | Props principali |
 |---|---|
-| `AppShell` | `sidebar` (props di `AppSidebar` + `nav`, `adminNav`), `topbarRight`, `maxWidth`; va dentro un Router |
+| `AppShell` | `sidebar` (props di `AppSidebar` + `nav`, `adminNav`), `topbarRight`, `azioniSidebar` (nodo reso accanto all'interruttore del tema, es. `<PulsanteSegnala compatto />`), `maxWidth`; va dentro un Router |
 | `useSidebarCompatta(attiva = true)` | hook per le pagine che vogliono spazio (builder di report, tabelle larghe): finché la pagina è montata la sidebar resta compressa, poi torna alla preferenza dell'utente, che non viene sovrascritta |
 | `PageHeader` | `title`, `description`, `icon`, `help`, `helpHref`, `actions`, `tabs`, `className` |
 | `Section` | `title`, `description`, `actions`, `className` |
@@ -117,6 +118,8 @@ import { AppShell, PageHeader, Button, DataTable } from "@vuscom/ui";
 ## Regole del pacchetto
 
 - Solo presentazione: niente chiamate API, niente stato di dominio, niente segreti.
+  Eccezioni dichiarate: `@vuscom/ui/utenti` (tramite il `client` dell'app) e
+  `@vuscom/ui/segnalazioni` (parla col router `/api/segnalazioni` del portale).
 - Un test per componente (`test/`, vitest + Testing Library).
 - Nessun elemento nativo visibile (`select`, checkbox, radio): controlli custom.
 - Nessun colore esadecimale nei componenti: classi semantiche (`bg-primary`, `border-border`…).
@@ -170,6 +173,66 @@ Le regole di permesso le applica il backend; la pagina nasconde solo ciò che
 l'attore non potrebbe mai fare (Disattiva/Riattiva/Elimina sotto admin, le
 azioni distruttive sulla propria riga). Niente `<select>`, checkbox o radio
 nativi: ruolo e interruttori sono componenti propri, con varianti `dark:`.
+
+## Segnalazioni (`@vuscom/ui/segnalazioni`, dalla 1.1.0)
+
+Il pulsante «Segnala un problema»: l'utente indica l'elemento che non va,
+scrive cosa non torna, e la segnalazione arriva come ticket con screenshot,
+ultime azioni e video delle ultime azioni. Parla col router di `vuscom-auth`
+(>= 1.5.0, `crea_router_segnalazioni`) montato dal backend del portale su
+`/api/segnalazioni`. Entry separato: `rrweb` (2.1.7) e `modern-screenshot`
+sono dipendenze di questo entry soltanto, caricate con `import()` solo se il
+portale ha le segnalazioni accese — `dist/index.js` non le nomina.
+
+```jsx
+import { AppShell } from "@vuscom/ui";
+import { SegnalazioniProvider, PulsanteSegnala, segnalaAttr } from "@vuscom/ui/segnalazioni";
+
+<SegnalazioniProvider
+  endpoint="/api/segnalazioni"               // default
+  configEndpoint="/api/segnalazioni/config"  // default
+  durataVideoSec={30}                        // default; vince quello del config
+>
+  <AppShell sidebar={…} azioniSidebar={<PulsanteSegnala compatto />}>
+    <KpiCard label="Clienti attivi" value={n}
+      segnala={{ tipo: "kpi", id: "kpi_clienti_attivi", nome: "Clienti attivi",
+                 contesto: { periodo: "2026-09" } }} />
+    <div {...segnalaAttr({ tipo: "grafico", id: "trend", nome: "Trend mensile" })}>…</div>
+  </AppShell>
+</SegnalazioniProvider>
+```
+
+| Pezzo | Cosa fa |
+|---|---|
+| `SegnalazioniProvider` | Chiede `GET {configEndpoint}` (con i cookie). Se `abilitato` è `false` o la chiamata fallisce non monta nulla e non registra nulla. Altrimenti tiene il registro delle ultime **200** azioni (cambi pagina, click, richieste `fetch`/XHR con metodo, percorso senza query, stato e durata — **mai i corpi** —, `console.error`, eccezioni) e la registrazione rrweb degli ultimi `durata_video_sec` secondi, solo in memoria. Props extra: `fetchImpl` (per i test). |
+| `PulsanteSegnala` | `compatto` (solo icona). Non rende nulla se il provider è spento o assente. |
+| `useSegnalazioni()` | `{ abilitato, apri(), stato }` — `stato`: `inattivo` · `mirino` · `cattura` · `modale`. |
+| `segnalaAttr({tipo, id, nome, contesto})` | Le props `data-segnala` (JSON) da spargere su un elemento. Nessuno scrive il JSON a mano. `tipo` è un vocabolario aperto (`kpi`, `grafico`, `tabella`, `colonna`, `campo`, `parametro`, `export`…) con cui TicketManager sceglie la categoria. |
+| `mascheraEventi`, `mascheraDom`, `mascheraAzioni`, `PRIVATO` | Le funzioni pure di maschera, esportate per i test dei portali. |
+
+Il flusso: pulsante → **mirino** (l'elemento sotto il puntatore si evidenzia,
+click = sceglie, `Esc` = annulla, «Segnala senza elemento» per i problemi
+generali; si risale al primo antenato con `data-segnala`, altrimenti si
+salvano testo ≤ 200 caratteri, percorso CSS breve e rettangolo) → screenshot →
+**finestra** con commento obbligatorio (1–5000), «Allega il video delle ultime
+azioni» e «Maschera i dati» (entrambi attivi di default), anteprima dello
+screenshot. L'id della segnalazione nasce all'apertura e si riusa a ogni
+«Riprova»: un 503 seguito da un nuovo invio non crea due ticket.
+
+**Privacy.** «Maschera i dati» si applica all'invio a screenshot, video e
+testo dei click: restano struttura, colori e posizioni. Gli elementi `PRIVATO`
+(`[data-segnala-privato]`, `input[type="password"]`) sono mascherati **sempre**,
+anche con la maschera spenta. Pulsante e mirino portano `data-segnala-ignora`:
+fuori da video, screenshot e registro; la finestra si apre dopo che screenshot,
+video e registro sono già stati congelati. Con la maschera
+accesa anche `page_url` perde la query string.
+
+**Errori.** `503 {riprova: true}` o rete giù → «Non sono riuscito a inviarla.
+Riprova.» con la bozza intatta. `503 {riprova: false}` → «Segnalazione non
+disponibile al momento», bozza intatta, nessun «Riprova». `413`/`422` → il
+messaggio nella finestra. Successo → notifica «Segnalazione #N inviata» con il
+link al ticket. Il video si tronca (dall'inizio, a checkpoint interi) per
+restare nei 4 MB per allegato e 5 MB in tutto.
 
 ## Sviluppo e versionamento
 

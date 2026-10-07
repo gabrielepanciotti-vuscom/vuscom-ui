@@ -67,15 +67,22 @@ function activeGroupIds(nodes, pathname) {
 /**
  * Standard page frame for every VUS COM portal: shared sidebar, top bar and
  * scrolling content area. Must be rendered inside a Router.
+ * `azioniSidebar` (e.g. `<PulsanteSegnala compatto />`) sits next to the
+ * theme toggle: the shell takes it as a node, so this entry never imports
+ * `@vuscom/ui/segnalazioni`.
  */
 export default function AppShell({
   sidebar = {},
   topbarRight,
+  azioniSidebar,
   maxWidth = "7xl",
   children,
 }) {
-  const { nav = NESSUNA_VOCE, adminNav = NESSUNA_VOCE, ...sidebarProps } =
-    sidebar;
+  const {
+    nav = NESSUNA_VOCE,
+    adminNav = NESSUNA_VOCE,
+    ...sidebarProps
+  } = sidebar;
   const { pathname } = useLocation();
   const mainTree = useMemo(() => normalizeNavTree(nav), [nav]);
   const adminTree = useMemo(() => normalizeNavTree(adminNav), [adminNav]);
@@ -149,40 +156,55 @@ export default function AppShell({
 
   return (
     <CompattaContext.Provider value={richiediCompatta}>
-    <div className="flex h-screen bg-app">
-      <AppSidebar
-        {...sidebarProps}
-        mainTree={mainTree}
-        adminTree={adminTree}
-        expandedGroups={expanded}
-        onToggleGroup={toggleGroup}
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        collapsed={collapsed || forzata}
-        onToggleCollapse={toggleCollapse}
-        themeSlot={<ThemeToggle />}
-        navClassName="scrollbar-thin"
-      />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b bg-background/80 px-4 backdrop-blur">
-          <IconButton
-            icon={Menu}
-            label="Apri menu"
-            className="md:hidden"
-            onClick={() => setIsOpen(true)}
-          />
-          <div className="ml-auto flex items-center gap-2">{topbarRight}</div>
-        </header>
-        <main
-          ref={mainRef}
-          className="flex-1 overflow-y-auto scrollbar-thin p-4 md:p-6"
-        >
-          <div className={cn("mx-auto", WIDTHS[maxWidth] ?? WIDTHS["7xl"])}>
-            {children}
-          </div>
-        </main>
+      <div className="flex h-screen bg-app">
+        <AppSidebar
+          {...sidebarProps}
+          mainTree={mainTree}
+          adminTree={adminTree}
+          expandedGroups={expanded}
+          onToggleGroup={toggleGroup}
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
+          collapsed={collapsed || forzata}
+          onToggleCollapse={toggleCollapse}
+          themeSlot={
+            azioniSidebar ? (
+              // Collapsed (60px) there is no room side by side: stack them.
+              <div
+                className={cn(
+                  "flex items-center gap-1.5",
+                  (collapsed || forzata) && "flex-col",
+                )}
+              >
+                {azioniSidebar}
+                <ThemeToggle />
+              </div>
+            ) : (
+              <ThemeToggle />
+            )
+          }
+          navClassName="scrollbar-thin"
+        />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b bg-background/80 px-4 backdrop-blur">
+            <IconButton
+              icon={Menu}
+              label="Apri menu"
+              className="md:hidden"
+              onClick={() => setIsOpen(true)}
+            />
+            <div className="ml-auto flex items-center gap-2">{topbarRight}</div>
+          </header>
+          <main
+            ref={mainRef}
+            className="flex-1 overflow-y-auto scrollbar-thin p-4 md:p-6"
+          >
+            <div className={cn("mx-auto", WIDTHS[maxWidth] ?? WIDTHS["7xl"])}>
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
     </CompattaContext.Provider>
   );
 }

@@ -4,6 +4,7 @@ import { Card } from "./Card.jsx";
 import { SkeletonTable } from "./Skeleton.jsx";
 import EmptyState from "./EmptyState.jsx";
 import useSort from "./useSort.js";
+import { segnalaAttr } from "../segnalazioni/segnalaAttr.js";
 
 // Clicks on these (or inside them) belong to the control, not to the row.
 const INTERATTIVI =
@@ -34,6 +35,7 @@ export default function DataTable({
   initialSort,
   dense = false,
   caption,
+  segnala,
   className,
 }) {
   const accessors = {};
@@ -68,7 +70,7 @@ export default function DataTable({
   }
 
   return (
-    <Card className={cn("p-0", className)}>
+    <Card className={cn("p-0", className)} {...segnalaAttr(segnala)}>
       <div className="overflow-x-auto">
         {body ? (
           body
@@ -84,6 +86,7 @@ export default function DataTable({
                     <th
                       key={c.key}
                       scope="col"
+                      {...segnalaAttr(c.segnala)}
                       style={c.width ? { width: c.width } : undefined}
                       aria-sort={
                         c.sortable
@@ -153,6 +156,7 @@ export default function DataTable({
                   {columns.map((c) => (
                     <td
                       key={c.key}
+                      {...segnalaAttr(c.segnala)}
                       className={cn(
                         pad,
                         ALIGN[c.align] || ALIGN.left,

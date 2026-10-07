@@ -49,6 +49,7 @@ export default function Dati() {
           <KpiCard
             label="Lead"
             value={12480}
+            segnala={{ tipo: "kpi", id: "kpi_lead", nome: "Lead" }}
             icon={Users}
             delta={{ value: 12, label: "vs ieri" }}
           />
@@ -74,7 +75,7 @@ export default function Dati() {
         <DataTable
           columns={COLONNE}
           rows={RIGHE}
-          rowKey="id"
+          rowKey={(r) => r.id}
           caption="Esempio"
         />
         <Pagination
@@ -83,11 +84,11 @@ export default function Dati() {
           total={23}
           onPageChange={setPage}
         />
-        <DataTable columns={COLONNE} rows={[]} rowKey="id" caption="Vuota" />
+        <DataTable columns={COLONNE} rows={[]} rowKey={(r) => r.id} caption="Vuota" />
         <DataTable
           columns={COLONNE}
           rows={[]}
-          rowKey="id"
+          rowKey={(r) => r.id}
           loading
           caption="In caricamento"
         />
