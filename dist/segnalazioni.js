@@ -4198,24 +4198,48 @@ function SegnalazioniProvider({
 
 // src/segnalazioni/PulsanteSegnala.jsx
 import { Bug as Bug2 } from "lucide-react";
-import { jsx as jsx14 } from "react/jsx-runtime";
+import { jsx as jsx14, jsxs as jsxs11 } from "react/jsx-runtime";
 var ETICHETTA = "Segnala un problema";
-function PulsanteSegnala({ compatto = false, className }) {
+function PulsanteSegnala({
+  compatto = false,
+  riga = false,
+  className
+}) {
   const { abilitato, apri, stato } = useSegnalazioni();
   if (!abilitato) return null;
   const occupato = stato !== "inattivo";
-  return /* @__PURE__ */ jsx14("span", { "data-segnala-ignora": true, className: "inline-flex", children: compatto ? /* @__PURE__ */ jsx14(
-    IconButton_default,
-    {
-      icon: Bug2,
-      label: ETICHETTA,
-      title: ETICHETTA,
-      size: "sm",
-      onClick: apri,
-      disabled: occupato,
-      className
-    }
-  ) : /* @__PURE__ */ jsx14(
+  if (compatto)
+    return /* @__PURE__ */ jsx14("span", { "data-segnala-ignora": true, className: "inline-flex", children: /* @__PURE__ */ jsx14(
+      IconButton_default,
+      {
+        icon: Bug2,
+        label: ETICHETTA,
+        title: ETICHETTA,
+        size: "sm",
+        onClick: apri,
+        disabled: occupato,
+        className
+      }
+    ) });
+  if (riga)
+    return /* @__PURE__ */ jsxs11(
+      "button",
+      {
+        type: "button",
+        "data-segnala-ignora": true,
+        onClick: apri,
+        disabled: occupato,
+        className: cn(
+          "flex w-full items-center gap-2 rounded-md bg-muted/60 px-2 py-1.5 text-[11px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50",
+          className
+        ),
+        children: [
+          /* @__PURE__ */ jsx14(Bug2, { className: "h-3.5 w-3.5", "aria-hidden": true }),
+          ETICHETTA
+        ]
+      }
+    );
+  return /* @__PURE__ */ jsx14("span", { "data-segnala-ignora": true, className: "inline-flex", children: /* @__PURE__ */ jsx14(
     Button_default,
     {
       variant: "ghost",
@@ -4228,10 +4252,14 @@ function PulsanteSegnala({ compatto = false, className }) {
     }
   ) });
 }
+function azioniSegnalazioni({ compressa }) {
+  return compressa ? /* @__PURE__ */ jsx14(PulsanteSegnala, { compatto: true }) : /* @__PURE__ */ jsx14(PulsanteSegnala, { riga: true });
+}
 export {
   PRIVATO,
   PulsanteSegnala,
   SegnalazioniProvider,
+  azioniSegnalazioni,
   mascheraAzioni,
   mascheraDom,
   mascheraEventi,

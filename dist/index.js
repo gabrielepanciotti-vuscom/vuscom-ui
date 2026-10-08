@@ -4748,7 +4748,7 @@ import {
 } from "react";
 import { useLocation as useLocation2 } from "react-router-dom";
 import { Menu } from "lucide-react";
-import { jsx as jsx30, jsxs as jsxs25 } from "react/jsx-runtime";
+import { Fragment as Fragment3, jsx as jsx30, jsxs as jsxs25 } from "react/jsx-runtime";
 var STORAGE_KEY = "vuscom.sidebar.collapsed";
 var WIDTHS = { "7xl": "max-w-7xl", full: "max-w-none" };
 var NESSUNA_VOCE = [];
@@ -4845,6 +4845,8 @@ function AppShell({
     else next.add(id);
     return next;
   });
+  const compressa = collapsed || forzata;
+  const azioni = typeof azioniSidebar === "function" ? azioniSidebar({ compressa }) : azioniSidebar;
   return /* @__PURE__ */ jsx30(CompattaContext.Provider, { value: richiediCompatta, children: /* @__PURE__ */ jsxs25("div", { className: "flex h-screen bg-app", children: [
     /* @__PURE__ */ jsx30(
       AppSidebar,
@@ -4856,23 +4858,18 @@ function AppShell({
         onToggleGroup: toggleGroup,
         isOpen,
         onClose: () => setIsOpen(false),
-        collapsed: collapsed || forzata,
+        collapsed: compressa,
         onToggleCollapse: toggleCollapse,
-        themeSlot: azioniSidebar ? (
-          // Collapsed (60px) there is no room side by side: stack them.
-          /* @__PURE__ */ jsxs25(
-            "div",
-            {
-              className: cn(
-                "flex items-center gap-1.5",
-                (collapsed || forzata) && "flex-col"
-              ),
-              children: [
-                azioniSidebar,
-                /* @__PURE__ */ jsx30(ThemeToggle, {})
-              ]
-            }
-          )
+        footerSlot: azioni && !compressa ? /* @__PURE__ */ jsxs25(Fragment3, { children: [
+          sidebarProps.footerSlot,
+          azioni
+        ] }) : sidebarProps.footerSlot,
+        themeSlot: azioni && compressa ? (
+          // Collapsed (60px): no footer rows, so it stacks over the toggle.
+          /* @__PURE__ */ jsxs25("div", { className: "flex flex-col items-center gap-1.5", children: [
+            azioni,
+            /* @__PURE__ */ jsx30(ThemeToggle, {})
+          ] })
         ) : /* @__PURE__ */ jsx30(ThemeToggle, {}),
         navClassName: "scrollbar-thin"
       }
