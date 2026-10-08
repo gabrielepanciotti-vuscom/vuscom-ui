@@ -52,3 +52,9 @@ export {
 export { default as PageHeader } from "./templates/PageHeader.jsx";
 export { default as Section } from "./templates/Section.jsx";
 export { default as LoginPage } from "./templates/LoginPage.jsx";
+export { default as AccessoMicrosoft } from "./accesso/AccessoMicrosoft.jsx";
+export {
+  default as useAccessoMicrosoft,
+  BASE_MICROSOFT,
+  MESSAGGI_ERRORE_MICROSOFT,
+} from "./accesso/useAccessoMicrosoft.js";

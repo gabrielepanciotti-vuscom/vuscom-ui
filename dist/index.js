@@ -4968,9 +4968,122 @@ function Section({
 }
 
 // src/templates/LoginPage.jsx
-import { useId as useId8, useState as useState10 } from "react";
+import { useId as useId8, useState as useState11 } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { jsx as jsx33, jsxs as jsxs28 } from "react/jsx-runtime";
+
+// src/accesso/useAccessoMicrosoft.js
+import { useCallback as useCallback6, useEffect as useEffect9, useState as useState10 } from "react";
+var BASE_MICROSOFT = "/api/auth/microsoft";
+var MESSAGGI_ERRORE_MICROSOFT = {
+  annullato: "Accesso con Microsoft annullato.",
+  scaduto: "La richiesta di accesso \xE8 scaduta: riprova.",
+  non_abilitato: "Il tuo account Microsoft non \xE8 abilitato a questo portale. Chiedi l'accesso a un amministratore.",
+  errore: "Accesso con Microsoft non riuscito. Riprova o usa la password."
+};
+function leggiFrammento() {
+  if (typeof window === "undefined") return {};
+  const frammento = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  const biglietto = frammento.get("microsoft");
+  const errore = frammento.get("microsoft_errore");
+  if (biglietto || errore) {
+    const { pathname, search } = window.location;
+    window.history.replaceState(window.history.state, "", pathname + search);
+  }
+  return { biglietto, errore };
+}
+function useAccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso } = {}) {
+  const [disponibile, setDisponibile] = useState10(false);
+  const [inCorso, setInCorso] = useState10(false);
+  const [errore, setErrore] = useState10("");
+  useEffect9(() => {
+    let attivo = true;
+    const { biglietto, errore: codice } = leggiFrammento();
+    if (codice) {
+      setErrore(MESSAGGI_ERRORE_MICROSOFT[codice] || MESSAGGI_ERRORE_MICROSOFT.errore);
+    }
+    if (biglietto) {
+      setInCorso(true);
+      (async () => {
+        try {
+          const res = await fetch(`${base}/scambia`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ biglietto })
+          });
+          const dati = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            throw new Error(
+              typeof dati?.detail === "string" ? dati.detail : MESSAGGI_ERRORE_MICROSOFT.errore
+            );
+          }
+          await onAccesso?.(dati);
+        } catch (err) {
+          if (attivo) setErrore(err?.message || MESSAGGI_ERRORE_MICROSOFT.errore);
+        } finally {
+          if (attivo) setInCorso(false);
+        }
+      })();
+    }
+    (async () => {
+      try {
+        const res = await fetch(`${base}/disponibile`);
+        const dati = res.ok ? await res.json() : {};
+        if (attivo) setDisponibile(dati?.disponibile === true);
+      } catch {
+        if (attivo) setDisponibile(false);
+      }
+    })();
+    return () => {
+      attivo = false;
+    };
+  }, [base]);
+  const accedi = useCallback6(() => {
+    setInCorso(true);
+    window.location.assign(`${base}/login`);
+  }, [base]);
+  return { disponibile, inCorso, errore, accedi };
+}
+
+// src/accesso/AccessoMicrosoft.jsx
+import { Fragment as Fragment4, jsx as jsx33, jsxs as jsxs28 } from "react/jsx-runtime";
+function LogoMicrosoft() {
+  return /* @__PURE__ */ jsxs28("svg", { viewBox: "0 0 21 21", className: "h-4 w-4", "aria-hidden": "true", children: [
+    /* @__PURE__ */ jsx33("rect", { x: "1", y: "1", width: "9", height: "9", fill: "#f25022" }),
+    /* @__PURE__ */ jsx33("rect", { x: "11", y: "1", width: "9", height: "9", fill: "#7fba00" }),
+    /* @__PURE__ */ jsx33("rect", { x: "1", y: "11", width: "9", height: "9", fill: "#00a4ef" }),
+    /* @__PURE__ */ jsx33("rect", { x: "11", y: "11", width: "9", height: "9", fill: "#ffb900" })
+  ] });
+}
+function AccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso, className }) {
+  const { disponibile, inCorso, errore, accedi } = useAccessoMicrosoft({ base, onAccesso });
+  if (!disponibile && !errore && !inCorso) return null;
+  return /* @__PURE__ */ jsxs28("div", { className: cn("space-y-4", className), children: [
+    errore && /* @__PURE__ */ jsx33(Alert, { tone: "danger", children: errore }),
+    (disponibile || inCorso) && /* @__PURE__ */ jsxs28(Fragment4, { children: [
+      /* @__PURE__ */ jsxs28("div", { className: "flex items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground", children: [
+        /* @__PURE__ */ jsx33("span", { className: "h-px flex-1 bg-border" }),
+        "oppure",
+        /* @__PURE__ */ jsx33("span", { className: "h-px flex-1 bg-border" })
+      ] }),
+      /* @__PURE__ */ jsx33(
+        Button_default,
+        {
+          type: "button",
+          variant: "outline",
+          size: "lg",
+          fullWidth: true,
+          loading: inCorso,
+          icon: LogoMicrosoft,
+          onClick: accedi,
+          children: "Accedi con Microsoft"
+        }
+      )
+    ] })
+  ] });
+}
+
+// src/templates/LoginPage.jsx
+import { jsx as jsx34, jsxs as jsxs29 } from "react/jsx-runtime";
 function LoginPage({
   title,
   subtitle = "Accedi al tuo account",
@@ -4978,14 +5091,15 @@ function LoginPage({
   logoDark,
   onSubmit,
   usernameLabel = "Username o email",
-  footer = "\xA9 VUS COM SRL"
+  footer = "\xA9 VUS COM SRL",
+  microsoft
 }) {
   const passwordId = useId8();
-  const [username, setUsername] = useState10("");
-  const [password, setPassword] = useState10("");
-  const [show, setShow] = useState10(false);
-  const [loading, setLoading] = useState10(false);
-  const [error, setError] = useState10("");
+  const [username, setUsername] = useState11("");
+  const [password, setPassword] = useState11("");
+  const [show, setShow] = useState11(false);
+  const [loading, setLoading] = useState11(false);
+  const [error, setError] = useState11("");
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
@@ -4998,11 +5112,11 @@ function LoginPage({
       setLoading(false);
     }
   }
-  return /* @__PURE__ */ jsxs28("div", { className: "relative flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4 dark:from-slate-900 dark:to-slate-800", children: [
-    /* @__PURE__ */ jsx33("div", { className: "absolute right-4 top-4", children: /* @__PURE__ */ jsx33(ThemeToggle, {}) }),
-    /* @__PURE__ */ jsxs28("div", { className: "w-full max-w-md space-y-8 rounded-xl bg-card p-8 shadow-2xl", children: [
-      /* @__PURE__ */ jsxs28("div", { className: "text-center", children: [
-        /* @__PURE__ */ jsx33(
+  return /* @__PURE__ */ jsxs29("div", { className: "relative flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4 dark:from-slate-900 dark:to-slate-800", children: [
+    /* @__PURE__ */ jsx34("div", { className: "absolute right-4 top-4", children: /* @__PURE__ */ jsx34(ThemeToggle, {}) }),
+    /* @__PURE__ */ jsxs29("div", { className: "w-full max-w-md space-y-8 rounded-xl bg-card p-8 shadow-2xl", children: [
+      /* @__PURE__ */ jsxs29("div", { className: "text-center", children: [
+        /* @__PURE__ */ jsx34(
           "img",
           {
             src: logoLight,
@@ -5010,7 +5124,7 @@ function LoginPage({
             className: "mx-auto h-20 w-auto object-contain dark:hidden"
           }
         ),
-        /* @__PURE__ */ jsx33(
+        /* @__PURE__ */ jsx34(
           "img",
           {
             src: logoDark,
@@ -5018,12 +5132,12 @@ function LoginPage({
             className: "mx-auto hidden h-20 w-auto object-contain dark:block"
           }
         ),
-        /* @__PURE__ */ jsx33("h1", { className: "mt-6 text-3xl font-bold text-foreground", children: title }),
-        /* @__PURE__ */ jsx33("p", { className: "mt-2 text-sm text-muted-foreground", children: subtitle })
+        /* @__PURE__ */ jsx34("h1", { className: "mt-6 text-3xl font-bold text-foreground", children: title }),
+        /* @__PURE__ */ jsx34("p", { className: "mt-2 text-sm text-muted-foreground", children: subtitle })
       ] }),
-      /* @__PURE__ */ jsxs28("form", { className: "space-y-5", onSubmit: handleSubmit, children: [
-        error && /* @__PURE__ */ jsx33(Alert, { tone: "danger", children: error }),
-        /* @__PURE__ */ jsx33(Field, { label: usernameLabel, children: /* @__PURE__ */ jsx33(
+      /* @__PURE__ */ jsxs29("form", { className: "space-y-5", onSubmit: handleSubmit, children: [
+        error && /* @__PURE__ */ jsx34(Alert, { tone: "danger", children: error }),
+        /* @__PURE__ */ jsx34(Field, { label: usernameLabel, children: /* @__PURE__ */ jsx34(
           Input_default,
           {
             name: "username",
@@ -5033,8 +5147,8 @@ function LoginPage({
             required: true
           }
         ) }),
-        /* @__PURE__ */ jsxs28("div", { className: "flex flex-col gap-1.5", children: [
-          /* @__PURE__ */ jsx33(
+        /* @__PURE__ */ jsxs29("div", { className: "flex flex-col gap-1.5", children: [
+          /* @__PURE__ */ jsx34(
             "label",
             {
               htmlFor: passwordId,
@@ -5042,8 +5156,8 @@ function LoginPage({
               children: "Password"
             }
           ),
-          /* @__PURE__ */ jsxs28("div", { className: "relative", children: [
-            /* @__PURE__ */ jsx33(
+          /* @__PURE__ */ jsxs29("div", { className: "relative", children: [
+            /* @__PURE__ */ jsx34(
               Input_default,
               {
                 id: passwordId,
@@ -5056,7 +5170,7 @@ function LoginPage({
                 required: true
               }
             ),
-            /* @__PURE__ */ jsx33(
+            /* @__PURE__ */ jsx34(
               IconButton_default,
               {
                 icon: show ? EyeOff : Eye,
@@ -5068,16 +5182,19 @@ function LoginPage({
             )
           ] })
         ] }),
-        /* @__PURE__ */ jsx33(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Accedi" })
+        /* @__PURE__ */ jsx34(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Accedi" })
       ] }),
-      footer && /* @__PURE__ */ jsx33("div", { className: "text-center text-xs text-muted-foreground", children: footer })
+      microsoft && /* @__PURE__ */ jsx34(AccessoMicrosoft, { ...microsoft }),
+      footer && /* @__PURE__ */ jsx34("div", { className: "text-center text-xs text-muted-foreground", children: footer })
     ] })
   ] });
 }
 export {
+  AccessoMicrosoft,
   Alert,
   AppShell,
   AppSidebar,
+  BASE_MICROSOFT,
   Badge,
   Button_default as Button,
   Card,
@@ -5098,6 +5215,7 @@ export {
   Kbd,
   KpiCard,
   LoginPage,
+  MESSAGGI_ERRORE_MICROSOFT,
   PageHeader,
   Pagination,
   ProgressBar,
@@ -5124,6 +5242,7 @@ export {
   formatNumero,
   formatRelativo,
   normalizeNavTree,
+  useAccessoMicrosoft,
   useSidebarCompatta,
   useSort,
   useTabIds,

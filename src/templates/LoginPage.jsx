@@ -1,5 +1,6 @@
 import { useId, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import AccessoMicrosoft from "../accesso/AccessoMicrosoft.jsx";
 import Alert from "../organisms/Alert.jsx";
 import Button from "../atoms/Button.jsx";
 import IconButton from "../atoms/IconButton.jsx";
@@ -7,7 +8,11 @@ import Input from "../atoms/Input.jsx";
 import Field from "../molecules/Field.jsx";
 import ThemeToggle from "../theme/ThemeToggle.jsx";
 
-/** Common VUS COM login screen. `onSubmit(username, password)` must reject on failure. */
+/**
+ * Common VUS COM login screen. `onSubmit(username, password)` must reject on failure.
+ * `microsoft` (`{ onAccesso, base? }`) adds "Accedi con Microsoft", shown only
+ * where the backend (`vuscom_auth.entra`) says it is available.
+ */
 export default function LoginPage({
   title,
   subtitle = "Accedi al tuo account",
@@ -16,6 +21,7 @@ export default function LoginPage({
   onSubmit,
   usernameLabel = "Username o email",
   footer = "© VUS COM SRL",
+  microsoft,
 }) {
   const passwordId = useId();
   const [username, setUsername] = useState("");
@@ -99,6 +105,7 @@ export default function LoginPage({
             Accedi
           </Button>
         </form>
+        {microsoft && <AccessoMicrosoft {...microsoft} />}
         {footer && (
           <div className="text-center text-xs text-muted-foreground">
             {footer}

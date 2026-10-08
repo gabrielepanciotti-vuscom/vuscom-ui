@@ -71,7 +71,7 @@ Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 | `useSidebarCompatta(attiva = true)` | hook per le pagine che vogliono spazio (builder di report, tabelle larghe): finché la pagina è montata la sidebar resta compressa, poi torna alla preferenza dell'utente, che non viene sovrascritta |
 | `PageHeader` | `title`, `description`, `icon`, `help`, `helpHref`, `actions`, `tabs`, `className` |
 | `Section` | `title`, `description`, `actions`, `className` |
-| `LoginPage` | `title`, `subtitle`, `logoLight`, `logoDark`, `onSubmit`, `usernameLabel`, `footer` |
+| `LoginPage` | `title`, `subtitle`, `logoLight`, `logoDark`, `onSubmit`, `usernameLabel`, `footer`, `microsoft` (`{ onAccesso, base? }`: aggiunge «Accedi con Microsoft») |
 
 ## Installazione in un'app
 
@@ -248,3 +248,25 @@ questo non c'è uno script `prepare`: con `prepare`, ogni installazione da git
 scaricherebbe tutte le devDependencies (in ogni build Docker dei consumatori).
 `sideEffects: ["*.css"]` lascia al bundler il tree-shaking di tutto il resto. Si rilascia
 con un tag `vMAJOR.MINOR.PATCH` su `main`; i progetti si aggiornano cambiando il tag.
+
+## Accedi con Microsoft
+
+`AccessoMicrosoft` (e la prop `microsoft` di `LoginPage`) è il lato frontend di
+`vuscom_auth.entra` (vuscom-auth ≥ 1.8.0, router montato su `/api/auth/microsoft`).
+
+```jsx
+<AccessoMicrosoft onAccesso={(risposta) => salvaSessione(risposta)} />
+// oppure
+<LoginPage title="Cruscotto" onSubmit={login} microsoft={{ onAccesso: salvaSessione }} />
+```
+
+- Chiede `GET /disponibile`: fuori dalla rete VUS COM (o backend senza config) **non rende
+  niente**. Nessuna risposta = nessun pulsante.
+- Il pulsante porta a `GET /login`; al ritorno legge `#microsoft=<biglietto>` dal frammento, lo
+  **toglie subito dall'URL** e chiama `POST /scambia`.
+- `onAccesso(risposta)` riceve **la stessa risposta del login con password** del portale: la
+  salva come già fa (token, utente, `must_change_password`…) e naviga.
+- `#microsoft_errore=<codice>` → messaggio in italiano (`MESSAGGI_ERRORE_MICROSOFT`), mostrato
+  anche fuori rete.
+- `useAccessoMicrosoft({ base, onAccesso })` → `{ disponibile, inCorso, errore, accedi }` per chi
+  vuole un aspetto diverso.
