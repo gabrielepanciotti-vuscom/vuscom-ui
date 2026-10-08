@@ -67,7 +67,7 @@ Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 ### Template
 | Componente | Props principali |
 |---|---|
-| `AppShell` | `sidebar` (props di `AppSidebar` + `nav`, `adminNav`), `topbarRight`, `azioniSidebar` (nodo reso accanto all'interruttore del tema, es. `<PulsanteSegnala compatto />`), `maxWidth`; va dentro un Router |
+| `AppShell` | `sidebar` (props di `AppSidebar` + `nav`, `adminNav`), `topbarRight`, `azioniSidebar` (nodo, o funzione `({ compressa }) => nodo`: aperta una riga sua nel piè della sidebar sopra «Tema», compressa sopra l'interruttore; per le segnalazioni `azioniSegnalazioni`), `maxWidth`; va dentro un Router |
 | `useSidebarCompatta(attiva = true)` | hook per le pagine che vogliono spazio (builder di report, tabelle larghe): finché la pagina è montata la sidebar resta compressa, poi torna alla preferenza dell'utente, che non viene sovrascritta |
 | `PageHeader` | `title`, `description`, `icon`, `help`, `helpHref`, `actions`, `tabs`, `className` |
 | `Section` | `title`, `description`, `actions`, `className` |
@@ -193,7 +193,7 @@ import { SegnalazioniProvider, PulsanteSegnala, segnalaAttr } from "@vuscom/ui/s
   configEndpoint="/api/segnalazioni/config"  // default
   durataVideoSec={30}                        // default; vince quello del config
 >
-  <AppShell sidebar={…} azioniSidebar={<PulsanteSegnala compatto />}>
+  <AppShell sidebar={…} azioniSidebar={azioniSegnalazioni}>
     <KpiCard label="Clienti attivi" value={n}
       segnala={{ tipo: "kpi", id: "kpi_clienti_attivi", nome: "Clienti attivi",
                  contesto: { periodo: "2026-09" } }} />

@@ -67,8 +67,10 @@ function activeGroupIds(nodes, pathname) {
 /**
  * Standard page frame for every VUS COM portal: shared sidebar, top bar and
  * scrolling content area. Must be rendered inside a Router.
- * `azioniSidebar` (e.g. `<PulsanteSegnala compatto />`) sits next to the
- * theme toggle: the shell takes it as a node, so this entry never imports
+ * `azioniSidebar` is a node, or `({ compressa }) => node` so it can change
+ * shape with the sidebar (e.g. `azioniSegnalazioni`): open, it gets its own
+ * row in the footer above the theme toggle; collapsed, it stacks over the
+ * toggle. The shell takes it from outside, so this entry never imports
  * `@vuscom/ui/segnalazioni`.
  */
 export default function AppShell({
@@ -154,6 +156,12 @@ export default function AppShell({
       return next;
     });
 
+  const compressa = collapsed || forzata;
+  const azioni =
+    typeof azioniSidebar === "function"
+      ? azioniSidebar({ compressa })
+      : azioniSidebar;
+
   return (
     <CompattaContext.Provider value={richiediCompatta}>
       <div className="flex h-screen bg-app">
@@ -165,18 +173,23 @@ export default function AppShell({
           onToggleGroup={toggleGroup}
           isOpen={isOpen}
           onClose={() => setIsOpen(false)}
-          collapsed={collapsed || forzata}
+          collapsed={compressa}
           onToggleCollapse={toggleCollapse}
+          footerSlot={
+            azioni && !compressa ? (
+              <>
+                {sidebarProps.footerSlot}
+                {azioni}
+              </>
+            ) : (
+              sidebarProps.footerSlot
+            )
+          }
           themeSlot={
-            azioniSidebar ? (
-              // Collapsed (60px) there is no room side by side: stack them.
-              <div
-                className={cn(
-                  "flex items-center gap-1.5",
-                  (collapsed || forzata) && "flex-col",
-                )}
-              >
-                {azioniSidebar}
+            azioni && compressa ? (
+              // Collapsed (60px): no footer rows, so it stacks over the toggle.
+              <div className="flex flex-col items-center gap-1.5">
+                {azioni}
                 <ThemeToggle />
               </div>
             ) : (

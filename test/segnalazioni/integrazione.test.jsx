@@ -4,24 +4,42 @@ import { AppShell, DataTable, KpiCard } from "../../src/index.js";
 
 const future = { v7_startTransition: true, v7_relativeSplatPath: true };
 
-test("AppShell renders azioniSidebar next to the theme toggle", () => {
-  render(
+function shell(compressa) {
+  localStorage.setItem("vuscom.sidebar.collapsed", String(compressa));
+  return render(
     <MemoryRouter initialEntries={["/"]} future={future}>
       <AppShell
         sidebar={{ appName: "Cruscotto", nav: [], user: { username: "g" } }}
-        azioniSidebar={<button type="button">Segnala un problema</button>}
+        azioniSidebar={({ compressa: c }) => (
+          <button type="button" data-forma={c ? "icona" : "riga"}>
+            Segnala un problema
+          </button>
+        )}
       >
         <p>Contenuto</p>
       </AppShell>
     </MemoryRouter>,
   );
-  const azioni = screen.getAllByRole("button", { name: "Segnala un problema" });
-  expect(azioni.length).toBeGreaterThan(0);
-  // Same row as the theme toggle.
-  const riga = azioni[0].parentElement;
+}
+
+test("open sidebar: azioniSidebar is its own footer row, not inside the theme row", () => {
+  shell(false);
+  const [azione] = screen.getAllByRole("button", { name: "Segnala un problema" });
+  expect(azione.dataset.forma).toBe("riga");
+  // The theme toggle's own row («Tema» + switch) does not hold it.
+  for (const etichetta of screen.getAllByText("Tema"))
+    expect(etichetta.parentElement.contains(azione)).toBe(false);
+  localStorage.clear();
+});
+
+test("collapsed sidebar: azioniSidebar stacks over the theme toggle", () => {
+  shell(true);
+  const [azione] = screen.getAllByRole("button", { name: "Segnala un problema" });
+  expect(azione.dataset.forma).toBe("icona");
   expect(
-    riga.querySelector('[aria-label*="tema" i], [title*="tema" i]'),
+    azione.parentElement.querySelector('[aria-label*="tema" i]'),
   ).not.toBeNull();
+  localStorage.clear();
 });
 
 test("KpiCard with segnala prop exposes data-segnala", () => {

@@ -10,7 +10,7 @@ import Moduli from "./sezioni/Moduli.jsx";
 import Dati from "./sezioni/Dati.jsx";
 import Feedback from "./sezioni/Feedback.jsx";
 import {
-  PulsanteSegnala,
+  azioniSegnalazioni,
   SegnalazioniProvider,
 } from "../src/segnalazioni/index.js";
 
@@ -57,7 +57,7 @@ export default function Catalogo() {
         <AppShell
           sidebar={SIDEBAR}
           topbarRight={<ThemeToggle />}
-          azioniSidebar={<PulsanteSegnala compatto />}
+          azioniSidebar={azioniSegnalazioni}
         >
           <PageHeader
             title="Catalogo componenti"
