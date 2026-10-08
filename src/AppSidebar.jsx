@@ -229,11 +229,17 @@ export default function AppSidebar({
           <button
             onClick={onToggleCollapse}
             aria-label={isCollapsed ? "Espandi menu" : "Comprimi menu"}
-            className="flex items-center justify-center w-7 h-7 rounded-md text-slate-400 dark:text-slate-500 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+            // Collapsed, the reopen button is the only way back to the labels:
+            // a filled primary button, not a grey icon lost in the header.
+            className={
+              isCollapsed
+                ? "flex items-center justify-center w-9 h-9 rounded-lg bg-primary text-primary-foreground shadow-md ring-2 ring-primary/25 hover:brightness-110 hover:shadow-lg active:scale-95 focus-visible:outline-none focus-visible:ring-4 transition-all"
+                : "flex items-center justify-center w-7 h-7 rounded-md text-slate-400 dark:text-slate-500 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+            }
             title={isCollapsed ? "Espandi menu" : "Comprimi menu"}
           >
             {isCollapsed ? (
-              <PanelLeftOpen className="w-4 h-4" />
+              <PanelLeftOpen className="w-5 h-5" />
             ) : (
               <PanelLeftClose className="w-4 h-4" />
             )}

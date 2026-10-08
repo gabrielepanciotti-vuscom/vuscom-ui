@@ -67,6 +67,8 @@ function activeGroupIds(nodes, pathname) {
 /**
  * Standard page frame for every VUS COM portal: shared sidebar, top bar and
  * scrolling content area. Must be rendered inside a Router.
+ * `compattaAdOgniPagina` makes every navigation start with a compact sidebar
+ * (opt-in per portal: the default keeps the user's saved preference).
  * `azioniSidebar` is a node, or `({ compressa }) => node` so it can change
  * shape with the sidebar (e.g. `azioniSegnalazioni`): open, it gets its own
  * row in the footer above the theme toggle; collapsed, it stacks over the
@@ -78,6 +80,7 @@ export default function AppShell({
   topbarRight,
   azioniSidebar,
   maxWidth = "7xl",
+  compattaAdOgniPagina = false,
   children,
 }) {
   const {
@@ -105,6 +108,10 @@ export default function AppShell({
   useEffect(() => {
     if (richieste === 0) setRiaperta(false);
   }, [richieste]);
+  // `compattaAdOgniPagina`: every page opens with the sidebar compact; the
+  // toggle reopens it for the current page only, and the next one starts
+  // compact again. The saved preference is not used in this mode.
+  const [apertaQui, setApertaQui] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [expanded, setExpanded] = useState(
     () => new Set(activeGroupIds([...mainTree, ...adminTree], pathname)),
@@ -128,9 +135,14 @@ export default function AppShell({
           : new Set([...prev, ...attivi]),
       );
     if (mainRef.current) mainRef.current.scrollTop = 0;
+    setApertaQui(false);
   }, [pathname]);
 
   const toggleCollapse = () => {
+    if (compattaAdOgniPagina) {
+      setApertaQui((v) => !v);
+      return;
+    }
     // Forced compact by a page: the click opens it for this page only, and
     // the saved preference (whatever it was) becomes «open».
     if (forzata) {
@@ -156,7 +168,7 @@ export default function AppShell({
       return next;
     });
 
-  const compressa = collapsed || forzata;
+  const compressa = compattaAdOgniPagina ? !apertaQui : collapsed || forzata;
   const azioni =
     typeof azioniSidebar === "function"
       ? azioniSidebar({ compressa })

@@ -159,9 +159,9 @@ function AppSidebar({
                 {
                   onClick: onToggleCollapse,
                   "aria-label": isCollapsed ? "Espandi menu" : "Comprimi menu",
-                  className: "flex items-center justify-center w-7 h-7 rounded-md text-slate-400 dark:text-slate-500 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-slate-300 transition-colors",
+                  className: isCollapsed ? "flex items-center justify-center w-9 h-9 rounded-lg bg-primary text-primary-foreground shadow-md ring-2 ring-primary/25 hover:brightness-110 hover:shadow-lg active:scale-95 focus-visible:outline-none focus-visible:ring-4 transition-all" : "flex items-center justify-center w-7 h-7 rounded-md text-slate-400 dark:text-slate-500 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-slate-300 transition-colors",
                   title: isCollapsed ? "Espandi menu" : "Comprimi menu",
-                  children: isCollapsed ? /* @__PURE__ */ jsx(PanelLeftOpen, { className: "w-4 h-4" }) : /* @__PURE__ */ jsx(PanelLeftClose, { className: "w-4 h-4" })
+                  children: isCollapsed ? /* @__PURE__ */ jsx(PanelLeftOpen, { className: "w-5 h-5" }) : /* @__PURE__ */ jsx(PanelLeftClose, { className: "w-4 h-4" })
                 }
               )
             ]
@@ -4786,6 +4786,7 @@ function AppShell({
   topbarRight,
   azioniSidebar,
   maxWidth = "7xl",
+  compattaAdOgniPagina = false,
   children
 }) {
   const {
@@ -4810,6 +4811,7 @@ function AppShell({
   useEffect8(() => {
     if (richieste === 0) setRiaperta(false);
   }, [richieste]);
+  const [apertaQui, setApertaQui] = useState9(false);
   const [isOpen, setIsOpen] = useState9(false);
   const [expanded, setExpanded] = useState9(
     () => new Set(activeGroupIds([...mainTree, ...adminTree], pathname))
@@ -4824,8 +4826,13 @@ function AppShell({
         (prev) => attivi.every((id) => prev.has(id)) ? prev : /* @__PURE__ */ new Set([...prev, ...attivi])
       );
     if (mainRef.current) mainRef.current.scrollTop = 0;
+    setApertaQui(false);
   }, [pathname]);
   const toggleCollapse = () => {
+    if (compattaAdOgniPagina) {
+      setApertaQui((v) => !v);
+      return;
+    }
     if (forzata) {
       setRiaperta(true);
       if (!collapsed) return;
@@ -4845,7 +4852,7 @@ function AppShell({
     else next.add(id);
     return next;
   });
-  const compressa = collapsed || forzata;
+  const compressa = compattaAdOgniPagina ? !apertaQui : collapsed || forzata;
   const azioni = typeof azioniSidebar === "function" ? azioniSidebar({ compressa }) : azioniSidebar;
   return /* @__PURE__ */ jsx30(CompattaContext.Provider, { value: richiediCompatta, children: /* @__PURE__ */ jsxs25("div", { className: "flex h-screen bg-app", children: [
     /* @__PURE__ */ jsx30(

@@ -67,7 +67,7 @@ Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 ### Template
 | Componente | Props principali |
 |---|---|
-| `AppShell` | `sidebar` (props di `AppSidebar` + `nav`, `adminNav`), `topbarRight`, `azioniSidebar` (nodo, o funzione `({ compressa }) => nodo`: aperta una riga sua nel piè della sidebar sopra «Tema», compressa sopra l'interruttore; per le segnalazioni `azioniSegnalazioni`), `maxWidth`; va dentro un Router |
+| `AppShell` | `sidebar` (props di `AppSidebar` + `nav`, `adminNav`), `topbarRight`, `azioniSidebar` (nodo, o funzione `({ compressa }) => nodo`: aperta una riga sua nel piè della sidebar sopra «Tema», compressa sopra l'interruttore; per le segnalazioni `azioniSegnalazioni`), `maxWidth`, `compattaAdOgniPagina` (ogni pagina si apre con la sidebar compressa; il pulsante — pieno, nel colore primario — la riapre solo per la pagina corrente; default spento: vale la preferenza salvata); va dentro un Router |
 | `useSidebarCompatta(attiva = true)` | hook per le pagine che vogliono spazio (builder di report, tabelle larghe): finché la pagina è montata la sidebar resta compressa, poi torna alla preferenza dell'utente, che non viene sovrascritta |
 | `PageHeader` | `title`, `description`, `icon`, `help`, `helpHref`, `actions`, `tabs`, `className` |
 | `Section` | `title`, `description`, `actions`, `className` |
