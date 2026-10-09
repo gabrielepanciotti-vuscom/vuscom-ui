@@ -183,7 +183,8 @@ function portaliRicordati() {
     return null;
   }
 }
-function altriPortali({ corrente, codici, hostname } = {}) {
+function altriPortali({ corrente, codici, hostname = globalThis.location?.hostname } = {}) {
+  if (!codici && zonaPubblica(hostname)) return [];
   return PORTALI_INTERNI.filter((p) => p.codice !== corrente).filter((p) => !codici || codici.includes(p.codice)).map((p) => ({ ...p, url: indirizzoPortale(p, hostname) })).filter((p) => p.url);
 }
 

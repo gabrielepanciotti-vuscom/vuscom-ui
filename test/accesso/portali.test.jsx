@@ -35,9 +35,14 @@ test("dalla rete interna: indirizzi .vuscom.dev con ?accedi=microsoft, senza il 
   );
 });
 
+test("da un dominio pubblico senza utente noto: nessun portale (può essere un agente esterno)", () => {
+  expect(altriPortali({ corrente: "configuratore", hostname: "configuratore.vuscom.it" })).toEqual([]);
+});
+
 test("da un dominio pubblico: solo i portali che hanno un indirizzo pubblico", () => {
   const p = altriPortali({
     corrente: "offerte",
+    codici: ["offerte", "cruscotto", "dataapi"],
     hostname: "offerte.vuscom.it",
   });
   expect(p).toEqual([

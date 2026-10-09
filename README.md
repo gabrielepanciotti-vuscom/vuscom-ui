@@ -171,7 +171,8 @@ più la sua lista a mano.
 
 - **Sotto il login** `LoginPage` mostra da sola «Accedi ad altri portali» (prop
   `altriPortali`, attiva di default): i portali dell'ultimo utente che si è collegato da quel
-  browser, oppure tutti se non c'è nessuno da ricordare.
+  browser; se non c'è nessuno da ricordare, tutti sui domini interni `*.vuscom.dev` e nessuno sui
+  domini pubblici `*.vuscom.it`, dove può esserci un agente esterno o un cliente.
 - **Nella sidebar** `AppShell` mostra le tessere degli altri portali a cui l'utente è
   abilitato. Il portale passa `portali` nelle props della sidebar: i codici di
   `user_progetto_ruolo` restituiti dal suo `/me`. Gli stessi codici vengono ricordati per la

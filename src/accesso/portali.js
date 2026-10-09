@@ -88,8 +88,13 @@ export function portaliRicordati() {
 /**
  * The other portals to offer: all internal ones but the current, filtered by
  * `codici` when known (the user's access), and reachable from this zone.
+ *
+ * With nobody known (`codici` null) the internal zone offers every portal, as the
+ * hand-written lists did; a public zone (`*.vuscom.it`) offers none, because the
+ * person in front of it may be an external agent or a client.
  */
-export function altriPortali({ corrente, codici, hostname } = {}) {
+export function altriPortali({ corrente, codici, hostname = globalThis.location?.hostname } = {}) {
+  if (!codici && zonaPubblica(hostname)) return [];
   return PORTALI_INTERNI.filter((p) => p.codice !== corrente)
     .filter((p) => !codici || codici.includes(p.codice))
     .map((p) => ({ ...p, url: indirizzoPortale(p, hostname) }))
