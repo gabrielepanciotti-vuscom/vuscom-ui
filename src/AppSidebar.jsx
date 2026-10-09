@@ -98,7 +98,7 @@ export default function AppSidebar({
               : "px-2.5"
         } ${
           active
-            ? "border-brand-500 bg-brand-50 dark:bg-brand-500/[0.12] text-brand-700 dark:text-brand-300 font-semibold"
+            ? "border-accento bg-brand-50 dark:bg-brand-500/[0.12] text-brand-700 dark:text-brand-300 font-semibold"
             : "border-transparent text-slate-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-white/[0.04]"
         }`}
       >
@@ -136,7 +136,7 @@ export default function AppSidebar({
             type="button"
             className={`group relative flex items-center justify-center gap-2.5 px-2.5 py-2 rounded-[7px] mb-0.5 text-[13px] border-l-[3px] w-full transition-colors ${
               groupActive
-                ? "border-brand-500 bg-brand-50 dark:bg-brand-500/[0.12] text-brand-700 dark:text-brand-300"
+                ? "border-accento bg-brand-50 dark:bg-brand-500/[0.12] text-brand-700 dark:text-brand-300"
                 : "border-transparent text-slate-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-white/[0.04]"
             }`}
             onClick={() => onToggleGroup?.(groupId)}

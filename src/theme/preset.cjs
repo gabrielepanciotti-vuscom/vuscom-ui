@@ -28,6 +28,8 @@ module.exports = {
         popover: pair("popover"),
         app: c("app-bg"),
         brand: { ...brand, from: c("brand-from"), via: c("brand-via"), to: c("brand-to") },
+        // Yellow of vuscom.it: small details only (active marker, highlights), never surfaces.
+        accento: { DEFAULT: "hsl(var(--accento) / <alpha-value>)", foreground: c("accento-foreground") },
         chart: { 1: c("chart-1"), 2: c("chart-2"), 3: c("chart-3"), 4: c("chart-4"), 5: c("chart-5"), 6: c("chart-6"), 7: c("chart-7"), 8: c("chart-8") },
       },
       // The logo gradient, for the few places that carry the brand (logo tile, active accents).

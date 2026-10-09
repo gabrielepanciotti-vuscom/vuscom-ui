@@ -80,7 +80,7 @@ Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 
 1. `package.json`:
    ```json
-   "@vuscom/ui": "github:gabrielepanciotti-vuscom/vuscom-ui#v1.4.0"
+   "@vuscom/ui": "github:gabrielepanciotti-vuscom/vuscom-ui#v1.5.0"
    ```
 2. `tailwind.config.js` — preset e `content` (ESM, come nei progetti Vite):
    ```js
@@ -118,15 +118,19 @@ tag**, mai da `main`: una modifica al pacchetto non deve cambiare una build già
 import { AppShell, PageHeader, Button, DataTable } from "@vuscom/ui";
 ```
 
-## Colori e marchio VUS COM (dalla 1.4.0)
+## Colori e marchio VUS COM (dalla 1.5.0)
 
-I colori vengono dal logo: sfumatura viola `#703080` → magenta `#a02080` → corallo `#d06050`.
-- **`primary`** è il magenta (`brand-600` in chiaro, `brand-500` in scuro): pulsanti, link,
-  voce attiva della sidebar, focus.
-- **`brand-50…950`** è la scala completa, con trasparenza (`bg-brand-500/10`). Si usa al
-  posto di `blue-*`/`indigo-*`/`violet-*` ovunque serva una tinta del marchio.
-- **`bg-brand-gradient`** è la sfumatura del logo, per i pochi punti che portano il marchio.
-- `success`/`warning`/`info`/`destructive` restano semantici (verde, ambra, azzurro, rosso).
+Decisi da Gabriele il 09/10/2026, dopo una 1.4.0 col magenta ovunque («sembra il sito di
+un'estetista»):
+- **`primary` e la scala `brand-50…950` sono il blu dei portali**, la stessa tinta del blu di
+  prima. `brand-*` sostituisce `blue-*`/`indigo-*` nel codice dei portali, così il colore si
+  cambia da qui e non file per file.
+- **`accento` è il giallo di vuscom.it** (`#fcc72c`, il giallo «luce» del sito), con
+  `accento-foreground` navy. Si usa **solo per i dettagli**: il segno della voce attiva della
+  sidebar, un'evidenza. Mai per sfondi o pulsanti.
+- **`bg-brand-gradient`** è la sfumatura del logo (viola → magenta → corallo): resta per il
+  marchio e basta.
+- `success`/`warning`/`info`/`destructive` restano semantici.
 
 Il marchio sta nel pacchetto, quindi il portale non ha file di logo propri:
 - la **sidebar** mostra la «V» VUS COM chiaro/scuro se non riceve `appIcon`, e il portale

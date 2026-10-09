@@ -1,7 +1,7 @@
 {
-  "versione": "2026-10-09",
+  "versione": "2026-10-09.2",
   "repo": "https://github.com/gabrielepanciotti-vuscom/vuscom-ui",
-  "versione_minima": "1.4.0",
+  "versione_minima": "1.5.0",
   "token_tema": [
     "background", "foreground", "card(-foreground)?", "popover(-foreground)?",
     "primary(-foreground)?", "secondary(-foreground)?", "muted(-foreground)?",
@@ -11,7 +11,7 @@
   ],
   "colori_vietati": ["blue", "indigo", "violet", "sky"],
   "regole": [
-    { "codice": "versione-minima", "gravita": "blocca", "descrizione": "@vuscom/ui almeno alla versione che porta colori e logo VUS COM" },
+    { "codice": "versione-minima", "gravita": "blocca", "descrizione": "@vuscom/ui almeno alla versione con i colori VUS COM decisi (blu + accento giallo)" },
     { "codice": "preset", "gravita": "blocca", "descrizione": "Tailwind usa @vuscom/ui/preset" },
     { "codice": "tema-css", "gravita": "blocca", "descrizione": "l'app importa @vuscom/ui/theme.css" },
     { "codice": "token-ridefiniti", "gravita": "blocca", "descrizione": "il portale non ridefinisce i token del tema (primary, brand, background…)" },

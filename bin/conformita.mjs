@@ -93,7 +93,7 @@ if (!dichiarata) {
   if (confronta(dichiarata, REGOLE.versione_minima) < 0)
     segnala(
       "versione-minima",
-      `@vuscom/ui ${dichiarata}: serve almeno ${REGOLE.versione_minima} (colori e logo VUS COM)`,
+      `@vuscom/ui ${dichiarata}: serve almeno ${REGOLE.versione_minima} (colori VUS COM decisi)`,
       "package.json",
     );
   const ultima = OFFLINE ? null : ultimaVersione();

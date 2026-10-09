@@ -2,30 +2,34 @@
 :root {
   /* WCAG AA in light (EAA, Configuratore funnel): muted-foreground on muted >= 4.5,
      destructive text on white >= 4.5, field border (input) on white >= 3. */
-  /* VUS COM brand, from the logo gradient: purple #703080 -> magenta #a02080 -> coral #d06050.
-     Same values in light and dark (repeated in .dark so both themes declare the same set): components pick the shade per theme (e.g. text-brand-700 dark:text-brand-300). */
-  --brand-50: 315 70% 97%;
-  --brand-100: 315 65% 93%;
-  --brand-200: 315 62% 86%;
-  --brand-300: 315 60% 76%;
-  --brand-400: 315 56% 63%;
-  --brand-500: 315 60% 50%;
-  --brand-600: 315 67% 38%;
-  --brand-700: 302 55% 33%;
-  --brand-800: 288 45% 28%;
-  --brand-900: 285 45% 21%;
-  --brand-950: 282 50% 13%;
+  /* VUS COM portals (Gabriele, 09/10/2026). brand-* is the blue of the portals (the
+     Tailwind blue scale, same look as before 1.4). accento is the yellow of vuscom.it
+     (#fcc72c, the "luce" yellow): DETAILS only (active marker, highlights), never
+     surfaces or buttons. The logo gradient (brand-from/via/to) stays for the logo tile. */
+  --brand-50: 214 100% 97%;
+  --brand-100: 214 95% 93%;
+  --brand-200: 213 97% 87%;
+  --brand-300: 212 96% 78%;
+  --brand-400: 213 94% 68%;
+  --brand-500: 217 91% 60%;
+  --brand-600: 221 83% 53%;
+  --brand-700: 224 76% 48%;
+  --brand-800: 226 71% 40%;
+  --brand-900: 224 64% 33%;
+  --brand-950: 226 57% 21%;
   --brand-from: 288 45% 35%;
   --brand-via: 315 67% 38%;
   --brand-to: 7 58% 56%;
+  --accento: 45 97% 58%;
+  --accento-foreground: 211 67% 24%;
   --background: 0 0% 100%;
   --foreground: 222.2 84% 4.9%;
   --card: 0 0% 100%;
   --card-foreground: 222.2 84% 4.9%;
   --popover: 0 0% 100%;
   --popover-foreground: 222.2 84% 4.9%;
-  --primary: 315 67% 38%;
-  --primary-foreground: 0 0% 100%;
+  --primary: 221.2 83.2% 53.3%;
+  --primary-foreground: 210 40% 98%;
   --secondary: 210 40% 96.1%;
   --secondary-foreground: 222.2 47.4% 11.2%;
   --muted: 210 40% 96.1%;
@@ -42,9 +46,9 @@
   --info-foreground: 204 80.2% 15.9%;
   --border: 214.3 31.8% 91.4%;
   --input: 214.3 31.8% 58%;
-  --ring: 315 67% 38%;
+  --ring: 221.2 83.2% 53.3%;
   --app-bg: 210 20% 98%;
-  --chart-1: 315 60% 50%;
+  --chart-1: 217.2 91.2% 59.8%;
   --chart-2: 37.7 92.1% 50.2%;
   --chart-3: 160.1 84.1% 39.4%;
   --chart-4: 0 84.2% 60.2%;
@@ -55,28 +59,30 @@
   --radius: 0.5rem;
 }
 .dark {
-  --brand-50: 315 70% 97%;
-  --brand-100: 315 65% 93%;
-  --brand-200: 315 62% 86%;
-  --brand-300: 315 60% 76%;
-  --brand-400: 315 56% 63%;
-  --brand-500: 315 60% 50%;
-  --brand-600: 315 67% 38%;
-  --brand-700: 302 55% 33%;
-  --brand-800: 288 45% 28%;
-  --brand-900: 285 45% 21%;
-  --brand-950: 282 50% 13%;
+  --brand-50: 214 100% 97%;
+  --brand-100: 214 95% 93%;
+  --brand-200: 213 97% 87%;
+  --brand-300: 212 96% 78%;
+  --brand-400: 213 94% 68%;
+  --brand-500: 217 91% 60%;
+  --brand-600: 221 83% 53%;
+  --brand-700: 224 76% 48%;
+  --brand-800: 226 71% 40%;
+  --brand-900: 224 64% 33%;
+  --brand-950: 226 57% 21%;
   --brand-from: 288 45% 35%;
   --brand-via: 315 67% 38%;
   --brand-to: 7 58% 56%;
+  --accento: 45 97% 58%;
+  --accento-foreground: 211 67% 24%;
   --background: 222.2 84% 4.9%;
   --foreground: 210 40% 98%;
   --card: 222.2 47.4% 8%;
   --card-foreground: 210 40% 98%;
   --popover: 222.2 47.4% 8%;
   --popover-foreground: 210 40% 98%;
-  --primary: 315 60% 50%;
-  --primary-foreground: 0 0% 100%;
+  --primary: 217.2 91.2% 59.8%;
+  --primary-foreground: 222.2 47.4% 11.2%;
   --secondary: 217.2 32.6% 17.5%;
   --secondary-foreground: 210 40% 98%;
   --muted: 217.2 32.6% 17.5%;
@@ -93,9 +99,9 @@
   --info-foreground: 204 80.2% 15.9%;
   --border: 217.2 32.6% 17.5%;
   --input: 217.2 32.6% 17.5%;
-  --ring: 315 56% 63%;
+  --ring: 224.3 76.3% 48%;
   --app-bg: 229 84% 5%;
-  --chart-1: 315 60% 50%;
+  --chart-1: 217.2 91.2% 59.8%;
   --chart-2: 37.7 92.1% 50.2%;
   --chart-3: 160.1 84.1% 39.4%;
   --chart-4: 0 84.2% 60.2%;
