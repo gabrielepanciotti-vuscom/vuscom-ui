@@ -12,6 +12,7 @@ import tesseraOfferte from "./tessera-offerte.png";
 import tesseraCruscotto from "./tessera-cruscotto.png";
 import tesseraOutbound from "./tessera-outbound.png";
 import tesseraConfiguratore from "./tessera-configuratore.png";
+import tesseraDataapi from "./tessera-dataapi.png";
 
 /** The official VUS COM images, named by the theme they are for (not by their colour). */
 export const LOGHI_VUSCOM = Object.freeze({
@@ -34,6 +35,7 @@ export const TESSERE_PORTALE = Object.freeze({
   cruscotto: tesseraCruscotto,
   outbound: tesseraOutbound,
   configuratore: tesseraConfiguratore,
+  dataapi: tesseraDataapi,
 });
 
 export const COLORI_PORTALE = Object.freeze({
@@ -41,6 +43,7 @@ export const COLORI_PORTALE = Object.freeze({
   cruscotto: "#0f5c55", // petrol green
   outbound: "#fcc72c", // vuscom.it yellow
   configuratore: "#7f1d1d", // bordeaux
+  dataapi: "#4c1d95", // violet (Data API admin, vuscom-db#89)
 });
 
 

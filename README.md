@@ -153,6 +153,7 @@ scheda, così i portali si distinguono a colpo d'occhio (`TESSERE_PORTALE`, imma
 | Cruscotto | `cruscotto` | verde petrolio `#0f5c55` |
 | Outbound | `outbound` | giallo vuscom.it `#fcc72c` |
 | Configuratore | `configuratore` | bordeaux `#7f1d1d` |
+| Admin Data API | `dataapi` | viola `#4c1d95` |
 
 - Il portale passa `iconaPortale` nelle props della sidebar di `AppShell`. `LoginPage` accetta
   la stessa prop, per l'icona della scheda.
