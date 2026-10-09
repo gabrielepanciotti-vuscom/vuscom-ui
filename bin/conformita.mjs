@@ -93,7 +93,7 @@ if (!dichiarata) {
   if (confronta(dichiarata, REGOLE.versione_minima) < 0)
     segnala(
       "versione-minima",
-      `@vuscom/ui ${dichiarata}: serve almeno ${REGOLE.versione_minima} (colori VUS COM decisi)`,
+      `@vuscom/ui ${dichiarata}: serve almeno ${REGOLE.versione_minima} (colori VUS COM e guida in sidebar)`,
       "package.json",
     );
   const ultima = OFFLINE ? null : ultimaVersione();
@@ -143,6 +143,8 @@ if (blu.length)
 // struttura e marchio
 if (struttura === "appshell" && !tutto(/\bAppShell\b[\s\S]*@vuscom\/ui|@vuscom\/ui[\s\S]*\bAppShell\b/).length)
   segnala("app-shell", "la pagina non è montata in AppShell di @vuscom/ui (sidebar comune)", "src/");
+if (struttura === "appshell" && !tutto(/\bguida\s*:/).length)
+  segnala("guida-generale", "la sidebar non ha la guida generale: passare `guida` (es. \"/guida\") nelle props della sidebar di AppShell", "src/");
 const icona = tutto(/\bappIcon\s*[:=]/);
 if (icona.length)
   segnala("logo-proprio", "la sidebar riceve un appIcon proprio: il logo VUS COM lo mette AppShell", icona.map(({ p }) => rel(p)).join(", "));

@@ -34,3 +34,29 @@ test("LoginPage uses the VUS COM wordmark and favicon by default", () => {
   expect(srcs).toEqual([LOGHI_VUSCOM.marchioChiaro, LOGHI_VUSCOM.marchioScuro]);
   expect(document.head.querySelector('link[rel~="icon"]').getAttribute("href")).toBe(LOGHI_VUSCOM.favicon);
 });
+
+test("the sidebar shows the general guide button next to collapse", () => {
+  const { getAllByRole } = render(
+    <MemoryRouter>
+      <AppShell sidebar={{ nav: [], guida: "/guida" }}>x</AppShell>
+    </MemoryRouter>,
+  );
+  const link = getAllByRole("link", { name: "Guida" })[0];
+  expect(link.getAttribute("href")).toBe("/guida");
+});
+
+test("an external guide opens in a new tab, and no guide means no button", () => {
+  const { getAllByRole, unmount } = render(
+    <MemoryRouter>
+      <AppShell sidebar={{ nav: [], guida: { href: "https://example.org/g", label: "Manuale" } }}>x</AppShell>
+    </MemoryRouter>,
+  );
+  expect(getAllByRole("link", { name: "Manuale" })[0].getAttribute("target")).toBe("_blank");
+  unmount();
+  const { queryByRole } = render(
+    <MemoryRouter>
+      <AppShell sidebar={{ nav: [] }}>x</AppShell>
+    </MemoryRouter>,
+  );
+  expect(queryByRole("link", { name: "Guida" })).toBeNull();
+});

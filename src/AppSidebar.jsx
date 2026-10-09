@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { LogoV } from "./brand/Brand.jsx";
+import PulsanteGuida from "./PulsanteGuida.jsx";
 import {
   ChevronRight,
   LogOut,
@@ -25,6 +26,8 @@ import {
  *  - expandedGroups: Set<string> degli id gruppo aperti · onToggleGroup(id)
  *  - collapsed / onToggleCollapse: modalità stretta
  *  - isOpen / onClose: overlay mobile
+ *  - guida: guida generale del portale ("/guida", URL, o { href, label }): pulsante
+ *    accanto a «comprimi». Obbligatoria per il tester di conformità.
  *  - navClassName: classi extra sulla <nav> scrollabile. Serve alle utility che
  *    il pacchetto non puo' dichiarare, perche' vivono nel CSS dell'app che lo
  *    ospita (es. `scrollbar-thin` in Hub Offerte): il pacchetto non sa quali
@@ -49,6 +52,7 @@ export default function AppSidebar({
   themeSlot,
   footerSlot,
   navClassName = "",
+  guida,
 }) {
   const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -98,7 +102,7 @@ export default function AppSidebar({
               : "px-2.5"
         } ${
           active
-            ? "border-accento bg-brand-50 dark:bg-brand-500/[0.12] text-brand-700 dark:text-brand-300 font-semibold"
+            ? "border-brand-500 bg-brand-50 dark:bg-brand-500/[0.12] text-brand-700 dark:text-brand-300 font-semibold"
             : "border-transparent text-slate-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-white/[0.04]"
         }`}
       >
@@ -136,7 +140,7 @@ export default function AppSidebar({
             type="button"
             className={`group relative flex items-center justify-center gap-2.5 px-2.5 py-2 rounded-[7px] mb-0.5 text-[13px] border-l-[3px] w-full transition-colors ${
               groupActive
-                ? "border-accento bg-brand-50 dark:bg-brand-500/[0.12] text-brand-700 dark:text-brand-300"
+                ? "border-brand-500 bg-brand-50 dark:bg-brand-500/[0.12] text-brand-700 dark:text-brand-300"
                 : "border-transparent text-slate-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-white/[0.04]"
             }`}
             onClick={() => onToggleGroup?.(groupId)}
@@ -221,6 +225,7 @@ export default function AppSidebar({
             )}
           </div>
         )}
+        <PulsanteGuida guida={guida} compressa={isCollapsed} />
         {showCollapseButton && onToggleCollapse && (
           <button
             onClick={onToggleCollapse}

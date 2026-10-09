@@ -80,7 +80,7 @@ Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 
 1. `package.json`:
    ```json
-   "@vuscom/ui": "github:gabrielepanciotti-vuscom/vuscom-ui#v1.5.0"
+   "@vuscom/ui": "github:gabrielepanciotti-vuscom/vuscom-ui#v1.6.0"
    ```
 2. `tailwind.config.js` — preset e `content` (ESM, come nei progetti Vite):
    ```js
@@ -126,8 +126,8 @@ un'estetista»):
   prima. `brand-*` sostituisce `blue-*`/`indigo-*` nel codice dei portali, così il colore si
   cambia da qui e non file per file.
 - **`accento` è il giallo di vuscom.it** (`#fcc72c`, il giallo «luce» del sito), con
-  `accento-foreground` navy. Si usa **solo per i dettagli**: il segno della voce attiva della
-  sidebar, un'evidenza. Mai per sfondi o pulsanti.
+  `accento-foreground` navy. Si usa **solo per i dettagli**, mai per sfondi, pulsanti o bordi
+  di selezione (un bordo giallo sulla voce attiva della sidebar è stato provato e bocciato).
 - **`bg-brand-gradient`** è la sfumatura del logo (viola → magenta → corallo): resta per il
   marchio e basta.
 - `success`/`warning`/`info`/`destructive` restano semantici.
@@ -140,6 +140,15 @@ Il marchio sta nel pacchetto, quindi il portale non ha file di logo propri:
   `index.html` non dichiara nessuna favicon;
 - per usi propri ci sono `LogoV`, `MarchioVuscom` e `LOGHI_VUSCOM`. Le immagini sono data URL
   dentro il bundle: nessun asset da copiare e nessun `.png` da risolvere nei test.
+
+## Guide (dalla 1.6.0)
+
+Ogni portale ha due livelli di guida, nello stesso posto in tutti i portali:
+- **la guida generale**: un pulsante nella sidebar, accanto a «comprimi». Il portale passa
+  `guida` nelle props della sidebar di `AppShell`: un path (`"/guida"`), un URL (si apre in
+  una nuova scheda) o `{ href, label }`. È obbligatoria: il tester la blocca se manca;
+- **la guida della pagina**: dove serve, il link «Guida» di `PageHeader` (`helpHref`), che
+  porta alla sezione giusta della guida generale.
 
 ## Conformità: `vuscom-ui-conformita`
 
