@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { LogoV } from "./brand/Brand.jsx";
 import PulsanteGuida from "./PulsanteGuida.jsx";
+import PortaliSidebar from "./accesso/PortaliSidebar.jsx";
 import {
   ChevronRight,
   LogOut,
@@ -28,6 +29,8 @@ import {
  *  - isOpen / onClose: overlay mobile
  *  - iconaPortale: chiave di COLORI_PORTALE ("outbound"…): la V sul colore del portale,
  *    in sidebar e nella scheda del browser.
+ *  - portali: codici dei portali a cui l'utente e' abilitato (dal /me del portale):
+ *    tessere degli altri portali in fondo alla sidebar, ricordate per la pagina di login.
  *  - guida: guida generale del portale ("/guida", URL, o { href, label }): pulsante
  *    accanto a «comprimi». Obbligatoria per il tester di conformità.
  *  - navClassName: classi extra sulla <nav> scrollabile. Serve alle utility che
@@ -56,6 +59,7 @@ export default function AppSidebar({
   navClassName = "",
   guida,
   iconaPortale,
+  portali,
 }) {
   const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -275,6 +279,8 @@ export default function AppSidebar({
       >
         {/* Azioni di pagina (es. "Aggiorna Dati"): non hanno senso da compressa. */}
         {!isCollapsed && footerSlot}
+
+        <PortaliSidebar corrente={iconaPortale} codici={portali} compressa={isCollapsed} />
 
         {themeSlot &&
           (isCollapsed ? (

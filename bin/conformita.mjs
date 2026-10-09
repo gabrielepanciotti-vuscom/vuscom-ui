@@ -152,6 +152,12 @@ if (struttura === "appshell") {
   for (const k of chiavi.filter((k) => !REGOLE.portali_interni.includes(k)))
     segnala("icona-portale", `iconaPortale "${k}" non è un portale noto: aggiungerlo prima a COLORI_PORTALE in @vuscom/ui (${REGOLE.portali_interni.join(", ")})`, "src/");
 }
+// altri portali (vuscom-db#89): one catalogue in @vuscom/ui, filtered by the user's access
+if (struttura === "appshell" && !tutto(/\bportali\s*:/).length)
+  segnala("portali-sidebar", "la sidebar non riceve `portali` (i codici a cui l'utente è abilitato, dal /me): niente tessere per passare agli altri portali", "src/");
+const listeAMano = tutto(/Accedi ad altri portali/).filter(({ p }) => !/__tests__|\.test\./.test(p));
+if (listeAMano.length)
+  segnala("portali-a-mano", "lista «Accedi ad altri portali» scritta a mano: la mostra già LoginPage, filtrata sui permessi dell'ultimo utente", listeAMano.map(({ p }) => rel(p)).join(", "));
 const icona = tutto(/\bappIcon\s*[:=]/);
 if (icona.length)
   segnala("logo-proprio", "la sidebar riceve un appIcon proprio: il logo VUS COM lo mette AppShell", icona.map(({ p }) => rel(p)).join(", "));

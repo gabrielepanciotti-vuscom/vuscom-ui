@@ -163,6 +163,27 @@ scheda, così i portali si distinguono a colpo d'occhio (`TESSERE_PORTALE`, imma
 - **I portali pubblici restano sempre col navy originale** (Gabriele, 09/10): il Portale
   Segnalazioni senza voce, il Configuratore, che serve anche i clienti, col navy.
 
+## Altri portali (dalla 1.8.0)
+
+Un solo elenco dei portali interni (`PORTALI_INTERNI` in `src/accesso/portali.js`: nome,
+indirizzo interno `*.vuscom.dev`, pubblico `*.vuscom.it` dove esiste). Nessun portale scrive
+più la sua lista a mano.
+
+- **Sotto il login** `LoginPage` mostra da sola «Accedi ad altri portali» (prop
+  `altriPortali`, attiva di default): i portali dell'ultimo utente che si è collegato da quel
+  browser, oppure tutti se non c'è nessuno da ricordare.
+- **Nella sidebar** `AppShell` mostra le tessere degli altri portali a cui l'utente è
+  abilitato. Il portale passa `portali` nelle props della sidebar: i codici di
+  `user_progetto_ruolo` restituiti dal suo `/me`. Gli stessi codici vengono ricordati per la
+  pagina di login.
+- **Passaggio da un portale all'altro**: il link porta a `https://<portale>/?accedi=microsoft`.
+  Lì «Accedi con Microsoft» parte da solo e, con una sessione Microsoft già aperta, si entra
+  senza digitare nulla. L'identità la gestisce Entra ID, i ruoli restano in `user_progetto_ruolo`.
+  Senza Microsoft (fuori rete, o finché non è attivo) la pagina di arrivo chiede il login.
+- Un link resta nella zona in cui si è: da `*.vuscom.it` non si propone un portale solo interno.
+- Il tester avvisa con `portali-sidebar` (sidebar senza `portali`) e `portali-a-mano` (lista
+  «Accedi ad altri portali» scritta nel portale).
+
 ## Guide (dalla 1.6.0)
 
 Ogni portale ha due livelli di guida, nello stesso posto in tutti i portali:

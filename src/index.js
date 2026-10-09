@@ -53,6 +53,16 @@ export { default as PageHeader } from "./templates/PageHeader.jsx";
 export { default as Section } from "./templates/Section.jsx";
 export { default as LoginPage } from "./templates/LoginPage.jsx";
 export { default as AccessoMicrosoft } from "./accesso/AccessoMicrosoft.jsx";
+export { default as AltriPortali } from "./accesso/AltriPortali.jsx";
+export { default as PortaliSidebar } from "./accesso/PortaliSidebar.jsx";
+export {
+  PORTALI_INTERNI,
+  PARAMETRO_ACCEDI,
+  altriPortali,
+  indirizzoPortale,
+  portaliRicordati,
+  ricordaPortali,
+} from "./accesso/portali.js";
 export {
   default as useAccessoMicrosoft,
   BASE_MICROSOFT,

@@ -1,6 +1,7 @@
 import { useId, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import AccessoMicrosoft from "../accesso/AccessoMicrosoft.jsx";
+import AltriPortali from "../accesso/AltriPortali.jsx";
 import Alert from "../organisms/Alert.jsx";
 import Button from "../atoms/Button.jsx";
 import IconButton from "../atoms/IconButton.jsx";
@@ -13,6 +14,8 @@ import { LOGHI_VUSCOM, useFaviconVuscom } from "../brand/Brand.jsx";
  * Common VUS COM login screen. `onSubmit(username, password)` must reject on failure.
  * `microsoft` (`{ onAccesso, base? }`) adds "Accedi con Microsoft", shown only
  * where the backend (`vuscom_auth.entra`) says it is available.
+ * `altriPortali` (default on) shows «Accedi ad altri portali» with the portals of the
+ * last user who logged in from this browser (see accesso/portali.js).
  */
 export default function LoginPage({
   title,
@@ -24,6 +27,7 @@ export default function LoginPage({
   footer = "© VUS COM SRL",
   microsoft,
   iconaPortale,
+  altriPortali = true,
 }) {
   const passwordId = useId();
   useFaviconVuscom(iconaPortale);
@@ -109,6 +113,7 @@ export default function LoginPage({
           </Button>
         </form>
         {microsoft && <AccessoMicrosoft {...microsoft} />}
+        {altriPortali && <AltriPortali corrente={iconaPortale} />}
         {footer && (
           <div className="text-center text-xs text-muted-foreground">
             {footer}

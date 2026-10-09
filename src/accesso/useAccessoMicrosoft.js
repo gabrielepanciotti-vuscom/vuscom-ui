@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { PARAMETRO_ACCEDI } from "./portali.js";
 
 export const BASE_MICROSOFT = "/api/auth/microsoft";
 
@@ -27,6 +28,19 @@ function leggiFrammento() {
 }
 
 /**
+ * True once if the page was opened with `?accedi=microsoft` (a tile of another
+ * portal): the parameter is removed so a reload or a failed login does not loop.
+ */
+function chiestoDaAltroPortale() {
+  if (typeof window === "undefined") return false;
+  const url = new URL(window.location.href);
+  if (url.searchParams.get(PARAMETRO_ACCEDI) !== "microsoft") return false;
+  url.searchParams.delete(PARAMETRO_ACCEDI);
+  window.history.replaceState(window.history.state, "", url.pathname + url.search + url.hash);
+  return true;
+}
+
+/**
  * "Accedi con Microsoft" against `vuscom_auth.entra`.
  * `onAccesso(risposta)` receives exactly what the portal's password login returns
  * and must store it the same way. Returns `{ disponibile, inCorso, errore, accedi }`.
@@ -38,6 +52,7 @@ export default function useAccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso }
 
   useEffect(() => {
     let attivo = true;
+    const automatico = chiestoDaAltroPortale();
     const { biglietto, errore: codice } = leggiFrammento();
     if (codice) {
       setErrore(MESSAGGI_ERRORE_MICROSOFT[codice] || MESSAGGI_ERRORE_MICROSOFT.errore);
@@ -69,7 +84,14 @@ export default function useAccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso }
       try {
         const res = await fetch(`${base}/disponibile`);
         const dati = res.ok ? await res.json() : {};
-        if (attivo) setDisponibile(dati?.disponibile === true);
+        if (!attivo) return;
+        setDisponibile(dati?.disponibile === true);
+        // Coming from another portal: start the Microsoft login right away. With a
+        // Microsoft session already open the user comes back logged in, no click.
+        if (automatico && dati?.disponibile === true && !biglietto && !codice) {
+          setInCorso(true);
+          window.location.assign(`${base}/login`);
+        }
       } catch {
         if (attivo) setDisponibile(false); // no answer = no button
       }

@@ -99,6 +99,16 @@
       "codice": "logo-login",
       "gravita": "avvisa",
       "descrizione": "LoginPage usa il marchio del pacchetto (nessun logoLight/logoDark)"
+    },
+    {
+      "codice": "portali-sidebar",
+      "gravita": "avvisa",
+      "descrizione": "la sidebar riceve `portali` (codici a cui l'utente è abilitato, dal /me): tessere per passare agli altri portali"
+    },
+    {
+      "codice": "portali-a-mano",
+      "gravita": "avvisa",
+      "descrizione": "nessuna lista «Accedi ad altri portali» scritta a mano: la mostra LoginPage dal catalogo unico"
     }
   ],
   "portali_interni": [
