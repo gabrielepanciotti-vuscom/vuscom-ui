@@ -90,7 +90,7 @@ export default function AppShell({
     ...sidebarProps
   } = sidebar;
   const { pathname } = useLocation();
-  useFaviconVuscom();
+  useFaviconVuscom(sidebar.iconaPortale);
   const mainTree = useMemo(() => normalizeNavTree(nav), [nav]);
   const adminTree = useMemo(() => normalizeNavTree(adminNav), [adminNav]);
 

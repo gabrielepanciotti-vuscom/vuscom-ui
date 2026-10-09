@@ -26,6 +26,8 @@ import {
  *  - expandedGroups: Set<string> degli id gruppo aperti · onToggleGroup(id)
  *  - collapsed / onToggleCollapse: modalità stretta
  *  - isOpen / onClose: overlay mobile
+ *  - iconaPortale: chiave di COLORI_PORTALE ("outbound"…): la V sul colore del portale,
+ *    in sidebar e nella scheda del browser.
  *  - guida: guida generale del portale ("/guida", URL, o { href, label }): pulsante
  *    accanto a «comprimi». Obbligatoria per il tester di conformità.
  *  - navClassName: classi extra sulla <nav> scrollabile. Serve alle utility che
@@ -53,6 +55,7 @@ export default function AppSidebar({
   footerSlot,
   navClassName = "",
   guida,
+  iconaPortale,
 }) {
   const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -212,7 +215,7 @@ export default function AppSidebar({
         }`}
       >
         {/* No appIcon = the official V: a portal never shows a home-made logo. */}
-        <div className="flex-shrink-0">{appIcon ?? <LogoV />}</div>
+        <div className="flex-shrink-0">{appIcon ?? <LogoV portale={iconaPortale} />}</div>
         {!isCollapsed && (
           <div className="flex-1 min-w-0">
             <div className="text-slate-900 dark:text-slate-100 text-[13px] font-bold leading-tight truncate">

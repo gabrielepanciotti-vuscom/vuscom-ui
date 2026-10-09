@@ -93,7 +93,7 @@ if (!dichiarata) {
   if (confronta(dichiarata, REGOLE.versione_minima) < 0)
     segnala(
       "versione-minima",
-      `@vuscom/ui ${dichiarata}: serve almeno ${REGOLE.versione_minima} (colori VUS COM e guida in sidebar)`,
+      `@vuscom/ui ${dichiarata}: serve almeno ${REGOLE.versione_minima} (colori, guida e icona del portale)`,
       "package.json",
     );
   const ultima = OFFLINE ? null : ultimaVersione();
@@ -145,6 +145,13 @@ if (struttura === "appshell" && !tutto(/\bAppShell\b[\s\S]*@vuscom\/ui|@vuscom\/
   segnala("app-shell", "la pagina non è montata in AppShell di @vuscom/ui (sidebar comune)", "src/");
 if (struttura === "appshell" && !tutto(/\bguida\s*:/).length)
   segnala("guida-generale", "la sidebar non ha la guida generale: passare `guida` (es. \"/guida\") nelle props della sidebar di AppShell", "src/");
+if (struttura === "appshell") {
+  const chiavi = [...new Set(sorgenti.flatMap(({ testo }) => [...testo.matchAll(/\biconaPortale\s*:\s*["'`](\w+)["'`]/g)].map((m) => m[1])))];
+  if (!chiavi.length)
+    segnala("icona-portale", `la sidebar non dice di che portale è: passare iconaPortale (${REGOLE.portali_interni.join(", ")}), che dà alla V il colore del portale`, "src/");
+  for (const k of chiavi.filter((k) => !REGOLE.portali_interni.includes(k)))
+    segnala("icona-portale", `iconaPortale "${k}" non è un portale noto: aggiungerlo prima a COLORI_PORTALE in @vuscom/ui (${REGOLE.portali_interni.join(", ")})`, "src/");
+}
 const icona = tutto(/\bappIcon\s*[:=]/);
 if (icona.length)
   segnala("logo-proprio", "la sidebar riceve un appIcon proprio: il logo VUS COM lo mette AppShell", icona.map(({ p }) => rel(p)).join(", "));

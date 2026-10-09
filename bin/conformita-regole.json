@@ -1,7 +1,7 @@
 {
-  "versione": "2026-10-09.3",
+  "versione": "2026-10-09.4",
   "repo": "https://github.com/gabrielepanciotti-vuscom/vuscom-ui",
-  "versione_minima": "1.6.0",
+  "versione_minima": "1.7.0",
   "token_tema": [
     "background",
     "foreground",
@@ -61,6 +61,11 @@
       "descrizione": "la sidebar ha il pulsante della guida generale del portale (prop guida); le guide di pagina vanno in PageHeader helpHref"
     },
     {
+      "codice": "icona-portale",
+      "gravita": "blocca",
+      "descrizione": "la sidebar passa iconaPortale con la chiave del portale: la V ha il colore del portale in sidebar e nella scheda"
+    },
+    {
       "codice": "versione-ultima",
       "gravita": "avvisa",
       "descrizione": "@vuscom/ui all'ultima versione pubblicata"
@@ -95,5 +100,11 @@
       "gravita": "avvisa",
       "descrizione": "LoginPage usa il marchio del pacchetto (nessun logoLight/logoDark)"
     }
+  ],
+  "portali_interni": [
+    "offerte",
+    "cruscotto",
+    "outbound",
+    "configuratore"
   ]
 }

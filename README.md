@@ -80,7 +80,7 @@ Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 
 1. `package.json`:
    ```json
-   "@vuscom/ui": "github:gabrielepanciotti-vuscom/vuscom-ui#v1.6.0"
+   "@vuscom/ui": "github:gabrielepanciotti-vuscom/vuscom-ui#v1.7.0"
    ```
 2. `tailwind.config.js` — preset e `content` (ESM, come nei progetti Vite):
    ```js
@@ -140,6 +140,25 @@ Il marchio sta nel pacchetto, quindi il portale non ha file di logo propri:
   `index.html` non dichiara nessuna favicon;
 - per usi propri ci sono `LogoV`, `MarchioVuscom` e `LOGHI_VUSCOM`. Le immagini sono data URL
   dentro il bundle: nessun asset da copiare e nessun `.png` da risolvere nei test.
+
+## Icona di ogni portale (dalla 1.7.0)
+
+La V è la stessa per tutti, ma ogni portale interno ha **il suo colore di sfondo**, sia nella
+sidebar sia nell'icona della scheda, così si distinguono a colpo d'occhio:
+
+| Portale | `iconaPortale` | Sfondo |
+|---|---|---|
+| Hub Offerte | `offerte` | navy `#1b3a69` |
+| Cruscotto | `cruscotto` | verde petrolio `#0f5c55` |
+| Outbound | `outbound` | giallo vuscom.it `#fcc72c` |
+| Configuratore | `configuratore` | bordeaux `#7f1d1d` |
+
+- Il portale passa `iconaPortale` nelle props della sidebar di `AppShell`. `LoginPage` accetta
+  la stessa prop, per l'icona della scheda.
+- I colori stanno qui, in `COLORI_PORTALE`, mai nel portale: due portali non possono avere lo
+  stesso colore. Un portale nuovo si aggiunge **prima** qui (e in `portali_interni` del tester),
+  con un colore ben distinto dagli altri.
+- Il Portale Segnalazioni è pubblico e tiene il logo semplice.
 
 ## Guide (dalla 1.6.0)
 

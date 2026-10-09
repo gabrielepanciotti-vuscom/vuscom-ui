@@ -23,9 +23,10 @@ export default function LoginPage({
   usernameLabel = "Username o email",
   footer = "© VUS COM SRL",
   microsoft,
+  iconaPortale,
 }) {
   const passwordId = useId();
-  useFaviconVuscom();
+  useFaviconVuscom(iconaPortale);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);

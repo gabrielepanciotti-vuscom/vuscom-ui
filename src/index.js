@@ -59,6 +59,7 @@ export {
   MESSAGGI_ERRORE_MICROSOFT,
 } from "./accesso/useAccessoMicrosoft.js";
 export {
+  COLORI_PORTALE,
   LOGHI_VUSCOM,
   LogoV,
   MarchioVuscom,
