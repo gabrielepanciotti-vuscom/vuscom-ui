@@ -1,5 +1,7 @@
 /* VUS COM design tokens. Import once in the app entry: import "@vuscom/ui/theme.css"; */
 :root {
+  /* WCAG AA in light (EAA, Configuratore funnel): muted-foreground on muted >= 4.5,
+     destructive text on white >= 4.5, field border (input) on white >= 3. */
   /* VUS COM brand, from the logo gradient: purple #703080 -> magenta #a02080 -> coral #d06050.
      Same values in light and dark (repeated in .dark so both themes declare the same set): components pick the shade per theme (e.g. text-brand-700 dark:text-brand-300). */
   --brand-50: 315 70% 97%;
@@ -27,10 +29,10 @@
   --secondary: 210 40% 96.1%;
   --secondary-foreground: 222.2 47.4% 11.2%;
   --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
+  --muted-foreground: 215.4 16.3% 44%;
   --accent: 210 40% 96.1%;
   --accent-foreground: 222.2 47.4% 11.2%;
-  --destructive: 0 84.2% 60.2%;
+  --destructive: 0 84.2% 48%;
   --destructive-foreground: 210 40% 98%;
   --success: 142.1 70.6% 45.3%;
   --success-foreground: 144.9 80.4% 10%;
@@ -39,7 +41,7 @@
   --info: 198.6 88.7% 48.4%;
   --info-foreground: 204 80.2% 15.9%;
   --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 58%;
   --ring: 315 67% 38%;
   --app-bg: 210 20% 98%;
   --chart-1: 315 60% 50%;
