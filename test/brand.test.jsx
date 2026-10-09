@@ -1,7 +1,7 @@
 import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { readFileSync } from "node:fs";
-import { AppShell, COLORI_PORTALE, LoginPage, LOGHI_VUSCOM } from "../src/index.js";
+import { AppShell, COLORI_PORTALE, LoginPage, LOGHI_VUSCOM, TESSERE_PORTALE } from "../src/index.js";
 
 afterEach(() => document.head.querySelectorAll('link[rel~="icon"]').forEach((l) => l.remove()));
 
@@ -69,18 +69,19 @@ test("each internal portal has its own tile colour, shown in the sidebar", () =>
       <AppShell sidebar={{ nav: [], iconaPortale: "outbound" }}>x</AppShell>
     </MemoryRouter>,
   );
-  const tessera = container.querySelector("[data-portale-colore]");
-  expect(tessera.getAttribute("data-portale-colore")).toBe(COLORI_PORTALE.outbound);
-  expect(tessera.querySelector("img").getAttribute("src")).toBe(LOGHI_VUSCOM.vTrasparente);
+  const tessera = container.querySelector("[data-portale]");
+  expect(tessera.getAttribute("data-portale")).toBe("outbound");
+  expect(tessera.getAttribute("src")).toBe(TESSERE_PORTALE.outbound);
+  expect(Object.keys(TESSERE_PORTALE).sort()).toEqual(Object.keys(COLORI_PORTALE).sort());
 });
 
-test("without a canvas the tab icon falls back to the plain V", () => {
+test("the tab icon is the portal's own tile", () => {
   render(
     <MemoryRouter>
       <AppShell sidebar={{ nav: [], iconaPortale: "cruscotto" }}>x</AppShell>
     </MemoryRouter>,
   );
-  expect(document.head.querySelector('link[rel~="icon"]').getAttribute("href")).toBe(LOGHI_VUSCOM.favicon);
+  expect(document.head.querySelector('link[rel~="icon"]').getAttribute("href")).toBe(TESSERE_PORTALE.cruscotto);
 });
 
 test("the conformity tester knows exactly the portals that have a colour", () => {

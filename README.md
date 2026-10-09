@@ -143,8 +143,9 @@ Il marchio sta nel pacchetto, quindi il portale non ha file di logo propri:
 
 ## Icona di ogni portale (dalla 1.7.0)
 
-La V è la stessa per tutti, ma ogni portale interno ha **il suo colore di sfondo**, sia nella
-sidebar sia nell'icona della scheda, così si distinguono a colpo d'occhio:
+Il riquadro è quello originale, con la stessa V nella stessa posizione: cambia **solo il colore
+dello sfondo**, uno per ogni portale interno. Vale sia nella sidebar sia nell'icona della
+scheda, così i portali si distinguono a colpo d'occhio (`TESSERE_PORTALE`, immagini già pronte):
 
 | Portale | `iconaPortale` | Sfondo |
 |---|---|---|

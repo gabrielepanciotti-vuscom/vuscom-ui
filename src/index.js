@@ -60,6 +60,7 @@ export {
 } from "./accesso/useAccessoMicrosoft.js";
 export {
   COLORI_PORTALE,
+  TESSERE_PORTALE,
   LOGHI_VUSCOM,
   LogoV,
   MarchioVuscom,
