@@ -36,9 +36,9 @@ export default function SelettoreRuolo({ ruoli, valore, onCambia, etichetta = "R
               tabIndex={scelto || (!valore && i === 0) ? 0 : -1}
               onClick={() => onCambia(r)}
               onKeyDown={(e) => tasto(e, i)}
-              className={`rounded-md px-3 py-1.5 text-[12.5px] font-medium capitalize transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 ${
+              className={`rounded-md px-3 py-1.5 text-[12.5px] font-medium capitalize transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 ${
                 scelto
-                  ? "bg-white text-blue-700 shadow-sm dark:bg-slate-800 dark:text-blue-300"
+                  ? "bg-white text-brand-700 shadow-sm dark:bg-slate-800 dark:text-brand-300"
                   : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
               }`}
             >

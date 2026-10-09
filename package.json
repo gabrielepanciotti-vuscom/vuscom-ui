@@ -1,6 +1,6 @@
 {
   "name": "@vuscom/ui",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Design system VUS COM: token, componenti e struttura delle pagine",
   "license": "UNLICENSED",
   "type": "module",
@@ -27,7 +27,8 @@
   },
   "files": [
     "dist",
-    "src"
+    "src",
+    "bin"
   ],
   "sideEffects": [
     "*.css"
@@ -70,5 +71,8 @@
     "modern-screenshot": "4.7.0",
     "rrweb": "2.1.7",
     "tailwind-merge": "^2.6.1"
+  },
+  "bin": {
+    "vuscom-ui-conformita": "./bin/conformita.mjs"
   }
 }

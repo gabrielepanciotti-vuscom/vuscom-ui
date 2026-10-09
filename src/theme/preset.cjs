@@ -1,5 +1,9 @@
 /** Tailwind preset of the VUS COM design system. Apps add it with `presets: [require("@vuscom/ui/preset")]`. */
 const c = (name) => `hsl(var(--${name}))`;
+// Brand scale keeps the alpha channel so `bg-brand-500/10` works like any Tailwind color.
+const brand = Object.fromEntries(
+  [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950].map((n) => [n, `hsl(var(--brand-${n}) / <alpha-value>)`]),
+);
 const pair = (name) => ({ DEFAULT: c(name), foreground: c(`${name}-foreground`) });
 module.exports = {
   darkMode: "class",
@@ -23,7 +27,12 @@ module.exports = {
         card: pair("card"),
         popover: pair("popover"),
         app: c("app-bg"),
+        brand: { ...brand, from: c("brand-from"), via: c("brand-via"), to: c("brand-to") },
         chart: { 1: c("chart-1"), 2: c("chart-2"), 3: c("chart-3"), 4: c("chart-4"), 5: c("chart-5"), 6: c("chart-6"), 7: c("chart-7"), 8: c("chart-8") },
+      },
+      // The logo gradient, for the few places that carry the brand (logo tile, active accents).
+      backgroundImage: {
+        "brand-gradient": "linear-gradient(135deg, hsl(var(--brand-from)), hsl(var(--brand-via)) 55%, hsl(var(--brand-to)))",
       },
       // Bare `border` / `divide-y` (preflight) would otherwise fall back to gray-200 in dark mode.
       borderColor: { DEFAULT: c("border") },

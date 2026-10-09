@@ -81,7 +81,7 @@ export default function GestioneUtenti({
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="flex items-center gap-2 text-[18px] font-semibold text-slate-800 dark:text-slate-100">
-          <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+          <Users className="h-5 w-5 text-brand-600 dark:text-brand-400" />
           {`Utenti — ${nome}`}
         </h1>
         <div className="flex flex-wrap gap-2">

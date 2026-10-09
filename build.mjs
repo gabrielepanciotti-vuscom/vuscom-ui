@@ -11,7 +11,9 @@ const common = {
   platform: "browser",
   target: "es2020",
   jsx: "automatic",
-  loader: { ".js": "jsx", ".jsx": "jsx" },
+  // Brand images inline as data URLs: the consuming app needs no asset setup,
+  // and its tests (which load the package in Node) never meet a .png import.
+  loader: { ".js": "jsx", ".jsx": "jsx", ".png": "dataurl" },
 };
 
 await build({

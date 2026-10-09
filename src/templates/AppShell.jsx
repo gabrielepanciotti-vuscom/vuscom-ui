@@ -9,6 +9,7 @@ import {
 import { useLocation } from "react-router-dom";
 import { Menu } from "lucide-react";
 import AppSidebar from "../AppSidebar.jsx";
+import { useFaviconVuscom } from "../brand/Brand.jsx";
 import { normalizeNavTree } from "../navTree.js";
 import ThemeToggle from "../theme/ThemeToggle.jsx";
 import IconButton from "../atoms/IconButton.jsx";
@@ -89,6 +90,7 @@ export default function AppShell({
     ...sidebarProps
   } = sidebar;
   const { pathname } = useLocation();
+  useFaviconVuscom();
   const mainTree = useMemo(() => normalizeNavTree(nav), [nav]);
   const adminTree = useMemo(() => normalizeNavTree(adminNav), [adminNav]);
 

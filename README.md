@@ -1,6 +1,9 @@
 # @vuscom/ui
 
-Design system condiviso tra i frontend VUS COM (Cruscotto, Hub Offerte, Outbound).
+Design system condiviso tra i portali VUS COM: Hub Offerte, Cruscotto, Outbound,
+Configuratore e Portale Segnalazioni. Tutti hanno lo stesso stile grafico, e tutti
+tranne il Portale Segnalazioni anche la stessa struttura (`AppShell`). Anche ogni
+portale nuovo nasce così. Lo verifica `vuscom-ui-conformita` (sotto).
 
 Contiene solo presentazione: nessun dato, nessun endpoint, nessun segreto.
 Il repo è pubblico apposta, così le build Docker dei progetti possono
@@ -77,7 +80,7 @@ Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 
 1. `package.json`:
    ```json
-   "@vuscom/ui": "github:gabrielepanciotti-vuscom/vuscom-ui#v1.0.2"
+   "@vuscom/ui": "github:gabrielepanciotti-vuscom/vuscom-ui#v1.4.0"
    ```
 2. `tailwind.config.js` — preset e `content` (ESM, come nei progetti Vite):
    ```js
@@ -114,6 +117,47 @@ tag**, mai da `main`: una modifica al pacchetto non deve cambiare una build già
 ```jsx
 import { AppShell, PageHeader, Button, DataTable } from "@vuscom/ui";
 ```
+
+## Colori e marchio VUS COM (dalla 1.4.0)
+
+I colori vengono dal logo: sfumatura viola `#703080` → magenta `#a02080` → corallo `#d06050`.
+- **`primary`** è il magenta (`brand-600` in chiaro, `brand-500` in scuro): pulsanti, link,
+  voce attiva della sidebar, focus.
+- **`brand-50…950`** è la scala completa, con trasparenza (`bg-brand-500/10`). Si usa al
+  posto di `blue-*`/`indigo-*`/`violet-*` ovunque serva una tinta del marchio.
+- **`bg-brand-gradient`** è la sfumatura del logo, per i pochi punti che portano il marchio.
+- `success`/`warning`/`info`/`destructive` restano semantici (verde, ambra, azzurro, rosso).
+
+Il marchio sta nel pacchetto, quindi il portale non ha file di logo propri:
+- la **sidebar** mostra la «V» VUS COM chiaro/scuro se non riceve `appIcon`, e il portale
+  non deve passarlo;
+- **`LoginPage`** usa il marchio «VUS COM energia vicina» se non riceve `logoLight`/`logoDark`;
+- **`AppShell`** e **`LoginPage`** impostano l'icona della scheda (`useFaviconVuscom`), quindi
+  `index.html` non dichiara nessuna favicon;
+- per usi propri ci sono `LogoV`, `MarchioVuscom` e `LOGHI_VUSCOM`. Le immagini sono data URL
+  dentro il bundle: nessun asset da copiare e nessun `.png` da risolvere nei test.
+
+## Conformità: `vuscom-ui-conformita`
+
+Un portale si allinea **da solo**, rilanciando il tester finché non dà `ok`:
+
+```bash
+cd frontend && npx vuscom-ui-conformita          # tabella; esce 1 solo se c'è un bloccante
+npx vuscom-ui-conformita --json                   # contratto comune dei tester (ok | avvisi | bloccante)
+```
+
+Le regole sono dati, in `bin/conformita-regole.json`.
+- **Bloccanti:** versione minima, preset, `theme.css`, token del tema ridefiniti, pagine fuori
+  da `AppShell`.
+- **Avvisi:** versione non all'ultima, palette di colori propria, colori in `tailwind.config`,
+  `blue`/`indigo`/`violet`/`sky` cablati, logo, favicon o loghi di login propri.
+
+Il traguardo è **`ok`, cioè zero avvisi**. Ogni portale lo mette nei propri test
+(`"conformita": "vuscom-ui-conformita"` negli script).
+
+Una struttura di pagina diversa si dichiara, non si deduce: in `package.json` del portale
+`"vuscomUi": { "struttura": "propria" }`. Oggi vale solo per il Portale Segnalazioni, e
+salta la sola regola `app-shell`: lo stile resta lo stesso.
 
 ## Regole del pacchetto
 

@@ -2590,7 +2590,7 @@ var IconButton_default = IconButton;
 // src/atoms/tones.js
 var TESTO = {
   neutral: "text-muted-foreground",
-  primary: "text-blue-700 dark:text-primary",
+  primary: "text-brand-700 dark:text-primary",
   success: "text-green-800 dark:text-success",
   warning: "text-amber-800 dark:text-warning",
   danger: "text-red-700 dark:text-red-400",

@@ -1,13 +1,29 @@
 /* VUS COM design tokens. Import once in the app entry: import "@vuscom/ui/theme.css"; */
 :root {
+  /* VUS COM brand, from the logo gradient: purple #703080 -> magenta #a02080 -> coral #d06050.
+     Same values in light and dark (repeated in .dark so both themes declare the same set): components pick the shade per theme (e.g. text-brand-700 dark:text-brand-300). */
+  --brand-50: 315 70% 97%;
+  --brand-100: 315 65% 93%;
+  --brand-200: 315 62% 86%;
+  --brand-300: 315 60% 76%;
+  --brand-400: 315 56% 63%;
+  --brand-500: 315 60% 50%;
+  --brand-600: 315 67% 38%;
+  --brand-700: 302 55% 33%;
+  --brand-800: 288 45% 28%;
+  --brand-900: 285 45% 21%;
+  --brand-950: 282 50% 13%;
+  --brand-from: 288 45% 35%;
+  --brand-via: 315 67% 38%;
+  --brand-to: 7 58% 56%;
   --background: 0 0% 100%;
   --foreground: 222.2 84% 4.9%;
   --card: 0 0% 100%;
   --card-foreground: 222.2 84% 4.9%;
   --popover: 0 0% 100%;
   --popover-foreground: 222.2 84% 4.9%;
-  --primary: 221.2 83.2% 53.3%;
-  --primary-foreground: 210 40% 98%;
+  --primary: 315 67% 38%;
+  --primary-foreground: 0 0% 100%;
   --secondary: 210 40% 96.1%;
   --secondary-foreground: 222.2 47.4% 11.2%;
   --muted: 210 40% 96.1%;
@@ -24,9 +40,9 @@
   --info-foreground: 204 80.2% 15.9%;
   --border: 214.3 31.8% 91.4%;
   --input: 214.3 31.8% 91.4%;
-  --ring: 221.2 83.2% 53.3%;
+  --ring: 315 67% 38%;
   --app-bg: 210 20% 98%;
-  --chart-1: 217.2 91.2% 59.8%;
+  --chart-1: 315 60% 50%;
   --chart-2: 37.7 92.1% 50.2%;
   --chart-3: 160.1 84.1% 39.4%;
   --chart-4: 0 84.2% 60.2%;
@@ -37,14 +53,28 @@
   --radius: 0.5rem;
 }
 .dark {
+  --brand-50: 315 70% 97%;
+  --brand-100: 315 65% 93%;
+  --brand-200: 315 62% 86%;
+  --brand-300: 315 60% 76%;
+  --brand-400: 315 56% 63%;
+  --brand-500: 315 60% 50%;
+  --brand-600: 315 67% 38%;
+  --brand-700: 302 55% 33%;
+  --brand-800: 288 45% 28%;
+  --brand-900: 285 45% 21%;
+  --brand-950: 282 50% 13%;
+  --brand-from: 288 45% 35%;
+  --brand-via: 315 67% 38%;
+  --brand-to: 7 58% 56%;
   --background: 222.2 84% 4.9%;
   --foreground: 210 40% 98%;
   --card: 222.2 47.4% 8%;
   --card-foreground: 210 40% 98%;
   --popover: 222.2 47.4% 8%;
   --popover-foreground: 210 40% 98%;
-  --primary: 217.2 91.2% 59.8%;
-  --primary-foreground: 222.2 47.4% 11.2%;
+  --primary: 315 60% 50%;
+  --primary-foreground: 0 0% 100%;
   --secondary: 217.2 32.6% 17.5%;
   --secondary-foreground: 210 40% 98%;
   --muted: 217.2 32.6% 17.5%;
@@ -61,9 +91,9 @@
   --info-foreground: 204 80.2% 15.9%;
   --border: 217.2 32.6% 17.5%;
   --input: 217.2 32.6% 17.5%;
-  --ring: 224.3 76.3% 48%;
+  --ring: 315 56% 63%;
   --app-bg: 229 84% 5%;
-  --chart-1: 217.2 91.2% 59.8%;
+  --chart-1: 315 60% 50%;
   --chart-2: 37.7 92.1% 50.2%;
   --chart-3: 160.1 84.1% 39.4%;
   --chart-4: 0 84.2% 60.2%;

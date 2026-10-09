@@ -18,9 +18,9 @@ function Risultato({ utente, scelto, onScegli }) {
         type="button"
         aria-pressed={scelto}
         onClick={onScegli}
-        className={`flex w-full items-start gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 ${
+        className={`flex w-full items-start gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 ${
           scelto
-            ? "border-blue-400 bg-blue-50 dark:border-blue-400/60 dark:bg-blue-500/10"
+            ? "border-brand-400 bg-brand-50 dark:border-brand-400/60 dark:bg-brand-500/10"
             : "border-slate-200 hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/[0.04]"
         }`}
       >
@@ -35,7 +35,7 @@ function Risultato({ utente, scelto, onScegli }) {
           <ElencoPortali portali={utente.altri_portali} />
         </span>
         {scelto && (
-          <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600 dark:text-blue-400" />
+          <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-600 dark:text-brand-400" />
         )}
       </button>
     </li>

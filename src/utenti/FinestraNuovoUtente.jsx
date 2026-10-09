@@ -34,9 +34,9 @@ function PersonaEsistente({
   else if (!utente.is_active)
     stato = "L'account è disattivato: riattivalo prima di dargli accesso.";
   return (
-    <div className="space-y-3 rounded-lg border border-blue-200 bg-blue-50/60 p-4 dark:border-blue-500/30 dark:bg-blue-500/10">
+    <div className="space-y-3 rounded-lg border border-brand-200 bg-brand-50/60 p-4 dark:border-brand-500/30 dark:bg-brand-500/10">
       <p className="flex items-center gap-2 text-[14px] font-semibold text-slate-800 dark:text-slate-100">
-        <UserCheck className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+        <UserCheck className="h-4 w-4 text-brand-600 dark:text-brand-400" />
         {`${nomeCompleto(utente) === "—" ? utente.username : nomeCompleto(utente)} esiste già`}
       </p>
       <ElencoPortali portali={utente.altri_portali} />

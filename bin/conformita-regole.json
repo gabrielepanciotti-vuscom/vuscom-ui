@@ -1,0 +1,27 @@
+{
+  "versione": "2026-10-09",
+  "repo": "https://github.com/gabrielepanciotti-vuscom/vuscom-ui",
+  "versione_minima": "1.4.0",
+  "token_tema": [
+    "background", "foreground", "card(-foreground)?", "popover(-foreground)?",
+    "primary(-foreground)?", "secondary(-foreground)?", "muted(-foreground)?",
+    "accent(-foreground)?", "destructive(-foreground)?", "success(-foreground)?",
+    "warning(-foreground)?", "info(-foreground)?", "border", "input", "ring",
+    "app-bg", "chart-\\d+", "radius", "brand-[\\w-]+"
+  ],
+  "colori_vietati": ["blue", "indigo", "violet", "sky"],
+  "regole": [
+    { "codice": "versione-minima", "gravita": "blocca", "descrizione": "@vuscom/ui almeno alla versione che porta colori e logo VUS COM" },
+    { "codice": "preset", "gravita": "blocca", "descrizione": "Tailwind usa @vuscom/ui/preset" },
+    { "codice": "tema-css", "gravita": "blocca", "descrizione": "l'app importa @vuscom/ui/theme.css" },
+    { "codice": "token-ridefiniti", "gravita": "blocca", "descrizione": "il portale non ridefinisce i token del tema (primary, brand, background…)" },
+    { "codice": "app-shell", "gravita": "blocca", "descrizione": "le pagine stanno in AppShell (sidebar comune), salvo struttura propria dichiarata" },
+    { "codice": "versione-ultima", "gravita": "avvisa", "descrizione": "@vuscom/ui all'ultima versione pubblicata" },
+    { "codice": "palette-privata", "gravita": "avvisa", "descrizione": "niente variabili di colore proprie accanto al tema" },
+    { "codice": "colori-tailwind", "gravita": "avvisa", "descrizione": "niente colori propri in tailwind.config" },
+    { "codice": "colori-cablati", "gravita": "avvisa", "descrizione": "niente blu/indigo/viola/sky cablati: primary o brand" },
+    { "codice": "logo-proprio", "gravita": "avvisa", "descrizione": "la sidebar usa il logo del pacchetto (nessun appIcon)" },
+    { "codice": "favicon-propria", "gravita": "avvisa", "descrizione": "nessuna favicon in index.html: la imposta il pacchetto" },
+    { "codice": "logo-login", "gravita": "avvisa", "descrizione": "LoginPage usa il marchio del pacchetto (nessun logoLight/logoDark)" }
+  ]
+}

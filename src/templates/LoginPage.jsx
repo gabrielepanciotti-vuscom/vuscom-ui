@@ -7,6 +7,7 @@ import IconButton from "../atoms/IconButton.jsx";
 import Input from "../atoms/Input.jsx";
 import Field from "../molecules/Field.jsx";
 import ThemeToggle from "../theme/ThemeToggle.jsx";
+import { LOGHI_VUSCOM, useFaviconVuscom } from "../brand/Brand.jsx";
 
 /**
  * Common VUS COM login screen. `onSubmit(username, password)` must reject on failure.
@@ -16,14 +17,15 @@ import ThemeToggle from "../theme/ThemeToggle.jsx";
 export default function LoginPage({
   title,
   subtitle = "Accedi al tuo account",
-  logoLight,
-  logoDark,
+  logoLight = LOGHI_VUSCOM.marchioChiaro,
+  logoDark = LOGHI_VUSCOM.marchioScuro,
   onSubmit,
   usernameLabel = "Username o email",
   footer = "© VUS COM SRL",
   microsoft,
 }) {
   const passwordId = useId();
+  useFaviconVuscom();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
@@ -44,7 +46,7 @@ export default function LoginPage({
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4 dark:from-slate-900 dark:to-slate-800">
+    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-50 to-brand-100 px-4 dark:from-slate-900 dark:to-slate-800">
       <div className="absolute right-4 top-4">
         <ThemeToggle />
       </div>

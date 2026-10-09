@@ -31,7 +31,7 @@ test("tone text is darker in light mode and token-based in dark", () => {
   expect(TESTO.warning).toBe("text-amber-800 dark:text-warning");
   expect(TESTO.info).toBe("text-sky-800 dark:text-info");
   expect(TESTO.danger).toBe("text-red-700 dark:text-red-400");
-  expect(TESTO.primary).toBe("text-blue-700 dark:text-primary");
+  expect(TESTO.primary).toBe("text-brand-700 dark:text-primary");
 });
 
 test("badge uses the accessible tone text", () => {

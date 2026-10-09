@@ -30,7 +30,7 @@ function etichettaPortale(portale) {
 import { jsx, jsxs } from "react/jsx-runtime";
 var RUOLO_COLORE = {
   superadmin: "bg-purple-50 text-purple-700 ring-purple-200 dark:bg-purple-500/10 dark:text-purple-300 dark:ring-purple-500/30",
-  admin: "bg-blue-50 text-blue-700 ring-blue-200 dark:bg-blue-500/10 dark:text-blue-300 dark:ring-blue-500/30",
+  admin: "bg-brand-50 text-brand-700 ring-brand-200 dark:bg-brand-500/10 dark:text-brand-300 dark:ring-brand-500/30",
   manager: "bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/30",
   viewer: "bg-slate-100 text-slate-600 ring-slate-200 dark:bg-white/[0.06] dark:text-slate-300 dark:ring-white/10"
 };
@@ -54,14 +54,14 @@ function ElencoPortali({ portali }) {
 }
 
 // src/utenti/stili.js
-var base = "inline-flex items-center justify-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-medium transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]";
+var base = "inline-flex items-center justify-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-medium transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]";
 var BOTTONE = {
-  primario: `${base} bg-blue-600 text-white shadow-sm hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400`,
+  primario: `${base} bg-brand-600 text-white shadow-sm hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400`,
   secondario: `${base} border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:bg-white/[0.08]`,
   pericolo: `${base} bg-red-600 text-white shadow-sm hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-400`
 };
-var ICONA_AZIONE = "inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 dark:text-slate-500 dark:hover:bg-white/[0.06] dark:hover:text-slate-200";
-var INPUT = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-[13px] text-slate-800 placeholder:text-slate-400 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-white/10 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-blue-400";
+var ICONA_AZIONE = "inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 dark:text-slate-500 dark:hover:bg-white/[0.06] dark:hover:text-slate-200";
+var INPUT = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-[13px] text-slate-800 placeholder:text-slate-400 transition-colors focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-white/10 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-brand-400";
 var ETICHETTA = "mb-1 block text-[12px] font-medium text-slate-600 dark:text-slate-300";
 
 // src/utenti/formato.js
@@ -185,7 +185,7 @@ function Interruttore({
         /* @__PURE__ */ jsx3(
           "span",
           {
-            className: `relative inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full transition-colors duration-200 group-focus-visible:ring-2 group-focus-visible:ring-blue-500/60 ${attivo ? "bg-blue-600 dark:bg-blue-500" : "bg-slate-300 dark:bg-white/15"}`,
+            className: `relative inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full transition-colors duration-200 group-focus-visible:ring-2 group-focus-visible:ring-brand-500/60 ${attivo ? "bg-brand-600 dark:bg-brand-500" : "bg-slate-300 dark:bg-white/15"}`,
             children: /* @__PURE__ */ jsx3(
               "span",
               {
@@ -325,7 +325,7 @@ function SelettoreRuolo({ ruoli, valore, onCambia, etichetta = "Ruolo" }) {
               tabIndex: scelto || !valore && i === 0 ? 0 : -1,
               onClick: () => onCambia(r),
               onKeyDown: (e) => tasto(e, i),
-              className: `rounded-md px-3 py-1.5 text-[12.5px] font-medium capitalize transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 ${scelto ? "bg-white text-blue-700 shadow-sm dark:bg-slate-800 dark:text-blue-300" : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"}`,
+              className: `rounded-md px-3 py-1.5 text-[12.5px] font-medium capitalize transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 ${scelto ? "bg-white text-brand-700 shadow-sm dark:bg-slate-800 dark:text-brand-300" : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"}`,
               children: r
             },
             r
@@ -516,9 +516,9 @@ function PersonaEsistente({
   if (utente.ruolo) stato = "Ha gi\xE0 accesso a questo portale.";
   else if (!utente.is_active)
     stato = "L'account \xE8 disattivato: riattivalo prima di dargli accesso.";
-  return /* @__PURE__ */ jsxs9("div", { className: "space-y-3 rounded-lg border border-blue-200 bg-blue-50/60 p-4 dark:border-blue-500/30 dark:bg-blue-500/10", children: [
+  return /* @__PURE__ */ jsxs9("div", { className: "space-y-3 rounded-lg border border-brand-200 bg-brand-50/60 p-4 dark:border-brand-500/30 dark:bg-brand-500/10", children: [
     /* @__PURE__ */ jsxs9("p", { className: "flex items-center gap-2 text-[14px] font-semibold text-slate-800 dark:text-slate-100", children: [
-      /* @__PURE__ */ jsx9(UserCheck, { className: "h-4 w-4 text-blue-600 dark:text-blue-400" }),
+      /* @__PURE__ */ jsx9(UserCheck, { className: "h-4 w-4 text-brand-600 dark:text-brand-400" }),
       `${nomeCompleto(utente) === "\u2014" ? utente.username : nomeCompleto(utente)} esiste gi\xE0`
     ] }),
     /* @__PURE__ */ jsx9(ElencoPortali, { portali: utente.altri_portali }),
@@ -779,7 +779,7 @@ function Risultato({ utente, scelto, onScegli }) {
       type: "button",
       "aria-pressed": scelto,
       onClick: onScegli,
-      className: `flex w-full items-start gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 ${scelto ? "border-blue-400 bg-blue-50 dark:border-blue-400/60 dark:bg-blue-500/10" : "border-slate-200 hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/[0.04]"}`,
+      className: `flex w-full items-start gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 ${scelto ? "border-brand-400 bg-brand-50 dark:border-brand-400/60 dark:bg-brand-500/10" : "border-slate-200 hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/[0.04]"}`,
       children: [
         /* @__PURE__ */ jsxs10("span", { className: "min-w-0 flex-1 space-y-1", children: [
           /* @__PURE__ */ jsx10("span", { className: "block text-[13px] font-medium text-slate-800 dark:text-slate-100", children: nomeCompleto(utente) }),
@@ -789,7 +789,7 @@ function Risultato({ utente, scelto, onScegli }) {
           ] }),
           /* @__PURE__ */ jsx10(ElencoPortali, { portali: utente.altri_portali })
         ] }),
-        scelto && /* @__PURE__ */ jsx10(Check2, { className: "mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600 dark:text-blue-400" })
+        scelto && /* @__PURE__ */ jsx10(Check2, { className: "mt-0.5 h-4 w-4 flex-shrink-0 text-brand-600 dark:text-brand-400" })
       ]
     }
   ) });
@@ -1309,7 +1309,7 @@ function GestioneUtenti({
   return /* @__PURE__ */ jsxs15("div", { className: "space-y-4", children: [
     /* @__PURE__ */ jsxs15("div", { className: "flex flex-wrap items-center justify-between gap-3", children: [
       /* @__PURE__ */ jsxs15("h1", { className: "flex items-center gap-2 text-[18px] font-semibold text-slate-800 dark:text-slate-100", children: [
-        /* @__PURE__ */ jsx15(Users, { className: "h-5 w-5 text-blue-600 dark:text-blue-400" }),
+        /* @__PURE__ */ jsx15(Users, { className: "h-5 w-5 text-brand-600 dark:text-brand-400" }),
         `Utenti \u2014 ${nome}`
       ] }),
       /* @__PURE__ */ jsxs15("div", { className: "flex flex-wrap gap-2", children: [

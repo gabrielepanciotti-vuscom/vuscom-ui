@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { LogoV } from "./brand/Brand.jsx";
 import {
   ChevronRight,
   LogOut,
@@ -97,13 +98,13 @@ export default function AppSidebar({
               : "px-2.5"
         } ${
           active
-            ? "border-blue-500 bg-blue-50 dark:bg-blue-500/[0.12] text-blue-700 dark:text-blue-300 font-semibold"
+            ? "border-brand-500 bg-brand-50 dark:bg-brand-500/[0.12] text-brand-700 dark:text-brand-300 font-semibold"
             : "border-transparent text-slate-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-white/[0.04]"
         }`}
       >
         {Icon && (
           <Icon
-            className={`w-4 h-4 flex-shrink-0 ${active ? "text-blue-600 dark:text-blue-400" : "text-slate-400 dark:text-slate-600"}`}
+            className={`w-4 h-4 flex-shrink-0 ${active ? "text-brand-600 dark:text-brand-400" : "text-slate-400 dark:text-slate-600"}`}
           />
         )}
         {!isCollapsed && <span className="truncate">{item.label}</span>}
@@ -135,7 +136,7 @@ export default function AppSidebar({
             type="button"
             className={`group relative flex items-center justify-center gap-2.5 px-2.5 py-2 rounded-[7px] mb-0.5 text-[13px] border-l-[3px] w-full transition-colors ${
               groupActive
-                ? "border-blue-500 bg-blue-50 dark:bg-blue-500/[0.12] text-blue-700 dark:text-blue-300"
+                ? "border-brand-500 bg-brand-50 dark:bg-brand-500/[0.12] text-brand-700 dark:text-brand-300"
                 : "border-transparent text-slate-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-white/[0.04]"
             }`}
             onClick={() => onToggleGroup?.(groupId)}
@@ -143,7 +144,7 @@ export default function AppSidebar({
           >
             {Icon && (
               <Icon
-                className={`w-4 h-4 ${groupActive ? "text-blue-600 dark:text-blue-400" : "text-slate-400 dark:text-slate-600"}`}
+                className={`w-4 h-4 ${groupActive ? "text-brand-600 dark:text-brand-400" : "text-slate-400 dark:text-slate-600"}`}
               />
             )}
           </button>
@@ -173,7 +174,7 @@ export default function AppSidebar({
         >
           {Icon && (
             <Icon
-              className={`w-4 h-4 flex-shrink-0 ${groupActive ? "text-blue-600 dark:text-blue-400" : "text-slate-400 dark:text-slate-600"}`}
+              className={`w-4 h-4 flex-shrink-0 ${groupActive ? "text-brand-600 dark:text-brand-400" : "text-slate-400 dark:text-slate-600"}`}
             />
           )}
           <span className="flex-1 text-left truncate">{group.label}</span>
@@ -206,13 +207,8 @@ export default function AppSidebar({
           isCollapsed ? "flex-col gap-2 py-3 px-2" : "gap-2.5 px-4 pt-5 pb-4"
         }`}
       >
-        {appIcon ? (
-          <div className="flex-shrink-0">{appIcon}</div>
-        ) : (
-          <div className="w-[34px] h-[34px] bg-gradient-to-br from-blue-500 to-blue-600 dark:to-violet-500 rounded-[9px] flex items-center justify-center flex-shrink-0 dark:shadow-[0_0_16px_rgba(59,130,246,0.2)]">
-            <span className="text-white text-[15px] font-bold">V</span>
-          </div>
-        )}
+        {/* No appIcon = the official V: a portal never shows a home-made logo. */}
+        <div className="flex-shrink-0">{appIcon ?? <LogoV />}</div>
         {!isCollapsed && (
           <div className="flex-1 min-w-0">
             <div className="text-slate-900 dark:text-slate-100 text-[13px] font-bold leading-tight truncate">
@@ -292,8 +288,8 @@ export default function AppSidebar({
             }`}
             title={isCollapsed ? user?.username : undefined}
           >
-            <div className="w-[30px] h-[30px] bg-blue-50 dark:bg-blue-500/[0.15] rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-blue-600 dark:text-blue-400 text-[11px] font-semibold">
+            <div className="w-[30px] h-[30px] bg-brand-50 dark:bg-brand-500/[0.15] rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-brand-600 dark:text-brand-400 text-[11px] font-semibold">
                 {user?.initials ||
                   user?.username?.substring(0, 2).toUpperCase() ||
                   "??"}

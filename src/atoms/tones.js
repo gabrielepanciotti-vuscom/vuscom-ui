@@ -5,7 +5,7 @@
 // light mode, so light uses a darker shade and dark keeps the token.
 export const TESTO = {
   neutral: "text-muted-foreground",
-  primary: "text-blue-700 dark:text-primary",
+  primary: "text-brand-700 dark:text-primary",
   success: "text-green-800 dark:text-success",
   warning: "text-amber-800 dark:text-warning",
   danger: "text-red-700 dark:text-red-400",

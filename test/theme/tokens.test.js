@@ -18,8 +18,9 @@ test("light and dark define the same token set", () => {
   expect([...light].filter((t) => !dark.has(t))).toEqual([]);
   expect([...dark].filter((t) => !light.has(t))).toEqual([]);
 });
-test("primary is the Hub blue", () => {
-  expect(css).toMatch(/--primary:\s*221\.2 83\.2% 53\.3%/);
+test("primary is the VUS COM magenta of the logo", () => {
+  expect(css).toMatch(/--primary:\s*315 67% 38%/);
+  expect(css).toMatch(/--brand-from:\s*288 45% 35%/);
 });
 test("preset uses class dark mode and system font", () => {
   const preset = require("../../src/theme/preset.cjs");
