@@ -149,10 +149,10 @@ scheda, così i portali si distinguono a colpo d'occhio (`TESSERE_PORTALE`, imma
 
 | Portale | `iconaPortale` | Sfondo |
 |---|---|---|
-| Hub Offerte | `offerte` | navy `#1b3a69` |
+| Hub Offerte | `offerte` | blu `#2563eb` (il blu dei pulsanti) |
 | Cruscotto | `cruscotto` | verde petrolio `#0f5c55` |
-| Outbound | `outbound` | giallo vuscom.it `#fcc72c` |
-| Configuratore | `configuratore` | bordeaux `#7f1d1d` |
+| Outbound | `outbound` | bordeaux `#7f1d1d` |
+| Configuratore | `configuratore` | navy `#1b3a69`, il riquadro originale |
 | Admin Data API | `dataapi` | viola `#4c1d95` |
 
 - Il portale passa `iconaPortale` nelle props della sidebar di `AppShell`. `LoginPage` accetta
@@ -160,7 +160,8 @@ scheda, così i portali si distinguono a colpo d'occhio (`TESSERE_PORTALE`, imma
 - I colori stanno qui, in `COLORI_PORTALE`, mai nel portale: due portali non possono avere lo
   stesso colore. Un portale nuovo si aggiunge **prima** qui (e in `portali_interni` del tester),
   con un colore ben distinto dagli altri.
-- Il Portale Segnalazioni è pubblico e tiene il logo semplice.
+- **I portali pubblici restano sempre col navy originale** (Gabriele, 09/10): il Portale
+  Segnalazioni senza voce, il Configuratore, che serve anche i clienti, col navy.
 
 ## Guide (dalla 1.6.0)
 
