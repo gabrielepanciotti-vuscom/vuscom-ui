@@ -33,11 +33,23 @@ import {
  *    tessere degli altri portali in fondo alla sidebar, ricordate per la pagina di login.
  *  - guida: guida generale del portale ("/guida", URL, o { href, label }): pulsante
  *    accanto a «comprimi». Obbligatoria per il tester di conformità.
+ *  - headerSlot: nodo sotto l'intestazione (marchio e nome), solo a sidebar aperta:
+ *    per un controllo che vale per tutta l'app, come il filtro del tipo di compenso.
+ *  - le foglie possono avere `badge` (numero: cerchietto in fondo alla riga, o sull'icona
+ *    da compressa; 0 o assente = niente) e `badgeTone` ("red" default, "amber", "neutral").
+ *  - `to` può portare una query (`/dashboard?tab=leads`): la voce è attiva quando il
+ *    percorso coincide e ogni parametro della voce è presente nell'indirizzo corrente.
  *  - navClassName: classi extra sulla <nav> scrollabile. Serve alle utility che
  *    il pacchetto non puo' dichiarare, perche' vivono nel CSS dell'app che lo
  *    ospita (es. `scrollbar-thin` in Hub Offerte): il pacchetto non sa quali
  *    esistano, quindi le riceve invece di indovinarle.
  */
+const BADGE_TONES = {
+  red: "bg-red-600 text-white",
+  amber: "bg-amber-500 text-amber-950",
+  neutral: "bg-slate-200 text-slate-700 dark:bg-white/10 dark:text-slate-300",
+};
+
 export default function AppSidebar({
   appName = "App",
   appSubtitle = "",
@@ -56,6 +68,7 @@ export default function AppSidebar({
   onToggleCollapse,
   themeSlot,
   footerSlot,
+  headerSlot,
   navClassName = "",
   guida,
   iconaPortale,
@@ -77,6 +90,14 @@ export default function AppSidebar({
 
   const isActive = (item) => {
     if (!item?.to) return false;
+    if (item.to.includes("?")) {
+      const [percorso, query] = item.to.split("?");
+      if (location.pathname !== percorso) return false;
+      const attuali = new URLSearchParams(location.search);
+      return [...new URLSearchParams(query)].every(
+        ([k, v]) => attuali.get(k) === v,
+      );
+    }
     // matchPrefix serve alle sezioni con sottopagine (es. /offerte/123), che
     // altrimenti spengono l'evidenziazione appena si entra nel dettaglio.
     if (item.matchPrefix) {
@@ -119,6 +140,20 @@ export default function AppSidebar({
           />
         )}
         {!isCollapsed && <span className="truncate">{item.label}</span>}
+        {!isCollapsed && item.badge > 0 && (
+          <span
+            className={`ml-auto min-w-[18px] rounded-full px-1.5 text-center text-[10px] font-bold leading-[18px] tabular-nums ${BADGE_TONES[item.badgeTone || "red"]}`}
+          >
+            {item.badge}
+          </span>
+        )}
+        {isCollapsed && item.badge > 0 && (
+          <span
+            className={`absolute right-0.5 top-0.5 min-w-[16px] rounded-full px-1 text-center text-[9px] font-bold leading-4 tabular-nums ${BADGE_TONES[item.badgeTone || "red"]}`}
+          >
+            {item.badge}
+          </span>
+        )}
         {isCollapsed && (
           <span className="pointer-events-none absolute left-full ml-2 px-2 py-1 rounded-md bg-slate-900 dark:bg-slate-700 text-white text-[11px] font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-50 shadow-lg">
             {item.label}
@@ -254,6 +289,12 @@ export default function AppSidebar({
           </button>
         )}
       </div>
+
+      {headerSlot && !isCollapsed && (
+        <div className="border-b border-gray-100 px-4 py-3 dark:border-white/[0.06]">
+          {headerSlot}
+        </div>
+      )}
 
       <nav
         className={`flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2 ${navClassName}`.trim()}

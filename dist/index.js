@@ -234,6 +234,11 @@ import {
   Settings
 } from "lucide-react";
 import { Fragment as Fragment2, jsx as jsx4, jsxs as jsxs3 } from "react/jsx-runtime";
+var BADGE_TONES = {
+  red: "bg-red-600 text-white",
+  amber: "bg-amber-500 text-amber-950",
+  neutral: "bg-slate-200 text-slate-700 dark:bg-white/10 dark:text-slate-300"
+};
 function AppSidebar({
   appName = "App",
   appSubtitle = "",
@@ -252,6 +257,7 @@ function AppSidebar({
   onToggleCollapse,
   themeSlot,
   footerSlot,
+  headerSlot,
   navClassName = "",
   guida,
   iconaPortale,
@@ -269,6 +275,14 @@ function AppSidebar({
   }, []);
   const isActive = (item) => {
     if (!item?.to) return false;
+    if (item.to.includes("?")) {
+      const [percorso, query] = item.to.split("?");
+      if (location.pathname !== percorso) return false;
+      const attuali = new URLSearchParams(location.search);
+      return [...new URLSearchParams(query)].every(
+        ([k, v]) => attuali.get(k) === v
+      );
+    }
     if (item.matchPrefix) {
       return location.pathname === item.to || location.pathname.startsWith(`${item.to}/`);
     }
@@ -294,6 +308,20 @@ function AppSidebar({
             }
           ),
           !isCollapsed && /* @__PURE__ */ jsx4("span", { className: "truncate", children: item.label }),
+          !isCollapsed && item.badge > 0 && /* @__PURE__ */ jsx4(
+            "span",
+            {
+              className: `ml-auto min-w-[18px] rounded-full px-1.5 text-center text-[10px] font-bold leading-[18px] tabular-nums ${BADGE_TONES[item.badgeTone || "red"]}`,
+              children: item.badge
+            }
+          ),
+          isCollapsed && item.badge > 0 && /* @__PURE__ */ jsx4(
+            "span",
+            {
+              className: `absolute right-0.5 top-0.5 min-w-[16px] rounded-full px-1 text-center text-[9px] font-bold leading-4 tabular-nums ${BADGE_TONES[item.badgeTone || "red"]}`,
+              children: item.badge
+            }
+          ),
           isCollapsed && /* @__PURE__ */ jsx4("span", { className: "pointer-events-none absolute left-full ml-2 px-2 py-1 rounded-md bg-slate-900 dark:bg-slate-700 text-white text-[11px] font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-50 shadow-lg", children: item.label })
         ]
       },
@@ -396,6 +424,7 @@ function AppSidebar({
             ]
           }
         ),
+        headerSlot && !isCollapsed && /* @__PURE__ */ jsx4("div", { className: "border-b border-gray-100 px-4 py-3 dark:border-white/[0.06]", children: headerSlot }),
         /* @__PURE__ */ jsxs3(
           "nav",
           {
@@ -567,7 +596,7 @@ function collectGroupIds(nodes = []) {
   return ids;
 }
 
-// ../../../work/vuscom-ui/node_modules/clsx/dist/clsx.mjs
+// node_modules/clsx/dist/clsx.mjs
 function r(e) {
   var t, f, n = "";
   if ("string" == typeof e || "number" == typeof e) n += e;
@@ -582,7 +611,7 @@ function clsx() {
   return n;
 }
 
-// ../../../work/vuscom-ui/node_modules/tailwind-merge/dist/bundle-mjs.mjs
+// node_modules/tailwind-merge/dist/bundle-mjs.mjs
 var CLASS_PART_SEPARATOR = "-";
 var createClassGroupUtils = (config) => {
   const classMap = createClassMap(config);
