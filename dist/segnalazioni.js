@@ -13,7 +13,7 @@ import {
 } from "react";
 import { AlertTriangle, CheckCircle2, Info, X, XCircle } from "lucide-react";
 
-// node_modules/clsx/dist/clsx.mjs
+// ../../../work/vuscom-ui/node_modules/clsx/dist/clsx.mjs
 function r(e) {
   var t, f, n = "";
   if ("string" == typeof e || "number" == typeof e) n += e;
@@ -28,7 +28,7 @@ function clsx() {
   return n;
 }
 
-// node_modules/tailwind-merge/dist/bundle-mjs.mjs
+// ../../../work/vuscom-ui/node_modules/tailwind-merge/dist/bundle-mjs.mjs
 var CLASS_PART_SEPARATOR = "-";
 var createClassGroupUtils = (config) => {
   const classMap = createClassMap(config);
@@ -3487,12 +3487,13 @@ function ModaleSegnalazione({
   bozza,
   endpoint,
   fetchImpl,
-  onChiudi
+  onChiudi,
+  mascheraDefault = false
 }) {
   const { toast } = useToast();
   const [commento, setCommento] = useState2("");
   const [video, setVideo] = useState2(true);
-  const [maschera2, setMaschera] = useState2(true);
+  const [maschera2, setMaschera] = useState2(mascheraDefault);
   const [esito, setEsito] = useState2({ stato: "pronto" });
   const inCorso = useRef4(false);
   const anteprima = useAnteprima(
@@ -3614,7 +3615,7 @@ function ModaleSegnalazione({
               label: "Maschera i dati"
             }
           ),
-          /* @__PURE__ */ jsx10("p", { className: "pl-6 text-xs text-muted-foreground", children: "Password e campi riservati sono sempre nascosti." })
+          /* @__PURE__ */ jsx10("p", { className: "pl-6 text-xs text-muted-foreground", children: "Password e campi riservati sono sempre nascosti, anche con la casella spenta." })
         ] }),
         /* @__PURE__ */ jsxs8("figure", { className: "overflow-hidden rounded-lg border border-border bg-muted/30", children: [
           anteprima ? /* @__PURE__ */ jsx10(
@@ -4085,6 +4086,7 @@ function SegnalazioniProvider({
   endpoint = "/api/segnalazioni",
   configEndpoint = "/api/segnalazioni/config",
   durataVideoSec = 30,
+  mascheraDefault = false,
   getToken,
   fetchImpl = fetchPredefinito,
   children
@@ -4189,7 +4191,8 @@ function SegnalazioniProvider({
           bozza,
           endpoint,
           fetchImpl: fetchRef.current,
-          onChiudi: chiudi
+          onChiudi: chiudi,
+          mascheraDefault
         }
       )
     ] })

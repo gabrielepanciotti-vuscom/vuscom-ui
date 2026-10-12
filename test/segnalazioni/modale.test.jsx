@@ -38,9 +38,10 @@ function portale({
   return { fetchImpl, invii };
 }
 
-function Pagina({ fetchImpl }) {
+function Pagina({ fetchImpl, mascheraDefault }) {
   return (
     <SegnalazioniProvider
+      mascheraDefault={mascheraDefault}
       endpoint="/api/segnalazioni"
       configEndpoint="/api/segnalazioni/config"
       fetchImpl={fetchImpl}
@@ -58,6 +59,13 @@ function Pagina({ fetchImpl }) {
     </SegnalazioniProvider>
   );
 }
+
+const testoDi = (blob) =>
+  new Promise((ok) => {
+    const r = new FileReader();
+    r.onload = () => ok(r.result);
+    r.readAsText(blob);
+  });
 
 const reportDi = (invio) => JSON.parse(invio.body.get("report"));
 
@@ -162,7 +170,7 @@ test("draft (comment, element, flags) survives a failed send", async () => {
   const video = screen.getByRole("checkbox", { name: /allega il video/i });
   const maschera = screen.getByRole("checkbox", { name: /maschera i dati/i });
   expect(video).toHaveAttribute("aria-checked", "true");
-  expect(maschera).toHaveAttribute("aria-checked", "true");
+  expect(maschera).toHaveAttribute("aria-checked", "false");
   await user.click(video);
   await user.click(maschera);
   await user.type(
@@ -182,7 +190,7 @@ test("draft (comment, element, flags) survives a failed send", async () => {
   ).toHaveAttribute("aria-checked", "false");
   expect(
     screen.getByRole("checkbox", { name: /maschera i dati/i }),
-  ).toHaveAttribute("aria-checked", "false");
+  ).toHaveAttribute("aria-checked", "true");
   expect(screen.getByText("Clienti attivi")).toBeInTheDocument();
 
   const [invio] = invii;
@@ -254,4 +262,46 @@ test("Esc in crosshair mode cancels without opening the modal", async () => {
   await user.keyboard("{Escape}");
   expect(screen.getByRole("status")).toHaveTextContent("inattivo");
   expect(screen.queryByRole("dialog")).toBeNull();
+});
+
+test("mask is off by default: the unmasked screenshot goes, privates stay masked", async () => {
+  const user = userEvent.setup();
+  const { fetchImpl, invii } = portale({
+    risposte: [json(201, { ticket_id: 1, url: "u", duplicato: false })],
+  });
+  render(<Pagina fetchImpl={fetchImpl} />);
+  await apriSenzaElemento(user);
+  expect(
+    screen.getByRole("checkbox", { name: /maschera i dati/i }),
+  ).toHaveAttribute("aria-checked", "false");
+  expect(
+    screen.getByText(/sempre nascosti, anche con la casella spenta/i),
+  ).toBeInTheDocument();
+  await user.type(
+    screen.getByRole("textbox", { name: /cosa non va/i }),
+    "tutto visibile",
+  );
+  await user.click(screen.getByRole("button", { name: /^invia$/i }));
+  await screen.findByText("Segnalazione #1 inviata");
+  // «privato» capture = everything visible except the always-masked fields.
+  expect(await testoDi(invii[0].body.get("screenshot"))).toBe("p");
+});
+
+test("mascheraDefault starts the box on and sends the masked screenshot", async () => {
+  const user = userEvent.setup();
+  const { fetchImpl, invii } = portale({
+    risposte: [json(201, { ticket_id: 2, url: "u", duplicato: false })],
+  });
+  render(<Pagina fetchImpl={fetchImpl} mascheraDefault />);
+  await apriSenzaElemento(user);
+  expect(
+    screen.getByRole("checkbox", { name: /maschera i dati/i }),
+  ).toHaveAttribute("aria-checked", "true");
+  await user.type(
+    screen.getByRole("textbox", { name: /cosa non va/i }),
+    "dati sensibili",
+  );
+  await user.click(screen.getByRole("button", { name: /^invia$/i }));
+  await screen.findByText("Segnalazione #2 inviata");
+  expect(await testoDi(invii[0].body.get("screenshot"))).toBe("m");
 });

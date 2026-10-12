@@ -20,6 +20,7 @@ export default function SegnalazioniProvider({
   endpoint = "/api/segnalazioni",
   configEndpoint = "/api/segnalazioni/config",
   durataVideoSec = 30,
+  mascheraDefault = false,
   getToken,
   fetchImpl = fetchPredefinito,
   children,
@@ -146,6 +147,7 @@ export default function SegnalazioniProvider({
               endpoint={endpoint}
               fetchImpl={fetchRef.current}
               onChiudi={chiudi}
+              mascheraDefault={mascheraDefault}
             />
           )}
         </ToastProvider>

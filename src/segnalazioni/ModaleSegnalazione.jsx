@@ -44,11 +44,12 @@ export default function ModaleSegnalazione({
   endpoint,
   fetchImpl,
   onChiudi,
+  mascheraDefault = false,
 }) {
   const { toast } = useToast();
   const [commento, setCommento] = useState("");
   const [video, setVideo] = useState(true);
-  const [maschera, setMaschera] = useState(true);
+  const [maschera, setMaschera] = useState(mascheraDefault);
   // pronto · invio · riprova · non_disponibile · errore
   const [esito, setEsito] = useState({ stato: "pronto" });
   const inCorso = useRef(false);
@@ -177,7 +178,7 @@ export default function ModaleSegnalazione({
             label="Maschera i dati"
           />
           <p className="pl-6 text-xs text-muted-foreground">
-            Password e campi riservati sono sempre nascosti.
+            Password e campi riservati sono sempre nascosti, anche con la casella spenta.
           </p>
         </div>
 

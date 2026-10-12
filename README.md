@@ -293,6 +293,7 @@ import { SegnalazioniProvider, PulsanteSegnala, segnalaAttr } from "@vuscom/ui/s
   endpoint="/api/segnalazioni"               // default
   configEndpoint="/api/segnalazioni/config"  // default
   durataVideoSec={30}                        // default; vince quello del config
+  mascheraDefault={false}                    // default; true = «Maschera i dati» parte accesa
 >
   <AppShell sidebar={…} azioniSidebar={azioniSegnalazioni}>
     <KpiCard label="Clienti attivi" value={n}
@@ -316,11 +317,13 @@ click = sceglie, `Esc` = annulla, «Segnala senza elemento» per i problemi
 generali; si risale al primo antenato con `data-segnala`, altrimenti si
 salvano testo ≤ 200 caratteri, percorso CSS breve e rettangolo) → screenshot →
 **finestra** con commento obbligatorio (1–5000), «Allega il video delle ultime
-azioni» e «Maschera i dati» (entrambi attivi di default), anteprima dello
+azioni» (attivo di default) e «Maschera i dati» (spenta di default, `mascheraDefault`
+la riaccende), anteprima dello
 screenshot. L'id della segnalazione nasce all'apertura e si riusa a ogni
 «Riprova»: un 503 seguito da un nuovo invio non crea due ticket.
 
-**Privacy.** «Maschera i dati» si applica all'invio a screenshot, video e
+**Privacy.** «Maschera i dati» parte **spenta** (dalla 1.8.2; un portale che tratta
+dati sensibili passa `mascheraDefault` al provider e parte accesa). Si applica all'invio a screenshot, video e
 testo dei click: restano struttura, colori e posizioni. Gli elementi `PRIVATO`
 (`[data-segnala-privato]`, `input[type="password"]`) sono mascherati **sempre**,
 anche con la maschera spenta. Pulsante e mirino portano `data-segnala-ignora`:
