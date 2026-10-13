@@ -1,15 +1,70 @@
 // src/AppSidebar.jsx
-import { useEffect as useEffect3, useState } from "react";
+import { useEffect as useEffect3, useState as useState2 } from "react";
 import { Link as Link2, useLocation } from "react-router-dom";
 
 // src/brand/Brand.jsx
-import { useEffect } from "react";
-
-// src/brand/logo-v-chiaro.png
-var logo_v_chiaro_default = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHQAAACACAMAAADtR70aAAABgFBMVEXaViz6pR/fdVi2K1e9tcrgrsdxJ3ePapyWgqjegXPgnab+wDv+y1/+/v706O786c/r1+fWp8zNhrbXttTqxtOvRZbjuNLQl8WpN5HRZm2yWaTsuLHz19X95LO1Z6vGebTXxdrHV3Czda/al7L72Kq1OHfmyeGmKYm3VZjQdI3kqa/81pPCS2rZdW/Zho70x7D+8drPV1X0uI/5yJOaGISXJojBWovXZVLJaY7qlnDqppO9RnTCaqn4uneUNou5i7nISVPLi8Did1LkiXD8yXTek5rc0+HkmI3wonH+0nWTB3utJmzphlP2p1igG4S4mL34pC2MV5SxS6Ddpb3oZxTodTT0iBH0ljjzm1b6t1RwHnOFEXmXRJGbcaOmHHTveBoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACJq1YlAAAAYHRSTlP///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////9ebwvOAAAFW0lEQVR42u2aV3PjNhSF7S3p96KwF7GI6r13ufe6vWTb//8XAS3a2ZmUWTsCk8mQDxSgB308BxeHAEYb8C9cGxk0g2bQDJpBM2gGzaAZNIP+j6AKpg3V4xtV0lbK9LTtNai4IQcI0oIKiQiKD/GY0rSgCNwARPAwPXsjCpRSLYYf0VSgLkAJmR376ilpFRKFyADK0KRCKAapQHUKOiuZcTJcb6cyZUTd6C5biKmCmqgkCkcpQF3QddAX1CwBU4J8KtnrIrzkakVMFT3v/WksSIDWVJUDNRV7FxSO+RTeMi64Ljwt6gsFbD+eMkoqr7Zo4voUy75vA/XwGuVDaw7WQD3nvg++MBj/8mW6Nqgbz5baY51HaGqGTUErBVT+yqFmYaSq5xVuozFQ8oEIX8lQpw2qqz/m0YRWBoZIXNsAlL1Gcl1nR61xtWgaNtPPdhUlTiOZUAfbM3B+0osjVmGLM5/vwnZe/mrQaTk7kT56qX3mC780sGkgdwlKYDpzj0G1onmRVXx+ZjOOynPZ614CTvfQmqhzv/J5sfuipA3/djjXAD1xnX08dtTGpFHkC40PzJJRwvyaoOQP33SS8ZzWdqxqozYZjc41pjH/A655W5HrxPhO8gw97J3gjDiWGoZhccJNvzwoidnCcF1KCeTI18ILca/XczaaVrfaaPHiqFw2bK58UGH9Sk87cBA/AiH9d+BA+9jtHlYbo6JmmJ59xlDBNdpLoF6HQmfVJHVYAmk7G8djq9q1wjAqVswrLpL+I1vnVrGffJ5C4SD2dklOkMza45ZlVefhvMgrmn/mAUVYq71C3s+52Ns6XPb7fXg93Z+p45oVVueCqF3ZJU9l22vcFBN4D7n6zbBCoSBkt9/2emRvY9zdCcPGvChqt8xNEwAB1l1Ip/XcJnm/LLxZXrq9V+19p9mMGtFoxItauUwZAwbrVNohhGzCaS5WSsiSbF6cTPe7s6ZlNeZzgTRsmw/xWx/+W5XWcyIUOjnyrP7s2eWb3rv+3sVsbHXDRmNyPtLK5oCLUMD1QuMoOM3Vc52c0Fx4e/JlerHXFKVLXZXqqGu6yWWcrvwSm5tcl+2L6d4j4e1hstW/0kwqAdq5ycL6qtN79XoFTTLP5IYUKJAc2byFkt7Fo3HTClvJ7nDgeYaUw6tcLs6/xOGTjemPY2unlhzdXBkvPFknZgcH/ferVntv3LWscFWtaA4UBeVAReTm7iJ4v9nqhtVEqG+Kt7e0s8E6ebNMoEKolbj7QpTufcroXoEvkoEsC6uO2m2Gibu6aWhqnkpTKhYMl8ngWc1GtGp5ZbF/AUlKBfLtwfKLu+oc7jSS40ZusgoNUBpUhGGbrH5enUxWDWM4ZIY8pQCFfuHVdLZq39autqsxL5AKFevOBBqtIlAZ2FsKSlQa//S0vefcdeLaHfq2wRSJSsk7fO3sH399EKgN8tsMQCL05nTBqX3V3dVsO++hzDGFNoxnzR3n9y9M28vjkVylJFbqqHd1Q82tyhZ7LtvemnvYat1JNbwK3QaQC0U4jqHVW6HDrWH+1+AJSlYqsshVb6FMrOpFEaFse1sYtqrnSexqQqfyvQIgXSmC+pJGyHV9VyjdpgqVDlWhqvIqM1nZ80y2pXwK7j9j7g1FcJBFYnmiLfKa8VH5pBwFKdjrwlOVcvD1IA/biPc39yFQDqPIKOvDfH4YfKdc/wDyq3dlMZZARVThITIfAhWoSomVcctQtuB5gE9SsfeGTOPTBXp/Yx8O1YEaYFC8hgBTg9LYY7GRUOAoPaX/+HogNB7Qh9Zu9o+ODJpBM2gGzaAZNINm0AyaQTNoBs2g/w3ob1eoVDp/xnNEAAAAAElFTkSuQmCC";
+import { useEffect, useState } from "react";
 
 // src/brand/logo-v-scuro.png
 var logo_v_scuro_default = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHQAAACACAMAAADtR70aAAABgFBMVEXfnZv40qP3mCKXZW3gayrTmFCcZjywcqD239mgK3yijVy8j7bjX1PQkMQzP19+Hn5vdprIO2/CZrD/wl4bOmkrOmz+/f4wSG9ONnVqNXqQK4hNQ2h0MYFsRmqzR3OsKY/MWGdvZ1XPZVJPVVx0VVKKMYSMRm2zVWaOWFOuNYVJTFqSOXmNaUixY0rGSnF6LoOuW1WUeUy4lkjKWlhGU2CYHYasPHzmak/w5uvzeTFsJHqTUWSwQ5u0aTWzi0nPu8rpu9NdYFx0UWWWaaLXdy/+yjTrxc88RVpXJ3R5cVa2TFy3czTSd5DNmrDvkyft2bvv3OlrTlSMcKKkHYnENofOQIDNbjjSZm3VjS/SmDvVo8nWwdDX0MXT2ePb5fHkVmwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACX+DKbAAAAYHRSTlP///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////9ebwvOAAAFX0lEQVR42u2aV3vTSBSGnRA6bJ2zc2akUW+25Zbi9B4CIfSlw8L//xd7RnKA3QeMZSRxIz258OTCr7/vlDkzdov9hKfVQBtoA22gDbSBNtAG2kAbaDUP/Awowte51UFRAwHrVor4DYMrggIIba0WCnVBs2CimQFrgwITgtQyUaO92loAqeEAtUDJWgSUU4RWAM2tRZCZ3Hrq1CChiDKTi7V0JBJmIHYZmCBRr+pIJIMpZNjVRKRSraXhk7UqwhDYAIX59cQtGUoMZaBi0EYpKK6ANWxtBhjkroUhMmlSN6pDqRZqYQTQNk2pMwmheqWRAsXwhaAiHUg0YYrQkqAGAGfKQSGgLalISegUZklQYFEMlEYvuiIEtFFMFfrjUP3egWIGVx8j0YXQxgEyExlUOphx6kKG+mhQhY7bQiLaAqcLLQEacJVQT1B9C8do2iZlEopKR1Cu/VVD5SjDUuPnYjAAezBVZSnQYWIkYMRRvy+6QtiSkghEuVD+hQiqEq6r5Wh927EMKxo/D4UEKb8rtAA043H+H5m9TtDj28pwLIuEhiQUMBsES4F2+IVI+FImsGB4tB7HjrKsbjtEMteG779ba+ZqJJHuKlt12Spnvv5fypMeT7iKM6Fd0TZtG0DvpCVBOz5zfa0t1+ezoEOvkyS4NVxxYieKSKhNWxrOInRWaB7Ls1W2vMqXOX2EDg92IWAqMZzI6lvWWLRDaaMOKZQD5drQ0YiNVnVkfeanPGWdINgcel7sxJaltFCBAwixtPMpJc1I+8o5yXT3wOXsvLPLjUR5Q4dK1LLaIpQD22QApUGzYB6O2J0zvgzuiL1O04Bt9nqJ4SkKaF+N222qlsG3h845oNCBN9zVYrnLXZenEJwECffWPc9xYi20K2xTyhmFzlwy2lx2+YZ7x3+z5y6m551kM+g9HcYR5ZElSKgNU2exOaA+9/3DO3zZBZdKp5PeXTxJer31hLLI0UJpS5MztYVibXDk6qx1O4vpo9fnj5KXwUsv8Vac+9SJxt3rJNTU43W5UN2Clt0bC+8X3j9+vHCyu9nz6Ilf7b87fXe6/1bqUbf0Kx3gl7W5H/7KnstPTwg69O638vXbNdpbyodyarj88O5CDllY0krJ3NN8vbOFlUDh0KXM3csh15KsWlYu5cuDv0MTWflQBmc6kzqPJ/4u9YZefOthvjpeQ2lWAdXb597elT9zTGtp3VuJnSfZYsO2EaEKKNNd12XpRsb50KNGbz3IP8HDe5S8WA2U/lJ/cZJKrRXHsSa5u6PHomqUUmfwF/0raQ46JXOdXPXBmp5SKoLSpmqwYHc/p76K+1fzV3+smYNCyEIjqM8ejdKlSZm0+v2DPI1MfTCsyl7QMwoP7l7LSzWKc3dvrxXN3YLDdpAGi1cm6eNMcnfnXlgwooWgNOQGPPnlwt/9i24kESpUyoFDLxjmVbOxMelGplmtvTSMbSbDib/Z80TSEIiMVQjNbheOLv3zGXr715AOpFXayyCAdZoXHn6G7gzMwsiiSqk/gFJHn5j7MjRDFNVCKYGN7bh7cAE93gph+p1GKUoTY3s7evApjWgIDKGwv0UTSV+lGNEklW5u0QEYqo4pgxjoXPj7zYtNTYSFi3Suiw4OKIyrv1199uwYzdmOhj+q1GCWvqa6fm9ta0tiCN/6Dq/kmCoQAts0ilGx6A4IddiL+tZaAPHEfOYWt5dBBPqSCm1TSH3DitVDL8j6axeYJ5zzQUkalYkNEjFkOB93bqVQp1KdSvkVFSADqA2afQOcx7Q+KGPz+vrjMZ2f3PyMpIE20AbaQBtoA22gDbSBNtAG2kAb6P+h/Cc8/wJv980MNNB3ggAAAABJRU5ErkJggg==";
+
+// src/brand/colore.js
+var NAVY_ORIGINALE = Object.freeze([27, 58, 105]);
+var HEX = /^#[0-9a-f]{6}$/i;
+function isEsadecimale(valore) {
+  return typeof valore === "string" && HEX.test(valore);
+}
+function rgb(hex) {
+  return [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+}
+function leggiPortale(spec) {
+  if (!spec) return null;
+  if (typeof spec === "object") return isEsadecimale(spec.colore) ? { colore: spec.colore.toLowerCase() } : null;
+  if (typeof spec !== "string") return null;
+  if (spec.startsWith("#")) return isEsadecimale(spec) ? { colore: spec.toLowerCase() } : null;
+  return { chiave: spec };
+}
+function ricolora(dati, nuovo, base = NAVY_ORIGINALE) {
+  for (let i = 0; i < dati.length; i += 4)
+    for (let c = 0; c < 3; c++) {
+      const v = nuovo[c] + (dati[i + c] - base[c]) * (255 - nuovo[c]) / (255 - base[c]);
+      dati[i + c] = Math.max(0, Math.min(255, Math.round(v)));
+    }
+  return dati;
+}
+var cache = /* @__PURE__ */ new Map();
+function tesseraDaColore(hex) {
+  const chiave = hex.toLowerCase();
+  if (!cache.has(chiave)) cache.set(chiave, genera(chiave));
+  return cache.get(chiave);
+}
+async function genera(hex) {
+  try {
+    if (typeof document === "undefined" || typeof Image === "undefined") return null;
+    if (typeof navigator !== "undefined" && /jsdom/i.test(navigator.userAgent)) return null;
+    const canvas = document.createElement("canvas");
+    const ctx = typeof canvas.getContext === "function" ? canvas.getContext("2d") : null;
+    if (!ctx) return null;
+    const img = new Image();
+    await new Promise((ok, ko) => {
+      img.onload = ok;
+      img.onerror = ko;
+      img.src = logo_v_scuro_default;
+    });
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    ctx.drawImage(img, 0, 0);
+    const immagine = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    ricolora(immagine.data, rgb(hex));
+    ctx.putImageData(immagine, 0, 0);
+    return canvas.toDataURL("image/png");
+  } catch {
+    return null;
+  }
+}
+
+// src/brand/logo-v-chiaro.png
+var logo_v_chiaro_default = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHQAAACACAMAAADtR70aAAABgFBMVEXaViz6pR/fdVi2K1e9tcrgrsdxJ3ePapyWgqjegXPgnab+wDv+y1/+/v706O786c/r1+fWp8zNhrbXttTqxtOvRZbjuNLQl8WpN5HRZm2yWaTsuLHz19X95LO1Z6vGebTXxdrHV3Czda/al7L72Kq1OHfmyeGmKYm3VZjQdI3kqa/81pPCS2rZdW/Zho70x7D+8drPV1X0uI/5yJOaGISXJojBWovXZVLJaY7qlnDqppO9RnTCaqn4uneUNou5i7nISVPLi8Did1LkiXD8yXTek5rc0+HkmI3wonH+0nWTB3utJmzphlP2p1igG4S4mL34pC2MV5SxS6Ddpb3oZxTodTT0iBH0ljjzm1b6t1RwHnOFEXmXRJGbcaOmHHTveBoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACJq1YlAAAAYHRSTlP///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////9ebwvOAAAFW0lEQVR42u2aV3PjNhSF7S3p96KwF7GI6r13ufe6vWTb//8XAS3a2ZmUWTsCk8mQDxSgB308BxeHAEYb8C9cGxk0g2bQDJpBM2gGzaAZNIP+j6AKpg3V4xtV0lbK9LTtNai4IQcI0oIKiQiKD/GY0rSgCNwARPAwPXsjCpRSLYYf0VSgLkAJmR376ilpFRKFyADK0KRCKAapQHUKOiuZcTJcb6cyZUTd6C5biKmCmqgkCkcpQF3QddAX1CwBU4J8KtnrIrzkakVMFT3v/WksSIDWVJUDNRV7FxSO+RTeMi64Ljwt6gsFbD+eMkoqr7Zo4voUy75vA/XwGuVDaw7WQD3nvg++MBj/8mW6Nqgbz5baY51HaGqGTUErBVT+yqFmYaSq5xVuozFQ8oEIX8lQpw2qqz/m0YRWBoZIXNsAlL1Gcl1nR61xtWgaNtPPdhUlTiOZUAfbM3B+0osjVmGLM5/vwnZe/mrQaTk7kT56qX3mC780sGkgdwlKYDpzj0G1onmRVXx+ZjOOynPZ614CTvfQmqhzv/J5sfuipA3/djjXAD1xnX08dtTGpFHkC40PzJJRwvyaoOQP33SS8ZzWdqxqozYZjc41pjH/A655W5HrxPhO8gw97J3gjDiWGoZhccJNvzwoidnCcF1KCeTI18ILca/XczaaVrfaaPHiqFw2bK58UGH9Sk87cBA/AiH9d+BA+9jtHlYbo6JmmJ59xlDBNdpLoF6HQmfVJHVYAmk7G8djq9q1wjAqVswrLpL+I1vnVrGffJ5C4SD2dklOkMza45ZlVefhvMgrmn/mAUVYq71C3s+52Ns6XPb7fXg93Z+p45oVVueCqF3ZJU9l22vcFBN4D7n6zbBCoSBkt9/2emRvY9zdCcPGvChqt8xNEwAB1l1Ip/XcJnm/LLxZXrq9V+19p9mMGtFoxItauUwZAwbrVNohhGzCaS5WSsiSbF6cTPe7s6ZlNeZzgTRsmw/xWx/+W5XWcyIUOjnyrP7s2eWb3rv+3sVsbHXDRmNyPtLK5oCLUMD1QuMoOM3Vc52c0Fx4e/JlerHXFKVLXZXqqGu6yWWcrvwSm5tcl+2L6d4j4e1hstW/0kwqAdq5ycL6qtN79XoFTTLP5IYUKJAc2byFkt7Fo3HTClvJ7nDgeYaUw6tcLs6/xOGTjemPY2unlhzdXBkvPFknZgcH/ferVntv3LWscFWtaA4UBeVAReTm7iJ4v9nqhtVEqG+Kt7e0s8E6ebNMoEKolbj7QpTufcroXoEvkoEsC6uO2m2Gibu6aWhqnkpTKhYMl8ngWc1GtGp5ZbF/AUlKBfLtwfKLu+oc7jSS40ZusgoNUBpUhGGbrH5enUxWDWM4ZIY8pQCFfuHVdLZq39autqsxL5AKFevOBBqtIlAZ2FsKSlQa//S0vefcdeLaHfq2wRSJSsk7fO3sH399EKgN8tsMQCL05nTBqX3V3dVsO++hzDGFNoxnzR3n9y9M28vjkVylJFbqqHd1Q82tyhZ7LtvemnvYat1JNbwK3QaQC0U4jqHVW6HDrWH+1+AJSlYqsshVb6FMrOpFEaFse1sYtqrnSexqQqfyvQIgXSmC+pJGyHV9VyjdpgqVDlWhqvIqM1nZ80y2pXwK7j9j7g1FcJBFYnmiLfKa8VH5pBwFKdjrwlOVcvD1IA/biPc39yFQDqPIKOvDfH4YfKdc/wDyq3dlMZZARVThITIfAhWoSomVcctQtuB5gE9SsfeGTOPTBXp/Yx8O1YEaYFC8hgBTg9LYY7GRUOAoPaX/+HogNB7Qh9Zu9o+ODJpBM2gGzaAZNINm0AyaQTNoBs2g/w3ob1eoVDp/xnNEAAAAAElFTkSuQmCC";
 
 // src/brand/marchio-chiaro.png
 var marchio_chiaro_default = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAACxCAMAAACC95SQAAABgFBMVEXyoGH3lxuZVZmTF3awlbnYZFHoqJ1vGnLCY5rjYCHSlcIGGU39yVz6xZCsqsCZDYF0Toc/XoB8N4HEPkr+wThgTH+/UH3+/v4UO2UCK1kIMV3u6O2Gma4nSnA2VnpKZ4fr1+aqtsWmKIyXp7nIVmr86NC5xNCsN43W2+KwRpTUp8vJyte7RXZadJGYGIXQWVTYZVHpx9R1i6Nje5ccQWnWt9TM09y1OHNsg5yUJ4jOl8Xc4ef12M/Mh7XjuM6yWKT717HCSmrXl7G1ZqrGeLGzd6/QZm/947NBXoB9kajqtrHmy+H915DYh5OhHIjjpqusKHfYdnDkl4r1xq/+8dmyVZXjaDLpdDOUNoz8x3DHZ43xdhT6qCrtqI79uS/Qdo0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABfHEnzAAAAYHRSTlP///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////9ebwvOAAAXGUlEQVR42u2dB0PizLqAAwiibvm+c869k2TSKSEBQu9NAd2197Wv//9f3HcSSoCAoLt77qfzbhFTcHjy9plEBlF5kzAUAQVIAVKAFCAVCpACpAApQCoUIAVIAVKAVP5/A9xUKMA3SfiQAnylHJrDV4ZJAb5CFIINk1c5TAG+UuoWRtSEX6mABB0uwYsWpgBXpqcgrTd4nayROPIlQQEuLbbGHUL+0muNtq2VKMCl1e96FH51oPmuvOAf00BTH6Yu1zVMAb4m/IL12lZr7gJRhQJcXvr3Ay2sBzqDTSU/BbgCQAOjUp34wl4d4d0SQtSEl5XuwN1hLVAfBJR1PwW4AkAF4W6OuED/IWhi28kI0ZcSBbg8w4COnUTQCOwOUsJSkgJcKv9r2y6whdqan4RdE6O19TqthZeW40DOSVjMr1/byCzZ4dekAJfPnzcxuj7rw6u2iUoBa8hujTYTXvZ8bTR0fDpqh0EN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";
@@ -60,8 +115,24 @@ var COLORI_PORTALE = Object.freeze({
   dataapi: "#4c1d95"
   // violet (Data API admin, vuscom-db#89)
 });
+function useTessera(portale) {
+  const p = leggiPortale(portale);
+  const colore = p?.colore;
+  const nota = p?.chiave && TESSERE_PORTALE[p.chiave];
+  const [generata, setGenerata] = useState(null);
+  useEffect(() => {
+    setGenerata(null);
+    if (!colore) return void 0;
+    let vivo = true;
+    tesseraDaColore(colore).then((url) => vivo && setGenerata(url));
+    return () => {
+      vivo = false;
+    };
+  }, [colore]);
+  return nota || colore && generata || null;
+}
 function LogoV({ size = 34, className = "", portale }) {
-  const tessera = portale && TESSERE_PORTALE[portale];
+  const tessera = useTessera(portale);
   if (tessera)
     return /* @__PURE__ */ jsx(
       "img",
@@ -69,7 +140,7 @@ function LogoV({ size = 34, className = "", portale }) {
         src: tessera,
         alt: "VUS COM",
         style: { width: size, height: size },
-        "data-portale": portale,
+        "data-portale": typeof portale === "string" ? portale : portale?.colore ?? "",
         className: `block rounded-[9px] object-contain ${className}`
       }
     );
@@ -104,10 +175,11 @@ function impostaFavicon(href) {
   link.href = href;
 }
 function useFaviconVuscom(portale) {
+  const tessera = useTessera(portale);
   useEffect(() => {
     if (typeof document === "undefined") return;
-    impostaFavicon(portale && TESSERE_PORTALE[portale] || LOGHI_VUSCOM.favicon);
-  }, [portale]);
+    impostaFavicon(tessera || LOGHI_VUSCOM.favicon);
+  }, [tessera]);
 }
 
 // src/PulsanteGuida.jsx
@@ -264,8 +336,8 @@ function AppSidebar({
   portali
 }) {
   const location = useLocation();
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const [hoveredGroup, setHoveredGroup] = useState(null);
+  const [showUserMenu, setShowUserMenu] = useState2(false);
+  const [hoveredGroup, setHoveredGroup] = useState2(null);
   useEffect3(() => {
     function handleClickOutside(e) {
       if (!e.target.closest?.("[data-user-menu]")) setShowUserMenu(false);
@@ -744,20 +816,20 @@ var createLruCache = (maxCacheSize) => {
     };
   }
   let cacheSize = 0;
-  let cache = /* @__PURE__ */ new Map();
+  let cache2 = /* @__PURE__ */ new Map();
   let previousCache = /* @__PURE__ */ new Map();
   const update = (key, value) => {
-    cache.set(key, value);
+    cache2.set(key, value);
     cacheSize++;
     if (cacheSize > maxCacheSize) {
       cacheSize = 0;
-      previousCache = cache;
-      cache = /* @__PURE__ */ new Map();
+      previousCache = cache2;
+      cache2 = /* @__PURE__ */ new Map();
     }
   };
   return {
     get(key) {
-      let value = cache.get(key);
+      let value = cache2.get(key);
       if (value !== void 0) {
         return value;
       }
@@ -767,8 +839,8 @@ var createLruCache = (maxCacheSize) => {
       }
     },
     set(key, value) {
-      if (cache.has(key)) {
-        cache.set(key, value);
+      if (cache2.has(key)) {
+        cache2.set(key, value);
       } else {
         update(key, value);
       }
@@ -3134,10 +3206,10 @@ function formatRelativo(v, ora = /* @__PURE__ */ new Date()) {
 }
 
 // src/theme/useTheme.js
-import { useCallback, useEffect as useEffect4, useState as useState2 } from "react";
+import { useCallback, useEffect as useEffect4, useState as useState3 } from "react";
 var leggi = () => typeof document !== "undefined" && document.documentElement.classList.contains("dark") ? "dark" : "light";
 function useTheme() {
-  const [theme, setThemeState] = useState2(leggi);
+  const [theme, setThemeState] = useState3(leggi);
   useEffect4(() => {
     const obs = new MutationObserver(() => setThemeState(leggi()));
     obs.observe(document.documentElement, {
@@ -3573,17 +3645,17 @@ function Field({
 }
 
 // src/molecules/Select.jsx
-import { useEffect as useEffect5, useId as useId2, useRef, useState as useState4 } from "react";
+import { useEffect as useEffect5, useId as useId2, useRef, useState as useState5 } from "react";
 import { createPortal } from "react-dom";
 import { Check, ChevronDown } from "lucide-react";
 
 // src/molecules/useFloatingList.js
-import { useCallback as useCallback2, useLayoutEffect, useState as useState3 } from "react";
+import { useCallback as useCallback2, useLayoutEffect, useState as useState4 } from "react";
 var GAP = 4;
 var MAX_HEIGHT = 256;
 var MARGIN = 8;
 function useFloatingList(triggerRef, open) {
-  const [style, setStyle] = useState3(null);
+  const [style, setStyle] = useState4(null);
   const misura = useCallback2(() => {
     const el = triggerRef.current;
     if (!el) return;
@@ -3637,8 +3709,8 @@ function Select({
   onClick: onClickProp,
   ...rest
 }) {
-  const [open, setOpen] = useState4(false);
-  const [active, setActive] = useState4(-1);
+  const [open, setOpen] = useState5(false);
+  const [active, setActive] = useState5(-1);
   const rootRef = useRef(null);
   const triggerRef = useRef(null);
   const listRef = useRef(null);
@@ -4074,7 +4146,7 @@ import {
   useEffect as useEffect6,
   useId as useId6,
   useRef as useRef4,
-  useState as useState5
+  useState as useState6
 } from "react";
 import { jsx as jsx21, jsxs as jsxs16 } from "react/jsx-runtime";
 var DELAY_MS = 150;
@@ -4091,7 +4163,7 @@ function Tooltip({
   children
 }) {
   const id = useId6();
-  const [open, setOpen] = useState5(false);
+  const [open, setOpen] = useState6(false);
   const timer = useRef4(null);
   const child = Children2.only(children);
   const show = useCallback3(() => {
@@ -4495,7 +4567,7 @@ function Pagination({
 import { ChevronDown as ChevronDown2, ChevronUp, ChevronsUpDown, Inbox } from "lucide-react";
 
 // src/organisms/useSort.js
-import { useCallback as useCallback4, useMemo as useMemo2, useState as useState6 } from "react";
+import { useCallback as useCallback4, useMemo as useMemo2, useState as useState7 } from "react";
 function normalizza(v) {
   const x = v instanceof Date ? v.valueOf() : v;
   return typeof x === "number" && Number.isNaN(x) ? null : x;
@@ -4509,7 +4581,7 @@ function compare(a, b) {
   });
 }
 function useSort(rows, { initial = null, accessors = {} } = {}) {
-  const [sort, setSort] = useState6(initial);
+  const [sort, setSort] = useState7(initial);
   const toggle = useCallback4((key) => {
     setSort(
       (prev) => prev && prev.key === key ? { key, dir: prev.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }
@@ -4787,7 +4859,7 @@ function Dialog({
 }
 
 // src/organisms/ConfirmDialog.jsx
-import { useEffect as useEffect8, useRef as useRef6, useState as useState7 } from "react";
+import { useEffect as useEffect8, useRef as useRef6, useState as useState8 } from "react";
 import { Fragment as Fragment3, jsx as jsx31, jsxs as jsxs25 } from "react/jsx-runtime";
 function ConfirmDialog({
   open,
@@ -4802,9 +4874,9 @@ function ConfirmDialog({
 }) {
   const inCorso = useRef6(false);
   const generazione = useRef6(0);
-  const [loading, setLoading] = useState7(false);
-  const [errore, setErrore] = useState7(null);
-  const [testo, setTesto] = useState7("");
+  const [loading, setLoading] = useState8(false);
+  const [errore, setErrore] = useState8(null);
+  const [testo, setTesto] = useState8("");
   useEffect8(() => {
     if (!open) {
       generazione.current += 1;
@@ -4887,7 +4959,7 @@ import {
   useEffect as useEffect9,
   useMemo as useMemo3,
   useRef as useRef7,
-  useState as useState8
+  useState as useState9
 } from "react";
 import { AlertTriangle as AlertTriangle2, CheckCircle2 as CheckCircle22, Info as Info2, X as X3, XCircle as XCircle2 } from "lucide-react";
 import { jsx as jsx32, jsxs as jsxs26 } from "react/jsx-runtime";
@@ -4940,7 +5012,7 @@ function ToastItem({ t, onDismiss }) {
   );
 }
 function ToastProvider({ children }) {
-  const [toasts, setToasts] = useState8([]);
+  const [toasts, setToasts] = useState9([]);
   const timers = useRef7(/* @__PURE__ */ new Map());
   const seq = useRef7(0);
   const dismiss = useCallback5((id) => {
@@ -5003,7 +5075,7 @@ import {
   useEffect as useEffect10,
   useMemo as useMemo4,
   useRef as useRef8,
-  useState as useState9
+  useState as useState10
 } from "react";
 import { useLocation as useLocation2 } from "react-router-dom";
 import { Menu } from "lucide-react";
@@ -5057,9 +5129,9 @@ function AppShell({
   useFaviconVuscom(sidebar.iconaPortale);
   const mainTree = useMemo4(() => normalizeNavTree(nav), [nav]);
   const adminTree = useMemo4(() => normalizeNavTree(adminNav), [adminNav]);
-  const [collapsed, setCollapsed] = useState9(readCollapsed);
-  const [richieste, setRichieste] = useState9(0);
-  const [riaperta, setRiaperta] = useState9(false);
+  const [collapsed, setCollapsed] = useState10(readCollapsed);
+  const [richieste, setRichieste] = useState10(0);
+  const [riaperta, setRiaperta] = useState10(false);
   const forzata = richieste > 0 && !riaperta;
   const richiediCompatta = useMemo4(
     () => () => {
@@ -5071,9 +5143,9 @@ function AppShell({
   useEffect10(() => {
     if (richieste === 0) setRiaperta(false);
   }, [richieste]);
-  const [apertaQui, setApertaQui] = useState9(false);
-  const [isOpen, setIsOpen] = useState9(false);
-  const [expanded, setExpanded] = useState9(
+  const [apertaQui, setApertaQui] = useState10(false);
+  const [isOpen, setIsOpen] = useState10(false);
+  const [expanded, setExpanded] = useState10(
     () => new Set(activeGroupIds([...mainTree, ...adminTree], pathname))
   );
   const mainRef = useRef8(null);
@@ -5228,11 +5300,11 @@ function Section({
 }
 
 // src/templates/LoginPage.jsx
-import { useId as useId8, useState as useState11 } from "react";
+import { useId as useId8, useState as useState12 } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
 // src/accesso/useAccessoMicrosoft.js
-import { useCallback as useCallback6, useEffect as useEffect11, useState as useState10 } from "react";
+import { useCallback as useCallback6, useEffect as useEffect11, useState as useState11 } from "react";
 var BASE_MICROSOFT = "/api/auth/microsoft";
 var MESSAGGI_ERRORE_MICROSOFT = {
   annullato: "Accesso con Microsoft annullato.",
@@ -5260,9 +5332,9 @@ function chiestoDaAltroPortale() {
   return true;
 }
 function useAccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso } = {}) {
-  const [disponibile, setDisponibile] = useState10(false);
-  const [inCorso, setInCorso] = useState10(false);
-  const [errore, setErrore] = useState10("");
+  const [disponibile, setDisponibile] = useState11(false);
+  const [inCorso, setInCorso] = useState11(false);
+  const [errore, setErrore] = useState11("");
   useEffect11(() => {
     let attivo = true;
     const automatico = chiestoDaAltroPortale();
@@ -5395,11 +5467,11 @@ function LoginPage({
 }) {
   const passwordId = useId8();
   useFaviconVuscom(iconaPortale);
-  const [username, setUsername] = useState11("");
-  const [password, setPassword] = useState11("");
-  const [show, setShow] = useState11(false);
-  const [loading, setLoading] = useState11(false);
-  const [error, setError] = useState11("");
+  const [username, setUsername] = useState12("");
+  const [password, setPassword] = useState12("");
+  const [show, setShow] = useState12(false);
+  const [loading, setLoading] = useState12(false);
+  const [error, setError] = useState12("");
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
@@ -5553,6 +5625,8 @@ export {
   formatNumero,
   formatRelativo,
   indirizzoPortale,
+  isEsadecimale,
+  leggiPortale,
   normalizeNavTree,
   portaliRicordati,
   ricordaPortali,
@@ -5561,6 +5635,7 @@ export {
   useSidebarCompatta,
   useSort,
   useTabIds,
+  useTessera,
   useTheme,
   useToast
 };

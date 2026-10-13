@@ -75,4 +75,6 @@ export {
   LogoV,
   MarchioVuscom,
   useFaviconVuscom,
+  useTessera,
 } from "./brand/Brand.jsx";
+export { leggiPortale, isEsadecimale } from "./brand/colore.js";

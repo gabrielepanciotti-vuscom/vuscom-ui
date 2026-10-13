@@ -157,9 +157,18 @@ scheda, così i portali si distinguono a colpo d'occhio (`TESSERE_PORTALE`, imma
 
 - Il portale passa `iconaPortale` nelle props della sidebar di `AppShell`. `LoginPage` accetta
   la stessa prop, per l'icona della scheda.
-- I colori stanno qui, in `COLORI_PORTALE`, mai nel portale: due portali non possono avere lo
-  stesso colore. Un portale nuovo si aggiunge **prima** qui (e in `portali_interni` del tester),
-  con un colore ben distinto dagli altri.
+- **Aggiungere un portale non richiede una release (dalla 1.10.0).** `iconaPortale` accetta,
+  oltre alle chiavi sopra, un colore esadecimale: `iconaPortale: "#0e7490"` oppure
+  `iconaPortale: { colore: "#0e7490" }`. Vale ovunque: sidebar, `LogoV portale="#0e7490"`,
+  scheda del browser (`useFaviconVuscom`, `LoginPage`). La tessera si genera a runtime
+  dal riquadro navy originale (stessa V, stessa posizione, solo lo sfondo cambia; mappa per
+  canale, quindi i bordi sfumati restano puliti) e si ricorda per colore. Senza canvas
+  (test jsdom, SSR) o con un esadecimale malformato mostra la V neutra, senza errori.
+- Il tester `vuscom-ui-conformita` accetta un `#rrggbb` valido, **blocca** uno malformato
+  (`icona-portale`) e **avvisa** (`icona-portale-vicina`) se è troppo vicino a un portale
+  esistente o al navy pubblico (distanza RGB sotto 60, soglia in `conformita-regole.json`):
+  scegliere un colore ben distinto dagli altri. Le chiavi note (`COLORI_PORTALE`) restano
+  valide e invariate; ai portali già in tabella non cambia niente.
 - **I portali pubblici restano sempre col navy originale** (Gabriele, 09/10): il Portale
   Segnalazioni senza voce, il Configuratore, che serve anche i clienti, col navy.
 

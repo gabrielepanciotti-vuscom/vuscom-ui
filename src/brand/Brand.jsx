@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { leggiPortale, tesseraDaColore } from "./colore.js";
 // Bundled as data URLs (build.mjs): no asset pipeline in the consuming app, no
 // file to copy into public/, nothing a portal can get wrong. Small on purpose:
 // the V is ~2 KB, each wordmark ~7 KB.
@@ -49,18 +50,43 @@ export const COLORI_PORTALE = Object.freeze({
 
 
 /**
- * The V tile. With `portale` (a key of COLORI_PORTALE) it sits on that portal's
- * colour; without, the light/dark pair switched by the `dark` class.
+ * Tile image for a portal spec: a known key (bundled PNG, immediate), or a hex
+ * colour / `{ colore }` (generated at runtime, cached per colour). Returns
+ * `null` for "no portal" (navy V pair) and while a generated tile is pending
+ * or unavailable (no canvas), so callers show the neutral V meanwhile.
+ */
+export function useTessera(portale) {
+  const p = leggiPortale(portale);
+  const colore = p?.colore;
+  const nota = p?.chiave && TESSERE_PORTALE[p.chiave];
+  const [generata, setGenerata] = useState(null);
+  useEffect(() => {
+    setGenerata(null);
+    if (!colore) return undefined;
+    let vivo = true;
+    tesseraDaColore(colore).then((url) => vivo && setGenerata(url));
+    return () => {
+      vivo = false;
+    };
+  }, [colore]);
+  return nota || (colore && generata) || null;
+}
+
+/**
+ * The V tile. `portale` is a key of COLORI_PORTALE, a hex colour ("#0e7490") or
+ * `{ colore: "#0e7490" }`: the V then sits on that colour. Without it (or while
+ * a generated tile is pending / unavailable), the light/dark pair switched by
+ * the `dark` class.
  */
 export function LogoV({ size = 34, className = "", portale }) {
-  const tessera = portale && TESSERE_PORTALE[portale];
+  const tessera = useTessera(portale);
   if (tessera)
     return (
       <img
         src={tessera}
         alt="VUS COM"
         style={{ width: size, height: size }}
-        data-portale={portale}
+        data-portale={typeof portale === "string" ? portale : (portale?.colore ?? "")}
         className={`block rounded-[9px] object-contain ${className}`}
       />
     );
@@ -102,11 +128,12 @@ function impostaFavicon(href) {
 /**
  * Sets the browser-tab icon to the VUS COM V. AppShell and LoginPage call it,
  * so every portal gets the same icon without shipping its own favicon file.
- * With `portale`, the V sits on that portal's colour (same as the sidebar).
+ * With `portale` (key, hex or `{ colore }`), the V sits on that portal's colour (same as the sidebar).
  */
 export function useFaviconVuscom(portale) {
+  const tessera = useTessera(portale);
   useEffect(() => {
     if (typeof document === "undefined") return;
-    impostaFavicon((portale && TESSERE_PORTALE[portale]) || LOGHI_VUSCOM.favicon);
-  }, [portale]);
+    impostaFavicon(tessera || LOGHI_VUSCOM.favicon);
+  }, [tessera]);
 }

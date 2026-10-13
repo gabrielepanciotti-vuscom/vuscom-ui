@@ -72,6 +72,23 @@ function ultimaVersione() {
   }
 }
 
+// Euclidean RGB distance (0..441). Under REGOLE.distanza_minima_colori two
+// tiles read as the same colour at sidebar size (34 px) and in a browser tab;
+// the threshold lives in the rules file, like every other standard.
+function distanzaRgb(a, b) {
+  const x = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const [p, q] = [x(a), x(b)];
+  return Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]);
+}
+function colorePiuVicino(hex, colori) {
+  let migliore = null;
+  for (const [nome, colore] of Object.entries(colori)) {
+    const distanza = distanzaRgb(hex, colore);
+    if (!migliore || distanza < migliore.distanza) migliore = { nome, colore, distanza };
+  }
+  return migliore;
+}
+
 // --- the checks ------------------------------------------------------------
 
 const pkg = JSON.parse(leggi(join(RADICE, "package.json")) || "{}");
@@ -146,11 +163,30 @@ if (struttura === "appshell" && !tutto(/\bAppShell\b[\s\S]*@vuscom\/ui|@vuscom\/
 if (struttura === "appshell" && !tutto(/\bguida\s*:/).length)
   segnala("guida-generale", "la sidebar non ha la guida generale: passare `guida` (es. \"/guida\") nelle props della sidebar di AppShell", "src/");
 if (struttura === "appshell") {
-  const chiavi = [...new Set(sorgenti.flatMap(({ testo }) => [...testo.matchAll(/\biconaPortale\s*:\s*["'`](\w+)["'`]/g)].map((m) => m[1])))];
-  if (!chiavi.length)
-    segnala("icona-portale", `la sidebar non dice di che portale è: passare iconaPortale (${REGOLE.portali_interni.join(", ")}), che dà alla V il colore del portale`, "src/");
-  for (const k of chiavi.filter((k) => !REGOLE.portali_interni.includes(k)))
-    segnala("icona-portale", `iconaPortale "${k}" non è un portale noto: aggiungerlo prima a COLORI_PORTALE in @vuscom/ui (${REGOLE.portali_interni.join(", ")})`, "src/");
+  const valori = [
+    ...new Set(
+      sorgenti.flatMap(({ testo }) => [
+        ...[...testo.matchAll(/\biconaPortale\s*:\s*["'`]([^"'`]*)["'`]/g)].map((m) => m[1]),
+        ...[...testo.matchAll(/\biconaPortale\s*:\s*\{\s*colore\s*:\s*["'`]([^"'`]*)["'`]/g)].map((m) => m[1]),
+      ]),
+    ),
+  ];
+  if (!valori.length)
+    segnala("icona-portale", `la sidebar non dice di che portale è: passare iconaPortale (${REGOLE.portali_interni.join(", ")}, oppure un colore #rrggbb), che dà alla V il colore del portale`, "src/");
+  for (const v of valori) {
+    if (!v.startsWith("#")) {
+      if (!REGOLE.portali_interni.includes(v))
+        segnala("icona-portale", `iconaPortale "${v}" non è un portale noto: usare un colore #rrggbb oppure una chiave di COLORI_PORTALE (${REGOLE.portali_interni.join(", ")})`, "src/");
+      continue;
+    }
+    if (!/^#[0-9a-f]{6}$/i.test(v)) {
+      segnala("icona-portale", `iconaPortale "${v}" non è un colore valido: serve #rrggbb (6 cifre esadecimali)`, "src/");
+      continue;
+    }
+    const vicino = colorePiuVicino(v, { ...REGOLE.colori_portali, "il navy dei portali pubblici": REGOLE.navy_pubblico });
+    if (vicino && vicino.distanza < REGOLE.distanza_minima_colori)
+      segnala("icona-portale-vicina", `il colore ${v} è troppo vicino a ${vicino.nome} (${vicino.colore}, distanza ${Math.round(vicino.distanza)} < ${REGOLE.distanza_minima_colori}): due portali sarebbero indistinguibili`, "src/");
+  }
 }
 // altri portali (vuscom-db#89): one catalogue in @vuscom/ui, filtered by the user's access
 if (struttura === "appshell" && !tutto(/\bportali\s*:/).length)

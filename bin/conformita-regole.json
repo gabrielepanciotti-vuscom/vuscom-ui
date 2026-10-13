@@ -1,5 +1,5 @@
 {
-  "versione": "2026-10-09.4",
+  "versione": "2026-10-13.1",
   "repo": "https://github.com/gabrielepanciotti-vuscom/vuscom-ui",
   "versione_minima": "1.7.0",
   "token_tema": [
@@ -63,7 +63,12 @@
     {
       "codice": "icona-portale",
       "gravita": "blocca",
-      "descrizione": "la sidebar passa iconaPortale con la chiave del portale: la V ha il colore del portale in sidebar e nella scheda"
+      "descrizione": "la sidebar passa iconaPortale con la chiave di un portale noto o con un colore #rrggbb valido: la V ha il colore del portale in sidebar e nella scheda"
+    },
+    {
+      "codice": "icona-portale-vicina",
+      "gravita": "avvisa",
+      "descrizione": "il colore #rrggbb di iconaPortale non è troppo vicino (distanza RGB sotto soglia) a un portale esistente o al navy pubblico: due portali indistinguibili"
     },
     {
       "codice": "versione-ultima",
@@ -111,6 +116,15 @@
       "descrizione": "nessuna lista «Accedi ad altri portali» scritta a mano: la mostra LoginPage dal catalogo unico"
     }
   ],
+  "distanza_minima_colori": 60,
+  "navy_pubblico": "#1b3a69",
+  "colori_portali": {
+    "offerte": "#2563eb",
+    "cruscotto": "#0f5c55",
+    "outbound": "#7f1d1d",
+    "configuratore": "#1b3a69",
+    "dataapi": "#4c1d95"
+  },
   "portali_interni": [
     "offerte",
     "cruscotto",

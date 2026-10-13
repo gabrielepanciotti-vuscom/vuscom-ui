@@ -27,8 +27,9 @@ import {
  *  - expandedGroups: Set<string> degli id gruppo aperti · onToggleGroup(id)
  *  - collapsed / onToggleCollapse: modalità stretta
  *  - isOpen / onClose: overlay mobile
- *  - iconaPortale: chiave di COLORI_PORTALE ("outbound"…): la V sul colore del portale,
- *    in sidebar e nella scheda del browser.
+ *  - iconaPortale: chiave di COLORI_PORTALE ("outbound"…), oppure un colore esadecimale
+ *    ("#0e7490" / { colore: "#0e7490" }, tessera generata a runtime, nessuna release):
+ *    la V sul colore del portale, in sidebar e nella scheda del browser.
  *  - portali: codici dei portali a cui l'utente e' abilitato (dal /me del portale):
  *    tessere degli altri portali in fondo alla sidebar, ricordate per la pagina di login.
  *  - guida: guida generale del portale ("/guida", URL, o { href, label }): pulsante
