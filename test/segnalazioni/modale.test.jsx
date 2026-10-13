@@ -175,7 +175,7 @@ test("draft (comment, element, flags) survives a failed send", async () => {
   await user.click(maschera);
   await user.type(
     screen.getByRole("textbox", { name: /cosa non va/i }),
-    "KPI fermo",
+    "KPI fermo da ieri sera",
   );
   await user.click(screen.getByRole("button", { name: /^invia$/i }));
 
@@ -183,7 +183,7 @@ test("draft (comment, element, flags) survives a failed send", async () => {
     await screen.findByText("Non sono riuscito a inviarla. Riprova."),
   ).toBeInTheDocument();
   expect(screen.getByRole("textbox", { name: /cosa non va/i })).toHaveValue(
-    "KPI fermo",
+    "KPI fermo da ieri sera",
   );
   expect(
     screen.getByRole("checkbox", { name: /allega il video/i }),
@@ -215,7 +215,7 @@ test("503 not configured shows the unavailable message and no retry", async () =
   await apriSenzaElemento(user);
   await user.type(
     screen.getByRole("textbox", { name: /cosa non va/i }),
-    "Bozza",
+    "Bozza del commento",
   );
   await user.click(screen.getByRole("button", { name: /^invia$/i }));
   expect(
@@ -223,7 +223,7 @@ test("503 not configured shows the unavailable message and no retry", async () =
   ).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /riprova/i })).toBeNull();
   expect(screen.getByRole("textbox", { name: /cosa non va/i })).toHaveValue(
-    "Bozza",
+    "Bozza del commento",
   );
 });
 
@@ -236,6 +236,23 @@ test("the comment is required", async () => {
   await user.type(screen.getByRole("textbox", { name: /cosa non va/i }), "   ");
   expect(screen.getByRole("button", { name: /^invia$/i })).toBeDisabled();
   expect(invii).toHaveLength(0);
+});
+
+test("the comment needs at least 10 characters (trimmed) and the hint counts down", async () => {
+  const user = userEvent.setup();
+  const { fetchImpl } = portale();
+  render(<Pagina fetchImpl={fetchImpl} />);
+  await apriSenzaElemento(user);
+  const campo = screen.getByRole("textbox", { name: /cosa non va/i });
+  const invia = screen.getByRole("button", { name: /^invia$/i });
+  await user.type(campo, "123456789");
+  expect(invia).toBeDisabled();
+  expect(screen.getByText(/ancora 1 carattere ·/)).toBeInTheDocument();
+  await user.type(campo, "   ");
+  expect(invia).toBeDisabled();
+  await user.type(campo, "0");
+  expect(invia).toBeEnabled();
+  expect(screen.queryByText(/ancora/)).toBeNull();
 });
 
 test("Esc in crosshair mode cancels without opening the modal", async () => {

@@ -10,6 +10,8 @@ import { useToast } from "../organisms/Toast.jsx";
 import { cn } from "../lib/cn.js";
 import { componiInvio, inviaSegnalazione } from "./invio.js";
 
+// A bare "." woke an agent for nothing (ticket #59): require a real sentence.
+const MIN_COMMENTO = 10;
 const MAX_COMMENTO = 5000;
 
 function nomeElemento(elemento) {
@@ -62,7 +64,8 @@ export default function ModaleSegnalazione({
       : null,
   );
   const nome = nomeElemento(bozza.elemento);
-  const vuoto = commento.trim() === "";
+  const mancano = Math.max(0, MIN_COMMENTO - commento.trim().length);
+  const vuoto = mancano > 0;
   const bloccato = esito.stato === "non_disponibile";
 
   const invia = async () => {
@@ -154,7 +157,11 @@ export default function ModaleSegnalazione({
         <Field
           label="Cosa non va?"
           required
-          hint={`${commento.length}/${MAX_COMMENTO} · cosa ti aspettavi e cosa vedi invece`}
+          hint={`${
+            mancano > 0
+              ? `ancora ${mancano} ${mancano === 1 ? "carattere" : "caratteri"}`
+              : `${commento.length}/${MAX_COMMENTO}`
+          } · cosa ti aspettavi e cosa vedi invece`}
         >
           <Textarea
             data-autofocus
