@@ -3,7 +3,7 @@
   "consumatori": [
     {
       "nome": "Offerte",
-      "agente": "offerte-dev-linux",
+      "agente": "hubOfferte-dev-linux",
       "repo": "gabrielepanciotti-vuscom/Offerte",
       "frontend": "Offerte/frontend",
       "usa": [
@@ -31,7 +31,7 @@
     },
     {
       "nome": "Portale_Segnalazioni",
-      "agente": "portale-dev-linux",
+      "agente": "portaleSegnalazioni-dev-linux",
       "repo": "gabrielepanciotti-vuscom/Portale_Segnalazioni",
       "frontend": "Portale_Segnalazioni/frontend",
       "usa": [
@@ -69,7 +69,7 @@
     },
     {
       "nome": "BrainEditor",
-      "agente": "brain-editor-dev-linux",
+      "agente": "brainEditor-dev-linux",
       "repo": "gabrielepanciotti-vuscom/BrainEditor",
       "frontend": "BrainEditor/frontend",
       "usa": [
@@ -81,7 +81,7 @@
     },
     {
       "nome": "vuscom-db",
-      "agente": "db-dev-linux",
+      "agente": "dbVuscom-dev-linux",
       "repo": "gabrielepanciotti-vuscom/vuscom-db",
       "frontend": "vuscom-db/frontend",
       "usa": [
@@ -105,7 +105,7 @@
     },
     {
       "nome": "CallManager",
-      "agente": "call-manager-dev-linux",
+      "agente": "callManager-dev-linux",
       "repo": "gabrielepanciotti-vuscom/CallManager",
       "frontend": "CallManager/frontend",
       "usa": [
