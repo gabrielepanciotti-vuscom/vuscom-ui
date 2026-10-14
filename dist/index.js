@@ -1,5 +1,5 @@
 // src/AppSidebar.jsx
-import { useEffect as useEffect3, useState as useState2 } from "react";
+import { useEffect as useEffect3, useState as useState3 } from "react";
 import { Link as Link2, useLocation } from "react-router-dom";
 
 // src/brand/Brand.jsx
@@ -197,7 +197,8 @@ function PulsanteGuida({ guida, compressa = false }) {
 }
 
 // src/accesso/PortaliSidebar.jsx
-import { useEffect as useEffect2, useMemo } from "react";
+import { useEffect as useEffect2, useMemo, useState as useState2 } from "react";
+import { ChevronDown, LayoutGrid } from "lucide-react";
 
 // src/accesso/portali.js
 var PORTALI_INTERNI = Object.freeze([
@@ -262,11 +263,21 @@ function altriPortali({ corrente, codici, hostname = globalThis.location?.hostna
 
 // src/accesso/PortaliSidebar.jsx
 import { jsx as jsx3, jsxs as jsxs2 } from "react/jsx-runtime";
+var STORAGE_KEY = "vuscom.portali.collapsed";
+function readCollapsed() {
+  try {
+    return localStorage.getItem(STORAGE_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
 function PortaliSidebar({
   corrente,
   codici,
-  compressa = false
+  compressa = false,
+  richiudibile = true
 }) {
+  const [chiuso, setChiuso] = useState2(readCollapsed);
   useEffect2(() => {
     if (codici) ricordaPortali(codici);
   }, [codici]);
@@ -275,25 +286,69 @@ function PortaliSidebar({
     [corrente, codici]
   );
   if (!portali.length) return null;
-  return /* @__PURE__ */ jsxs2("div", { className: compressa ? "flex flex-col items-center gap-1.5" : "px-2", children: [
-    !compressa && /* @__PURE__ */ jsx3("div", { className: "mb-1.5 text-[10px] uppercase tracking-wide text-slate-400 dark:text-slate-500", children: "Altri portali" }),
-    /* @__PURE__ */ jsx3(
-      "div",
+  const aperto = !richiudibile || !chiuso;
+  const toggle = () => setChiuso((prev) => {
+    const next = !prev;
+    try {
+      localStorage.setItem(STORAGE_KEY, String(next));
+    } catch {
+    }
+    return next;
+  });
+  const tessere = /* @__PURE__ */ jsx3(
+    "div",
+    {
+      className: compressa ? "flex flex-col items-center gap-1.5" : "flex flex-wrap gap-1.5",
+      children: portali.map((p) => /* @__PURE__ */ jsx3(
+        "a",
+        {
+          href: p.url,
+          title: p.nome,
+          "aria-label": `Apri ${p.nome}`,
+          className: "rounded-[9px] transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          children: /* @__PURE__ */ jsx3(LogoV, { portale: p.codice, size: 26 })
+        },
+        p.codice
+      ))
+    }
+  );
+  if (compressa) {
+    return /* @__PURE__ */ jsxs2("div", { className: "flex flex-col items-center gap-1.5", children: [
+      richiudibile && /* @__PURE__ */ jsx3(
+        "button",
+        {
+          type: "button",
+          onClick: toggle,
+          "aria-expanded": aperto,
+          "aria-label": aperto ? "Nascondi altri portali" : "Mostra altri portali",
+          title: aperto ? "Nascondi altri portali" : "Mostra altri portali",
+          className: "flex items-center justify-center rounded-md p-1 text-slate-400 dark:text-slate-500 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-slate-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          children: /* @__PURE__ */ jsx3(LayoutGrid, { className: "w-4 h-4" })
+        }
+      ),
+      aperto && tessere
+    ] });
+  }
+  return /* @__PURE__ */ jsxs2("div", { className: "px-2", children: [
+    richiudibile ? /* @__PURE__ */ jsxs2(
+      "button",
       {
-        className: compressa ? "flex flex-col items-center gap-1.5" : "flex flex-wrap gap-1.5",
-        children: portali.map((p) => /* @__PURE__ */ jsx3(
-          "a",
-          {
-            href: p.url,
-            title: p.nome,
-            "aria-label": `Apri ${p.nome}`,
-            className: "rounded-[9px] transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-            children: /* @__PURE__ */ jsx3(LogoV, { portale: p.codice, size: 26 })
-          },
-          p.codice
-        ))
+        type: "button",
+        onClick: toggle,
+        "aria-expanded": aperto,
+        className: "w-full mb-1.5 flex items-center justify-between gap-1 text-[10px] uppercase tracking-wide text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm",
+        children: [
+          /* @__PURE__ */ jsx3("span", { children: "Altri portali" }),
+          /* @__PURE__ */ jsx3(
+            ChevronDown,
+            {
+              className: `w-3 h-3 shrink-0 transition-transform duration-150 ${aperto ? "rotate-180" : ""}`
+            }
+          )
+        ]
       }
-    )
+    ) : /* @__PURE__ */ jsx3("div", { className: "mb-1.5 text-[10px] uppercase tracking-wide text-slate-400 dark:text-slate-500", children: "Altri portali" }),
+    aperto && tessere
   ] });
 }
 
@@ -333,11 +388,12 @@ function AppSidebar({
   navClassName = "",
   guida,
   iconaPortale,
-  portali
+  portali,
+  portaliRichiudibili = true
 }) {
   const location = useLocation();
-  const [showUserMenu, setShowUserMenu] = useState2(false);
-  const [hoveredGroup, setHoveredGroup] = useState2(null);
+  const [showUserMenu, setShowUserMenu] = useState3(false);
+  const [hoveredGroup, setHoveredGroup] = useState3(null);
   useEffect3(() => {
     function handleClickOutside(e) {
       if (!e.target.closest?.("[data-user-menu]")) setShowUserMenu(false);
@@ -527,7 +583,15 @@ function AppSidebar({
             className: `border-t border-gray-100 dark:border-white/[0.06] space-y-2 ${isCollapsed ? "px-2 py-3" : "px-4 py-3"}`,
             children: [
               !isCollapsed && footerSlot,
-              /* @__PURE__ */ jsx4(PortaliSidebar, { corrente: iconaPortale, codici: portali, compressa: isCollapsed }),
+              /* @__PURE__ */ jsx4(
+                PortaliSidebar,
+                {
+                  corrente: iconaPortale,
+                  codici: portali,
+                  compressa: isCollapsed,
+                  richiudibile: portaliRichiudibili
+                }
+              ),
               themeSlot && (isCollapsed ? /* @__PURE__ */ jsx4("div", { className: "flex justify-center", children: themeSlot }) : /* @__PURE__ */ jsxs3("div", { className: "flex items-center justify-between px-2 py-1.5 bg-gray-50 dark:bg-white/[0.04] rounded-md", children: [
                 /* @__PURE__ */ jsx4("span", { className: "text-[11px] text-slate-500 dark:text-slate-500", children: "Tema" }),
                 themeSlot
@@ -3206,10 +3270,10 @@ function formatRelativo(v, ora = /* @__PURE__ */ new Date()) {
 }
 
 // src/theme/useTheme.js
-import { useCallback, useEffect as useEffect4, useState as useState3 } from "react";
+import { useCallback, useEffect as useEffect4, useState as useState4 } from "react";
 var leggi = () => typeof document !== "undefined" && document.documentElement.classList.contains("dark") ? "dark" : "light";
 function useTheme() {
-  const [theme, setThemeState] = useState3(leggi);
+  const [theme, setThemeState] = useState4(leggi);
   useEffect4(() => {
     const obs = new MutationObserver(() => setThemeState(leggi()));
     obs.observe(document.documentElement, {
@@ -3645,17 +3709,17 @@ function Field({
 }
 
 // src/molecules/Select.jsx
-import { useEffect as useEffect5, useId as useId2, useRef, useState as useState5 } from "react";
+import { useEffect as useEffect5, useId as useId2, useRef, useState as useState6 } from "react";
 import { createPortal } from "react-dom";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown as ChevronDown2 } from "lucide-react";
 
 // src/molecules/useFloatingList.js
-import { useCallback as useCallback2, useLayoutEffect, useState as useState4 } from "react";
+import { useCallback as useCallback2, useLayoutEffect, useState as useState5 } from "react";
 var GAP = 4;
 var MAX_HEIGHT = 256;
 var MARGIN = 8;
 function useFloatingList(triggerRef, open) {
-  const [style, setStyle] = useState4(null);
+  const [style, setStyle] = useState5(null);
   const misura = useCallback2(() => {
     const el = triggerRef.current;
     if (!el) return;
@@ -3709,8 +3773,8 @@ function Select({
   onClick: onClickProp,
   ...rest
 }) {
-  const [open, setOpen] = useState5(false);
-  const [active, setActive] = useState5(-1);
+  const [open, setOpen] = useState6(false);
+  const [active, setActive] = useState6(-1);
   const rootRef = useRef(null);
   const triggerRef = useRef(null);
   const listRef = useRef(null);
@@ -3802,7 +3866,7 @@ function Select({
         children: [
           /* @__PURE__ */ jsx16("span", { className: cn("truncate", !selected && "text-muted-foreground"), children: selected ? selected.label : placeholder }),
           /* @__PURE__ */ jsx16(
-            ChevronDown,
+            ChevronDown2,
             {
               className: cn(
                 "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
@@ -4146,7 +4210,7 @@ import {
   useEffect as useEffect6,
   useId as useId6,
   useRef as useRef4,
-  useState as useState6
+  useState as useState7
 } from "react";
 import { jsx as jsx21, jsxs as jsxs16 } from "react/jsx-runtime";
 var DELAY_MS = 150;
@@ -4163,7 +4227,7 @@ function Tooltip({
   children
 }) {
   const id = useId6();
-  const [open, setOpen] = useState6(false);
+  const [open, setOpen] = useState7(false);
   const timer = useRef4(null);
   const child = Children2.only(children);
   const show = useCallback3(() => {
@@ -4564,10 +4628,10 @@ function Pagination({
 }
 
 // src/organisms/DataTable.jsx
-import { ChevronDown as ChevronDown2, ChevronUp, ChevronsUpDown, Inbox } from "lucide-react";
+import { ChevronDown as ChevronDown3, ChevronUp, ChevronsUpDown, Inbox } from "lucide-react";
 
 // src/organisms/useSort.js
-import { useCallback as useCallback4, useMemo as useMemo2, useState as useState7 } from "react";
+import { useCallback as useCallback4, useMemo as useMemo2, useState as useState8 } from "react";
 function normalizza(v) {
   const x = v instanceof Date ? v.valueOf() : v;
   return typeof x === "number" && Number.isNaN(x) ? null : x;
@@ -4581,7 +4645,7 @@ function compare(a, b) {
   });
 }
 function useSort(rows, { initial = null, accessors = {} } = {}) {
-  const [sort, setSort] = useState7(initial);
+  const [sort, setSort] = useState8(initial);
   const toggle = useCallback4((key) => {
     setSort(
       (prev) => prev && prev.key === key ? { key, dir: prev.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }
@@ -4646,7 +4710,7 @@ var JUSTIFY = {
   center: "justify-center"
 };
 function SortIcon({ dir }) {
-  const Icon = dir === "asc" ? ChevronUp : dir === "desc" ? ChevronDown2 : ChevronsUpDown;
+  const Icon = dir === "asc" ? ChevronUp : dir === "desc" ? ChevronDown3 : ChevronsUpDown;
   return /* @__PURE__ */ jsx30(Icon, { className: cn("h-3.5 w-3.5", !dir && "opacity-40"), "aria-hidden": true });
 }
 function DataTable({
@@ -5039,11 +5103,11 @@ function formatDataIt(iso) {
 var isoGiorno = (d) => `${d.getUTCFullYear()}-${due2(d.getUTCMonth() + 1)}-${due2(d.getUTCDate())}`;
 
 // src/molecules/CampoData.jsx
-import { forwardRef as forwardRef5, useEffect as useEffect8, useId as useId7, useRef as useRef6, useState as useState9 } from "react";
+import { forwardRef as forwardRef5, useEffect as useEffect8, useId as useId7, useRef as useRef6, useState as useState10 } from "react";
 import { CalendarDays } from "lucide-react";
 
 // src/molecules/CalendarioMese.jsx
-import { useEffect as useEffect7, useRef as useRef5, useState as useState8 } from "react";
+import { useEffect as useEffect7, useRef as useRef5, useState as useState9 } from "react";
 import { ChevronLeft as ChevronLeft2, ChevronRight as ChevronRight3 } from "lucide-react";
 import { jsx as jsx32, jsxs as jsxs26 } from "react/jsx-runtime";
 var GIORNO2 = 864e5;
@@ -5073,8 +5137,8 @@ function CalendarioMese({
   autoFocus = false,
   className
 }) {
-  const [fuoco, setFuoco] = useState8(value || oggi);
-  const [mese2, setMese] = useState8(() => primoDelMese(daIso(value || oggi)));
+  const [fuoco, setFuoco] = useState9(value || oggi);
+  const [mese2, setMese] = useState9(() => primoDelMese(daIso(value || oggi)));
   const griglia$ = useRef5(null);
   const daFocalizzare = useRef5(autoFocus);
   useEffect7(() => {
@@ -5163,9 +5227,9 @@ var CampoData = forwardRef5(function CampoData2({
   id,
   className
 }, ref) {
-  const [testo, setTesto] = useState9(formatDataIt(value));
-  const [errato, setErrato] = useState9(false);
-  const [aperto, setAperto] = useState9(false);
+  const [testo, setTesto] = useState10(formatDataIt(value));
+  const [errato, setErrato] = useState10(false);
+  const [aperto, setAperto] = useState10(false);
   const radice = useRef6(null);
   const pannello = useId7();
   useEffect8(() => {
@@ -5639,7 +5703,7 @@ function Dialog({
 }
 
 // src/organisms/ConfirmDialog.jsx
-import { useEffect as useEffect10, useRef as useRef8, useState as useState10 } from "react";
+import { useEffect as useEffect10, useRef as useRef8, useState as useState11 } from "react";
 import { Fragment as Fragment4, jsx as jsx38, jsxs as jsxs31 } from "react/jsx-runtime";
 function ConfirmDialog({
   open,
@@ -5654,9 +5718,9 @@ function ConfirmDialog({
 }) {
   const inCorso = useRef8(false);
   const generazione = useRef8(0);
-  const [loading, setLoading] = useState10(false);
-  const [errore, setErrore] = useState10(null);
-  const [testo, setTesto] = useState10("");
+  const [loading, setLoading] = useState11(false);
+  const [errore, setErrore] = useState11(null);
+  const [testo, setTesto] = useState11("");
   useEffect10(() => {
     if (!open) {
       generazione.current += 1;
@@ -5739,7 +5803,7 @@ import {
   useEffect as useEffect11,
   useMemo as useMemo3,
   useRef as useRef9,
-  useState as useState11
+  useState as useState12
 } from "react";
 import { AlertTriangle as AlertTriangle2, CheckCircle2 as CheckCircle22, Info as Info2, X as X4, XCircle as XCircle2 } from "lucide-react";
 import { jsx as jsx39, jsxs as jsxs32 } from "react/jsx-runtime";
@@ -5792,7 +5856,7 @@ function ToastItem({ t, onDismiss }) {
   );
 }
 function ToastProvider({ children }) {
-  const [toasts, setToasts] = useState11([]);
+  const [toasts, setToasts] = useState12([]);
   const timers = useRef9(/* @__PURE__ */ new Map());
   const seq = useRef9(0);
   const dismiss = useCallback5((id) => {
@@ -5855,12 +5919,12 @@ import {
   useEffect as useEffect12,
   useMemo as useMemo4,
   useRef as useRef10,
-  useState as useState12
+  useState as useState13
 } from "react";
 import { useLocation as useLocation2 } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { Fragment as Fragment5, jsx as jsx40, jsxs as jsxs33 } from "react/jsx-runtime";
-var STORAGE_KEY = "vuscom.sidebar.collapsed";
+var STORAGE_KEY2 = "vuscom.sidebar.collapsed";
 var WIDTHS = { "7xl": "max-w-7xl", full: "max-w-none" };
 var NESSUNA_VOCE = [];
 var CompattaContext = createContext2(null);
@@ -5871,9 +5935,9 @@ function useSidebarCompatta(attiva = true) {
     return richiedi();
   }, [attiva, richiedi]);
 }
-function readCollapsed() {
+function readCollapsed2() {
   try {
-    return localStorage.getItem(STORAGE_KEY) === "true";
+    return localStorage.getItem(STORAGE_KEY2) === "true";
   } catch {
     return false;
   }
@@ -5898,6 +5962,7 @@ function AppShell({
   azioniSidebar,
   maxWidth = "7xl",
   compattaAdOgniPagina = false,
+  portaliRichiudibili = true,
   children
 }) {
   const {
@@ -5909,9 +5974,9 @@ function AppShell({
   useFaviconVuscom(sidebar.iconaPortale);
   const mainTree = useMemo4(() => normalizeNavTree(nav), [nav]);
   const adminTree = useMemo4(() => normalizeNavTree(adminNav), [adminNav]);
-  const [collapsed, setCollapsed] = useState12(readCollapsed);
-  const [richieste, setRichieste] = useState12(0);
-  const [riaperta, setRiaperta] = useState12(false);
+  const [collapsed, setCollapsed] = useState13(readCollapsed2);
+  const [richieste, setRichieste] = useState13(0);
+  const [riaperta, setRiaperta] = useState13(false);
   const forzata = richieste > 0 && !riaperta;
   const richiediCompatta = useMemo4(
     () => () => {
@@ -5923,9 +5988,9 @@ function AppShell({
   useEffect12(() => {
     if (richieste === 0) setRiaperta(false);
   }, [richieste]);
-  const [apertaQui, setApertaQui] = useState12(false);
-  const [isOpen, setIsOpen] = useState12(false);
-  const [expanded, setExpanded] = useState12(
+  const [apertaQui, setApertaQui] = useState13(false);
+  const [isOpen, setIsOpen] = useState13(false);
+  const [expanded, setExpanded] = useState13(
     () => new Set(activeGroupIds([...mainTree, ...adminTree], pathname))
   );
   const mainRef = useRef10(null);
@@ -5952,7 +6017,7 @@ function AppShell({
     setCollapsed((prev) => {
       const next = !prev;
       try {
-        localStorage.setItem(STORAGE_KEY, String(next));
+        localStorage.setItem(STORAGE_KEY2, String(next));
       } catch {
       }
       return next;
@@ -5990,7 +6055,8 @@ function AppShell({
             /* @__PURE__ */ jsx40(ThemeToggle, {})
           ] })
         ) : /* @__PURE__ */ jsx40(ThemeToggle, {}),
-        navClassName: "scrollbar-thin"
+        navClassName: "scrollbar-thin",
+        portaliRichiudibili
       }
     ),
     /* @__PURE__ */ jsxs33("div", { className: "flex min-w-0 flex-1 flex-col", children: [
@@ -6080,11 +6146,11 @@ function Section({
 }
 
 // src/templates/LoginPage.jsx
-import { useId as useId10, useState as useState14 } from "react";
+import { useId as useId10, useState as useState15 } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
 // src/accesso/useAccessoMicrosoft.js
-import { useCallback as useCallback6, useEffect as useEffect13, useState as useState13 } from "react";
+import { useCallback as useCallback6, useEffect as useEffect13, useState as useState14 } from "react";
 var BASE_MICROSOFT = "/api/auth/microsoft";
 var MESSAGGI_ERRORE_MICROSOFT = {
   annullato: "Accesso con Microsoft annullato.",
@@ -6112,9 +6178,9 @@ function chiestoDaAltroPortale() {
   return true;
 }
 function useAccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso } = {}) {
-  const [disponibile, setDisponibile] = useState13(false);
-  const [inCorso, setInCorso] = useState13(false);
-  const [errore, setErrore] = useState13("");
+  const [disponibile, setDisponibile] = useState14(false);
+  const [inCorso, setInCorso] = useState14(false);
+  const [errore, setErrore] = useState14("");
   useEffect13(() => {
     let attivo = true;
     const automatico = chiestoDaAltroPortale();
@@ -6247,11 +6313,11 @@ function LoginPage({
 }) {
   const passwordId = useId10();
   useFaviconVuscom(iconaPortale);
-  const [username, setUsername] = useState14("");
-  const [password, setPassword] = useState14("");
-  const [show, setShow] = useState14(false);
-  const [loading, setLoading] = useState14(false);
-  const [error, setError] = useState14("");
+  const [username, setUsername] = useState15("");
+  const [password, setPassword] = useState15("");
+  const [show, setShow] = useState15(false);
+  const [loading, setLoading] = useState15(false);
+  const [error, setError] = useState15("");
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");

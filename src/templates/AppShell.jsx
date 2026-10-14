@@ -82,6 +82,7 @@ export default function AppShell({
   azioniSidebar,
   maxWidth = "7xl",
   compattaAdOgniPagina = false,
+  portaliRichiudibili = true,
   children,
 }) {
   const {
@@ -211,6 +212,7 @@ export default function AppShell({
             )
           }
           navClassName="scrollbar-thin"
+          portaliRichiudibili={portaliRichiudibili}
         />
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b bg-background/80 px-4 backdrop-blur">

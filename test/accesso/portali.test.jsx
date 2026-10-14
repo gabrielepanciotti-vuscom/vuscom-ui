@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import {
   AccessoMicrosoft,
@@ -92,6 +93,72 @@ test("nella sidebar: tessere degli altri portali, e i codici restano ricordati",
   ).toBeInTheDocument();
   expect(screen.queryByRole("link", { name: /Admin Data API/ })).toBeNull();
   expect(portaliRicordati()).toEqual(["dataapi", "offerte"]);
+});
+
+test("la sezione si chiude e si riapre, e lo stato resta in localStorage", async () => {
+  const user = userEvent.setup();
+  render(
+    <MemoryRouter>
+      <PortaliSidebar corrente="dataapi" codici={["dataapi", "offerte"]} />
+    </MemoryRouter>,
+  );
+  const etichetta = screen.getByRole("button", { name: "Altri portali" });
+  expect(screen.getByRole("link", { name: "Apri Hub Offerte" })).toBeInTheDocument();
+
+  await user.click(etichetta);
+  expect(screen.queryByRole("link", { name: "Apri Hub Offerte" })).toBeNull();
+  expect(localStorage.getItem("vuscom.portali.collapsed")).toBe("true");
+
+  await user.click(etichetta);
+  expect(screen.getByRole("link", { name: "Apri Hub Offerte" })).toBeInTheDocument();
+  expect(localStorage.getItem("vuscom.portali.collapsed")).toBe("false");
+});
+
+test("chiusa in precedenza, la sezione si apre già chiusa", () => {
+  localStorage.setItem("vuscom.portali.collapsed", "true");
+  render(
+    <MemoryRouter>
+      <PortaliSidebar corrente="dataapi" codici={["dataapi", "offerte"]} />
+    </MemoryRouter>,
+  );
+  expect(screen.queryByRole("link", { name: "Apri Hub Offerte" })).toBeNull();
+  expect(screen.getByRole("button", { name: "Altri portali" })).toHaveAttribute(
+    "aria-expanded",
+    "false",
+  );
+});
+
+test("da compressa una sola icona al posto delle tessere, e si può riaprire", async () => {
+  const user = userEvent.setup();
+  render(
+    <MemoryRouter>
+      <PortaliSidebar corrente="dataapi" codici={["dataapi", "offerte"]} compressa />
+    </MemoryRouter>,
+  );
+  expect(screen.getByRole("link", { name: "Apri Hub Offerte" })).toBeInTheDocument();
+
+  await user.click(screen.getByRole("button", { name: "Nascondi altri portali" }));
+  expect(screen.queryByRole("link", { name: "Apri Hub Offerte" })).toBeNull();
+  expect(
+    screen.getByRole("button", { name: "Mostra altri portali" }),
+  ).toBeInTheDocument();
+
+  await user.click(screen.getByRole("button", { name: "Mostra altri portali" }));
+  expect(screen.getByRole("link", { name: "Apri Hub Offerte" })).toBeInTheDocument();
+});
+
+test("con richiudibile=false non c'è il pulsante e le tessere restano", () => {
+  render(
+    <MemoryRouter>
+      <PortaliSidebar
+        corrente="dataapi"
+        codici={["dataapi", "offerte"]}
+        richiudibile={false}
+      />
+    </MemoryRouter>,
+  );
+  expect(screen.queryByRole("button", { name: "Altri portali" })).toBeNull();
+  expect(screen.getByRole("link", { name: "Apri Hub Offerte" })).toBeInTheDocument();
 });
 
 test("arrivando con ?accedi=microsoft parte da solo il login Microsoft, una volta", async () => {

@@ -32,6 +32,8 @@ import {
  *    la V sul colore del portale, in sidebar e nella scheda del browser.
  *  - portali: codici dei portali a cui l'utente e' abilitato (dal /me del portale):
  *    tessere degli altri portali in fondo alla sidebar, ricordate per la pagina di login.
+ *  - portaliRichiudibili: se la sezione «Altri portali» si può chiudere per fare
+ *    spazio alle voci del menu (default: sì).
  *  - guida: guida generale del portale ("/guida", URL, o { href, label }): pulsante
  *    accanto a «comprimi». Obbligatoria per il tester di conformità.
  *  - headerSlot: nodo sotto l'intestazione (marchio e nome), solo a sidebar aperta:
@@ -74,6 +76,7 @@ export default function AppSidebar({
   guida,
   iconaPortale,
   portali,
+  portaliRichiudibili = true,
 }) {
   const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -322,7 +325,12 @@ export default function AppSidebar({
         {/* Azioni di pagina (es. "Aggiorna Dati"): non hanno senso da compressa. */}
         {!isCollapsed && footerSlot}
 
-        <PortaliSidebar corrente={iconaPortale} codici={portali} compressa={isCollapsed} />
+        <PortaliSidebar
+          corrente={iconaPortale}
+          codici={portali}
+          compressa={isCollapsed}
+          richiudibile={portaliRichiudibili}
+        />
 
         {themeSlot &&
           (isCollapsed ? (
