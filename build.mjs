@@ -51,6 +51,16 @@ await build({
   ],
 });
 
+// Fourth entry "@vuscom/ui/grafici": Chart.js charts. chart.js is an optional
+// peer dependency, external here and never reachable from the main entry, so
+// only portals that import this entry need to install it.
+await build({
+  ...common,
+  entryPoints: ["src/grafici/index.js"],
+  outfile: "dist/grafici.js",
+  external: ["react", "react-dom", "react/jsx-runtime", "lucide-react", "chart.js"],
+});
+
 // Theme assets ship as-is: the preset is CommonJS (Tailwind configs are loaded
 // with require) and theme.css is plain CSS, so neither goes through esbuild.
 copyFileSync("src/theme/preset.cjs", "dist/preset.cjs");

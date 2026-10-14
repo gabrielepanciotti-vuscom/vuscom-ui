@@ -9,6 +9,7 @@ import Azioni from "./sezioni/Azioni.jsx";
 import Moduli from "./sezioni/Moduli.jsx";
 import Dati from "./sezioni/Dati.jsx";
 import Feedback from "./sezioni/Feedback.jsx";
+import Report from "./sezioni/Report.jsx";
 import {
   azioniSegnalazioni,
   SegnalazioniProvider,
@@ -68,6 +69,7 @@ export default function Catalogo() {
             <Azioni />
             <Moduli />
             <Dati />
+            <Report />
             <Feedback />
           </div>
         </AppShell>

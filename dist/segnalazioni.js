@@ -3465,6 +3465,7 @@ function Dialog({
 
 // src/segnalazioni/ModaleSegnalazione.jsx
 import { Fragment, jsx as jsx10, jsxs as jsxs8 } from "react/jsx-runtime";
+var MIN_COMMENTO = 10;
 var MAX_COMMENTO = 5e3;
 function nomeElemento(elemento) {
   if (!elemento) return null;
@@ -3500,7 +3501,8 @@ function ModaleSegnalazione({
     bozza.catture ? maschera2 ? bozza.catture.mascherato : bozza.catture.privato : null
   );
   const nome = nomeElemento(bozza.elemento);
-  const vuoto = commento.trim() === "";
+  const mancano = Math.max(0, MIN_COMMENTO - commento.trim().length);
+  const vuoto = mancano > 0;
   const bloccato = esito.stato === "non_disponibile";
   const invia = async () => {
     if (inCorso.current || vuoto || bloccato) return;
@@ -3584,7 +3586,7 @@ function ModaleSegnalazione({
           {
             label: "Cosa non va?",
             required: true,
-            hint: `${commento.length}/${MAX_COMMENTO} \xB7 cosa ti aspettavi e cosa vedi invece`,
+            hint: `${mancano > 0 ? `ancora ${mancano} ${mancano === 1 ? "carattere" : "caratteri"}` : `${commento.length}/${MAX_COMMENTO}`} \xB7 cosa ti aspettavi e cosa vedi invece`,
             children: /* @__PURE__ */ jsx10(
               Textarea_default,
               {

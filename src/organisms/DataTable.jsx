@@ -4,6 +4,7 @@ import { Card } from "./Card.jsx";
 import { SkeletonTable } from "./Skeleton.jsx";
 import EmptyState from "./EmptyState.jsx";
 import useSort from "./useSort.js";
+import BarraInline, { massimiBarre, valoreBarra } from "./BarraInline.jsx";
 import { segnalaAttr } from "../segnalazioni/segnalaAttr.js";
 
 // Clicks on these (or inside them) belong to the control, not to the row.
@@ -48,6 +49,8 @@ export default function DataTable({
   });
 
   const pad = dense ? "px-3 py-1.5" : "px-4 py-3";
+  // `bar: true` on a column draws a bar proportional to that column's maximum.
+  const massimi = massimiBarre(columns, rows);
 
   let body;
   if (loading && rows.length === 0) {
@@ -163,7 +166,18 @@ export default function DataTable({
                         c.className,
                       )}
                     >
-                      {c.cell ? c.cell(row) : (row[c.key] ?? "")}
+                      {c.bar ? (
+                        <BarraInline
+                          value={valoreBarra(c, row)}
+                          max={massimi[c.key]}
+                        >
+                          {c.cell ? c.cell(row) : (row[c.key] ?? "")}
+                        </BarraInline>
+                      ) : c.cell ? (
+                        c.cell(row)
+                      ) : (
+                        (row[c.key] ?? "")
+                      )}
                     </td>
                   ))}
                 </tr>

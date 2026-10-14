@@ -20,13 +20,20 @@ Quattro strati, dal più piccolo al più grande:
 4. **Template** — struttura delle pagine (`AppShell`, `PageHeader`, `Section`, `LoginPage`).
 
 Più `AppSidebar` / `normalizeNavTree` / `collectGroupIds` e gli entry `@vuscom/ui/utenti`
-e `@vuscom/ui/segnalazioni`.
+e `@vuscom/ui/segnalazioni` e `@vuscom/ui/grafici`.
 Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 (`select`, checkbox, radio): i controlli sono propri.
 
 ### Utilità
 `cn(...)` (clsx + tailwind-merge) · `formatNumero` e gli altri formattatori di
 `lib/format.js` · `useTheme()` → `{ theme, setTheme, toggleTheme }`.
+- **Periodi** (dalla 1.12.0, UTC, etichette it-IT): `periodOf(data, "settimana"|"mese")` → `"2026-W42"` / `"2026-10"` ·
+  `periodSpan(key)` → `{ start, end }` (`end` escluso) · `periodLabel(key, { breve })` · `periodsBetween(dal, al, gran)` ·
+  `isPartial(key, { from, to, now })` (tagliato dal filtro o non ancora chiuso; `now: null` ignora il calendario).
+- **CSV** (dalla 1.12.0): `toCsv(rows, columns)` / `esportaCsv(nomeFile, rows, columns)` — BOM, `;`, virgola
+  decimale, escape e neutralizzazione delle formule. Le colonne sono quelle di `DataTable`: valore da
+  `csv(row)` → `sortAccessor` → `row[key]`, titolo da `csvHeader` → `header` stringa; `csv: false` esclude.
+- **Date** `parseDataIt("4/10/2026")` → `"2026-10-04"` (`null` vuoto, `undefined` non valida) · `formatDataIt(iso)`.
 
 ### Atomi
 | Componente | Props principali |
@@ -51,13 +58,19 @@ Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 | `SegmentedControl` | `value`, `onChange`, `options` (`{value,label,icon}`), `size` |
 | `Tooltip` | `content`, `side`, `wide` |
 | `InfoTip` | `children`, `label`, `side`, `wide` (va a capo; automatico per stringhe lunghe) |
+| `CampoData` | `value`/`onChange` in ISO (`"YYYY-MM-DD"`, `null` = vuoto), `min`, `max`, `invalid` — si scrive `gg/mm/aaaa` o si sceglie dal calendario; mai `input type=date` |
+| `CalendarioMese` | `value`, `onChange`, `min`, `max`, `oggi` — lunedì primo, frecce/PagSu/PagGiù da tastiera |
+| `ChipFiltro` | `children`, `onRemove` |
+| `PulsanteEsportaCsv` | `nomeFile`, `rows` (array o funzione letta al clic), `columns` (di `DataTable`) |
 
 ### Organismi
 | Componente | Props principali |
 |---|---|
 | `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `CardFooter` | `interactive` (Card); `title`, `description`, `actions` (CardHeader) |
 | `KpiCard` | `label`, `value` (`null`/`NaN` → «—»), `hint`, `delta` (`{value,label}`), `tone` (anche `info`), `icon`, `loading`, `help`, `segnala` (vedi Segnalazioni) |
-| `DataTable` | `columns` (`{key,header,cell,sortable,sortAccessor,align,width}`), `rows`, `rowKey`, `onRowClick`, `loading`, `empty`, `initialSort`, `dense`, `caption`, `className`, `segnala` (anche per colonna: `colonna.segnala`) — `onRowClick` non scatta sui controlli nella cella (link, pulsanti, `[data-no-row-click]`) |
+| `DataTable` | `columns` (`{key,header,cell,sortable,sortAccessor,align,width}`), `rows`, `rowKey`, `onRowClick`, `loading`, `empty`, `initialSort`, `dense`, `caption`, `className`, `segnala` (anche per colonna: `colonna.segnala`) — `onRowClick` non scatta sui controlli nella cella (link, pulsanti, `[data-no-row-click]`). Colonna con `bar: true` (dalla 1.12.0): barra inline proporzionale al massimo della colonna (valore da `barValue(row)` → `sortAccessor` → `row[key]`) |
+| `MatriceCalore` | `righe` (`{id,label,valori:{[periodo]:n}}`), `periodi` (chiavi o `{key,label,parziale}`), `onRigaClick`, `formatValore`, `etichettaRighe`, `totale`, `quota`, `rigaTotali`, `caption` — intensità `sqrt(valore/massimo)` sul token `primary` |
+| `BarraFiltriPeriodo` | `value`/`onChange` (`{dal,al,granularita}`), `predefinito`, `onReset`, `filtri` (chip extra `{id,label,onRemove}`), `granularita`, `min`, `max`, `children` (slot dei filtri della pagina) |
 | `Pagination` | `page`, `pageSize`, `total`, `onPageChange`, `className` |
 | `useSort` | `useSort(rows, { initial, accessors })` — numeri e date per valore, stringhe con ordinamento numerico («9» prima di «10»), `null`/`NaN` sempre in fondo |
 | `Dialog` | `open`, `onClose`, `title`, `description`, `icon`, `size`, `footer`, `closeOnBackdrop`, `closeDisabled` |
@@ -346,6 +359,28 @@ disponibile al momento», bozza intatta, nessun «Riprova». `413`/`422` → il
 messaggio nella finestra. Successo → notifica «Segnalazione #N inviata» con il
 link al ticket. Il video si tronca (dall'inizio, a checkpoint interi) per
 restare nei 4 MB per allegato e 5 MB in tutto.
+
+## Grafici (`@vuscom/ui/grafici`, dalla 1.12.0)
+
+```bash
+npm install chart.js@4.4.1   # peer opzionale: serve solo a chi importa questo entry
+```
+
+```jsx
+import { GraficoBarre } from "@vuscom/ui/grafici";
+
+<GraficoBarre
+  periodi={[{ key: "2026-09" }, { key: "2026-10", parziale: true }]}
+  serie={[{ id: "ok", label: "Accettate", valori: { "2026-09": 10, "2026-10": 4 } }]}
+  titolo="Esiti per mese"          // nome accessibile; i numeri vanno anche in una tabella sr-only
+  onPeriodoClick={(key) => {}}
+/>
+```
+
+Barre impilate (`impilate={false}` affiancate), legenda cliccabile, tooltip con titolo del periodo e totale
+delle serie visibili, asterisco sui periodi parziali. I colori vengono dai token `--chart-1…8` (una serie può
+fissarne uno con `tono: 1…8`) e seguono il tema chiaro/scuro dal vivo. `configGraficoBarre` è la
+configurazione Chart.js pura, `coloriTema()` legge i token.
 
 ## Sviluppo e versionamento
 
