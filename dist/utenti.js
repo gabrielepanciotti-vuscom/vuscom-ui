@@ -11,7 +11,7 @@ var LIVELLO = { viewer: 1, manager: 2, admin: 3, superadmin: 4 };
 var ETICHETTE_PORTALE = {
   offerte: "Hub Offerte",
   cruscotto: "Cruscotto",
-  outbound: "Outbound"
+  outbound: "Campagne"
 };
 function livello(ruolo) {
   return LIVELLO[ruolo] || 0;

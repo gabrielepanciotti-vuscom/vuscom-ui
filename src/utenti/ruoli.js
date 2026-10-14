@@ -6,7 +6,7 @@ export const LIVELLO = { viewer: 1, manager: 2, admin: 3, superadmin: 4 };
 export const ETICHETTE_PORTALE = {
   offerte: "Hub Offerte",
   cruscotto: "Cruscotto",
-  outbound: "Outbound",
+  outbound: "Campagne",
 };
 
 export function livello(ruolo) {

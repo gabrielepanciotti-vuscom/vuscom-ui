@@ -1,7 +1,7 @@
 import { renderHook, waitFor, act } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { useUtenti } from "../../src/utenti/useUtenti.js";
-import { ruoliAssegnabili, livello } from "../../src/utenti/ruoli.js";
+import { ruoliAssegnabili, livello, ETICHETTE_PORTALE } from "../../src/utenti/ruoli.js";
 
 describe("useUtenti", () => {
   it("loads the list and reloads with the disabled flag", async () => {
@@ -39,5 +39,11 @@ describe("ruoli", () => {
     expect(ruoliAssegnabili("admin")).toEqual(["viewer", "manager", "admin"]);
     expect(ruoliAssegnabili("superadmin")).toEqual(["viewer", "manager", "admin", "superadmin"]);
     expect(livello("boh")).toBe(0);
+  });
+});
+
+describe("ETICHETTE_PORTALE", () => {
+  it("shows Outbound under its visible name, keeping the technical key", () => {
+    expect(ETICHETTE_PORTALE.outbound).toBe("Campagne");
   });
 });
