@@ -68,8 +68,8 @@ Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 |---|---|
 | `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `CardFooter` | `interactive` (Card); `title`, `description`, `actions` (CardHeader) |
 | `KpiCard` | `label`, `value` (`null`/`NaN` → «—»), `hint`, `delta` (`{value,label}`), `tone` (anche `info`), `icon`, `loading`, `help`, `segnala` (vedi Segnalazioni) |
-| `DataTable` | `columns` (`{key,header,cell,sortable,sortAccessor,align,width}`), `rows`, `rowKey`, `onRowClick`, `loading`, `empty`, `initialSort`, `dense`, `caption`, `className`, `segnala` (anche per colonna: `colonna.segnala`) — `onRowClick` non scatta sui controlli nella cella (link, pulsanti, `[data-no-row-click]`). Colonna con `bar: true` (dalla 1.12.0): barra inline proporzionale al massimo della colonna (valore da `barValue(row)` → `sortAccessor` → `row[key]`) |
-| `MatriceCalore` | `righe` (`{id,label,valori:{[periodo]:n}}`), `periodi` (chiavi o `{key,label,parziale}`), `onRigaClick`, `formatValore`, `etichettaRighe`, `totale`, `quota`, `rigaTotali`, `caption` — intensità `sqrt(valore/massimo)` sul token `primary` |
+| `DataTable` | `columns` (`{key,header,cell,sortable,sortAccessor,align,width}`), `rows`, `rowKey`, `onRowClick`, `loading`, `empty`, `initialSort`, `dense`, `caption`, `className`, `segnala` (anche per colonna: `colonna.segnala`) — `onRowClick` non scatta sui controlli nella cella (link, pulsanti, `[data-no-row-click]`). Colonna con `bar: true` (dalla 1.12.0): barra inline proporzionale al massimo della colonna (valore da `barValue(row)` → `sortAccessor` → `row[key]`). `pageSize` (dalla 1.15.0): paginazione dopo l'ordinamento |
+| `MatriceCalore` | `righe` (`{id,label,valori:{[periodo]:n}}`), `periodi` (chiavi o `{key,label,parziale}`), `onRigaClick`, `formatValore`, `etichettaRighe`, `totale`, `quota`, `rigaTotali`, `caption` — intensità `sqrt(valore/massimo)` sul token `primary`. Dalla 1.15.0: `scala="riga"` (ogni riga sul proprio massimo), `nd` (testo per i valori mancanti; lo zero vero resta zero), `format` per riga |
 | `BarraFiltriPeriodo` | `value`/`onChange` (`{dal,al,granularita}`), `predefinito`, `onReset`, `filtri` (chip extra `{id,label,onRemove}`), `granularita`, `min`, `max`, `children` (slot dei filtri della pagina) |
 | `Pagination` | `page`, `pageSize`, `total`, `onPageChange`, `className` |
 | `useSort` | `useSort(rows, { initial, accessors })` — numeri e date per valore, stringhe con ordinamento numerico («9» prima di «10»), `null`/`NaN` sempre in fondo |
@@ -400,6 +400,40 @@ Barre impilate (`impilate={false}` affiancate), legenda cliccabile, tooltip con 
 delle serie visibili, asterisco sui periodi parziali. I colori vengono dai token `--chart-1…8` (una serie può
 fissarne uno con `tono: 1…8`) e seguono il tema chiaro/scuro dal vivo. `configGraficoBarre` è la
 configurazione Chart.js pura, `coloriTema()` legge i token.
+
+### `PaginaReportCampagna` (dalla 1.15.0)
+
+La pagina Report delle campagne, identica su ogni portale (modello: il report Euris). Non fa fetch:
+riceve le foto già lette dal portale.
+
+```jsx
+import { PaginaReportCampagna } from "@vuscom/ui/grafici";
+
+<PaginaReportCampagna
+  campagne={[{ id: "bonus_50", label: "Bonus 50" }, { id: "segnalatori", label: "Segnalatori" }]}
+  campagna={scelta}                  // opzionale: controllata, con onCampagnaChange il portale ricarica
+  onCampagnaChange={setScelta}
+  righe={snapshot}                   // [{ data_riferimento, mensile, forniture_attive, storni, maturati,
+                                     //    costo, margine, guadagno_netto, indicatori, dettaglio, campagna? }]
+  caricando={caricando}
+  errore={errore}
+  azioni={<PulsanteGuida … />}       // slot a destra del titolo
+/>
+```
+
+- **Intestazione**: tab «Campagna», nome della campagna come titolo, «Situazione al gg/mm/aaaa».
+- **Tessere**: metriche e indicatori nella stessa griglia (`TesseraKpi`, stessa altezza), delta rispetto
+  all'ultima foto mensile e `Sparkline` sulle foto di fine mese. `null` → «n.d.», mai zero.
+- **Filtri** (`FiltriReport`): dal/al e settimana/mese in una riga, valgono per andamento, storico e matrice.
+- **Andamento**: barre impilate (forniture attive, storni, maturati) = stato all'ultima foto del periodo.
+  Con meno di 2 periodi niente grafico: «Storico in costruzione, prima foto mensile il 1/11».
+- **Storico**: `DataTable` ordinabile, barre inline, 10 righe per pagina, «Solo foto mensili», Esporta CSV.
+- **Variazioni per periodo**: matrice di calore periodo × indicatore delle differenze fra foto consecutive,
+  scala per riga, totale = variazione netta; compare da 3 periodi.
+
+Righe con il campo `campagna` vengono filtrate su quella scelta; senza, sono tutte della campagna scelta.
+`etichetteIndicatori` (`{chiave: "Etichetta"}`) e `formatiIndicatori` (`{chiave: "euro"|"numero"}`)
+correggono le etichette e l'unità degli indicatori (di default `bonus_*`, `costo*`, `margine*` sono euro).
 
 ## Sviluppo e versionamento
 

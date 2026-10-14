@@ -4628,6 +4628,7 @@ function Pagination({
 }
 
 // src/organisms/DataTable.jsx
+import { useEffect as useEffect7, useState as useState9 } from "react";
 import { ChevronDown as ChevronDown3, ChevronUp, ChevronsUpDown, Inbox } from "lucide-react";
 
 // src/organisms/useSort.js
@@ -4723,6 +4724,7 @@ function DataTable({
   initialSort,
   dense = false,
   caption,
+  pageSize,
   segnala,
   className
 }) {
@@ -4734,6 +4736,9 @@ function DataTable({
     initial: initialSort,
     accessors
   });
+  const [pagina, setPagina] = useState9(1);
+  useEffect7(() => setPagina(1), [sort, rows.length]);
+  const visibili = pageSize ? sorted.slice((pagina - 1) * pageSize, pagina * pageSize) : sorted;
   const pad = dense ? "px-3 py-1.5" : "px-4 py-3";
   const massimi = massimiBarre(columns, rows);
   let body;
@@ -4742,85 +4747,97 @@ function DataTable({
   } else if (rows.length === 0) {
     body = empty === void 0 ? /* @__PURE__ */ jsx30(EmptyState, { icon: Inbox, title: "Nessun dato" }) : typeof empty === "string" ? /* @__PURE__ */ jsx30("p", { className: "px-6 py-12 text-center text-sm text-muted-foreground", children: empty }) : empty;
   }
-  return /* @__PURE__ */ jsx30(Card, { className: cn("p-0", className), ...segnalaAttr(segnala), children: /* @__PURE__ */ jsx30("div", { className: "overflow-x-auto", children: body ? body : /* @__PURE__ */ jsxs24("table", { className: "w-full text-sm", children: [
-    caption && /* @__PURE__ */ jsx30("caption", { className: "sr-only", children: caption }),
-    /* @__PURE__ */ jsx30("thead", { className: "border-b bg-muted/50 font-medium text-muted-foreground", children: /* @__PURE__ */ jsx30("tr", { children: columns.map((c) => {
-      const active = sort && sort.key === c.key ? sort.dir : null;
-      const align = ALIGN[c.align] || ALIGN.left;
-      return /* @__PURE__ */ jsx30(
-        "th",
-        {
-          scope: "col",
-          ...segnalaAttr(c.segnala),
-          style: c.width ? { width: c.width } : void 0,
-          "aria-sort": c.sortable ? active === "asc" ? "ascending" : active === "desc" ? "descending" : "none" : void 0,
-          className: cn(
-            pad,
-            "whitespace-nowrap font-medium",
-            align,
-            c.className
-          ),
-          children: c.sortable ? /* @__PURE__ */ jsxs24(
-            "button",
-            {
-              type: "button",
-              onClick: () => toggle(c.key),
-              className: cn(
-                "inline-flex items-center gap-1 rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                JUSTIFY[c.align] || JUSTIFY.left,
-                active && "text-foreground"
-              ),
-              children: [
-                c.header,
-                /* @__PURE__ */ jsx30(SortIcon, { dir: active })
-              ]
-            }
-          ) : c.header
-        },
-        c.key
-      );
-    }) }) }),
-    /* @__PURE__ */ jsx30("tbody", { className: "divide-y", children: sorted.map((row) => /* @__PURE__ */ jsx30(
-      "tr",
-      {
-        tabIndex: onRowClick ? 0 : void 0,
-        onClick: onRowClick ? (e) => {
-          const hit = e.target.closest?.(INTERATTIVI);
-          if (hit && e.currentTarget.contains(hit)) return;
-          onRowClick(row);
-        } : void 0,
-        onKeyDown: onRowClick ? (e) => {
-          if (e.key === "Enter" && e.target === e.currentTarget)
-            onRowClick(row);
-        } : void 0,
-        className: cn(
-          "transition-colors hover:bg-muted/40",
-          onRowClick && "cursor-pointer focus-visible:outline-none focus-visible:bg-muted/60 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-        ),
-        children: columns.map((c) => /* @__PURE__ */ jsx30(
-          "td",
+  return /* @__PURE__ */ jsxs24(Card, { className: cn("p-0", className), ...segnalaAttr(segnala), children: [
+    /* @__PURE__ */ jsx30("div", { className: "overflow-x-auto", children: body ? body : /* @__PURE__ */ jsxs24("table", { className: "w-full text-sm", children: [
+      caption && /* @__PURE__ */ jsx30("caption", { className: "sr-only", children: caption }),
+      /* @__PURE__ */ jsx30("thead", { className: "border-b bg-muted/50 font-medium text-muted-foreground", children: /* @__PURE__ */ jsx30("tr", { children: columns.map((c) => {
+        const active = sort && sort.key === c.key ? sort.dir : null;
+        const align = ALIGN[c.align] || ALIGN.left;
+        return /* @__PURE__ */ jsx30(
+          "th",
           {
+            scope: "col",
             ...segnalaAttr(c.segnala),
+            style: c.width ? { width: c.width } : void 0,
+            "aria-sort": c.sortable ? active === "asc" ? "ascending" : active === "desc" ? "descending" : "none" : void 0,
             className: cn(
               pad,
-              ALIGN[c.align] || ALIGN.left,
+              "whitespace-nowrap font-medium",
+              align,
               c.className
             ),
-            children: c.bar ? /* @__PURE__ */ jsx30(
-              BarraInline,
+            children: c.sortable ? /* @__PURE__ */ jsxs24(
+              "button",
               {
-                value: valoreBarra(c, row),
-                max: massimi[c.key],
-                children: c.cell ? c.cell(row) : row[c.key] ?? ""
+                type: "button",
+                onClick: () => toggle(c.key),
+                className: cn(
+                  "inline-flex items-center gap-1 rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  JUSTIFY[c.align] || JUSTIFY.left,
+                  active && "text-foreground"
+                ),
+                children: [
+                  c.header,
+                  /* @__PURE__ */ jsx30(SortIcon, { dir: active })
+                ]
               }
-            ) : c.cell ? c.cell(row) : row[c.key] ?? ""
+            ) : c.header
           },
           c.key
-        ))
-      },
-      rowKey(row)
-    )) })
-  ] }) }) });
+        );
+      }) }) }),
+      /* @__PURE__ */ jsx30("tbody", { className: "divide-y", children: visibili.map((row) => /* @__PURE__ */ jsx30(
+        "tr",
+        {
+          tabIndex: onRowClick ? 0 : void 0,
+          onClick: onRowClick ? (e) => {
+            const hit = e.target.closest?.(INTERATTIVI);
+            if (hit && e.currentTarget.contains(hit)) return;
+            onRowClick(row);
+          } : void 0,
+          onKeyDown: onRowClick ? (e) => {
+            if (e.key === "Enter" && e.target === e.currentTarget)
+              onRowClick(row);
+          } : void 0,
+          className: cn(
+            "transition-colors hover:bg-muted/40",
+            onRowClick && "cursor-pointer focus-visible:outline-none focus-visible:bg-muted/60 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+          ),
+          children: columns.map((c) => /* @__PURE__ */ jsx30(
+            "td",
+            {
+              ...segnalaAttr(c.segnala),
+              className: cn(
+                pad,
+                ALIGN[c.align] || ALIGN.left,
+                c.className
+              ),
+              children: c.bar ? /* @__PURE__ */ jsx30(
+                BarraInline,
+                {
+                  value: valoreBarra(c, row),
+                  max: massimi[c.key],
+                  children: c.cell ? c.cell(row) : row[c.key] ?? ""
+                }
+              ) : c.cell ? c.cell(row) : row[c.key] ?? ""
+            },
+            c.key
+          ))
+        },
+        rowKey(row)
+      )) })
+    ] }) }),
+    pageSize && !body && /* @__PURE__ */ jsx30(
+      Pagination,
+      {
+        page: pagina,
+        pageSize,
+        total: sorted.length,
+        onPageChange: setPagina,
+        className: "border-t px-4 py-2"
+      }
+    )
+  ] });
 }
 
 // src/organisms/MatriceCalore.jsx
@@ -4939,8 +4956,9 @@ function intensita(valore2, massimo) {
   if (!(massimo > 0) || !(valore2 > 0)) return 0;
   return Math.sqrt(Math.min(valore2 / massimo, 1));
 }
-function Cella({ valore: valore2, massimo, format }) {
-  const t = intensita(valore2, massimo);
+function Cella({ valore: valore2, massimo, format, nd }) {
+  const mancante = nd !== void 0 && (valore2 === null || valore2 === void 0);
+  const t = mancante ? 0 : intensita(valore2, massimo);
   const alfa = t > 0 ? 0.08 + 0.82 * t : 0;
   return /* @__PURE__ */ jsx31(
     "td",
@@ -4951,7 +4969,7 @@ function Cella({ valore: valore2, massimo, format }) {
       ),
       style: alfa ? { backgroundColor: `hsl(var(--primary) / ${alfa.toFixed(3)})` } : void 0,
       "data-intensita": t.toFixed(3),
-      children: valore2 ? format(valore2) : /* @__PURE__ */ jsx31("span", { className: "text-muted-foreground", children: "\u2013" })
+      children: mancante ? /* @__PURE__ */ jsx31("span", { className: "text-muted-foreground", children: nd }) : valore2 || nd !== void 0 && valore2 === 0 ? format(valore2) : /* @__PURE__ */ jsx31("span", { className: "text-muted-foreground", children: "\u2013" })
     }
   );
 }
@@ -4965,21 +4983,26 @@ function MatriceCalore({
   quota = true,
   rigaTotali = true,
   caption,
+  scala = "globale",
+  nd,
   empty = "Nessun dato nel periodo",
   segnala,
   className
 }) {
   const cols = colonne(periodi);
+  const grezzo = (r2, k) => {
+    const v = r2.valori?.[k];
+    return nd !== void 0 && (v === null || v === void 0) ? null : num(v);
+  };
   const valore2 = (r2, k) => num(r2.valori?.[k]);
   const totaliRiga = righe.map((r2) => somma(cols.map((c) => valore2(r2, c.key))));
   const totaliColonna = cols.map(
     (c) => somma(righe.map((r2) => valore2(r2, c.key)))
   );
   const generale = somma(totaliRiga);
-  const massimo = Math.max(
-    0,
-    ...righe.flatMap((r2) => cols.map((c) => valore2(r2, c.key)))
-  );
+  const massimoDi = (rs) => Math.max(0, ...rs.flatMap((r2) => cols.map((c) => valore2(r2, c.key))));
+  const massimo = massimoDi(righe);
+  const massimoRiga = (r2) => scala === "riga" ? massimoDi([r2]) : massimo;
   const parziali = cols.some((c) => c.parziale);
   const intest = "px-3 py-2 font-medium whitespace-nowrap";
   if (righe.length === 0 || cols.length === 0)
@@ -5041,13 +5064,14 @@ function MatriceCalore({
             cols.map((c) => /* @__PURE__ */ jsx31(
               Cella,
               {
-                valore: valore2(r2, c.key),
-                massimo,
-                format: formatValore
+                valore: grezzo(r2, c.key),
+                massimo: massimoRiga(r2),
+                format: r2.format ?? formatValore,
+                nd
               },
               c.key
             )),
-            totale && /* @__PURE__ */ jsx31("td", { className: "px-3 py-2 text-right font-semibold tabular-nums", children: formatValore(totaliRiga[i]) }),
+            totale && /* @__PURE__ */ jsx31("td", { className: "px-3 py-2 text-right font-semibold tabular-nums", children: (r2.format ?? formatValore)(totaliRiga[i]) }),
             quota && /* @__PURE__ */ jsx31("td", { className: "px-3 py-2 text-right tabular-nums text-muted-foreground", children: generale > 0 ? percento(totaliRiga[i] / generale) : "\u2013" })
           ]
         },
@@ -5103,11 +5127,11 @@ function formatDataIt(iso) {
 var isoGiorno = (d) => `${d.getUTCFullYear()}-${due2(d.getUTCMonth() + 1)}-${due2(d.getUTCDate())}`;
 
 // src/molecules/CampoData.jsx
-import { forwardRef as forwardRef5, useEffect as useEffect8, useId as useId7, useRef as useRef6, useState as useState10 } from "react";
+import { forwardRef as forwardRef5, useEffect as useEffect9, useId as useId7, useRef as useRef6, useState as useState11 } from "react";
 import { CalendarDays } from "lucide-react";
 
 // src/molecules/CalendarioMese.jsx
-import { useEffect as useEffect7, useRef as useRef5, useState as useState9 } from "react";
+import { useEffect as useEffect8, useRef as useRef5, useState as useState10 } from "react";
 import { ChevronLeft as ChevronLeft2, ChevronRight as ChevronRight3 } from "lucide-react";
 import { jsx as jsx32, jsxs as jsxs26 } from "react/jsx-runtime";
 var GIORNO2 = 864e5;
@@ -5137,11 +5161,11 @@ function CalendarioMese({
   autoFocus = false,
   className
 }) {
-  const [fuoco, setFuoco] = useState9(value || oggi);
-  const [mese2, setMese] = useState9(() => primoDelMese(daIso(value || oggi)));
+  const [fuoco, setFuoco] = useState10(value || oggi);
+  const [mese2, setMese] = useState10(() => primoDelMese(daIso(value || oggi)));
   const griglia$ = useRef5(null);
   const daFocalizzare = useRef5(autoFocus);
-  useEffect7(() => {
+  useEffect8(() => {
     if (!daFocalizzare.current) return;
     daFocalizzare.current = false;
     griglia$.current?.querySelector(`[data-giorno="${fuoco}"]`)?.focus();
@@ -5227,16 +5251,16 @@ var CampoData = forwardRef5(function CampoData2({
   id,
   className
 }, ref) {
-  const [testo, setTesto] = useState10(formatDataIt(value));
-  const [errato, setErrato] = useState10(false);
-  const [aperto, setAperto] = useState10(false);
+  const [testo, setTesto] = useState11(formatDataIt(value));
+  const [errato, setErrato] = useState11(false);
+  const [aperto, setAperto] = useState11(false);
   const radice = useRef6(null);
   const pannello = useId7();
-  useEffect8(() => {
+  useEffect9(() => {
     setTesto(formatDataIt(value));
     setErrato(false);
   }, [value]);
-  useEffect8(() => {
+  useEffect9(() => {
     if (!aperto) return void 0;
     const fuori = (e) => {
       if (!radice.current?.contains(e.target)) setAperto(false);
@@ -5563,7 +5587,7 @@ function PulsanteEsportaCsv({
 }
 
 // src/organisms/Dialog.jsx
-import { useEffect as useEffect9, useId as useId9, useRef as useRef7 } from "react";
+import { useEffect as useEffect10, useId as useId9, useRef as useRef7 } from "react";
 import { createPortal as createPortal2 } from "react-dom";
 import { X as X3 } from "lucide-react";
 import { jsx as jsx37, jsxs as jsxs30 } from "react/jsx-runtime";
@@ -5596,7 +5620,7 @@ function Dialog({
   const panelRef = useRef7(null);
   const onCloseRef = useRef7(onClose);
   onCloseRef.current = onClose;
-  useEffect9(() => {
+  useEffect10(() => {
     if (!open) return void 0;
     const opener = document.activeElement;
     const token = {};
@@ -5703,7 +5727,7 @@ function Dialog({
 }
 
 // src/organisms/ConfirmDialog.jsx
-import { useEffect as useEffect10, useRef as useRef8, useState as useState11 } from "react";
+import { useEffect as useEffect11, useRef as useRef8, useState as useState12 } from "react";
 import { Fragment as Fragment4, jsx as jsx38, jsxs as jsxs31 } from "react/jsx-runtime";
 function ConfirmDialog({
   open,
@@ -5718,10 +5742,10 @@ function ConfirmDialog({
 }) {
   const inCorso = useRef8(false);
   const generazione = useRef8(0);
-  const [loading, setLoading] = useState11(false);
-  const [errore, setErrore] = useState11(null);
-  const [testo, setTesto] = useState11("");
-  useEffect10(() => {
+  const [loading, setLoading] = useState12(false);
+  const [errore, setErrore] = useState12(null);
+  const [testo, setTesto] = useState12("");
+  useEffect11(() => {
     if (!open) {
       generazione.current += 1;
       inCorso.current = false;
@@ -5800,10 +5824,10 @@ import {
   createContext,
   useCallback as useCallback5,
   useContext,
-  useEffect as useEffect11,
+  useEffect as useEffect12,
   useMemo as useMemo3,
   useRef as useRef9,
-  useState as useState12
+  useState as useState13
 } from "react";
 import { AlertTriangle as AlertTriangle2, CheckCircle2 as CheckCircle22, Info as Info2, X as X4, XCircle as XCircle2 } from "lucide-react";
 import { jsx as jsx39, jsxs as jsxs32 } from "react/jsx-runtime";
@@ -5856,7 +5880,7 @@ function ToastItem({ t, onDismiss }) {
   );
 }
 function ToastProvider({ children }) {
-  const [toasts, setToasts] = useState12([]);
+  const [toasts, setToasts] = useState13([]);
   const timers = useRef9(/* @__PURE__ */ new Map());
   const seq = useRef9(0);
   const dismiss = useCallback5((id) => {
@@ -5878,7 +5902,7 @@ function ToastProvider({ children }) {
     },
     [dismiss]
   );
-  useEffect11(() => {
+  useEffect12(() => {
     const attivi = timers.current;
     return () => {
       attivi.forEach(clearTimeout);
@@ -5913,7 +5937,7 @@ function useToast() {
 }
 
 // src/organisms/VediCome.jsx
-import { useEffect as useEffect12, useId as useId10, useRef as useRef10, useState as useState13 } from "react";
+import { useEffect as useEffect13, useId as useId10, useRef as useRef10, useState as useState14 } from "react";
 import { Check as Check3, ChevronDown as ChevronDown4, Eye, RotateCcw as RotateCcw2 } from "lucide-react";
 import { jsx as jsx40, jsxs as jsxs33 } from "react/jsx-runtime";
 function VediCome({
@@ -5926,10 +5950,10 @@ function VediCome({
   titolo: titolo2 = "Vedi l'app come",
   className
 }) {
-  const [open, setOpen] = useState13(false);
+  const [open, setOpen] = useState14(false);
   const boxRef = useRef10(null);
   const uid = useId10();
-  useEffect12(() => {
+  useEffect13(() => {
     if (!open) return void 0;
     const fuori = (e) => {
       if (boxRef.current && !boxRef.current.contains(e.target)) setOpen(false);
@@ -6062,10 +6086,10 @@ function VediCome({
 import {
   createContext as createContext2,
   useContext as useContext2,
-  useEffect as useEffect13,
+  useEffect as useEffect14,
   useMemo as useMemo4,
   useRef as useRef11,
-  useState as useState14
+  useState as useState15
 } from "react";
 import { useLocation as useLocation2 } from "react-router-dom";
 import { Menu } from "lucide-react";
@@ -6076,7 +6100,7 @@ var NESSUNA_VOCE = [];
 var CompattaContext = createContext2(null);
 function useSidebarCompatta(attiva = true) {
   const richiedi = useContext2(CompattaContext);
-  useEffect13(() => {
+  useEffect14(() => {
     if (!attiva || !richiedi) return void 0;
     return richiedi();
   }, [attiva, richiedi]);
@@ -6120,9 +6144,9 @@ function AppShell({
   useFaviconVuscom(sidebar.iconaPortale);
   const mainTree = useMemo4(() => normalizeNavTree(nav), [nav]);
   const adminTree = useMemo4(() => normalizeNavTree(adminNav), [adminNav]);
-  const [collapsed, setCollapsed] = useState14(readCollapsed2);
-  const [richieste, setRichieste] = useState14(0);
-  const [riaperta, setRiaperta] = useState14(false);
+  const [collapsed, setCollapsed] = useState15(readCollapsed2);
+  const [richieste, setRichieste] = useState15(0);
+  const [riaperta, setRiaperta] = useState15(false);
   const forzata = richieste > 0 && !riaperta;
   const richiediCompatta = useMemo4(
     () => () => {
@@ -6131,18 +6155,18 @@ function AppShell({
     },
     []
   );
-  useEffect13(() => {
+  useEffect14(() => {
     if (richieste === 0) setRiaperta(false);
   }, [richieste]);
-  const [apertaQui, setApertaQui] = useState14(false);
-  const [isOpen, setIsOpen] = useState14(false);
-  const [expanded, setExpanded] = useState14(
+  const [apertaQui, setApertaQui] = useState15(false);
+  const [isOpen, setIsOpen] = useState15(false);
+  const [expanded, setExpanded] = useState15(
     () => new Set(activeGroupIds([...mainTree, ...adminTree], pathname))
   );
   const mainRef = useRef11(null);
   const treesRef = useRef11(null);
   treesRef.current = [...mainTree, ...adminTree];
-  useEffect13(() => {
+  useEffect14(() => {
     const attivi = activeGroupIds(treesRef.current, pathname);
     if (attivi.length > 0)
       setExpanded(
@@ -6292,11 +6316,11 @@ function Section({
 }
 
 // src/templates/LoginPage.jsx
-import { useId as useId11, useState as useState16 } from "react";
+import { useId as useId11, useState as useState17 } from "react";
 import { Eye as Eye2, EyeOff } from "lucide-react";
 
 // src/accesso/useAccessoMicrosoft.js
-import { useCallback as useCallback6, useEffect as useEffect14, useState as useState15 } from "react";
+import { useCallback as useCallback6, useEffect as useEffect15, useState as useState16 } from "react";
 var BASE_MICROSOFT = "/api/auth/microsoft";
 var MESSAGGI_ERRORE_MICROSOFT = {
   annullato: "Accesso con Microsoft annullato.",
@@ -6324,10 +6348,10 @@ function chiestoDaAltroPortale() {
   return true;
 }
 function useAccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso } = {}) {
-  const [disponibile, setDisponibile] = useState15(false);
-  const [inCorso, setInCorso] = useState15(false);
-  const [errore, setErrore] = useState15("");
-  useEffect14(() => {
+  const [disponibile, setDisponibile] = useState16(false);
+  const [inCorso, setInCorso] = useState16(false);
+  const [errore, setErrore] = useState16("");
+  useEffect15(() => {
     let attivo = true;
     const automatico = chiestoDaAltroPortale();
     const { biglietto, errore: codice } = leggiFrammento();
@@ -6459,11 +6483,11 @@ function LoginPage({
 }) {
   const passwordId = useId11();
   useFaviconVuscom(iconaPortale);
-  const [username, setUsername] = useState16("");
-  const [password, setPassword] = useState16("");
-  const [show, setShow] = useState16(false);
-  const [loading, setLoading] = useState16(false);
-  const [error, setError] = useState16("");
+  const [username, setUsername] = useState17("");
+  const [password, setPassword] = useState17("");
+  const [show, setShow] = useState17(false);
+  const [loading, setLoading] = useState17(false);
+  const [error, setError] = useState17("");
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");

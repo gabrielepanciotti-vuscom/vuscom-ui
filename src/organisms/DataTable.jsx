@@ -1,8 +1,10 @@
+import { useEffect, useState } from "react";
 import { ChevronDown, ChevronUp, ChevronsUpDown, Inbox } from "lucide-react";
 import { cn } from "../lib/cn.js";
 import { Card } from "./Card.jsx";
 import { SkeletonTable } from "./Skeleton.jsx";
 import EmptyState from "./EmptyState.jsx";
+import Pagination from "./Pagination.jsx";
 import useSort from "./useSort.js";
 import BarraInline, { massimiBarre, valoreBarra } from "./BarraInline.jsx";
 import { segnalaAttr } from "../segnalazioni/segnalaAttr.js";
@@ -36,6 +38,7 @@ export default function DataTable({
   initialSort,
   dense = false,
   caption,
+  pageSize,
   segnala,
   className,
 }) {
@@ -47,6 +50,14 @@ export default function DataTable({
     initial: initialSort,
     accessors,
   });
+
+  // `pageSize` paginates after sorting, so a header click sorts every row,
+  // not just the visible page; a new sort or a new row count goes back to page 1.
+  const [pagina, setPagina] = useState(1);
+  useEffect(() => setPagina(1), [sort, rows.length]);
+  const visibili = pageSize
+    ? sorted.slice((pagina - 1) * pageSize, pagina * pageSize)
+    : sorted;
 
   const pad = dense ? "px-3 py-1.5" : "px-4 py-3";
   // `bar: true` on a column draws a bar proportional to that column's maximum.
@@ -129,7 +140,7 @@ export default function DataTable({
               </tr>
             </thead>
             <tbody className="divide-y">
-              {sorted.map((row) => (
+              {visibili.map((row) => (
                 <tr
                   key={rowKey(row)}
                   tabIndex={onRowClick ? 0 : undefined}
@@ -186,6 +197,15 @@ export default function DataTable({
           </table>
         )}
       </div>
+      {pageSize && !body && (
+        <Pagination
+          page={pagina}
+          pageSize={pageSize}
+          total={sorted.length}
+          onPageChange={setPagina}
+          className="border-t px-4 py-2"
+        />
+      )}
     </Card>
   );
 }

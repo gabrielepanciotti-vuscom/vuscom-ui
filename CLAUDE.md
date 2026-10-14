@@ -6,7 +6,7 @@ Le regole globali (stack, git, portali, ruoli) vengono da `~/.claude/CLAUDE.shar
 
 ## Stack
 React 18 + Tailwind 3 (preset) · esbuild · vitest + Testing Library · peer: react, react-dom, react-router-dom (opz.), lucide-react.
-Repo pubblico, `dist/` versionato, rilascio per tag `vX.Y.Z` (oggi v1.14.0). Path: `$PATH_VUSCOM_UI`.
+Repo pubblico, `dist/` versionato, rilascio per tag `vX.Y.Z` (oggi v1.15.0). Path: `$PATH_VUSCOM_UI`.
 
 ## Struttura
 - `src/{atoms,molecules,organisms,templates,theme,brand,lib,accesso,segnalazioni,utenti,grafici}`, `src/AppSidebar.jsx`, `src/navTree.js`

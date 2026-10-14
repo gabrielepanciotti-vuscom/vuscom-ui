@@ -28,8 +28,9 @@ export function intensita(valore, massimo) {
   return Math.sqrt(Math.min(valore / massimo, 1));
 }
 
-function Cella({ valore, massimo, format }) {
-  const t = intensita(valore, massimo);
+function Cella({ valore, massimo, format, nd }) {
+  const mancante = nd !== undefined && (valore === null || valore === undefined);
+  const t = mancante ? 0 : intensita(valore, massimo);
   const alfa = t > 0 ? 0.08 + 0.82 * t : 0;
   return (
     <td
@@ -44,7 +45,9 @@ function Cella({ valore, massimo, format }) {
       }
       data-intensita={t.toFixed(3)}
     >
-      {valore ? (
+      {mancante ? (
+        <span className="text-muted-foreground">{nd}</span>
+      ) : valore || (nd !== undefined && valore === 0) ? (
         format(valore)
       ) : (
         <span className="text-muted-foreground">–</span>
@@ -63,21 +66,30 @@ export default function MatriceCalore({
   quota = true,
   rigaTotali = true,
   caption,
+  scala = "globale",
+  nd,
   empty = "Nessun dato nel periodo",
   segnala,
   className,
 }) {
   const cols = colonne(periodi);
+  // `nd` set: a missing value (null/undefined) reads `nd`, a real 0 reads 0.
+  const grezzo = (r, k) => {
+    const v = r.valori?.[k];
+    return nd !== undefined && (v === null || v === undefined) ? null : num(v);
+  };
   const valore = (r, k) => num(r.valori?.[k]);
   const totaliRiga = righe.map((r) => somma(cols.map((c) => valore(r, c.key))));
   const totaliColonna = cols.map((c) =>
     somma(righe.map((r) => valore(r, c.key))),
   );
   const generale = somma(totaliRiga);
-  const massimo = Math.max(
-    0,
-    ...righe.flatMap((r) => cols.map((c) => valore(r, c.key))),
-  );
+  // "riga": each row is coloured against its own maximum, for rows with
+  // different units (counts next to euros) that one scale would flatten.
+  const massimoDi = (rs) =>
+    Math.max(0, ...rs.flatMap((r) => cols.map((c) => valore(r, c.key))));
+  const massimo = massimoDi(righe);
+  const massimoRiga = (r) => (scala === "riga" ? massimoDi([r]) : massimo);
   const parziali = cols.some((c) => c.parziale);
   const intest = "px-3 py-2 font-medium whitespace-nowrap";
 
@@ -159,14 +171,15 @@ export default function MatriceCalore({
                 {cols.map((c) => (
                   <Cella
                     key={c.key}
-                    valore={valore(r, c.key)}
-                    massimo={massimo}
-                    format={formatValore}
+                    valore={grezzo(r, c.key)}
+                    massimo={massimoRiga(r)}
+                    format={r.format ?? formatValore}
+                    nd={nd}
                   />
                 ))}
                 {totale && (
                   <td className="px-3 py-2 text-right font-semibold tabular-nums">
-                    {formatValore(totaliRiga[i])}
+                    {(r.format ?? formatValore)(totaliRiga[i])}
                   </td>
                 )}
                 {quota && (

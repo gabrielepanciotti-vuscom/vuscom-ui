@@ -10,7 +10,36 @@ import {
   Section,
   useToast,
 } from "../../src/index.js";
-import { GraficoBarre } from "../../src/grafici/index.js";
+import { GraficoBarre, PaginaReportCampagna } from "../../src/grafici/index.js";
+
+// Demo snapshots of two campaigns: Bonus 50 with three months of history,
+// Segnalatori started this month (the "storico in costruzione" case).
+const FOTO = [
+  ...["2026-07-01", "2026-08-01", "2026-09-01", "2026-10-01", "2026-10-13", "2026-10-14"].map((d, i) => ({
+    campagna: "bonus_50",
+    data_riferimento: d,
+    mensile: d.endsWith("-01"),
+    forniture_attive: 90 + i * 8,
+    storni: 1 + i * 2,
+    maturati: i * 2,
+    costo: 900 + i * 300,
+    margine: i < 4 ? 3800 + i * 600 : null,
+    guadagno_netto: i < 4 ? 2900 + i * 300 : null,
+    indicatori: { beneficiari: 92 + i * 10, senza_fornitura: 3 + (i % 2), bonus_riconosciuto: 4600 + i * 500 },
+  })),
+  ...["2026-10-12", "2026-10-13", "2026-10-14"].map((d, i) => ({
+    campagna: "segnalatori",
+    data_riferimento: d,
+    mensile: false,
+    forniture_attive: 38 + i,
+    storni: 1,
+    maturati: 2 + i,
+    costo: null,
+    margine: null,
+    guadagno_netto: null,
+    indicatori: { contratti: 44 + i, segnalazioni: 60 + i * 2, dati_al: d },
+  })),
+];
 
 // Demo data: email classifications by day, the shape of a campaign report.
 const ESITI = ["Accettata", "Da verificare", "Rifiutata", "Duplicata"];
@@ -55,6 +84,18 @@ export default function Report() {
 
   return (
     <>
+      <Section title="PaginaReportCampagna (@vuscom/ui/grafici)">
+        <div className="rounded-xl border bg-background p-6">
+          <PaginaReportCampagna
+            campagne={[
+              { id: "bonus_50", label: "Bonus 50" },
+              { id: "segnalatori", label: "Segnalatori" },
+            ]}
+            righe={FOTO}
+            oggi="2026-10-14"
+          />
+        </div>
+      </Section>
       <Section title="BarraFiltriPeriodo">
         <BarraFiltriPeriodo
           value={filtri}
