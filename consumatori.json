@@ -34,21 +34,86 @@
       "agente": "portale-dev-linux",
       "repo": "gabrielepanciotti-vuscom/Portale_Segnalazioni",
       "frontend": "Portale_Segnalazioni/frontend",
-      "usa": ["index", "segnalazioni", "preset", "theme", "conformita"]
+      "usa": [
+        "index",
+        "segnalazioni",
+        "preset",
+        "theme",
+        "conformita"
+      ]
     },
     {
       "nome": "Configuratore",
       "agente": "configuratore-dev-linux",
       "repo": "gabrielepanciotti-vuscom/Configuratore",
       "frontend": "Configuratore/frontend",
-      "usa": ["index", "preset", "theme", "conformita"]
+      "usa": [
+        "index",
+        "preset",
+        "theme",
+        "conformita"
+      ]
     },
     {
       "nome": "OutBound",
       "agente": "outbound-dev-linux",
       "repo": "gabrielepanciotti-vuscom/OutBound",
       "frontend": "OutBound/frontend",
-      "usa": ["index", "utenti", "preset", "theme", "conformita"]
+      "usa": [
+        "index",
+        "utenti",
+        "preset",
+        "theme",
+        "conformita"
+      ]
+    },
+    {
+      "nome": "BrainEditor",
+      "agente": "brain-editor-dev-linux",
+      "repo": "gabrielepanciotti-vuscom/BrainEditor",
+      "frontend": "BrainEditor/frontend",
+      "usa": [
+        "index",
+        "preset",
+        "theme",
+        "conformita"
+      ]
+    },
+    {
+      "nome": "vuscom-db",
+      "agente": "db-dev-linux",
+      "repo": "gabrielepanciotti-vuscom/vuscom-db",
+      "frontend": "vuscom-db/frontend",
+      "usa": [
+        "index",
+        "preset",
+        "theme",
+        "conformita"
+      ]
+    },
+    {
+      "nome": "vicky",
+      "agente": "vicky-dev-linux",
+      "repo": "gabrielepanciotti-vuscom/vicky",
+      "frontend": "vicky/frontend",
+      "usa": [
+        "index",
+        "preset",
+        "theme",
+        "conformita"
+      ]
+    },
+    {
+      "nome": "CallManager",
+      "agente": "call-manager-dev-linux",
+      "repo": "gabrielepanciotti-vuscom/CallManager",
+      "frontend": "CallManager/frontend",
+      "usa": [
+        "index",
+        "preset",
+        "theme",
+        "conformita"
+      ]
     }
   ]
 }
