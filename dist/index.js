@@ -5912,25 +5912,171 @@ function useToast() {
   return ctx;
 }
 
+// src/organisms/VediCome.jsx
+import { useEffect as useEffect12, useId as useId10, useRef as useRef10, useState as useState13 } from "react";
+import { Check as Check3, ChevronDown as ChevronDown4, Eye, RotateCcw as RotateCcw2 } from "lucide-react";
+import { jsx as jsx40, jsxs as jsxs33 } from "react/jsx-runtime";
+function VediCome({
+  viste = [],
+  attiva = null,
+  onSeleziona,
+  labelAttiva,
+  nota,
+  labelRipristino = "Torna alla vista reale",
+  titolo: titolo2 = "Vedi l'app come",
+  className
+}) {
+  const [open, setOpen] = useState13(false);
+  const boxRef = useRef10(null);
+  const uid = useId10();
+  useEffect12(() => {
+    if (!open) return void 0;
+    const fuori = (e) => {
+      if (boxRef.current && !boxRef.current.contains(e.target)) setOpen(false);
+    };
+    const esc = (e) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", fuori);
+    document.addEventListener("keydown", esc);
+    return () => {
+      document.removeEventListener("mousedown", fuori);
+      document.removeEventListener("keydown", esc);
+    };
+  }, [open]);
+  if (!viste.length) return null;
+  const corrente = viste.find((v) => v.key === attiva);
+  const attivo = attiva != null;
+  const etichetta = labelAttiva ?? corrente?.label ?? attiva;
+  const scegli = (key) => {
+    setOpen(false);
+    onSeleziona?.(key);
+  };
+  return /* @__PURE__ */ jsxs33("div", { className: cn("relative", className), ref: boxRef, children: [
+    /* @__PURE__ */ jsxs33(
+      "button",
+      {
+        type: "button",
+        onClick: () => setOpen((v) => !v),
+        "aria-haspopup": "menu",
+        "aria-expanded": open,
+        "aria-controls": open ? `${uid}-menu` : void 0,
+        title: attivo ? `Stai vedendo l'app come ${etichetta}` : "Vedi l'app come un altro ruolo",
+        className: cn(
+          "flex items-center gap-1.5 h-8 pl-2.5 pr-2 rounded-md text-[12px] font-medium border transition-colors",
+          attivo ? "border-amber-300 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-500/[0.12] text-amber-800 dark:text-amber-300" : "border-transparent text-slate-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-white/[0.06]"
+        ),
+        children: [
+          /* @__PURE__ */ jsx40(Eye, { className: "w-4 h-4", "aria-hidden": "true" }),
+          /* @__PURE__ */ jsx40("span", { className: "hidden sm:inline", children: attivo ? `Vista: ${etichetta}` : "Vedi come" }),
+          /* @__PURE__ */ jsx40(
+            ChevronDown4,
+            {
+              "aria-hidden": "true",
+              className: cn(
+                "w-3.5 h-3.5 transition-transform duration-150",
+                open && "rotate-180"
+              )
+            }
+          )
+        ]
+      }
+    ),
+    open && /* @__PURE__ */ jsxs33(
+      "div",
+      {
+        id: `${uid}-menu`,
+        role: "menu",
+        "aria-label": titolo2,
+        className: "absolute right-0 mt-2 w-72 z-30 bg-white dark:bg-slate-800 border border-gray-200 dark:border-white/10 rounded-lg shadow-xl py-1.5",
+        children: [
+          /* @__PURE__ */ jsx40("div", { className: "px-3 py-1.5 text-[10px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500", children: titolo2 }),
+          viste.map((v) => {
+            const selected = v.key === attiva;
+            return /* @__PURE__ */ jsxs33(
+              "button",
+              {
+                type: "button",
+                role: "menuitemradio",
+                "aria-checked": selected,
+                onClick: () => scegli(v.key),
+                className: cn(
+                  "w-full text-left px-3 py-2 flex items-start gap-2 transition-colors",
+                  selected ? "bg-brand-50 dark:bg-brand-500/[0.12]" : "hover:bg-gray-50 dark:hover:bg-white/[0.06]"
+                ),
+                children: [
+                  /* @__PURE__ */ jsx40(
+                    Check3,
+                    {
+                      "aria-hidden": "true",
+                      className: cn(
+                        "w-3.5 h-3.5 mt-0.5 flex-shrink-0",
+                        selected ? "text-brand-600 dark:text-brand-400" : "text-transparent"
+                      )
+                    }
+                  ),
+                  /* @__PURE__ */ jsxs33("span", { className: "min-w-0", children: [
+                    /* @__PURE__ */ jsx40(
+                      "span",
+                      {
+                        className: cn(
+                          "block text-[13px]",
+                          selected ? "font-semibold text-brand-700 dark:text-brand-300" : "text-slate-700 dark:text-slate-200"
+                        ),
+                        children: v.label
+                      }
+                    ),
+                    v.descrizione && /* @__PURE__ */ jsx40("span", { className: "block text-[11px] text-slate-400 dark:text-slate-500 leading-snug", children: v.descrizione })
+                  ] })
+                ]
+              },
+              v.key
+            );
+          }),
+          /* @__PURE__ */ jsx40("div", { className: "border-t border-gray-100 dark:border-white/[0.06] my-1" }),
+          /* @__PURE__ */ jsxs33(
+            "button",
+            {
+              type: "button",
+              role: "menuitem",
+              onClick: () => scegli(null),
+              disabled: !attivo,
+              className: cn(
+                "w-full text-left px-3 py-2 text-[13px] flex items-center gap-2 transition-colors",
+                attivo ? "text-slate-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-white/[0.06]" : "text-slate-300 dark:text-slate-600 cursor-not-allowed"
+              ),
+              children: [
+                /* @__PURE__ */ jsx40(RotateCcw2, { className: "w-3.5 h-3.5", "aria-hidden": "true" }),
+                labelRipristino
+              ]
+            }
+          ),
+          nota && /* @__PURE__ */ jsx40("p", { className: "px-3 pt-1 pb-1.5 text-[10px] text-slate-400 dark:text-slate-500 leading-snug", children: nota })
+        ]
+      }
+    )
+  ] });
+}
+
 // src/templates/AppShell.jsx
 import {
   createContext as createContext2,
   useContext as useContext2,
-  useEffect as useEffect12,
+  useEffect as useEffect13,
   useMemo as useMemo4,
-  useRef as useRef10,
-  useState as useState13
+  useRef as useRef11,
+  useState as useState14
 } from "react";
 import { useLocation as useLocation2 } from "react-router-dom";
 import { Menu } from "lucide-react";
-import { Fragment as Fragment5, jsx as jsx40, jsxs as jsxs33 } from "react/jsx-runtime";
+import { Fragment as Fragment5, jsx as jsx41, jsxs as jsxs34 } from "react/jsx-runtime";
 var STORAGE_KEY2 = "vuscom.sidebar.collapsed";
 var WIDTHS = { "7xl": "max-w-7xl", full: "max-w-none" };
 var NESSUNA_VOCE = [];
 var CompattaContext = createContext2(null);
 function useSidebarCompatta(attiva = true) {
   const richiedi = useContext2(CompattaContext);
-  useEffect12(() => {
+  useEffect13(() => {
     if (!attiva || !richiedi) return void 0;
     return richiedi();
   }, [attiva, richiedi]);
@@ -5974,9 +6120,9 @@ function AppShell({
   useFaviconVuscom(sidebar.iconaPortale);
   const mainTree = useMemo4(() => normalizeNavTree(nav), [nav]);
   const adminTree = useMemo4(() => normalizeNavTree(adminNav), [adminNav]);
-  const [collapsed, setCollapsed] = useState13(readCollapsed2);
-  const [richieste, setRichieste] = useState13(0);
-  const [riaperta, setRiaperta] = useState13(false);
+  const [collapsed, setCollapsed] = useState14(readCollapsed2);
+  const [richieste, setRichieste] = useState14(0);
+  const [riaperta, setRiaperta] = useState14(false);
   const forzata = richieste > 0 && !riaperta;
   const richiediCompatta = useMemo4(
     () => () => {
@@ -5985,18 +6131,18 @@ function AppShell({
     },
     []
   );
-  useEffect12(() => {
+  useEffect13(() => {
     if (richieste === 0) setRiaperta(false);
   }, [richieste]);
-  const [apertaQui, setApertaQui] = useState13(false);
-  const [isOpen, setIsOpen] = useState13(false);
-  const [expanded, setExpanded] = useState13(
+  const [apertaQui, setApertaQui] = useState14(false);
+  const [isOpen, setIsOpen] = useState14(false);
+  const [expanded, setExpanded] = useState14(
     () => new Set(activeGroupIds([...mainTree, ...adminTree], pathname))
   );
-  const mainRef = useRef10(null);
-  const treesRef = useRef10(null);
+  const mainRef = useRef11(null);
+  const treesRef = useRef11(null);
   treesRef.current = [...mainTree, ...adminTree];
-  useEffect12(() => {
+  useEffect13(() => {
     const attivi = activeGroupIds(treesRef.current, pathname);
     if (attivi.length > 0)
       setExpanded(
@@ -6031,8 +6177,8 @@ function AppShell({
   });
   const compressa = compattaAdOgniPagina ? !apertaQui : collapsed || forzata;
   const azioni = typeof azioniSidebar === "function" ? azioniSidebar({ compressa }) : azioniSidebar;
-  return /* @__PURE__ */ jsx40(CompattaContext.Provider, { value: richiediCompatta, children: /* @__PURE__ */ jsxs33("div", { className: "flex h-screen bg-app", children: [
-    /* @__PURE__ */ jsx40(
+  return /* @__PURE__ */ jsx41(CompattaContext.Provider, { value: richiediCompatta, children: /* @__PURE__ */ jsxs34("div", { className: "flex h-screen bg-app", children: [
+    /* @__PURE__ */ jsx41(
       AppSidebar,
       {
         ...sidebarProps,
@@ -6044,24 +6190,24 @@ function AppShell({
         onClose: () => setIsOpen(false),
         collapsed: compressa,
         onToggleCollapse: toggleCollapse,
-        footerSlot: azioni && !compressa ? /* @__PURE__ */ jsxs33(Fragment5, { children: [
+        footerSlot: azioni && !compressa ? /* @__PURE__ */ jsxs34(Fragment5, { children: [
           sidebarProps.footerSlot,
           azioni
         ] }) : sidebarProps.footerSlot,
         themeSlot: azioni && compressa ? (
           // Collapsed (60px): no footer rows, so it stacks over the toggle.
-          /* @__PURE__ */ jsxs33("div", { className: "flex flex-col items-center gap-1.5", children: [
+          /* @__PURE__ */ jsxs34("div", { className: "flex flex-col items-center gap-1.5", children: [
             azioni,
-            /* @__PURE__ */ jsx40(ThemeToggle, {})
+            /* @__PURE__ */ jsx41(ThemeToggle, {})
           ] })
-        ) : /* @__PURE__ */ jsx40(ThemeToggle, {}),
+        ) : /* @__PURE__ */ jsx41(ThemeToggle, {}),
         navClassName: "scrollbar-thin",
         portaliRichiudibili
       }
     ),
-    /* @__PURE__ */ jsxs33("div", { className: "flex min-w-0 flex-1 flex-col", children: [
-      /* @__PURE__ */ jsxs33("header", { className: "flex h-14 shrink-0 items-center justify-between gap-3 border-b bg-background/80 px-4 backdrop-blur", children: [
-        /* @__PURE__ */ jsx40(
+    /* @__PURE__ */ jsxs34("div", { className: "flex min-w-0 flex-1 flex-col", children: [
+      /* @__PURE__ */ jsxs34("header", { className: "flex h-14 shrink-0 items-center justify-between gap-3 border-b bg-background/80 px-4 backdrop-blur", children: [
+        /* @__PURE__ */ jsx41(
           IconButton_default,
           {
             icon: Menu,
@@ -6070,14 +6216,14 @@ function AppShell({
             onClick: () => setIsOpen(true)
           }
         ),
-        /* @__PURE__ */ jsx40("div", { className: "ml-auto flex items-center gap-2", children: topbarRight })
+        /* @__PURE__ */ jsx41("div", { className: "ml-auto flex items-center gap-2", children: topbarRight })
       ] }),
-      /* @__PURE__ */ jsx40(
+      /* @__PURE__ */ jsx41(
         "main",
         {
           ref: mainRef,
           className: "flex-1 overflow-y-auto scrollbar-thin p-4 md:p-6",
-          children: /* @__PURE__ */ jsx40("div", { className: cn("mx-auto", WIDTHS[maxWidth] ?? WIDTHS["7xl"]), children })
+          children: /* @__PURE__ */ jsx41("div", { className: cn("mx-auto", WIDTHS[maxWidth] ?? WIDTHS["7xl"]), children })
         }
       )
     ] })
@@ -6086,7 +6232,7 @@ function AppShell({
 
 // src/templates/PageHeader.jsx
 import { BookOpen as BookOpen2 } from "lucide-react";
-import { jsx as jsx41, jsxs as jsxs34 } from "react/jsx-runtime";
+import { jsx as jsx42, jsxs as jsxs35 } from "react/jsx-runtime";
 function PageHeader({
   title,
   description,
@@ -6097,35 +6243,35 @@ function PageHeader({
   tabs,
   className
 }) {
-  return /* @__PURE__ */ jsxs34("div", { className: cn("mb-6 space-y-4", className), children: [
-    /* @__PURE__ */ jsxs34("div", { className: "flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between", children: [
-      /* @__PURE__ */ jsxs34("div", { className: "min-w-0 space-y-1", children: [
-        /* @__PURE__ */ jsxs34("div", { className: "flex items-center gap-2", children: [
-          Icon && /* @__PURE__ */ jsx41(Icon, { className: "h-6 w-6 text-primary", "aria-hidden": true }),
-          /* @__PURE__ */ jsx41("h1", { className: "text-2xl font-bold tracking-tight", children: title }),
-          help && /* @__PURE__ */ jsx41(InfoTip, { children: help }),
-          helpHref && /* @__PURE__ */ jsxs34(
+  return /* @__PURE__ */ jsxs35("div", { className: cn("mb-6 space-y-4", className), children: [
+    /* @__PURE__ */ jsxs35("div", { className: "flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between", children: [
+      /* @__PURE__ */ jsxs35("div", { className: "min-w-0 space-y-1", children: [
+        /* @__PURE__ */ jsxs35("div", { className: "flex items-center gap-2", children: [
+          Icon && /* @__PURE__ */ jsx42(Icon, { className: "h-6 w-6 text-primary", "aria-hidden": true }),
+          /* @__PURE__ */ jsx42("h1", { className: "text-2xl font-bold tracking-tight", children: title }),
+          help && /* @__PURE__ */ jsx42(InfoTip, { children: help }),
+          helpHref && /* @__PURE__ */ jsxs35(
             "a",
             {
               href: helpHref,
               className: "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
               children: [
-                /* @__PURE__ */ jsx41(BookOpen2, { className: "h-3.5 w-3.5", "aria-hidden": true }),
+                /* @__PURE__ */ jsx42(BookOpen2, { className: "h-3.5 w-3.5", "aria-hidden": true }),
                 "Guida"
               ]
             }
           )
         ] }),
-        description && /* @__PURE__ */ jsx41("p", { className: "text-muted-foreground", children: description })
+        description && /* @__PURE__ */ jsx42("p", { className: "text-muted-foreground", children: description })
       ] }),
-      actions && /* @__PURE__ */ jsx41("div", { className: "flex shrink-0 flex-wrap items-center gap-2", children: actions })
+      actions && /* @__PURE__ */ jsx42("div", { className: "flex shrink-0 flex-wrap items-center gap-2", children: actions })
     ] }),
     tabs
   ] });
 }
 
 // src/templates/Section.jsx
-import { jsx as jsx42, jsxs as jsxs35 } from "react/jsx-runtime";
+import { jsx as jsx43, jsxs as jsxs36 } from "react/jsx-runtime";
 function Section({
   title,
   description,
@@ -6133,24 +6279,24 @@ function Section({
   className,
   children
 }) {
-  return /* @__PURE__ */ jsxs35("section", { className: cn("space-y-3", className), children: [
-    (title || description || actions) && /* @__PURE__ */ jsxs35("div", { className: "flex items-start justify-between gap-3", children: [
-      /* @__PURE__ */ jsxs35("div", { className: "min-w-0", children: [
-        title && /* @__PURE__ */ jsx42("h2", { className: "text-lg font-semibold", children: title }),
-        description && /* @__PURE__ */ jsx42("p", { className: "text-sm text-muted-foreground", children: description })
+  return /* @__PURE__ */ jsxs36("section", { className: cn("space-y-3", className), children: [
+    (title || description || actions) && /* @__PURE__ */ jsxs36("div", { className: "flex items-start justify-between gap-3", children: [
+      /* @__PURE__ */ jsxs36("div", { className: "min-w-0", children: [
+        title && /* @__PURE__ */ jsx43("h2", { className: "text-lg font-semibold", children: title }),
+        description && /* @__PURE__ */ jsx43("p", { className: "text-sm text-muted-foreground", children: description })
       ] }),
-      actions && /* @__PURE__ */ jsx42("div", { className: "flex shrink-0 items-center gap-2", children: actions })
+      actions && /* @__PURE__ */ jsx43("div", { className: "flex shrink-0 items-center gap-2", children: actions })
     ] }),
     children
   ] });
 }
 
 // src/templates/LoginPage.jsx
-import { useId as useId10, useState as useState15 } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { useId as useId11, useState as useState16 } from "react";
+import { Eye as Eye2, EyeOff } from "lucide-react";
 
 // src/accesso/useAccessoMicrosoft.js
-import { useCallback as useCallback6, useEffect as useEffect13, useState as useState14 } from "react";
+import { useCallback as useCallback6, useEffect as useEffect14, useState as useState15 } from "react";
 var BASE_MICROSOFT = "/api/auth/microsoft";
 var MESSAGGI_ERRORE_MICROSOFT = {
   annullato: "Accesso con Microsoft annullato.",
@@ -6178,10 +6324,10 @@ function chiestoDaAltroPortale() {
   return true;
 }
 function useAccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso } = {}) {
-  const [disponibile, setDisponibile] = useState14(false);
-  const [inCorso, setInCorso] = useState14(false);
-  const [errore, setErrore] = useState14("");
-  useEffect13(() => {
+  const [disponibile, setDisponibile] = useState15(false);
+  const [inCorso, setInCorso] = useState15(false);
+  const [errore, setErrore] = useState15("");
+  useEffect14(() => {
     let attivo = true;
     const automatico = chiestoDaAltroPortale();
     const { biglietto, errore: codice } = leggiFrammento();
@@ -6237,27 +6383,27 @@ function useAccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso } = {}) {
 }
 
 // src/accesso/AccessoMicrosoft.jsx
-import { Fragment as Fragment6, jsx as jsx43, jsxs as jsxs36 } from "react/jsx-runtime";
+import { Fragment as Fragment6, jsx as jsx44, jsxs as jsxs37 } from "react/jsx-runtime";
 function LogoMicrosoft() {
-  return /* @__PURE__ */ jsxs36("svg", { viewBox: "0 0 21 21", className: "h-4 w-4", "aria-hidden": "true", children: [
-    /* @__PURE__ */ jsx43("rect", { x: "1", y: "1", width: "9", height: "9", fill: "#f25022" }),
-    /* @__PURE__ */ jsx43("rect", { x: "11", y: "1", width: "9", height: "9", fill: "#7fba00" }),
-    /* @__PURE__ */ jsx43("rect", { x: "1", y: "11", width: "9", height: "9", fill: "#00a4ef" }),
-    /* @__PURE__ */ jsx43("rect", { x: "11", y: "11", width: "9", height: "9", fill: "#ffb900" })
+  return /* @__PURE__ */ jsxs37("svg", { viewBox: "0 0 21 21", className: "h-4 w-4", "aria-hidden": "true", children: [
+    /* @__PURE__ */ jsx44("rect", { x: "1", y: "1", width: "9", height: "9", fill: "#f25022" }),
+    /* @__PURE__ */ jsx44("rect", { x: "11", y: "1", width: "9", height: "9", fill: "#7fba00" }),
+    /* @__PURE__ */ jsx44("rect", { x: "1", y: "11", width: "9", height: "9", fill: "#00a4ef" }),
+    /* @__PURE__ */ jsx44("rect", { x: "11", y: "11", width: "9", height: "9", fill: "#ffb900" })
   ] });
 }
 function AccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso, className }) {
   const { disponibile, inCorso, errore, accedi } = useAccessoMicrosoft({ base, onAccesso });
   if (!disponibile && !errore && !inCorso) return null;
-  return /* @__PURE__ */ jsxs36("div", { className: cn("space-y-4", className), children: [
-    errore && /* @__PURE__ */ jsx43(Alert, { tone: "danger", children: errore }),
-    (disponibile || inCorso) && /* @__PURE__ */ jsxs36(Fragment6, { children: [
-      /* @__PURE__ */ jsxs36("div", { className: "flex items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground", children: [
-        /* @__PURE__ */ jsx43("span", { className: "h-px flex-1 bg-border" }),
+  return /* @__PURE__ */ jsxs37("div", { className: cn("space-y-4", className), children: [
+    errore && /* @__PURE__ */ jsx44(Alert, { tone: "danger", children: errore }),
+    (disponibile || inCorso) && /* @__PURE__ */ jsxs37(Fragment6, { children: [
+      /* @__PURE__ */ jsxs37("div", { className: "flex items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground", children: [
+        /* @__PURE__ */ jsx44("span", { className: "h-px flex-1 bg-border" }),
         "oppure",
-        /* @__PURE__ */ jsx43("span", { className: "h-px flex-1 bg-border" })
+        /* @__PURE__ */ jsx44("span", { className: "h-px flex-1 bg-border" })
       ] }),
-      /* @__PURE__ */ jsx43(
+      /* @__PURE__ */ jsx44(
         Button_default,
         {
           type: "button",
@@ -6276,16 +6422,16 @@ function AccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso, className }) {
 
 // src/accesso/AltriPortali.jsx
 import { useMemo as useMemo5 } from "react";
-import { jsx as jsx44, jsxs as jsxs37 } from "react/jsx-runtime";
+import { jsx as jsx45, jsxs as jsxs38 } from "react/jsx-runtime";
 function AltriPortali({ corrente }) {
   const portali = useMemo5(
     () => altriPortali({ corrente, codici: portaliRicordati() }),
     [corrente]
   );
   if (!portali.length) return null;
-  return /* @__PURE__ */ jsxs37("div", { className: "space-y-3 border-t border-border pt-4 text-center", children: [
-    /* @__PURE__ */ jsx44("p", { className: "text-sm text-muted-foreground", children: "Accedi ad altri portali" }),
-    /* @__PURE__ */ jsx44("div", { className: "flex flex-wrap justify-center gap-2", children: portali.map((p) => /* @__PURE__ */ jsx44(
+  return /* @__PURE__ */ jsxs38("div", { className: "space-y-3 border-t border-border pt-4 text-center", children: [
+    /* @__PURE__ */ jsx45("p", { className: "text-sm text-muted-foreground", children: "Accedi ad altri portali" }),
+    /* @__PURE__ */ jsx45("div", { className: "flex flex-wrap justify-center gap-2", children: portali.map((p) => /* @__PURE__ */ jsx45(
       "a",
       {
         href: p.url,
@@ -6298,7 +6444,7 @@ function AltriPortali({ corrente }) {
 }
 
 // src/templates/LoginPage.jsx
-import { jsx as jsx45, jsxs as jsxs38 } from "react/jsx-runtime";
+import { jsx as jsx46, jsxs as jsxs39 } from "react/jsx-runtime";
 function LoginPage({
   title,
   subtitle = "Accedi al tuo account",
@@ -6311,13 +6457,13 @@ function LoginPage({
   iconaPortale,
   altriPortali: altriPortali2 = true
 }) {
-  const passwordId = useId10();
+  const passwordId = useId11();
   useFaviconVuscom(iconaPortale);
-  const [username, setUsername] = useState15("");
-  const [password, setPassword] = useState15("");
-  const [show, setShow] = useState15(false);
-  const [loading, setLoading] = useState15(false);
-  const [error, setError] = useState15("");
+  const [username, setUsername] = useState16("");
+  const [password, setPassword] = useState16("");
+  const [show, setShow] = useState16(false);
+  const [loading, setLoading] = useState16(false);
+  const [error, setError] = useState16("");
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
@@ -6330,11 +6476,11 @@ function LoginPage({
       setLoading(false);
     }
   }
-  return /* @__PURE__ */ jsxs38("div", { className: "relative flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-50 to-brand-100 px-4 dark:from-slate-900 dark:to-slate-800", children: [
-    /* @__PURE__ */ jsx45("div", { className: "absolute right-4 top-4", children: /* @__PURE__ */ jsx45(ThemeToggle, {}) }),
-    /* @__PURE__ */ jsxs38("div", { className: "w-full max-w-md space-y-8 rounded-xl bg-card p-8 shadow-2xl", children: [
-      /* @__PURE__ */ jsxs38("div", { className: "text-center", children: [
-        /* @__PURE__ */ jsx45(
+  return /* @__PURE__ */ jsxs39("div", { className: "relative flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-50 to-brand-100 px-4 dark:from-slate-900 dark:to-slate-800", children: [
+    /* @__PURE__ */ jsx46("div", { className: "absolute right-4 top-4", children: /* @__PURE__ */ jsx46(ThemeToggle, {}) }),
+    /* @__PURE__ */ jsxs39("div", { className: "w-full max-w-md space-y-8 rounded-xl bg-card p-8 shadow-2xl", children: [
+      /* @__PURE__ */ jsxs39("div", { className: "text-center", children: [
+        /* @__PURE__ */ jsx46(
           "img",
           {
             src: logoLight,
@@ -6342,7 +6488,7 @@ function LoginPage({
             className: "mx-auto h-20 w-auto object-contain dark:hidden"
           }
         ),
-        /* @__PURE__ */ jsx45(
+        /* @__PURE__ */ jsx46(
           "img",
           {
             src: logoDark,
@@ -6350,12 +6496,12 @@ function LoginPage({
             className: "mx-auto hidden h-20 w-auto object-contain dark:block"
           }
         ),
-        /* @__PURE__ */ jsx45("h1", { className: "mt-6 text-3xl font-bold text-foreground", children: title }),
-        /* @__PURE__ */ jsx45("p", { className: "mt-2 text-sm text-muted-foreground", children: subtitle })
+        /* @__PURE__ */ jsx46("h1", { className: "mt-6 text-3xl font-bold text-foreground", children: title }),
+        /* @__PURE__ */ jsx46("p", { className: "mt-2 text-sm text-muted-foreground", children: subtitle })
       ] }),
-      /* @__PURE__ */ jsxs38("form", { className: "space-y-5", onSubmit: handleSubmit, children: [
-        error && /* @__PURE__ */ jsx45(Alert, { tone: "danger", children: error }),
-        /* @__PURE__ */ jsx45(Field, { label: usernameLabel, children: /* @__PURE__ */ jsx45(
+      /* @__PURE__ */ jsxs39("form", { className: "space-y-5", onSubmit: handleSubmit, children: [
+        error && /* @__PURE__ */ jsx46(Alert, { tone: "danger", children: error }),
+        /* @__PURE__ */ jsx46(Field, { label: usernameLabel, children: /* @__PURE__ */ jsx46(
           Input_default,
           {
             name: "username",
@@ -6365,8 +6511,8 @@ function LoginPage({
             required: true
           }
         ) }),
-        /* @__PURE__ */ jsxs38("div", { className: "flex flex-col gap-1.5", children: [
-          /* @__PURE__ */ jsx45(
+        /* @__PURE__ */ jsxs39("div", { className: "flex flex-col gap-1.5", children: [
+          /* @__PURE__ */ jsx46(
             "label",
             {
               htmlFor: passwordId,
@@ -6374,8 +6520,8 @@ function LoginPage({
               children: "Password"
             }
           ),
-          /* @__PURE__ */ jsxs38("div", { className: "relative", children: [
-            /* @__PURE__ */ jsx45(
+          /* @__PURE__ */ jsxs39("div", { className: "relative", children: [
+            /* @__PURE__ */ jsx46(
               Input_default,
               {
                 id: passwordId,
@@ -6388,10 +6534,10 @@ function LoginPage({
                 required: true
               }
             ),
-            /* @__PURE__ */ jsx45(
+            /* @__PURE__ */ jsx46(
               IconButton_default,
               {
-                icon: show ? EyeOff : Eye,
+                icon: show ? EyeOff : Eye2,
                 label: show ? "Nascondi password" : "Mostra password",
                 size: "sm",
                 className: "absolute right-1 top-1",
@@ -6400,11 +6546,11 @@ function LoginPage({
             )
           ] })
         ] }),
-        /* @__PURE__ */ jsx45(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Accedi" })
+        /* @__PURE__ */ jsx46(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Accedi" })
       ] }),
-      microsoft && /* @__PURE__ */ jsx45(AccessoMicrosoft, { ...microsoft }),
-      altriPortali2 && /* @__PURE__ */ jsx45(AltriPortali, { corrente: iconaPortale }),
-      footer && /* @__PURE__ */ jsx45("div", { className: "text-center text-xs text-muted-foreground", children: footer })
+      microsoft && /* @__PURE__ */ jsx46(AccessoMicrosoft, { ...microsoft }),
+      altriPortali2 && /* @__PURE__ */ jsx46(AltriPortali, { corrente: iconaPortale }),
+      footer && /* @__PURE__ */ jsx46("div", { className: "text-center text-xs text-muted-foreground", children: footer })
     ] })
   ] });
 }
@@ -6471,6 +6617,7 @@ export {
   ToastProvider,
   Toggle,
   Tooltip,
+  VediCome,
   altriPortali,
   cn,
   collectGroupIds,

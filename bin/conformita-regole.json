@@ -1,5 +1,5 @@
 {
-  "versione": "2026-10-13.1",
+  "versione": "2026-10-14.1",
   "repo": "https://github.com/gabrielepanciotti-vuscom/vuscom-ui",
   "versione_minima": "1.7.0",
   "token_tema": [
@@ -114,6 +114,11 @@
       "codice": "portali-a-mano",
       "gravita": "avvisa",
       "descrizione": "nessuna lista «Accedi ad altri portali» scritta a mano: la mostra LoginPage dal catalogo unico"
+    },
+    {
+      "codice": "vedi-come",
+      "gravita": "blocca",
+      "descrizione": "il cambio vista («Vedi come») usa VediCome di @vuscom/ui, non una copia del portale"
     }
   ],
   "distanza_minima_colori": 60,

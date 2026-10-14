@@ -65,6 +65,7 @@ export { default as useSort } from "./organisms/useSort.js";
 export { default as Dialog } from "./organisms/Dialog.jsx";
 export { default as ConfirmDialog } from "./organisms/ConfirmDialog.jsx";
 export { ToastProvider, useToast } from "./organisms/Toast.jsx";
+export { default as VediCome } from "./organisms/VediCome.jsx";
 export {
   default as AppShell,
   useSidebarCompatta,

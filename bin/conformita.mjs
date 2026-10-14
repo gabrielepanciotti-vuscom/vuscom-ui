@@ -194,6 +194,17 @@ if (struttura === "appshell" && !tutto(/\bportali\s*:/).length)
 const listeAMano = tutto(/Accedi ad altri portali/).filter(({ p }) => !/__tests__|\.test\./.test(p));
 if (listeAMano.length)
   segnala("portali-a-mano", "lista «Accedi ad altri portali» scritta a mano: la mostra già LoginPage, filtrata sui permessi dell'ultimo utente", listeAMano.map(({ p }) => rel(p)).join(", "));
+// "Vedi come" (conv. #537): one selector for every portal. A file that shows the
+// selector's wording or defines a switcher of its own, without taking VediCome
+// from the package, is a private copy.
+const usaVediCome = /\bVediCome\b[\s\S]*@vuscom\/ui|@vuscom\/ui[\s\S]*\bVediCome\b/;
+// Only rendered wording (JSX text or a string starting with it): comments that
+// mention the "vedi come" view in prose are not a copy.
+const copieVediCome = tutto(/(?:>|["'`])\s*Vedi (?:l'app |il portale )?come\b|\bfunction\s+(?:ViewAsSwitcher|VediComeMenu)\b/).filter(
+  ({ testo }) => !usaVediCome.test(testo),
+);
+if (copieVediCome.length)
+  segnala("vedi-come", "selettore «Vedi come» scritto nel portale: usare VediCome di @vuscom/ui in topbarRight (viste, attiva, onSeleziona)", copieVediCome.map(({ p }) => rel(p)).join(", "));
 const icona = tutto(/\bappIcon\s*[:=]/);
 if (icona.length)
   segnala("logo-proprio", "la sidebar riceve un appIcon proprio: il logo VUS COM lo mette AppShell", icona.map(({ p }) => rel(p)).join(", "));

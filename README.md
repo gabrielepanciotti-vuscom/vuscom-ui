@@ -76,6 +76,7 @@ Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 | `Dialog` | `open`, `onClose`, `title`, `description`, `icon`, `size`, `footer`, `closeOnBackdrop`, `closeDisabled` |
 | `ConfirmDialog` | `open`, `onClose`, `onConfirm` (async), `title`, `confirmLabel`, `cancelLabel`, `tone` (`primary`/`danger`), `requireText` |
 | `ToastProvider`, `useToast` | `const { toast } = useToast(); toast({ title, description, tone, duration })` — annunciati dagli screen reader (`danger` in una regione `assertive`, gli altri `polite`) |
+| `VediCome` (dalla 1.14.0) | `viste` (`{key,label,descrizione}`; vuoto → non si vede), `attiva` (key o `null`), `onSeleziona(key \| null)`, `labelAttiva`, `nota`, `labelRipristino`, `titolo` — selettore «Vedi come» della top bar, da mettere in `topbarRight` di `AppShell`. Solo presentazione: cosa vuol dire cambiare vista lo decide il portale |
 | `Alert` | `tone` (`info` `success` `warning` `danger`), `title`, `onClose` |
 | `EmptyState` | `icon`, `title`, `description`, `action` |
 | `Skeleton`, `SkeletonText`, `SkeletonCard`, `SkeletonTable` | `lines` (SkeletonText) |
@@ -216,6 +217,24 @@ Ogni portale ha due livelli di guida, nello stesso posto in tutti i portali:
 - **la guida della pagina**: dove serve, il link «Guida» di `PageHeader` (`helpHref`), che
   porta alla sezione giusta della guida generale.
 
+## Vedi come (dalla 1.14.0)
+
+Il cambio vista della top bar è uno solo per tutti i portali: `VediCome` in `topbarRight` di
+`AppShell`. Il componente non sa niente di ruoli e permessi: riceve le viste che l'utente può
+usare (chi non può riceve `[]` e non vede niente) e chiama `onSeleziona` con la chiave scelta,
+o `null` per tornare alla vista reale. Offerte ci mette il travestimento lato client del ruolo,
+il Portale Segnalazioni l'ingresso nell'account demo. Il tester blocca con `vedi-come` un
+selettore scritto nel portale.
+
+```jsx
+<VediCome
+  viste={puoCambiare ? [{ key: "viewer", label: "Viewer", descrizione: "Sola lettura" }] : []}
+  attiva={vista}
+  onSeleziona={(k) => { setVista(k); location.reload(); }}
+  nota="Cambia solo ciò che vedi. I permessi reali restano i tuoi."
+/>
+```
+
 ## Conformità: `vuscom-ui-conformita`
 
 Un portale si allinea **da solo**, rilanciando il tester finché non dà `ok`:
@@ -227,7 +246,7 @@ npx vuscom-ui-conformita --json                   # contratto comune dei tester 
 
 Le regole sono dati, in `bin/conformita-regole.json`.
 - **Bloccanti:** versione minima, preset, `theme.css`, token del tema ridefiniti, pagine fuori
-  da `AppShell`.
+  da `AppShell`, selettore «Vedi come» scritto nel portale (`vedi-come`).
 - **Avvisi:** versione non all'ultima, palette di colori propria, colori in `tailwind.config`,
   `blue`/`indigo`/`violet`/`sky` cablati, logo, favicon o loghi di login propri.
 
