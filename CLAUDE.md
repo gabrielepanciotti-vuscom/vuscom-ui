@@ -11,6 +11,7 @@ Repo pubblico, `dist/` versionato, rilascio per tag `vX.Y.Z` (oggi v1.12.0). Pat
 ## Struttura
 - `src/{atoms,molecules,organisms,templates,theme,brand,lib,accesso,segnalazioni,utenti,grafici}`, `src/AppSidebar.jsx`, `src/navTree.js`
 - `bin/conformita.mjs` + `bin/conformita-regole.json` — tester dei portali (regole come dati)
+- `consumatori.json` + `scripts/` — portali consumer, notifica di rilascio, controllo di deriva
 - `catalogo/` — pagina di ogni componente · `test/` — specchio di `src/` · `build.mjs` → `dist/`
 
 ## Comandi
@@ -27,11 +28,16 @@ Solo presentazione · nessun controllo nativo · niente esadecimali nei componen
 un test per componente · ogni componente nuovo nel catalogo · si consuma per tag, mai da `main`.
 
 ## Rilascio
-Test verdi → build → bump `package.json` → tag → push → nell'issue l'elenco dei portali e il comando
-`npm install "@vuscom/ui@github:gabrielepanciotti-vuscom/vuscom-ui#vX.Y.Z"`. Aggiornare i portali non spetta a chi rilascia.
+Test verdi → build → bump `package.json` → tag → push → **`npm run notifica -- --prova`, poi `npm run notifica`**.
+Il rilascio finisce lì, non col tag: lo script apre una conversazione sul bus per ogni portale che usa
+un modulo cambiato (`consumatori.json`, testo in `scripts/ordine-aggiornamento.md`) e la segue con
+`hub_attendi.sh`; si ferma se il tag non è su origin o se `src/` è cambiato senza `dist/`.
+Il portale aggiorna, deploya e risponde con lo sha; chi rilascia chiude le conversazioni.
+`npm run deriva` elenca i portali indietro rispetto all'ultimo tag (muto se allineati).
 
 ## Consumatori
-Offerte, Cruscotto, Portale_Segnalazioni (widget segnalazioni); anche Outbound, Configuratore, BrainEditor, vuscom-db, call-manager, vicky.
+Registrati in `consumatori.json` (ricevono l'ordine di aggiornamento): Offerte, Cruscotto, Portale_Segnalazioni,
+Configuratore, OutBound. Usano il pacchetto ma non sono ancora registrati: BrainEditor, vuscom-db, call-manager, vicky.
 
 ## Agenti di progetto
 | Agente | Scope |

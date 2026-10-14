@@ -1,0 +1,54 @@
+{
+  "_nota": "Portali che usano @vuscom/ui. 'frontend' è relativo a $VUSCOM_SRV (default: la cartella che contiene questo repo). 'usa' elenca i moduli del pacchetto che il portale importa: index (@vuscom/ui), utenti, segnalazioni, grafici, preset, theme (theme.css), conformita (npx vuscom-ui-conformita). Letto da scripts/rilascia-e-notifica.mjs e scripts/controlla-deriva.mjs.",
+  "consumatori": [
+    {
+      "nome": "Offerte",
+      "agente": "offerte-dev-linux",
+      "repo": "gabrielepanciotti-vuscom/Offerte",
+      "frontend": "Offerte/frontend",
+      "usa": [
+        "index",
+        "utenti",
+        "segnalazioni",
+        "preset",
+        "theme",
+        "conformita"
+      ]
+    },
+    {
+      "nome": "Cruscotto",
+      "agente": "cruscotto-dev-linux",
+      "repo": "gabrielepanciotti-vuscom/Cruscotto",
+      "frontend": "Cruscotto/frontend",
+      "usa": [
+        "index",
+        "utenti",
+        "segnalazioni",
+        "preset",
+        "theme",
+        "conformita"
+      ]
+    },
+    {
+      "nome": "Portale_Segnalazioni",
+      "agente": "portale-dev-linux",
+      "repo": "gabrielepanciotti-vuscom/Portale_Segnalazioni",
+      "frontend": "Portale_Segnalazioni/frontend",
+      "usa": ["index", "segnalazioni", "preset", "theme", "conformita"]
+    },
+    {
+      "nome": "Configuratore",
+      "agente": "configuratore-dev-linux",
+      "repo": "gabrielepanciotti-vuscom/Configuratore",
+      "frontend": "Configuratore/frontend",
+      "usa": ["index", "preset", "theme", "conformita"]
+    },
+    {
+      "nome": "OutBound",
+      "agente": "outbound-dev-linux",
+      "repo": "gabrielepanciotti-vuscom/OutBound",
+      "frontend": "OutBound/frontend",
+      "usa": ["index", "utenti", "preset", "theme", "conformita"]
+    }
+  ]
+}

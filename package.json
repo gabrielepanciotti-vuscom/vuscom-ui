@@ -40,7 +40,9 @@
   "scripts": {
     "build": "node build.mjs",
     "test": "vitest run",
-    "catalogo": "vite catalogo"
+    "catalogo": "vite catalogo",
+    "notifica": "node scripts/rilascia-e-notifica.mjs",
+    "deriva": "node scripts/controlla-deriva.mjs"
   },
   "peerDependencies": {
     "chart.js": "^4.4.1",

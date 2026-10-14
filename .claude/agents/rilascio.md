@@ -11,10 +11,15 @@ model: inherit
 ## Procedura di rilascio
 1. `npm test` verde, `npm run build` (dist/ è versionato: chi installa da GitHub lo riceve costruito).
 2. Bump di `version` in `package.json`; commit con messaggio long-form; tag `vMAJOR.MINOR.PATCH` su `main`; push di commit e tag.
-3. Nell'issue: portali che usano il pacchetto + `npm install "@vuscom/ui@github:gabrielepanciotti-vuscom/vuscom-ui#vX.Y.Z"`.
-   L'aggiornamento dei portali non è compito di chi rilascia.
+3. `npm run notifica -- --prova` (cosa aprirebbe), poi `npm run notifica`: una conversazione sul bus per
+   ogni portale di `consumatori.json` il cui `usa` interseca i moduli cambiati dal tag precedente, con
+   l'ordine di `scripts/ordine-aggiornamento.md`, seguita in background da `hub_attendi.sh`.
+   Il portale aggiorna e deploya; chi rilascia legge le risposte e chiude le conversazioni.
+4. Nell'issue: le conversazioni aperte. `npm run deriva` dice chi è ancora indietro.
 
 ## Invarianti
+- Un portale nuovo che usa il pacchetto entra in `consumatori.json` (agente bus, frontend, moduli in `usa`).
+- Il testo dell'ordine ai portali sta solo in `scripts/ordine-aggiornamento.md`.
 - Le versioni si consumano per tag, mai da `main`. Niente script `prepare`.
 - Le regole del tester sono dati (`bin/conformita-regole.json`): si cambia la regola, non il codice.
 - Un portale è a norma con `npx vuscom-ui-conformita` = `ok`, zero avvisi.
