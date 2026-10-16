@@ -108,3 +108,29 @@ export function versioneNelLock(lock) {
 export function consumatoriIndietro(installate, ultima) {
   return installate.filter((c) => c.versione && confrontaVersioni(c.versione, ultima) < 0);
 }
+
+/** Days a portal is left alone after an order, unless forced. */
+export const GIORNI_PAUSA = 7;
+
+/**
+ * What to do with each consumer, given the version it has installed.
+ * `moduliTra(base)` returns the modules changed between `base` and `ultima`.
+ * Verdicts: allineato (up to date), nessuna-novita (behind but nothing it uses
+ * changed: no order, no drift warning), attesa (ordered less than `pausa` days
+ * ago: the order that went out still points at the old tag, the next one will
+ * jump straight to `ultima`), notifica.
+ */
+export function pianoAggiornamenti({ consumatori, versioni, ultima, moduliTra, stato = {}, adesso = Date.now(), pausa = GIORNI_PAUSA }) {
+  return consumatori.map((c) => {
+    const base = versioni[c.agente] ?? null;
+    if (!base || confrontaVersioni(base, ultima) >= 0) return { consumatore: c, base, esito: "allineato" };
+    const moduli = moduliTra(base);
+    const toccati = c.usa.filter((m) => moduli.includes(m));
+    if (!toccati.length) return { consumatore: c, base, moduli, toccati, esito: "nessuna-novita" };
+    const ultimo = stato[c.agente]?.quando;
+    if (ultimo && adesso - Date.parse(ultimo) < pausa * 86400000) {
+      return { consumatore: c, base, moduli, toccati, esito: "attesa", fino: new Date(Date.parse(ultimo) + pausa * 86400000) };
+    }
+    return { consumatore: c, base, moduli, toccati, esito: "notifica" };
+  });
+}

@@ -5,6 +5,7 @@ import {
   compila,
   consumatoriIndietro,
   moduliCambiati,
+  pianoAggiornamenti,
   selezionaConsumatori,
   tagPrecedente,
   validaConsumatori,
@@ -184,5 +185,26 @@ describe("tag e deriva", () => {
       consumatoriIndietro(installate, "v1.12.0").map((c) => c.nome),
     ).toEqual(["Beta"]);
     expect(consumatoriIndietro(installate.slice(0, 1), "v1.12.0")).toEqual([]);
+  });
+});
+
+describe("pianoAggiornamenti", () => {
+  const base = { consumatori: FINTI, ultima: "v2.0.0", adesso: Date.parse("2026-10-16T10:00:00Z") };
+  const esiti = (extra) => Object.fromEntries(pianoAggiornamenti({ ...base, ...extra }).map((p) => [p.consumatore.nome, p.esito]));
+
+  it("orders only portals whose used modules changed since THEIR version", () => {
+    const r = esiti({ versioni: { "alfa-dev": "1.0.0", "beta-dev": "1.0.0", "gamma-dev": "2.0.0" }, moduliTra: () => ["grafici"] });
+    expect(r).toEqual({ Alfa: "nessuna-novita", Beta: "notifica", Gamma: "allineato" });
+  });
+
+  it("leaves a portal alone for a week after an order, then orders again", () => {
+    const versioni = { "alfa-dev": "1.0.0", "beta-dev": "1.0.0", "gamma-dev": "1.0.0" };
+    const stato = { "beta-dev": { quando: "2026-10-12T10:00:00Z" } };
+    expect(esiti({ versioni, moduliTra: () => ["grafici"], stato }).Beta).toBe("attesa");
+    expect(esiti({ versioni, moduliTra: () => ["grafici"], stato: { "beta-dev": { quando: "2026-10-01T10:00:00Z" } } }).Beta).toBe("notifica");
+  });
+
+  it("skips a portal whose version is unknown on this device", () => {
+    expect(esiti({ versioni: {}, moduliTra: () => ["index"] }).Alfa).toBe("allineato");
   });
 });

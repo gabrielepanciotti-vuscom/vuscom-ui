@@ -6,31 +6,28 @@
 // broken check can't block a session.
 //
 // Usage: node scripts/controlla-deriva.mjs
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
-import { caricaConsumatori, git, RADICE_PROGETTI, RADICE_REPO, righe } from "./lib/io.mjs";
-import { consumatoriIndietro, tagRilascio, versioneNelLock } from "./lib/rilascio.mjs";
-
-function leggiVersione(consumatore) {
-  try {
-    const lock = JSON.parse(readFileSync(resolve(RADICE_PROGETTI, consumatore.frontend, "package-lock.json"), "utf8"));
-    return versioneNelLock(lock);
-  } catch {
-    return null; // portal not checked out on this device: not drift, nothing to say
-  }
-}
+import { caricaConsumatori, git, leggiStato, moduliTraTag, RADICE_REPO, righe, versioneInstallata } from "./lib/io.mjs";
+import { pianoAggiornamenti, tagRilascio } from "./lib/rilascio.mjs";
 
 try {
-  const ultimo = tagRilascio(righe(git("tag", "--list", "v*")))[0];
+  const tags = righe(git("tag", "--list", "v*"));
+  const ultimo = tagRilascio(tags)[0];
   if (ultimo) {
-    const installate = caricaConsumatori().map((c) => ({ ...c, versione: leggiVersione(c) }));
-    const indietro = consumatoriIndietro(installate, ultimo);
-    if (indietro.length) {
-      console.log(`@vuscom/ui: ${indietro.length} portali indietro rispetto a ${ultimo}:`);
-      for (const c of indietro) {
-        console.log(`- ${c.nome}: v${c.versione} (agente ${c.agente})`);
-        console.log(`  node ${RADICE_REPO}/scripts/rilascia-e-notifica.mjs ${ultimo} --da v${c.versione} --solo ${c.agente} --prova`);
+    const consumatori = caricaConsumatori();
+    const versioni = Object.fromEntries(consumatori.map((c) => [c.agente, versioneInstallata(c)]));
+    // Only portals whose used modules changed count as drift: a tag that touches
+    // nothing they import leaves them silently behind, by design.
+    const piano = pianoAggiornamenti({
+      consumatori, versioni, ultima: ultimo, stato: leggiStato(),
+      moduliTra: (base) => moduliTraTag(base, ultimo, tags),
+    }).filter((p) => p.esito === "notifica" || p.esito === "attesa");
+    if (piano.length) {
+      console.log(`@vuscom/ui: ${piano.length} portali da aggiornare a ${ultimo}:`);
+      for (const p of piano) {
+        const stato = p.esito === "attesa" ? ` (ordine già inviato, prossimo dal ${p.fino.toISOString().slice(0, 10)})` : "";
+        console.log(`- ${p.consumatore.nome}: v${p.base}, cambiato ${p.toccati.join(", ")}${stato}`);
       }
+      if (piano.some((p) => p.esito === "notifica")) console.log(`  npm run notifica   (in ${RADICE_REPO}; --prova per vedere prima)`);
     }
   }
 } catch (e) {
