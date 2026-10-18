@@ -1,5 +1,31 @@
 node_modules/
 .notifiche.json
-.env
 .env.*
 !.env.example
+# >>> suite-managed >>>
+node.config.resolved.json
+.claude/agents/*-api-reviewer.md
+.claude/agents/*-backend-impl.md
+.claude/agents/*-bot-handler.md
+.claude/agents/*-cli-dev.md
+.claude/agents/*-db-migrator.md
+.claude/agents/*-integration-dev.md
+.claude/agents/*-node-persona.md
+.claude/agents/*-react-component.md
+.claude/agents/*-ui-reviewer.md
+.mcp.json
+opencode.json
+.superpowers/
+.brain-inbox/
+brain/*
+!brain/README.md
+**/brain/*
+!**/brain/README.md
+.obsidian/
+.venv/
+.env
+.env.production
+frontend/vendor/*
+backend/vendor/*
+*.stackdump
+# <<< suite-managed <<<
