@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { LogoV } from "./brand/Brand.jsx";
 import PulsanteGuida from "./PulsanteGuida.jsx";
 import PortaliSidebar from "./accesso/PortaliSidebar.jsx";
+import SezioneNav from "./SezioneNav.jsx";
 import {
   ChevronRight,
   LogOut,
@@ -17,6 +18,9 @@ import {
  * Navigazione a due livelli: le foglie hanno `to`, i gruppi hanno `children[]`
  * e si aprono a fisarmonica. Da compressa (60px) i gruppi diventano icone con
  * un popout al passaggio del mouse, così nessuna voce resta irraggiungibile.
+ * Una sezione (`{ section: "Titolo", children }`) è invece un titolo fisso sopra
+ * un blocco di voci: non si chiude, quindi i badge restano visibili; da compressa
+ * diventa un divisore sottile.
  *
  * Il tema e le azioni di pagina entrano come slot (`themeSlot`, `footerSlot`)
  * invece che come dipendenze: il pacchetto non deve sapere come ogni app
@@ -241,10 +245,22 @@ export default function AppSidebar({
     );
   };
 
-  const renderItem = (item, isCollapsed) =>
-    item.children
+  const renderItem = (item, isCollapsed) => {
+    if (item.section && item.children) {
+      return (
+        <SezioneNav
+          key={item.id || item.section}
+          section={item.section}
+          collapsed={isCollapsed}
+        >
+          {item.children.map((child) => renderItem(child, isCollapsed))}
+        </SezioneNav>
+      );
+    }
+    return item.children
       ? renderGroup(item, isCollapsed)
       : renderLeaf(item, isCollapsed, false);
+  };
 
   const buildSidebar = (isCollapsed, showCollapseButton) => (
     <div

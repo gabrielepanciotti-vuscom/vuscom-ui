@@ -21,6 +21,11 @@ Quattro strati, dal più piccolo al più grande:
 
 Più `AppSidebar` / `normalizeNavTree` / `collectGroupIds` e gli entry `@vuscom/ui/utenti`
 e `@vuscom/ui/segnalazioni` e `@vuscom/ui/grafici`.
+
+Albero di navigazione: una foglia ha `to` (con `badge`/`badgeTone`), un gruppo a fisarmonica
+`{ label, icon, children }`, una **sezione** `{ section: "Clienti segnalati", children }`:
+titolo fisso maiuscolo, non richiudibile (i badge restano visibili), da compressa un divisore.
+`normalizeNavTree` appiattisce i gruppi con un figlio solo, mai le sezioni; toglie entrambi se vuoti.
 Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 (`select`, checkbox, radio): i controlli sono propri.
 

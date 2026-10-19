@@ -215,7 +215,10 @@ export default function AppShell({
           portaliRichiudibili={portaliRichiudibili}
         />
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b bg-background/80 px-4 backdrop-blur">
+          {/* relative z-30: backdrop-blur makes the header a stacking context, so
+              its menus (Vedi come…) must sit above sticky z-20 content in main,
+              below the mobile sidebar overlay (z-40) and dialogs (z-50). */}
+          <header className="relative z-30 flex h-14 shrink-0 items-center justify-between gap-3 border-b bg-background/80 px-4 backdrop-blur">
             <IconButton
               icon={Menu}
               label="Apri menu"
