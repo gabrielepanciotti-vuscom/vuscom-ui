@@ -42,15 +42,16 @@ Configuratore, OutBound. Usano il pacchetto ma non sono ancora registrati: Brain
 ## Agenti di progetto
 | Agente | Scope |
 |--------|-------|
-| @.claude/agents/componenti.md | atomi, molecole, organismi, template, tema, colori |
-| @.claude/agents/segnalazioni-utenti.md | entry `segnalazioni` e `utenti` |
-| @.claude/agents/rilascio.md | build, tag, tester di conformità |
+| `componenti` | atomi, molecole, organismi, template, tema, colori |
+| `segnalazioni-utenti` | entry `segnalazioni` e `utenti` |
+| `rilascio` | build, tag, tester di conformità |
 
 ### Routing
 - 1 dominio → subagent singolo · 2+ sequenziali → catena · 2+ indipendenti → worktree paralleli
 
 ## Docs
-`.claude/docs/`: `project_spec.md`, `architecture.md`, `deployment.md`, `backlog.md` (puntatore agli issue).
+`.claude/docs/`: `project_spec.md`, `architecture.md`, `deployment.md`, `backlog.md` (puntatore agli issue),
+`database.md` (nessun DB), `api.md` (endpoint che i moduli chiamano sul backend del portale).
 
 ## Gotcha
 - Il lockfile del consumatore tiene il tag vecchio: serve `npm install "...#vX.Y.Z"`.
