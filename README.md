@@ -173,6 +173,7 @@ scheda, così i portali si distinguono a colpo d'occhio (`TESSERE_PORTALE`, imma
 | Outbound | `outbound` | bordeaux `#7f1d1d` |
 | Configuratore | `configuratore` | navy `#1b3a69`, il riquadro originale |
 | Admin Data API | `dataapi` | viola `#4c1d95` |
+| Brain Editor | `braineditor` | ambra `#b45309` |
 
 - Il portale passa `iconaPortale` nelle props della sidebar di `AppShell`. `LoginPage` accetta
   la stessa prop, per l'icona della scheda.

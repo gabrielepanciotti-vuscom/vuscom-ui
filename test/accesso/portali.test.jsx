@@ -29,10 +29,14 @@ test("dalla rete interna: indirizzi .vuscom.dev con ?accedi=microsoft, senza il 
     "outbound",
     "configuratore",
     "dataapi",
+    "braineditor",
   ]);
   expect(p[0].url).toBe("https://cruscotto.vuscom.dev/?accedi=microsoft");
   expect(p.find((x) => x.codice === "dataapi").url).toBe(
     "https://api.vuscom.dev/admin/?accedi=microsoft",
+  );
+  expect(p.find((x) => x.codice === "braineditor").url).toBe(
+    "http://brain-editor.vuscom.local/?accedi=microsoft",
   );
 });
 
@@ -73,7 +77,7 @@ test("ricorda i portali e li rilegge; storage illeggibile = nessun ricordo", () 
 
 test("sotto il login: tutti i portali se nessuno è ricordato, poi solo quelli dell'ultimo utente", () => {
   const { unmount } = render(<AltriPortali corrente="offerte" />);
-  expect(screen.getAllByRole("link")).toHaveLength(4);
+  expect(screen.getAllByRole("link")).toHaveLength(5);
   unmount();
   ricordaPortali(["offerte", "cruscotto"]);
   render(<AltriPortali corrente="offerte" />);

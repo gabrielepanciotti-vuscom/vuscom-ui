@@ -39,6 +39,12 @@ export const PORTALI_INTERNI = Object.freeze([
     nome: "Admin Data API",
     interno: "https://api.vuscom.dev/admin/",
   },
+  {
+    codice: "braineditor",
+    nome: "Brain Editor",
+    // Moves to https://brain-editor.vuscom.dev when the portal gets its .dev host.
+    interno: "http://brain-editor.vuscom.local",
+  },
 ]);
 
 /** Query parameter that makes the destination start «Accedi con Microsoft» by itself. */

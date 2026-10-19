@@ -14,6 +14,7 @@ import tesseraCruscotto from "./tessera-cruscotto.png";
 import tesseraOutbound from "./tessera-outbound.png";
 import tesseraConfiguratore from "./tessera-configuratore.png";
 import tesseraDataapi from "./tessera-dataapi.png";
+import tesseraBraineditor from "./tessera-braineditor.png";
 
 /** The official VUS COM images, named by the theme they are for (not by their colour). */
 export const LOGHI_VUSCOM = Object.freeze({
@@ -38,6 +39,7 @@ export const TESSERE_PORTALE = Object.freeze({
   outbound: tesseraOutbound,
   configuratore: tesseraConfiguratore,
   dataapi: tesseraDataapi,
+  braineditor: tesseraBraineditor,
 });
 
 export const COLORI_PORTALE = Object.freeze({
@@ -46,6 +48,7 @@ export const COLORI_PORTALE = Object.freeze({
   outbound: "#7f1d1d", // bordeaux
   configuratore: "#1b3a69", // navy: it has public pages, and public is always the original navy
   dataapi: "#4c1d95", // violet (Data API admin, vuscom-db#89)
+  braineditor: "#b45309", // amber (Brain Editor, BrainEditor#1)
 });
 
 

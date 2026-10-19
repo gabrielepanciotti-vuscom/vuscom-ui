@@ -128,13 +128,15 @@
     "cruscotto": "#0f5c55",
     "outbound": "#7f1d1d",
     "configuratore": "#1b3a69",
-    "dataapi": "#4c1d95"
+    "dataapi": "#4c1d95",
+    "braineditor": "#b45309"
   },
   "portali_interni": [
     "offerte",
     "cruscotto",
     "outbound",
     "configuratore",
-    "dataapi"
+    "dataapi",
+    "braineditor"
   ]
 }
