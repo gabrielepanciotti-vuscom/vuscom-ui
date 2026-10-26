@@ -49,6 +49,7 @@
       "frontend": "Configuratore/frontend",
       "usa": [
         "index",
+        "segnalazioni",
         "preset",
         "theme",
         "conformita"
