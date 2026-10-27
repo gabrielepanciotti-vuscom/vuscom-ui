@@ -1,5 +1,5 @@
 // src/AppSidebar.jsx
-import { useEffect as useEffect3, useState as useState3 } from "react";
+import { useEffect as useEffect3, useRef, useState as useState3 } from "react";
 import { Link as Link2, useLocation } from "react-router-dom";
 
 // src/brand/Brand.jsx
@@ -401,6 +401,7 @@ function AppSidebar({
   userMenuExtras = [],
   isOpen,
   onClose,
+  idPannelloMobile,
   collapsed = false,
   onToggleCollapse,
   themeSlot,
@@ -415,6 +416,13 @@ function AppSidebar({
   const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState3(false);
   const [hoveredGroup, setHoveredGroup] = useState3(null);
+  const pannelloMobileRef = useRef(null);
+  useEffect3(() => {
+    const pannello = pannelloMobileRef.current;
+    if (!pannello) return;
+    if (isOpen) pannello.removeAttribute("inert");
+    else pannello.setAttribute("inert", "");
+  }, [isOpen]);
   useEffect3(() => {
     function handleClickOutside(e) {
       if (!e.target.closest?.("[data-user-menu]")) setShowUserMenu(false);
@@ -725,6 +733,9 @@ function AppSidebar({
           /* @__PURE__ */ jsx5(
             "aside",
             {
+              ref: pannelloMobileRef,
+              id: idPannelloMobile,
+              "aria-hidden": isOpen ? void 0 : true,
               className: `relative z-50 h-full transition-transform duration-300 ease-out ${isOpen ? "translate-x-0" : "-translate-x-full"}`,
               children: buildSidebar(false, false)
             }
@@ -770,7 +781,7 @@ function collectGroupIds(nodes = []) {
   return ids;
 }
 
-// node_modules/clsx/dist/clsx.mjs
+// ../../../work/vuscom-ui/node_modules/clsx/dist/clsx.mjs
 function r(e) {
   var t, f, n = "";
   if ("string" == typeof e || "number" == typeof e) n += e;
@@ -785,7 +796,7 @@ function clsx() {
   return n;
 }
 
-// node_modules/tailwind-merge/dist/bundle-mjs.mjs
+// ../../../work/vuscom-ui/node_modules/tailwind-merge/dist/bundle-mjs.mjs
 var CLASS_PART_SEPARATOR = "-";
 var createClassGroupUtils = (config) => {
   const classMap = createClassMap(config);
@@ -3747,7 +3758,7 @@ function Field({
 }
 
 // src/molecules/Select.jsx
-import { useEffect as useEffect5, useId as useId2, useRef, useState as useState6 } from "react";
+import { useEffect as useEffect5, useId as useId2, useRef as useRef2, useState as useState6 } from "react";
 import { createPortal } from "react-dom";
 import { Check, ChevronDown as ChevronDown2 } from "lucide-react";
 
@@ -3813,9 +3824,9 @@ function Select({
 }) {
   const [open, setOpen] = useState6(false);
   const [active, setActive] = useState6(-1);
-  const rootRef = useRef(null);
-  const triggerRef = useRef(null);
-  const listRef = useRef(null);
+  const rootRef = useRef2(null);
+  const triggerRef = useRef2(null);
+  const listRef = useRef2(null);
   const uid = useId2();
   const listStyle = useFloatingList(triggerRef, open);
   const entries = [
@@ -4097,7 +4108,7 @@ function Checkbox({
 }
 
 // src/molecules/Tabs.jsx
-import { useId as useId5, useRef as useRef2 } from "react";
+import { useId as useId5, useRef as useRef3 } from "react";
 import { jsx as jsx20, jsxs as jsxs15 } from "react/jsx-runtime";
 var tabId = (prefix, id) => prefix ? `${prefix}-tab-${id}` : `tab-${id}`;
 var panelId = (prefix, id) => prefix ? `${prefix}-panel-${id}` : `panel-${id}`;
@@ -4117,7 +4128,7 @@ function Tabs({
   idPrefix,
   className
 }) {
-  const refs = useRef2([]);
+  const refs = useRef3([]);
   const vai = (i) => {
     const n = (i + items.length) % items.length;
     onChange?.(items[n].id);
@@ -4176,7 +4187,7 @@ function Tabs({
 }
 
 // src/molecules/SegmentedControl.jsx
-import { useRef as useRef3 } from "react";
+import { useRef as useRef4 } from "react";
 import { jsx as jsx21, jsxs as jsxs16 } from "react/jsx-runtime";
 var SIZE = { sm: "h-7 px-3 text-xs", md: "h-9 px-4 text-sm" };
 function SegmentedControl({
@@ -4187,7 +4198,7 @@ function SegmentedControl({
   "aria-label": ariaLabel,
   className
 }) {
-  const refs = useRef3([]);
+  const refs = useRef4([]);
   const vai = (i) => {
     const n = (i + options.length) % options.length;
     onChange?.(options[n].value);
@@ -4247,7 +4258,7 @@ import {
   useCallback as useCallback3,
   useEffect as useEffect6,
   useId as useId6,
-  useRef as useRef4,
+  useRef as useRef5,
   useState as useState7
 } from "react";
 import { jsx as jsx22, jsxs as jsxs17 } from "react/jsx-runtime";
@@ -4266,7 +4277,7 @@ function Tooltip({
 }) {
   const id = useId6();
   const [open, setOpen] = useState7(false);
-  const timer = useRef4(null);
+  const timer = useRef5(null);
   const child = Children2.only(children);
   const show = useCallback3(() => {
     clearTimeout(timer.current);
@@ -4670,12 +4681,12 @@ import { useEffect as useEffect8, useState as useState10 } from "react";
 import { ChevronDown as ChevronDown3, ChevronUp, ChevronsUpDown, Inbox } from "lucide-react";
 
 // src/molecules/TopScrollX.jsx
-import { useEffect as useEffect7, useRef as useRef5, useState as useState8 } from "react";
+import { useEffect as useEffect7, useRef as useRef6, useState as useState8 } from "react";
 import { Fragment as Fragment3, jsx as jsx30, jsxs as jsxs24 } from "react/jsx-runtime";
 function TopScrollX({ children, className }) {
-  const topRef = useRef5(null);
-  const bodyRef = useRef5(null);
-  const syncing = useRef5(false);
+  const topRef = useRef6(null);
+  const bodyRef = useRef6(null);
+  const syncing = useRef6(false);
   const [scrollWidth, setScrollWidth] = useState8(0);
   const [overflow, setOverflow] = useState8(false);
   useEffect7(() => {
@@ -5222,11 +5233,11 @@ function formatDataIt(iso) {
 var isoGiorno = (d) => `${d.getUTCFullYear()}-${due2(d.getUTCMonth() + 1)}-${due2(d.getUTCDate())}`;
 
 // src/molecules/CampoData.jsx
-import { forwardRef as forwardRef5, useEffect as useEffect10, useId as useId7, useRef as useRef7, useState as useState12 } from "react";
+import { forwardRef as forwardRef5, useEffect as useEffect10, useId as useId7, useRef as useRef8, useState as useState12 } from "react";
 import { CalendarDays } from "lucide-react";
 
 // src/molecules/CalendarioMese.jsx
-import { useEffect as useEffect9, useRef as useRef6, useState as useState11 } from "react";
+import { useEffect as useEffect9, useRef as useRef7, useState as useState11 } from "react";
 import { ChevronLeft as ChevronLeft2, ChevronRight as ChevronRight3 } from "lucide-react";
 import { jsx as jsx34, jsxs as jsxs28 } from "react/jsx-runtime";
 var GIORNO2 = 864e5;
@@ -5258,8 +5269,8 @@ function CalendarioMese({
 }) {
   const [fuoco, setFuoco] = useState11(value || oggi);
   const [mese2, setMese] = useState11(() => primoDelMese(daIso(value || oggi)));
-  const griglia$ = useRef6(null);
-  const daFocalizzare = useRef6(autoFocus);
+  const griglia$ = useRef7(null);
+  const daFocalizzare = useRef7(autoFocus);
   useEffect9(() => {
     if (!daFocalizzare.current) return;
     daFocalizzare.current = false;
@@ -5349,7 +5360,7 @@ var CampoData = forwardRef5(function CampoData2({
   const [testo, setTesto] = useState12(formatDataIt(value));
   const [errato, setErrato] = useState12(false);
   const [aperto, setAperto] = useState12(false);
-  const radice = useRef7(null);
+  const radice = useRef8(null);
   const pannello = useId7();
   useEffect10(() => {
     setTesto(formatDataIt(value));
@@ -5698,7 +5709,7 @@ function PulsanteEsportaCsv({
 }
 
 // src/organisms/Dialog.jsx
-import { useEffect as useEffect11, useId as useId9, useRef as useRef8 } from "react";
+import { useEffect as useEffect11, useId as useId9, useRef as useRef9 } from "react";
 import { createPortal as createPortal2 } from "react-dom";
 import { X as X3 } from "lucide-react";
 import { jsx as jsx40, jsxs as jsxs33 } from "react/jsx-runtime";
@@ -5728,8 +5739,8 @@ function Dialog({
 }) {
   const titleId = useId9();
   const descId = useId9();
-  const panelRef = useRef8(null);
-  const onCloseRef = useRef8(onClose);
+  const panelRef = useRef9(null);
+  const onCloseRef = useRef9(onClose);
   onCloseRef.current = onClose;
   useEffect11(() => {
     if (!open) return void 0;
@@ -5838,7 +5849,7 @@ function Dialog({
 }
 
 // src/organisms/ConfirmDialog.jsx
-import { useEffect as useEffect12, useRef as useRef9, useState as useState13 } from "react";
+import { useEffect as useEffect12, useRef as useRef10, useState as useState13 } from "react";
 import { Fragment as Fragment5, jsx as jsx41, jsxs as jsxs34 } from "react/jsx-runtime";
 function ConfirmDialog({
   open,
@@ -5851,8 +5862,8 @@ function ConfirmDialog({
   tone = "primary",
   requireText
 }) {
-  const inCorso = useRef9(false);
-  const generazione = useRef9(0);
+  const inCorso = useRef10(false);
+  const generazione = useRef10(0);
   const [loading, setLoading] = useState13(false);
   const [errore, setErrore] = useState13(null);
   const [testo, setTesto] = useState13("");
@@ -5937,7 +5948,7 @@ import {
   useContext,
   useEffect as useEffect13,
   useMemo as useMemo3,
-  useRef as useRef10,
+  useRef as useRef11,
   useState as useState14
 } from "react";
 import { AlertTriangle as AlertTriangle2, CheckCircle2 as CheckCircle22, Info as Info2, X as X4, XCircle as XCircle2 } from "lucide-react";
@@ -5992,8 +6003,8 @@ function ToastItem({ t, onDismiss }) {
 }
 function ToastProvider({ children }) {
   const [toasts, setToasts] = useState14([]);
-  const timers = useRef10(/* @__PURE__ */ new Map());
-  const seq = useRef10(0);
+  const timers = useRef11(/* @__PURE__ */ new Map());
+  const seq = useRef11(0);
   const dismiss = useCallback5((id) => {
     setToasts((l) => l.filter((t) => t.id !== id));
     clearTimeout(timers.current.get(id));
@@ -6048,7 +6059,7 @@ function useToast() {
 }
 
 // src/organisms/VediCome.jsx
-import { useEffect as useEffect14, useId as useId10, useRef as useRef11, useState as useState15 } from "react";
+import { useEffect as useEffect14, useId as useId10, useRef as useRef12, useState as useState15 } from "react";
 import { Check as Check3, ChevronDown as ChevronDown4, Eye, RotateCcw as RotateCcw2 } from "lucide-react";
 import { jsx as jsx43, jsxs as jsxs36 } from "react/jsx-runtime";
 function VediCome({
@@ -6062,7 +6073,7 @@ function VediCome({
   className
 }) {
   const [open, setOpen] = useState15(false);
-  const boxRef = useRef11(null);
+  const boxRef = useRef12(null);
   const uid = useId10();
   useEffect14(() => {
     if (!open) return void 0;
@@ -6198,8 +6209,9 @@ import {
   createContext as createContext2,
   useContext as useContext2,
   useEffect as useEffect15,
+  useId as useId11,
   useMemo as useMemo4,
-  useRef as useRef12,
+  useRef as useRef13,
   useState as useState16
 } from "react";
 import { useLocation as useLocation2 } from "react-router-dom";
@@ -6244,6 +6256,7 @@ function AppShell({
   maxWidth = "7xl",
   compattaAdOgniPagina = false,
   portaliRichiudibili = true,
+  idContenuto = "contenuto",
   children
 }) {
   const {
@@ -6271,11 +6284,23 @@ function AppShell({
   }, [richieste]);
   const [apertaQui, setApertaQui] = useState16(false);
   const [isOpen, setIsOpen] = useState16(false);
+  const idPannelloMobile = useId11();
+  const burgerRef = useRef13(null);
   const [expanded, setExpanded] = useState16(
     () => new Set(activeGroupIds([...mainTree, ...adminTree], pathname))
   );
-  const mainRef = useRef12(null);
-  const treesRef = useRef12(null);
+  useEffect15(() => {
+    if (!isOpen) return void 0;
+    function chiudiConEsc(e) {
+      if (e.key !== "Escape") return;
+      setIsOpen(false);
+      burgerRef.current?.focus();
+    }
+    document.addEventListener("keydown", chiudiConEsc);
+    return () => document.removeEventListener("keydown", chiudiConEsc);
+  }, [isOpen]);
+  const mainRef = useRef13(null);
+  const treesRef = useRef13(null);
   treesRef.current = [...mainTree, ...adminTree];
   useEffect15(() => {
     const attivi = activeGroupIds(treesRef.current, pathname);
@@ -6285,6 +6310,7 @@ function AppShell({
       );
     if (mainRef.current) mainRef.current.scrollTop = 0;
     setApertaQui(false);
+    setIsOpen(false);
   }, [pathname]);
   const toggleCollapse = () => {
     if (compattaAdOgniPagina) {
@@ -6314,6 +6340,14 @@ function AppShell({
   const azioni = typeof azioniSidebar === "function" ? azioniSidebar({ compressa }) : azioniSidebar;
   return /* @__PURE__ */ jsx44(CompattaContext.Provider, { value: richiediCompatta, children: /* @__PURE__ */ jsxs37("div", { className: "flex h-screen bg-app", children: [
     /* @__PURE__ */ jsx44(
+      "a",
+      {
+        href: `#${idContenuto}`,
+        className: "sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-[100] focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:ring-2 focus:ring-ring",
+        children: "Vai al contenuto"
+      }
+    ),
+    /* @__PURE__ */ jsx44(
       AppSidebar,
       {
         ...sidebarProps,
@@ -6323,6 +6357,7 @@ function AppShell({
         onToggleGroup: toggleGroup,
         isOpen,
         onClose: () => setIsOpen(false),
+        idPannelloMobile,
         collapsed: compressa,
         onToggleCollapse: toggleCollapse,
         footerSlot: azioni && !compressa ? /* @__PURE__ */ jsxs37(Fragment6, { children: [
@@ -6348,6 +6383,9 @@ function AppShell({
             icon: Menu,
             label: "Apri menu",
             className: "md:hidden",
+            ref: burgerRef,
+            "aria-expanded": isOpen,
+            "aria-controls": idPannelloMobile,
             onClick: () => setIsOpen(true)
           }
         ),
@@ -6357,7 +6395,9 @@ function AppShell({
         "main",
         {
           ref: mainRef,
-          className: "flex-1 overflow-y-auto scrollbar-thin p-4 md:p-6",
+          id: idContenuto,
+          tabIndex: -1,
+          className: "flex-1 overflow-y-auto scrollbar-thin p-4 focus:outline-none md:p-6",
           children: /* @__PURE__ */ jsx44("div", { className: cn("mx-auto", WIDTHS[maxWidth] ?? WIDTHS["7xl"]), children })
         }
       )
@@ -6427,7 +6467,7 @@ function Section({
 }
 
 // src/templates/LoginPage.jsx
-import { useId as useId11, useState as useState18 } from "react";
+import { useId as useId12, useState as useState18 } from "react";
 import { Eye as Eye2, EyeOff } from "lucide-react";
 
 // src/accesso/useAccessoMicrosoft.js
@@ -6592,7 +6632,7 @@ function LoginPage({
   iconaPortale,
   altriPortali: altriPortali2 = true
 }) {
-  const passwordId = useId11();
+  const passwordId = useId12();
   useFaviconVuscom(iconaPortale);
   const [username, setUsername] = useState18("");
   const [password, setPassword] = useState18("");

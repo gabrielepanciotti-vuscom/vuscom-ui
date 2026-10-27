@@ -91,7 +91,7 @@ Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 ### Template
 | Componente | Props principali |
 |---|---|
-| `AppShell` | `sidebar` (props di `AppSidebar` + `nav`, `adminNav`), `topbarRight`, `azioniSidebar` (nodo, o funzione `({ compressa }) => nodo`: aperta una riga sua nel piè della sidebar sopra «Tema», compressa sopra l'interruttore; per le segnalazioni `azioniSegnalazioni`), `maxWidth`, `compattaAdOgniPagina` (ogni pagina si apre con la sidebar compressa; il pulsante — pieno, nel colore primario — la riapre solo per la pagina corrente; default spento: vale la preferenza salvata); va dentro un Router |
+| `AppShell` | `sidebar` (props di `AppSidebar` + `nav`, `adminNav`), `topbarRight`, `azioniSidebar` (nodo, o funzione `({ compressa }) => nodo`: aperta una riga sua nel piè della sidebar sopra «Tema», compressa sopra l'interruttore; per le segnalazioni `azioniSegnalazioni`), `maxWidth`, `compattaAdOgniPagina` (ogni pagina si apre con la sidebar compressa; il pulsante — pieno, nel colore primario — la riapre solo per la pagina corrente; default spento: vale la preferenza salvata); `idContenuto` (id del `<main>`, bersaglio del link «Vai al contenuto» in cima alla pagina; default `contenuto`); il menu mobile ha `aria-expanded`/`aria-controls`, si chiude con Esc (il focus torna al burger) e a ogni cambio di pagina; va dentro un Router |
 | `useSidebarCompatta(attiva = true)` | hook per le pagine che vogliono spazio (builder di report, tabelle larghe): finché la pagina è montata la sidebar resta compressa, poi torna alla preferenza dell'utente, che non viene sovrascritta |
 | `PageHeader` | `title`, `description`, `icon`, `help`, `helpHref`, `actions`, `tabs`, `className` |
 | `Section` | `title`, `description`, `actions`, `className` |
@@ -292,6 +292,12 @@ chiaro/scuro. È il posto dove guardare prima di scrivere un componente nuovo.
 come slot (`themeSlot`, `footerSlot`). Normalmente la si usa tramite `AppShell`,
 che le passa lo stato (collasso, gruppi aperti, menu mobile). Non importa React
 come dipendenza propria — usa quello dell'app che la ospita.
+
+Da chiuso il pannello mobile (l'`<aside>` dell'overlay) è `inert` e `aria-hidden`,
+così i suoi link non entrano nel Tab né nei lettori di schermo; da aperto non ha
+nessuno dei due. La prop facoltativa `idPannelloMobile` dà un `id` a quell'`<aside>`,
+per l'`aria-controls` del pulsante che lo apre (`AppShell` la compila da solo). Su
+desktop non cambia nulla.
 
 ## Gestione utenti (`@vuscom/ui/utenti`, dalla 0.2.0)
 
