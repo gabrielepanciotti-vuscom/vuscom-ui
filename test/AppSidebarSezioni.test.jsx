@@ -56,7 +56,12 @@ describe("AppSidebar: sezioni", () => {
     monta({ collapsed: true });
     // La sidebar mobile resta estesa: il titolo testuale sopravvive solo lì.
     expect(screen.getAllByText("Clienti segnalati")).toHaveLength(1);
-    expect(screen.getAllByRole("group", { name: "Clienti segnalati" })).toHaveLength(2);
+    // Il pannello mobile chiuso e' aria-hidden: per ruolo si vede solo il desktop,
+    // la copia mobile c'e' comunque (hidden: true le conta entrambe).
+    expect(screen.getAllByRole("group", { name: "Clienti segnalati" })).toHaveLength(1);
+    expect(
+      screen.getAllByRole("group", { name: "Clienti segnalati", hidden: true }),
+    ).toHaveLength(2);
     expect(screen.getAllByText("5").length).toBe(2);
   });
 });

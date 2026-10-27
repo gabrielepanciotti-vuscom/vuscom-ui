@@ -2,6 +2,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -75,6 +76,9 @@ function activeGroupIds(nodes, pathname) {
  * row in the footer above the theme toggle; collapsed, it stacks over the
  * toggle. The shell takes it from outside, so this entry never imports
  * `@vuscom/ui/segnalazioni`.
+ * `idContenuto` is the id of <main>, target of the «Vai al contenuto» skip link
+ * (default `contenuto`): a portal that already uses that id picks another.
+ * The mobile menu closes on Esc (focus back to the burger) and on navigation.
  */
 export default function AppShell({
   sidebar = {},
@@ -83,6 +87,7 @@ export default function AppShell({
   maxWidth = "7xl",
   compattaAdOgniPagina = false,
   portaliRichiudibili = true,
+  idContenuto = "contenuto",
   children,
 }) {
   const {
@@ -116,9 +121,24 @@ export default function AppShell({
   // compact again. The saved preference is not used in this mode.
   const [apertaQui, setApertaQui] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const idPannelloMobile = useId();
+  const burgerRef = useRef(null);
   const [expanded, setExpanded] = useState(
     () => new Set(activeGroupIds([...mainTree, ...adminTree], pathname)),
   );
+
+  // Esc closes the mobile menu and hands the focus back to the button that
+  // opened it, so a keyboard user does not restart from the top of the page.
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    function chiudiConEsc(e) {
+      if (e.key !== "Escape") return;
+      setIsOpen(false);
+      burgerRef.current?.focus();
+    }
+    document.addEventListener("keydown", chiudiConEsc);
+    return () => document.removeEventListener("keydown", chiudiConEsc);
+  }, [isOpen]);
 
   const mainRef = useRef(null);
   // The effect below must fire on navigation only: callers may pass `nav`
@@ -139,6 +159,9 @@ export default function AppShell({
       );
     if (mainRef.current) mainRef.current.scrollTop = 0;
     setApertaQui(false);
+    // navigate() and the back button change the route without a click on the
+    // sidebar, so the mobile menu would stay open over the new page.
+    setIsOpen(false);
   }, [pathname]);
 
   const toggleCollapse = () => {
@@ -180,6 +203,12 @@ export default function AppShell({
   return (
     <CompattaContext.Provider value={richiediCompatta}>
       <div className="flex h-screen bg-app">
+        <a
+          href={`#${idContenuto}`}
+          className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-[100] focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:ring-2 focus:ring-ring"
+        >
+          Vai al contenuto
+        </a>
         <AppSidebar
           {...sidebarProps}
           mainTree={mainTree}
@@ -188,6 +217,7 @@ export default function AppShell({
           onToggleGroup={toggleGroup}
           isOpen={isOpen}
           onClose={() => setIsOpen(false)}
+          idPannelloMobile={idPannelloMobile}
           collapsed={compressa}
           onToggleCollapse={toggleCollapse}
           footerSlot={
@@ -223,13 +253,18 @@ export default function AppShell({
               icon={Menu}
               label="Apri menu"
               className="md:hidden"
+              ref={burgerRef}
+              aria-expanded={isOpen}
+              aria-controls={idPannelloMobile}
               onClick={() => setIsOpen(true)}
             />
             <div className="ml-auto flex items-center gap-2">{topbarRight}</div>
           </header>
           <main
             ref={mainRef}
-            className="flex-1 overflow-y-auto scrollbar-thin p-4 md:p-6"
+            id={idContenuto}
+            tabIndex={-1}
+            className="flex-1 overflow-y-auto scrollbar-thin p-4 focus:outline-none md:p-6"
           >
             <div className={cn("mx-auto", WIDTHS[maxWidth] ?? WIDTHS["7xl"])}>
               {children}

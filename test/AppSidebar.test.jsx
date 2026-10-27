@@ -170,3 +170,65 @@ describe("AppSidebar — slot e menu utente", () => {
     expect(onCreateUser).toHaveBeenCalledOnce();
   });
 });
+
+/** L'<aside> dentro l'overlay mobile (a differenza di quella desktop). */
+function mobileSidebar() {
+  return document.querySelector(".md\\:hidden aside");
+}
+
+describe("AppSidebar — pannello mobile", () => {
+  it("da chiuso e' inert e aria-hidden, cosi' i suoi link non entrano nel Tab", () => {
+    render(<Harness isOpen={false} />);
+    const mobile = mobileSidebar();
+    expect(mobile).toHaveAttribute("inert");
+    expect(mobile).toHaveAttribute("aria-hidden", "true");
+    // Nascosto ai lettori di schermo: i suoi link non compaiono per ruolo.
+    expect(within(mobile).queryAllByRole("link")).toHaveLength(0);
+  });
+
+  it("senza la prop isOpen resta chiuso (inert)", () => {
+    render(<Harness />);
+    expect(mobileSidebar()).toHaveAttribute("inert");
+  });
+
+  it("da aperto non ha ne' inert ne' aria-hidden", () => {
+    render(<Harness isOpen />);
+    const mobile = mobileSidebar();
+    expect(mobile).not.toHaveAttribute("inert");
+    expect(mobile).not.toHaveAttribute("aria-hidden");
+    expect(
+      within(mobile).getByRole("link", { name: "Dashboard" }),
+    ).toBeInTheDocument();
+  });
+
+  it("aprire e richiudere il pannello toglie e rimette inert", () => {
+    const { rerender } = render(<Harness isOpen={false} />);
+    rerender(<Harness isOpen />);
+    expect(mobileSidebar()).not.toHaveAttribute("inert");
+    expect(mobileSidebar()).not.toHaveAttribute("aria-hidden");
+
+    rerender(<Harness isOpen={false} />);
+    expect(mobileSidebar()).toHaveAttribute("inert");
+    expect(mobileSidebar()).toHaveAttribute("aria-hidden", "true");
+  });
+
+  it("la sidebar desktop non cambia: mai inert ne' aria-hidden", () => {
+    const { rerender } = render(<Harness isOpen={false} />);
+    expect(desktopSidebar()).not.toHaveAttribute("inert");
+    expect(desktopSidebar()).not.toHaveAttribute("aria-hidden");
+    rerender(<Harness isOpen />);
+    expect(desktopSidebar()).not.toHaveAttribute("inert");
+    expect(desktopSidebar()).not.toHaveAttribute("aria-hidden");
+  });
+
+  it("idPannelloMobile diventa l'id dell'aside mobile, e solo di quella", () => {
+    render(<Harness idPannelloMobile="menu-mobile" />);
+    expect(mobileSidebar()).toHaveAttribute("id", "menu-mobile");
+    expect(desktopSidebar()).not.toHaveAttribute("id");
+  });
+
+  it("senza idPannelloMobile l'aside mobile non ha id", () => {
+    render(<Harness />);
+    expect(mobileSidebar()).not.toHaveAttribute("id");
+  });
+});

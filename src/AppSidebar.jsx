@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { LogoV } from "./brand/Brand.jsx";
 import PulsanteGuida from "./PulsanteGuida.jsx";
@@ -30,7 +30,10 @@ import {
  *  - mainTree[], adminTree[]: alberi già normalizzati (vedi normalizeNavTree)
  *  - expandedGroups: Set<string> degli id gruppo aperti · onToggleGroup(id)
  *  - collapsed / onToggleCollapse: modalità stretta
- *  - isOpen / onClose: overlay mobile
+ *  - isOpen / onClose: overlay mobile. Da chiuso il pannello e' `inert` e `aria-hidden`,
+ *    quindi i suoi link non entrano nel Tab ne' nei lettori di schermo.
+ *  - idPannelloMobile: id dell'<aside> del pannello mobile, per l'`aria-controls` del
+ *    pulsante che lo apre (AppShell lo genera con useId).
  *  - iconaPortale: chiave di COLORI_PORTALE ("outbound"…), oppure un colore esadecimale
  *    ("#0e7490" / { colore: "#0e7490" }, tessera generata a runtime, nessuna release):
  *    la V sul colore del portale, in sidebar e nella scheda del browser.
@@ -71,6 +74,7 @@ export default function AppSidebar({
   userMenuExtras = [],
   isOpen,
   onClose,
+  idPannelloMobile,
   collapsed = false,
   onToggleCollapse,
   themeSlot,
@@ -85,6 +89,16 @@ export default function AppSidebar({
   const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [hoveredGroup, setHoveredGroup] = useState(null);
+  const pannelloMobileRef = useRef(null);
+
+  // `inert` va messo a mano: React 18 non conosce l'attributo e React 19 lo
+  // vuole booleano, quindi la prop JSX non e' portabile tra le due versioni.
+  useEffect(() => {
+    const pannello = pannelloMobileRef.current;
+    if (!pannello) return;
+    if (isOpen) pannello.removeAttribute("inert");
+    else pannello.setAttribute("inert", "");
+  }, [isOpen]);
 
   useEffect(() => {
     // La sidebar viene renderizzata due volte (desktop + overlay mobile), quindi
@@ -455,6 +469,9 @@ export default function AppSidebar({
       >
         <div className="absolute inset-0 bg-black/50" onClick={onClose} />
         <aside
+          ref={pannelloMobileRef}
+          id={idPannelloMobile}
+          aria-hidden={isOpen ? undefined : true}
           className={`relative z-50 h-full transition-transform duration-300 ease-out ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
         >
           {buildSidebar(false, false)}
