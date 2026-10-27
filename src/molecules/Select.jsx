@@ -6,6 +6,7 @@ import { campoClasses } from "../atoms/Input.jsx";
 import useFloatingList from "./useFloatingList.js";
 
 const CLEAR = "__clear__";
+const BUFFER_MS = 500;
 
 export default function Select({
   value,
@@ -27,7 +28,10 @@ export default function Select({
   const rootRef = useRef(null);
   const triggerRef = useRef(null);
   const listRef = useRef(null);
+  const buffer = useRef("");
+  const bufferTimer = useRef(null);
   const uid = useId();
+  const triggerId = rest.id ?? `${uid}-trigger`;
   // The list lives in a portal so overflow containers (tables, dialogs) cannot clip it.
   const listStyle = useFloatingList(triggerRef, open);
 
@@ -50,6 +54,8 @@ export default function Select({
     document.addEventListener("mousedown", fuori);
     return () => document.removeEventListener("mousedown", fuori);
   }, [open]);
+
+  useEffect(() => () => clearTimeout(bufferTimer.current), []);
 
   const apri = () => {
     if (disabled) return;
@@ -77,10 +83,50 @@ export default function Select({
     }
   };
 
+  // First / last enabled entry, for Home and End.
+  const estremo = (dir) => {
+    const abilitate = entries.map((o, i) => (o.disabled ? -1 : i)).filter((i) => i >= 0);
+    return dir > 0 ? abilitate[abilitate.length - 1] : abilitate[0];
+  };
+
+  const vaiA = (i) => {
+    if (i === undefined) return;
+    setActive(i);
+    setOpen(true);
+  };
+
+  // Typeahead: printable characters build a prefix that is cleared after BUFFER_MS.
+  const cerca = (carattere) => {
+    clearTimeout(bufferTimer.current);
+    buffer.current += carattere.toLowerCase();
+    bufferTimer.current = setTimeout(() => {
+      buffer.current = "";
+    }, BUFFER_MS);
+    const i = entries.findIndex(
+      (o) =>
+        !o.disabled &&
+        typeof o.label === "string" &&
+        o.label.toLowerCase().startsWith(buffer.current),
+    );
+    if (i >= 0) vaiA(i);
+  };
+
   const onKeyDown = (e) => {
     onKeyDownProp?.(e);
     if (disabled || e.defaultPrevented) return;
-    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    const stampabile =
+      e.key.length === 1 &&
+      !e.ctrlKey &&
+      !e.metaKey &&
+      !e.altKey &&
+      (e.key !== " " || buffer.current !== "");
+    if (stampabile) {
+      e.preventDefault();
+      cerca(e.key);
+    } else if (e.key === "Home" || e.key === "End") {
+      e.preventDefault();
+      vaiA(estremo(e.key === "End" ? 1 : -1));
+    } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
       if (!open) apri();
       else muovi(e.key === "ArrowDown" ? 1 : -1);
@@ -102,7 +148,9 @@ export default function Select({
       <button
         {...rest}
         ref={triggerRef}
+        id={triggerId}
         type="button"
+        role="combobox"
         disabled={disabled}
         aria-label={ariaLabel}
         aria-haspopup="listbox"
@@ -142,6 +190,7 @@ export default function Select({
             ref={listRef}
             id={`${uid}-list`}
             role="listbox"
+            aria-labelledby={triggerId}
             aria-label={ariaLabel}
             style={listStyle ?? { position: "fixed" }}
             // Keep focus on the trigger: keyboard handling and Dialog focus trap live there.

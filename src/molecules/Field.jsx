@@ -14,7 +14,7 @@ export default function Field({
   const auto = useId();
   const child = Children.only(children);
   const fieldId = id || child.props?.id || auto;
-  const hintId = hint ? `${fieldId}-hint` : null;
+  const hintId = hint && !error ? `${fieldId}-hint` : null;
   const errorId = error ? `${fieldId}-error` : null;
   const describedBy =
     [child.props?.["aria-describedby"], hintId, errorId]

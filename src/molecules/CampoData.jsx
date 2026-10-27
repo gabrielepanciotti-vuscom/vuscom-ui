@@ -21,21 +21,33 @@ const CampoData = forwardRef(function CampoData(
     invalid,
     disabled,
     "aria-label": ariaLabel,
+    "aria-describedby": ariaDescribedBy,
+    "aria-invalid": ariaInvalid,
     id,
     className,
+    onBlur: onBlurProp,
+    onKeyDown: onKeyDownProp,
+    ...rest
   },
   ref,
 ) {
   const [testo, setTesto] = useState(formatDataIt(value));
-  const [errato, setErrato] = useState(false);
+  // null | "formato" (unparseable text) | "limiti" (outside min/max)
+  const [errore, setErrore] = useState(null);
   const [aperto, setAperto] = useState(false);
   const radice = useRef(null);
   const pannello = useId();
+  const erroreId = useId();
+  const errato = errore !== null;
+  const nonValido = invalid || errato || ariaInvalid === true || ariaInvalid === "true";
+  const descritto =
+    [ariaDescribedBy, errore === "formato" ? erroreId : null].filter(Boolean).join(" ") ||
+    undefined;
 
   // An outside change (reset, chip removed) rewrites the text.
   useEffect(() => {
     setTesto(formatDataIt(value));
-    setErrato(false);
+    setErrore(null);
   }, [value]);
 
   useEffect(() => {
@@ -51,16 +63,16 @@ const CampoData = forwardRef(function CampoData(
     const iso = parseDataIt(testo);
     const fuoriLimiti = iso && ((min && iso < min) || (max && iso > max));
     if (iso === undefined || fuoriLimiti) {
-      setErrato(true);
+      setErrore(iso === undefined ? "formato" : "limiti");
       return;
     }
-    setErrato(false);
+    setErrore(null);
     if (iso !== (value ?? null)) onChange?.(iso);
   };
 
   const scegli = (iso) => {
     setAperto(false);
-    setErrato(false);
+    setErrore(null);
     setTesto(formatDataIt(iso));
     onChange?.(iso);
     radice.current?.querySelector("input")?.focus();
@@ -79,6 +91,7 @@ const CampoData = forwardRef(function CampoData(
       }}
     >
       <input
+        {...rest}
         ref={ref}
         id={id}
         type="text"
@@ -88,15 +101,25 @@ const CampoData = forwardRef(function CampoData(
         placeholder={placeholder}
         disabled={disabled}
         aria-label={ariaLabel}
-        aria-invalid={invalid || errato ? "true" : undefined}
+        aria-describedby={descritto}
+        aria-invalid={nonValido ? "true" : ariaInvalid}
         onChange={(e) => setTesto(e.target.value)}
-        onBlur={conferma}
+        onBlur={(e) => {
+          onBlurProp?.(e);
+          conferma();
+        }}
         onKeyDown={(e) => {
+          onKeyDownProp?.(e);
           if (e.key === "Enter") conferma();
           if (e.key === "ArrowDown" && e.altKey) setAperto(true);
         }}
-        className={cn(campoClasses(invalid || errato), "h-9 pl-3 pr-9 tabular-nums")}
+        className={cn(campoClasses(nonValido), "h-9 pl-3 pr-9 tabular-nums")}
       />
+      {errore === "formato" && (
+        <span id={erroreId} className="sr-only">
+          Data non valida, usa il formato gg/mm/aaaa
+        </span>
+      )}
       <IconButton
         icon={CalendarDays}
         label="Apri calendario"
