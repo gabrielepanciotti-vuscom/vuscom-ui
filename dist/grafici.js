@@ -3215,7 +3215,7 @@ var campoClasses = (invalid) => cn(
   CAMPO,
   // Error wired from outside (Field sets aria-invalid) must look invalid without the prop.
   "aria-[invalid=true]:border-destructive aria-[invalid=true]:focus-visible:ring-destructive",
-  invalid ? "border-destructive focus-visible:ring-destructive/40" : "border-input hover:border-ring/60 focus-visible:border-ring focus-visible:ring-ring/40"
+  invalid ? "border-destructive focus-visible:ring-destructive/40" : "border-input hover:border-ring/60 focus-visible:border-ring focus-visible:ring-ring"
 );
 var Input = forwardRef3(function Input2({ invalid, icon: Icon, className, ...props }, ref) {
   const input = /* @__PURE__ */ jsx10(
@@ -3529,7 +3529,7 @@ function SegmentedControl({
             },
             className: cn(
               "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md font-medium transition-all",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               SIZE[size] || SIZE.sm,
               attivo ? "bg-background text-primary shadow" : "text-muted-foreground hover:text-foreground"
             ),
@@ -3914,7 +3914,7 @@ function Toggle({
         onClick: cambia,
         className: cn(
           "relative mt-0.5 inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "active:scale-95 disabled:cursor-not-allowed disabled:opacity-50",
           checked ? "bg-primary hover:bg-primary/90" : "bg-muted-foreground/30 hover:bg-muted-foreground/40"
         ),
@@ -4645,7 +4645,7 @@ function InfoTip({
     {
       type: "button",
       "aria-label": label,
-      className: "inline-flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+      className: "inline-flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
       children: /* @__PURE__ */ jsx28(HelpCircle, { className: "h-4 w-4", "aria-hidden": true })
     }
   ) });

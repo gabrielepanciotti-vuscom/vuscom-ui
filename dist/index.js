@@ -196,7 +196,7 @@ function PulsanteGuida({ guida, compressa = false }) {
   if (!guida) return null;
   const { href, label = "Guida" } = typeof guida === "string" ? { href: guida } : guida;
   const esterna = /^https?:\/\//.test(href);
-  const className = compressa ? "flex items-center justify-center w-9 h-9 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-800 dark:hover:text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 transition-colors" : "flex items-center justify-center w-7 h-7 rounded-md text-slate-400 dark:text-slate-500 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 transition-colors";
+  const className = compressa ? "flex items-center justify-center w-9 h-9 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-800 dark:hover:text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors" : "flex items-center justify-center w-7 h-7 rounded-md text-slate-400 dark:text-slate-500 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors";
   const icona = /* @__PURE__ */ jsx2(BookOpen, { className: compressa ? "w-5 h-5" : "w-4 h-4", "aria-hidden": true });
   const comuni = { className, title: label, "aria-label": label };
   return esterna ? /* @__PURE__ */ jsx2("a", { href, target: "_blank", rel: "noreferrer", ...comuni, children: icona }) : /* @__PURE__ */ jsx2(Link, { to: href, ...comuni, children: icona });
@@ -3484,7 +3484,7 @@ var campoClasses = (invalid) => cn(
   CAMPO,
   // Error wired from outside (Field sets aria-invalid) must look invalid without the prop.
   "aria-[invalid=true]:border-destructive aria-[invalid=true]:focus-visible:ring-destructive",
-  invalid ? "border-destructive focus-visible:ring-destructive/40" : "border-input hover:border-ring/60 focus-visible:border-ring focus-visible:ring-ring/40"
+  invalid ? "border-destructive focus-visible:ring-destructive/40" : "border-input hover:border-ring/60 focus-visible:border-ring focus-visible:ring-ring"
 );
 var Input = forwardRef3(function Input2({ invalid, icon: Icon, className, ...props }, ref) {
   const input = /* @__PURE__ */ jsx9(
@@ -4045,7 +4045,7 @@ function Toggle({
         onClick: cambia,
         className: cn(
           "relative mt-0.5 inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "active:scale-95 disabled:cursor-not-allowed disabled:opacity-50",
           checked ? "bg-primary hover:bg-primary/90" : "bg-muted-foreground/30 hover:bg-muted-foreground/40"
         ),
@@ -4121,7 +4121,7 @@ function Checkbox({
         onClick: cambia,
         className: cn(
           "flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "active:scale-90 disabled:cursor-not-allowed disabled:opacity-50",
           on ? "border-primary bg-primary text-primary-foreground hover:bg-primary/90" : "border-input bg-background hover:border-ring/60"
         ),
@@ -4272,7 +4272,7 @@ function SegmentedControl({
             },
             className: cn(
               "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md font-medium transition-all",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               SIZE[size] || SIZE.sm,
               attivo ? "bg-background text-primary shadow" : "text-muted-foreground hover:text-foreground"
             ),
@@ -4376,7 +4376,7 @@ function InfoTip({
     {
       type: "button",
       "aria-label": label,
-      className: "inline-flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+      className: "inline-flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
       children: /* @__PURE__ */ jsx23(HelpCircle, { className: "h-4 w-4", "aria-hidden": true })
     }
   ) });
@@ -6482,7 +6482,7 @@ function PageHeader({
             "a",
             {
               href: helpHref,
-              className: "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+              className: "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               children: [
                 /* @__PURE__ */ jsx45(BookOpen2, { className: "h-3.5 w-3.5", "aria-hidden": true }),
                 "Guida"

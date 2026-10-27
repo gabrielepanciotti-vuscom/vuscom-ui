@@ -14,8 +14,8 @@ export default function PulsanteGuida({ guida, compressa = false }) {
   const { href, label = "Guida" } = typeof guida === "string" ? { href: guida } : guida;
   const esterna = /^https?:\/\//.test(href);
   const className = compressa
-    ? "flex items-center justify-center w-9 h-9 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-800 dark:hover:text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 transition-colors"
-    : "flex items-center justify-center w-7 h-7 rounded-md text-slate-400 dark:text-slate-500 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 transition-colors";
+    ? "flex items-center justify-center w-9 h-9 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-800 dark:hover:text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors"
+    : "flex items-center justify-center w-7 h-7 rounded-md text-slate-400 dark:text-slate-500 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors";
   const icona = <BookOpen className={compressa ? "w-5 h-5" : "w-4 h-4"} aria-hidden />;
   const comuni = { className, title: label, "aria-label": label };
   return esterna ? (

@@ -13,7 +13,7 @@ export const campoClasses = (invalid) =>
     "aria-[invalid=true]:border-destructive aria-[invalid=true]:focus-visible:ring-destructive",
     invalid
       ? "border-destructive focus-visible:ring-destructive/40"
-      : "border-input hover:border-ring/60 focus-visible:border-ring focus-visible:ring-ring/40",
+      : "border-input hover:border-ring/60 focus-visible:border-ring focus-visible:ring-ring",
   );
 
 const Input = forwardRef(function Input(

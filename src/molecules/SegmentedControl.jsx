@@ -48,7 +48,7 @@ export default function SegmentedControl({
             }}
             className={cn(
               "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md font-medium transition-all",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               SIZE[size] || SIZE.sm,
               attivo
                 ? "bg-background text-primary shadow"

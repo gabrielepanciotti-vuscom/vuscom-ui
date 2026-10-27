@@ -23,6 +23,31 @@ test("primary is the portals blue; vuscom.it yellow only as accento", () => {
   expect(css).toMatch(/--accento:\s*45 97% 58%/);
   expect(css).toMatch(/--brand-from:\s*288 45% 35%/);
 });
+test("dark focus tokens and reduced motion support accessibility", () => {
+  const darkStart = css.indexOf(".dark {");
+  const dark = css.slice(darkStart, css.indexOf("}", darkStart));
+  expect(dark).toMatch(/--input:\s*217\.2 32\.6% 45%/);
+  expect(dark).toMatch(/--ring:\s*217 91% 60%/);
+  expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)/);
+  expect(css).toMatch(/animation-duration:\s*0\.01ms/);
+  expect(css).toMatch(/transition-duration:\s*0\.01ms/);
+  expect(css).toMatch(/scroll-behavior:\s*auto/);
+});
+test("focus ring token is never made transparent", () => {
+  const files = [
+    "../../src/atoms/Input.jsx",
+    "../../src/molecules/Checkbox.jsx",
+    "../../src/molecules/InfoTip.jsx",
+    "../../src/molecules/SegmentedControl.jsx",
+    "../../src/molecules/Toggle.jsx",
+    "../../src/templates/PageHeader.jsx",
+    "../../src/PulsanteGuida.jsx",
+  ];
+  for (const file of files) {
+    const source = readFileSync(new URL(file, import.meta.url), "utf8");
+    expect(source).not.toMatch(/focus-visible:ring-ring\/\d+/);
+  }
+});
 test("preset uses class dark mode and system font", () => {
   const preset = require("../../src/theme/preset.cjs");
   expect(preset.darkMode).toBe("class");

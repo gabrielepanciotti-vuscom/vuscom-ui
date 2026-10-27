@@ -98,8 +98,8 @@
   --info: 198.6 88.7% 48.4%;
   --info-foreground: 204 80.2% 15.9%;
   --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 224.3 76.3% 48%;
+  --input: 217.2 32.6% 45%;
+  --ring: 217 91% 60%;
   --app-bg: 229 84% 5%;
   --chart-1: 217.2 91.2% 59.8%;
   --chart-2: 37.7 92.1% 50.2%;
@@ -119,6 +119,16 @@ body {
 *:focus-visible {
   outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    scroll-behavior: auto;
+    transition-duration: 0.01ms;
+  }
 }
 .scrollbar-thin {
   scrollbar-width: thin;
