@@ -1,5 +1,26 @@
 {
   "_suiteManaged": {
+    "deny": [
+      "Read(**/*.swp)",
+      "Read(**/*.tmp)",
+      "Read(**/.brain-inbox/**)",
+      "Read(**/.git/**)",
+      "Read(**/.mypy_cache/**)",
+      "Read(**/.next/**)",
+      "Read(**/.obsidian/workspace*.json)",
+      "Read(**/.pytest_cache/**)",
+      "Read(**/.remember/logs/**)",
+      "Read(**/.ruff_cache/**)",
+      "Read(**/.turbo/**)",
+      "Read(**/.venv/**)",
+      "Read(**/__pycache__/**)",
+      "Read(**/build/**)",
+      "Read(**/coverage/**)",
+      "Read(**/dist/**)",
+      "Read(**/graphify-out/**)",
+      "Read(**/node_modules/**)",
+      "Read(**/old/**)"
+    ],
     "plugins": []
   },
   "_toolsPolicy": {
@@ -244,7 +265,26 @@
       "Agent(gsd-ui-checker)",
       "Agent(gsd-ui-researcher)",
       "Agent(gsd-user-profiler)",
-      "Agent(gsd-verifier)"
+      "Agent(gsd-verifier)",
+      "Read(**/.git/**)",
+      "Read(**/node_modules/**)",
+      "Read(**/dist/**)",
+      "Read(**/build/**)",
+      "Read(**/.venv/**)",
+      "Read(**/__pycache__/**)",
+      "Read(**/.pytest_cache/**)",
+      "Read(**/.ruff_cache/**)",
+      "Read(**/.mypy_cache/**)",
+      "Read(**/coverage/**)",
+      "Read(**/.next/**)",
+      "Read(**/.turbo/**)",
+      "Read(**/graphify-out/**)",
+      "Read(**/old/**)",
+      "Read(**/.obsidian/workspace*.json)",
+      "Read(**/.brain-inbox/**)",
+      "Read(**/.remember/logs/**)",
+      "Read(**/*.tmp)",
+      "Read(**/*.swp)"
     ]
   },
   "skillOverrides": {
