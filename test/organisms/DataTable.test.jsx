@@ -77,4 +77,52 @@ test("default empty state and loading skeleton", () => {
     <DataTable columns={columns} rows={[]} rowKey={(r) => r.id} loading />,
   );
   expect(screen.queryByText("Nessun dato")).not.toBeInTheDocument();
+  expect(screen.getByRole("status", { name: "Caricamento" }).closest("[aria-busy]"))
+    .toHaveAttribute("aria-busy", "true");
+});
+
+test("espone aria-busy sulla tabella anche durante l'aggiornamento dei dati", () => {
+  const { rerender } = render(
+    <DataTable columns={columns} rows={rows} rowKey={(r) => r.id} />,
+  );
+  expect(screen.getByRole("table")).toHaveAttribute("aria-busy", "false");
+  rerender(
+    <DataTable columns={columns} rows={rows} rowKey={(r) => r.id} loading />,
+  );
+  expect(screen.getByRole("table")).toHaveAttribute("aria-busy", "true");
+});
+
+test("l'errore precede tabella e caricamento e consente di riprovare", async () => {
+  const onRetry = vi.fn();
+  render(
+    <DataTable
+      columns={columns}
+      rows={rows}
+      rowKey={(r) => r.id}
+      loading
+      error="Servizio non disponibile"
+      onRetry={onRetry}
+      pageSize={2}
+    />,
+  );
+  expect(screen.getByRole("alert")).toHaveTextContent("Servizio non disponibile");
+  expect(screen.queryByRole("table")).not.toBeInTheDocument();
+  expect(screen.queryByRole("navigation", { name: "Paginazione" })).not.toBeInTheDocument();
+  await userEvent.click(screen.getByRole("button", { name: "Riprova" }));
+  expect(onRetry).toHaveBeenCalledTimes(1);
+});
+
+test("l'errore accetta un nodo e senza onRetry non mostra il pulsante", () => {
+  render(
+    <DataTable
+      columns={columns}
+      rows={rows}
+      rowKey={(r) => r.id}
+      error={<strong>Connessione interrotta</strong>}
+    />,
+  );
+  expect(screen.getByRole("alert")).toContainElement(
+    screen.getByText("Connessione interrotta"),
+  );
+  expect(screen.queryByRole("button", { name: "Riprova" })).not.toBeInTheDocument();
 });

@@ -78,7 +78,10 @@ test("pagination bounds", async () => {
       onPageChange={onPageChange}
     />,
   );
-  expect(screen.getByText("1–50 di 120")).toBeInTheDocument();
+  const intervallo = screen.getByText("1–50 di 120").parentElement;
+  expect(intervallo).toHaveAttribute("aria-live", "polite");
+  expect(intervallo).toHaveTextContent("Pagina 1 di 3");
+  expect(screen.getByText("Pagina 1 di 3")).toHaveClass("sr-only");
   expect(screen.getByRole("button", { name: /precedente/i })).toBeDisabled();
   await userEvent.click(screen.getByRole("button", { name: /successiva/i }));
   expect(onPageChange).toHaveBeenCalledWith(2);
@@ -89,6 +92,7 @@ test("pagination last page clamps range and disables next", () => {
     <Pagination page={3} pageSize={50} total={120} onPageChange={() => {}} />,
   );
   expect(screen.getByText("101–120 di 120")).toBeInTheDocument();
+  expect(screen.getByText("Pagina 3 di 3")).toHaveClass("sr-only");
   expect(screen.getByRole("button", { name: /successiva/i })).toBeDisabled();
 });
 

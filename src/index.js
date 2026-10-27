@@ -41,6 +41,11 @@ export { default as EmptyState } from "./organisms/EmptyState.jsx";
 export { default as Alert } from "./organisms/Alert.jsx";
 export { default as Pagination } from "./organisms/Pagination.jsx";
 export { default as DataTable } from "./organisms/DataTable.jsx";
+export {
+  default as DataTableCards,
+  INTERATTIVI,
+  contenutoCella,
+} from "./organisms/DataTableCards.jsx";
 export { default as BarraInline } from "./organisms/BarraInline.jsx";
 export { default as MatriceCalore, intensita } from "./organisms/MatriceCalore.jsx";
 export {

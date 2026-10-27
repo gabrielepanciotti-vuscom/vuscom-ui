@@ -1,15 +1,17 @@
 import { render, screen, fireEvent, act } from "@testing-library/react";
-import { execFileSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { TopScrollX, DataOra, DataTable } from "../../src/index.js";
 
 test("senza ResizeObserver (jsdom) misura una volta e non si rompe", () => {
   expect(typeof ResizeObserver).toBe("undefined");
-  render(<TopScrollX><p>contenuto</p></TopScrollX>);
+  const { container } = render(<TopScrollX><p>contenuto</p></TopScrollX>);
   expect(screen.getByText("contenuto")).toBeInTheDocument();
   expect(screen.queryByTestId("top-scroll-x")).toBeNull();
+  expect(container.firstElementChild).not.toHaveAttribute("role");
+  expect(container.firstElementChild).not.toHaveAttribute("tabindex");
 });
 
 describe("con overflow e ResizeObserver", () => {
@@ -37,6 +39,9 @@ describe("con overflow e ResizeObserver", () => {
     const top = screen.getByTestId("top-scroll-x");
     expect(top.firstChild).toHaveStyle({ width: "1000px" });
     const body = container.querySelector(".x");
+    expect(body).toHaveAttribute("role", "region");
+    expect(body).toHaveAttribute("tabindex", "0");
+    expect(body).toHaveAttribute("aria-label", "Tabella scorrevole");
     top.scrollLeft = 120;
     fireEvent.scroll(top);
     expect(body.scrollLeft).toBe(120);
@@ -54,6 +59,23 @@ describe("con overflow e ResizeObserver", () => {
     vi.spyOn(HTMLElement.prototype, "scrollWidth", "get").mockReturnValue(400);
     act(() => osservati[0].cb());
     expect(screen.queryByTestId("top-scroll-x")).toBeNull();
+  });
+
+  test("usa l'etichetta personalizzata e DataTable inoltra la caption stringa", () => {
+    const { rerender } = render(
+      <TopScrollX ariaLabel="Elenco ordini"><table /></TopScrollX>,
+    );
+    expect(screen.getByRole("region", { name: "Elenco ordini" })).toBeInTheDocument();
+
+    rerender(
+      <DataTable
+        caption="Campagne attive"
+        columns={[{ key: "nome", header: "Nome" }]}
+        rows={[{ id: 1, nome: "Primavera" }]}
+        rowKey={(r) => r.id}
+      />,
+    );
+    expect(screen.getByRole("region", { name: "Campagne attive" })).toBeInTheDocument();
   });
 });
 
@@ -88,27 +110,37 @@ describe("DataOra", () => {
 // --- tester di conformità: tabella larga senza TopScrollX -------------------
 
 const BIN = resolve("bin/conformita.mjs");
-function tester(file) {
+let casoTester = 0;
+async function tester(file) {
   const dir = mkdtempSync(join(tmpdir(), "conf-tl-"));
   mkdirSync(join(dir, "src"));
   writeFileSync(join(dir, "package.json"), JSON.stringify({ name: "x", dependencies: { "@vuscom/ui": "1.18.0" } }));
   writeFileSync(join(dir, "src", "T.jsx"), file);
-  let out;
+  const cwd = process.cwd();
+  const argv = process.argv;
+  const log = vi.spyOn(console, "log").mockImplementation(() => {});
+  const exit = vi.spyOn(process, "exit").mockImplementation(() => undefined);
   try {
-    out = execFileSync("node", [BIN, "--json", "--offline"], { cwd: dir, encoding: "utf8" });
-  } catch (e) {
-    out = e.stdout;
+    process.chdir(dir);
+    process.argv = [argv[0], BIN, "--json", "--offline"];
+    await import(`${pathToFileURL(BIN).href}?test=${casoTester++}`);
+  } finally {
+    process.chdir(cwd);
+    process.argv = argv;
+    exit.mockRestore();
   }
+  const out = log.mock.calls[0]?.[0];
+  log.mockRestore();
   const r = JSON.parse(out);
   return [...r.bloccanti, ...r.avvisi].filter((d) => d.codice === "tabella-larga");
 }
 const tabella = (n, extra = "") =>
   `${extra}export const T = () => <table><thead><tr>${"<th>c</th>".repeat(n)}</tr></thead></table>;`;
 
-test("tester: 7+ colonne senza TopScrollX avvisa, 6 o con TopScrollX no", () => {
-  const r = tester(tabella(7));
+test("tester: 7+ colonne senza TopScrollX avvisa, 6 o con TopScrollX no", async () => {
+  const r = await tester(tabella(7));
   expect(r).toHaveLength(1);
   expect(r[0].gravita).toBe("avvisa");
-  expect(tester(tabella(6))).toEqual([]);
-  expect(tester(tabella(9, 'import { TopScrollX } from "@vuscom/ui";\n'))).toEqual([]);
+  expect(await tester(tabella(6))).toEqual([]);
+  expect(await tester(tabella(9, 'import { TopScrollX } from "@vuscom/ui";\n'))).toEqual([]);
 });

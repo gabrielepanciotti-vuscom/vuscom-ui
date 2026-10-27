@@ -79,6 +79,7 @@ export default function Dati() {
           rows={RIGHE}
           rowKey={(r) => r.id}
           caption="Esempio"
+          mobileCards
         />
         <Pagination
           page={page}
