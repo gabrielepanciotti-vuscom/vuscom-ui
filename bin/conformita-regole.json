@@ -119,6 +119,11 @@
       "codice": "vedi-come",
       "gravita": "blocca",
       "descrizione": "il cambio vista («Vedi come») usa VediCome di @vuscom/ui, non una copia del portale"
+    },
+    {
+      "codice": "tabella-larga",
+      "gravita": "avvisa",
+      "descrizione": "una tabella scritta a mano con 7+ colonne sta dentro TopScrollX (o è una DataTable) di @vuscom/ui: barra di scorrimento anche in alto"
     }
   ],
   "distanza_minima_colori": 60,

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ChevronDown, ChevronUp, ChevronsUpDown, Inbox } from "lucide-react";
 import { cn } from "../lib/cn.js";
 import { Card } from "./Card.jsx";
+import TopScrollX from "../molecules/TopScrollX.jsx";
 import { SkeletonTable } from "./Skeleton.jsx";
 import EmptyState from "./EmptyState.jsx";
 import Pagination from "./Pagination.jsx";
@@ -59,7 +60,7 @@ export default function DataTable({
     ? sorted.slice((pagina - 1) * pageSize, pagina * pageSize)
     : sorted;
 
-  const pad = dense ? "px-3 py-1.5" : "px-4 py-3";
+  const pad = dense ? "px-3 py-1.5" : "px-3 py-2.5";
   // `bar: true` on a column draws a bar proportional to that column's maximum.
   const massimi = massimiBarre(columns, rows);
 
@@ -85,7 +86,7 @@ export default function DataTable({
 
   return (
     <Card className={cn("p-0", className)} {...segnalaAttr(segnala)}>
-      <div className="overflow-x-auto">
+      <TopScrollX>
         {body ? (
           body
         ) : (
@@ -132,7 +133,11 @@ export default function DataTable({
                           <SortIcon dir={active} />
                         </button>
                       ) : (
-                        c.header
+                        c.srOnly ? (
+                          <span className="sr-only">{c.header}</span>
+                        ) : (
+                          c.header
+                        )
                       )}
                     </th>
                   );
@@ -196,7 +201,7 @@ export default function DataTable({
             </tbody>
           </table>
         )}
-      </div>
+      </TopScrollX>
       {pageSize && !body && (
         <Pagination
           page={pagina}

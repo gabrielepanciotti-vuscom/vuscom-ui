@@ -47,6 +47,8 @@ export {
   default as BarraFiltriPeriodo,
   GRANULARITA_REPORT,
 } from "./organisms/BarraFiltriPeriodo.jsx";
+export { default as TopScrollX } from "./molecules/TopScrollX.jsx";
+export { default as DataOra } from "./atoms/DataOra.jsx";
 export { default as CampoData } from "./molecules/CampoData.jsx";
 export { default as CalendarioMese } from "./molecules/CalendarioMese.jsx";
 export { default as ChipFiltro } from "./molecules/ChipFiltro.jsx";

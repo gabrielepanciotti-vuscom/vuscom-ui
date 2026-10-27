@@ -2958,7 +2958,7 @@ function Sparkline({
 }
 
 // src/grafici/PaginaReportCampagna.jsx
-import { useMemo as useMemo2, useState as useState7 } from "react";
+import { useMemo as useMemo2, useState as useState8 } from "react";
 import { BarChart3 as BarChart32 } from "lucide-react";
 
 // src/organisms/Alert.jsx
@@ -3940,13 +3940,70 @@ function Toggle({
 }
 
 // src/organisms/DataTable.jsx
-import { useEffect as useEffect5, useState as useState5 } from "react";
+import { useEffect as useEffect6, useState as useState6 } from "react";
 import { ChevronDown, ChevronUp, ChevronsUpDown, Inbox } from "lucide-react";
 
+// src/molecules/TopScrollX.jsx
+import { useEffect as useEffect5, useRef as useRef6, useState as useState4 } from "react";
+import { Fragment, jsx as jsx21, jsxs as jsxs19 } from "react/jsx-runtime";
+function TopScrollX({ children, className }) {
+  const topRef = useRef6(null);
+  const bodyRef = useRef6(null);
+  const syncing = useRef6(false);
+  const [scrollWidth, setScrollWidth] = useState4(0);
+  const [overflow, setOverflow] = useState4(false);
+  useEffect5(() => {
+    const body = bodyRef.current;
+    if (!body) return void 0;
+    const measure = () => {
+      setScrollWidth(body.scrollWidth);
+      setOverflow(body.scrollWidth > body.clientWidth + 1);
+    };
+    measure();
+    if (typeof ResizeObserver === "undefined") return void 0;
+    const ro = new ResizeObserver(measure);
+    ro.observe(body);
+    if (body.firstElementChild) ro.observe(body.firstElementChild);
+    return () => ro.disconnect();
+  }, [children]);
+  const follow = (from, to) => {
+    if (syncing.current) {
+      syncing.current = false;
+      return;
+    }
+    if (to.current && from.current && to.current.scrollLeft !== from.current.scrollLeft) {
+      syncing.current = true;
+      to.current.scrollLeft = from.current.scrollLeft;
+    }
+  };
+  return /* @__PURE__ */ jsxs19(Fragment, { children: [
+    overflow && /* @__PURE__ */ jsx21(
+      "div",
+      {
+        ref: topRef,
+        "data-testid": "top-scroll-x",
+        onScroll: () => follow(topRef, bodyRef),
+        className: "overflow-x-auto overflow-y-hidden border-b",
+        "aria-hidden": "true",
+        children: /* @__PURE__ */ jsx21("div", { style: { width: scrollWidth, height: 1 } })
+      }
+    ),
+    /* @__PURE__ */ jsx21(
+      "div",
+      {
+        ref: bodyRef,
+        onScroll: () => follow(bodyRef, topRef),
+        className: cn("overflow-x-auto", className),
+        children
+      }
+    )
+  ] });
+}
+
 // src/organisms/Skeleton.jsx
-import { jsx as jsx21, jsxs as jsxs19 } from "react/jsx-runtime";
+import { jsx as jsx22, jsxs as jsxs20 } from "react/jsx-runtime";
 function Skeleton({ className, ...props }) {
-  return /* @__PURE__ */ jsx21(
+  return /* @__PURE__ */ jsx22(
     "div",
     {
       "aria-hidden": true,
@@ -3956,15 +4013,15 @@ function Skeleton({ className, ...props }) {
   );
 }
 function SkeletonTable({ rows = 5, cols = 4 }) {
-  return /* @__PURE__ */ jsxs19("div", { className: "space-y-3", role: "status", "aria-label": "Caricamento", children: [
-    /* @__PURE__ */ jsx21("div", { className: "flex gap-4", children: Array.from({ length: cols }, (_, c) => /* @__PURE__ */ jsx21(Skeleton, { className: "h-4 flex-1" }, c)) }),
-    Array.from({ length: rows }, (_, r2) => /* @__PURE__ */ jsx21("div", { className: "flex gap-4", children: Array.from({ length: cols }, (_2, c) => /* @__PURE__ */ jsx21(Skeleton, { className: "h-6 flex-1" }, c)) }, r2))
+  return /* @__PURE__ */ jsxs20("div", { className: "space-y-3", role: "status", "aria-label": "Caricamento", children: [
+    /* @__PURE__ */ jsx22("div", { className: "flex gap-4", children: Array.from({ length: cols }, (_, c) => /* @__PURE__ */ jsx22(Skeleton, { className: "h-4 flex-1" }, c)) }),
+    Array.from({ length: rows }, (_, r2) => /* @__PURE__ */ jsx22("div", { className: "flex gap-4", children: Array.from({ length: cols }, (_2, c) => /* @__PURE__ */ jsx22(Skeleton, { className: "h-6 flex-1" }, c)) }, r2))
   ] });
 }
 
 // src/organisms/Pagination.jsx
 import { ChevronLeft as ChevronLeft2, ChevronRight as ChevronRight2 } from "lucide-react";
-import { jsx as jsx22, jsxs as jsxs20 } from "react/jsx-runtime";
+import { jsx as jsx23, jsxs as jsxs21 } from "react/jsx-runtime";
 function Pagination({
   page,
   pageSize,
@@ -3977,15 +4034,15 @@ function Pagination({
   const p = Math.min(Math.max(1, page), pagine);
   const da = (p - 1) * pageSize + 1;
   const a = Math.min(p * pageSize, total);
-  return /* @__PURE__ */ jsxs20(
+  return /* @__PURE__ */ jsxs21(
     "nav",
     {
       "aria-label": "Paginazione",
       className: cn("flex items-center justify-between gap-3", className),
       children: [
-        /* @__PURE__ */ jsx22("p", { className: "text-sm text-muted-foreground tabular-nums", children: total > 0 ? `${formatNumero(da)}\u2013${formatNumero(a)} di ${formatNumero(total)}` : "Nessun risultato" }),
-        /* @__PURE__ */ jsxs20("div", { className: "flex items-center gap-2", children: [
-          /* @__PURE__ */ jsx22(
+        /* @__PURE__ */ jsx23("p", { className: "text-sm text-muted-foreground tabular-nums", children: total > 0 ? `${formatNumero(da)}\u2013${formatNumero(a)} di ${formatNumero(total)}` : "Nessun risultato" }),
+        /* @__PURE__ */ jsxs21("div", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ jsx23(
             Button_default,
             {
               variant: "outline",
@@ -3997,7 +4054,7 @@ function Pagination({
               children: "Precedente"
             }
           ),
-          /* @__PURE__ */ jsx22(
+          /* @__PURE__ */ jsx23(
             Button_default,
             {
               variant: "outline",
@@ -4016,7 +4073,7 @@ function Pagination({
 }
 
 // src/organisms/useSort.js
-import { useCallback as useCallback2, useMemo, useState as useState4 } from "react";
+import { useCallback as useCallback2, useMemo, useState as useState5 } from "react";
 function normalizza(v) {
   const x = v instanceof Date ? v.valueOf() : v;
   return typeof x === "number" && Number.isNaN(x) ? null : x;
@@ -4030,7 +4087,7 @@ function compare(a, b) {
   });
 }
 function useSort(rows, { initial = null, accessors = {} } = {}) {
-  const [sort, setSort] = useState4(initial);
+  const [sort, setSort] = useState5(initial);
   const toggle = useCallback2((key) => {
     setSort(
       (prev) => prev && prev.key === key ? { key, dir: prev.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }
@@ -4053,7 +4110,7 @@ function useSort(rows, { initial = null, accessors = {} } = {}) {
 }
 
 // src/organisms/BarraInline.jsx
-import { jsx as jsx23, jsxs as jsxs21 } from "react/jsx-runtime";
+import { jsx as jsx24, jsxs as jsxs22 } from "react/jsx-runtime";
 var valoreBarra = (c, row) => {
   const v = c.barValue ? c.barValue(row) : c.sortAccessor ? c.sortAccessor(row) : row[c.key];
   const n = Number(v);
@@ -4065,14 +4122,14 @@ var massimiBarre = (columns, rows) => Object.fromEntries(
 function BarraInline({ value, max, children, className }) {
   const pct = max > 0 ? Math.min(Math.max(value / max, 0), 1) * 100 : 0;
   const larghezza = pct > 0 && pct < 2 ? 2 : pct;
-  return /* @__PURE__ */ jsxs21("div", { className: cn("flex items-center justify-end gap-2", className), children: [
-    /* @__PURE__ */ jsx23(
+  return /* @__PURE__ */ jsxs22("div", { className: cn("flex items-center justify-end gap-2", className), children: [
+    /* @__PURE__ */ jsx24(
       "div",
       {
         className: "h-1.5 min-w-[3rem] flex-1 overflow-hidden rounded-full bg-muted",
         "aria-hidden": true,
         "data-barra": "",
-        children: /* @__PURE__ */ jsx23(
+        children: /* @__PURE__ */ jsx24(
           "div",
           {
             className: "h-full rounded-full bg-primary/70 transition-all duration-300",
@@ -4081,12 +4138,12 @@ function BarraInline({ value, max, children, className }) {
         )
       }
     ),
-    /* @__PURE__ */ jsx23("span", { className: "shrink-0 tabular-nums", children })
+    /* @__PURE__ */ jsx24("span", { className: "shrink-0 tabular-nums", children })
   ] });
 }
 
 // src/organisms/DataTable.jsx
-import { jsx as jsx24, jsxs as jsxs22 } from "react/jsx-runtime";
+import { jsx as jsx25, jsxs as jsxs23 } from "react/jsx-runtime";
 var INTERATTIVI = "a,button,input,textarea,select,[role=listbox],[role=option],[role=switch],[role=checkbox],[data-no-row-click]";
 var ALIGN = { left: "text-left", right: "text-right", center: "text-center" };
 var JUSTIFY = {
@@ -4096,7 +4153,7 @@ var JUSTIFY = {
 };
 function SortIcon({ dir }) {
   const Icon = dir === "asc" ? ChevronUp : dir === "desc" ? ChevronDown : ChevronsUpDown;
-  return /* @__PURE__ */ jsx24(Icon, { className: cn("h-3.5 w-3.5", !dir && "opacity-40"), "aria-hidden": true });
+  return /* @__PURE__ */ jsx25(Icon, { className: cn("h-3.5 w-3.5", !dir && "opacity-40"), "aria-hidden": true });
 }
 function DataTable({
   columns,
@@ -4120,24 +4177,24 @@ function DataTable({
     initial: initialSort,
     accessors
   });
-  const [pagina, setPagina] = useState5(1);
-  useEffect5(() => setPagina(1), [sort, rows.length]);
+  const [pagina, setPagina] = useState6(1);
+  useEffect6(() => setPagina(1), [sort, rows.length]);
   const visibili = pageSize ? sorted.slice((pagina - 1) * pageSize, pagina * pageSize) : sorted;
-  const pad = dense ? "px-3 py-1.5" : "px-4 py-3";
+  const pad = dense ? "px-3 py-1.5" : "px-3 py-2.5";
   const massimi = massimiBarre(columns, rows);
   let body;
   if (loading && rows.length === 0) {
-    body = /* @__PURE__ */ jsx24("div", { className: "p-4", children: /* @__PURE__ */ jsx24(SkeletonTable, { rows: 5, cols: columns.length }) });
+    body = /* @__PURE__ */ jsx25("div", { className: "p-4", children: /* @__PURE__ */ jsx25(SkeletonTable, { rows: 5, cols: columns.length }) });
   } else if (rows.length === 0) {
-    body = empty === void 0 ? /* @__PURE__ */ jsx24(EmptyState, { icon: Inbox, title: "Nessun dato" }) : typeof empty === "string" ? /* @__PURE__ */ jsx24("p", { className: "px-6 py-12 text-center text-sm text-muted-foreground", children: empty }) : empty;
+    body = empty === void 0 ? /* @__PURE__ */ jsx25(EmptyState, { icon: Inbox, title: "Nessun dato" }) : typeof empty === "string" ? /* @__PURE__ */ jsx25("p", { className: "px-6 py-12 text-center text-sm text-muted-foreground", children: empty }) : empty;
   }
-  return /* @__PURE__ */ jsxs22(Card, { className: cn("p-0", className), ...segnalaAttr(segnala), children: [
-    /* @__PURE__ */ jsx24("div", { className: "overflow-x-auto", children: body ? body : /* @__PURE__ */ jsxs22("table", { className: "w-full text-sm", children: [
-      caption && /* @__PURE__ */ jsx24("caption", { className: "sr-only", children: caption }),
-      /* @__PURE__ */ jsx24("thead", { className: "border-b bg-muted/50 font-medium text-muted-foreground", children: /* @__PURE__ */ jsx24("tr", { children: columns.map((c) => {
+  return /* @__PURE__ */ jsxs23(Card, { className: cn("p-0", className), ...segnalaAttr(segnala), children: [
+    /* @__PURE__ */ jsx25(TopScrollX, { children: body ? body : /* @__PURE__ */ jsxs23("table", { className: "w-full text-sm", children: [
+      caption && /* @__PURE__ */ jsx25("caption", { className: "sr-only", children: caption }),
+      /* @__PURE__ */ jsx25("thead", { className: "border-b bg-muted/50 font-medium text-muted-foreground", children: /* @__PURE__ */ jsx25("tr", { children: columns.map((c) => {
         const active = sort && sort.key === c.key ? sort.dir : null;
         const align = ALIGN[c.align] || ALIGN.left;
-        return /* @__PURE__ */ jsx24(
+        return /* @__PURE__ */ jsx25(
           "th",
           {
             scope: "col",
@@ -4150,7 +4207,7 @@ function DataTable({
               align,
               c.className
             ),
-            children: c.sortable ? /* @__PURE__ */ jsxs22(
+            children: c.sortable ? /* @__PURE__ */ jsxs23(
               "button",
               {
                 type: "button",
@@ -4162,15 +4219,15 @@ function DataTable({
                 ),
                 children: [
                   c.header,
-                  /* @__PURE__ */ jsx24(SortIcon, { dir: active })
+                  /* @__PURE__ */ jsx25(SortIcon, { dir: active })
                 ]
               }
-            ) : c.header
+            ) : c.srOnly ? /* @__PURE__ */ jsx25("span", { className: "sr-only", children: c.header }) : c.header
           },
           c.key
         );
       }) }) }),
-      /* @__PURE__ */ jsx24("tbody", { className: "divide-y", children: visibili.map((row) => /* @__PURE__ */ jsx24(
+      /* @__PURE__ */ jsx25("tbody", { className: "divide-y", children: visibili.map((row) => /* @__PURE__ */ jsx25(
         "tr",
         {
           tabIndex: onRowClick ? 0 : void 0,
@@ -4187,7 +4244,7 @@ function DataTable({
             "transition-colors hover:bg-muted/40",
             onRowClick && "cursor-pointer focus-visible:outline-none focus-visible:bg-muted/60 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
           ),
-          children: columns.map((c) => /* @__PURE__ */ jsx24(
+          children: columns.map((c) => /* @__PURE__ */ jsx25(
             "td",
             {
               ...segnalaAttr(c.segnala),
@@ -4196,7 +4253,7 @@ function DataTable({
                 ALIGN[c.align] || ALIGN.left,
                 c.className
               ),
-              children: c.bar ? /* @__PURE__ */ jsx24(
+              children: c.bar ? /* @__PURE__ */ jsx25(
                 BarraInline,
                 {
                   value: valoreBarra(c, row),
@@ -4211,7 +4268,7 @@ function DataTable({
         rowKey(row)
       )) })
     ] }) }),
-    pageSize && !body && /* @__PURE__ */ jsx24(
+    pageSize && !body && /* @__PURE__ */ jsx25(
       Pagination,
       {
         page: pagina,
@@ -4408,7 +4465,7 @@ function prossimaFotoMensile(data) {
 var situazioneAl = (riga) => riga ? `Situazione al ${formatData(`${riga.data_riferimento}T12:00:00Z`)}` : "Situazione";
 
 // src/grafici/report/StoricoCampagna.jsx
-import { Fragment, jsx as jsx25, jsxs as jsxs23 } from "react/jsx-runtime";
+import { Fragment as Fragment2, jsx as jsx26, jsxs as jsxs24 } from "react/jsx-runtime";
 function colonneStorico(elenco) {
   return [
     {
@@ -4422,7 +4479,7 @@ function colonneStorico(elenco) {
     {
       key: "mensile",
       header: "Foto",
-      cell: (r2) => r2.mensile ? /* @__PURE__ */ jsx25(Badge, { tone: "primary", children: "mensile" }) : /* @__PURE__ */ jsx25("span", { className: "text-muted-foreground", children: "giornaliera" }),
+      cell: (r2) => r2.mensile ? /* @__PURE__ */ jsx26(Badge, { tone: "primary", children: "mensile" }) : /* @__PURE__ */ jsx26("span", { className: "text-muted-foreground", children: "giornaliera" }),
       csv: (r2) => r2.mensile ? "mensile" : "giornaliera"
     },
     ...elenco.map((v) => {
@@ -4451,16 +4508,16 @@ function StoricoCampagna({
   nomeFile = "storico_campagna",
   pageSize = 10
 }) {
-  return /* @__PURE__ */ jsx25(
+  return /* @__PURE__ */ jsx26(
     Section,
     {
       title: "Storico delle foto",
       description: "Una riga per foto: lo stato della campagna in quel giorno. Clicca un'intestazione per ordinare.",
-      actions: /* @__PURE__ */ jsxs23(Fragment, { children: [
-        /* @__PURE__ */ jsx25(Toggle, { checked: soloMensili, onChange: onSoloMensili, label: "Solo foto mensili" }),
-        /* @__PURE__ */ jsx25(PulsanteEsportaCsv, { nomeFile, rows: righe, columns: colonne2 })
+      actions: /* @__PURE__ */ jsxs24(Fragment2, { children: [
+        /* @__PURE__ */ jsx26(Toggle, { checked: soloMensili, onChange: onSoloMensili, label: "Solo foto mensili" }),
+        /* @__PURE__ */ jsx26(PulsanteEsportaCsv, { nomeFile, rows: righe, columns: colonne2 })
       ] }),
-      children: /* @__PURE__ */ jsx25(
+      children: /* @__PURE__ */ jsx26(
         DataTable,
         {
           columns: colonne2,
@@ -4488,12 +4545,12 @@ import {
   Children,
   cloneElement,
   useCallback as useCallback3,
-  useEffect as useEffect6,
+  useEffect as useEffect7,
   useId as useId5,
-  useRef as useRef6,
-  useState as useState6
+  useRef as useRef7,
+  useState as useState7
 } from "react";
-import { jsx as jsx26, jsxs as jsxs24 } from "react/jsx-runtime";
+import { jsx as jsx27, jsxs as jsxs25 } from "react/jsx-runtime";
 var DELAY_MS = 150;
 var SIDE = {
   top: "bottom-full left-1/2 mb-2 -translate-x-1/2",
@@ -4508,8 +4565,8 @@ function Tooltip2({
   children
 }) {
   const id = useId5();
-  const [open, setOpen] = useState6(false);
-  const timer = useRef6(null);
+  const [open, setOpen] = useState7(false);
+  const timer = useRef7(null);
   const child = Children.only(children);
   const show = useCallback3(() => {
     clearTimeout(timer.current);
@@ -4519,7 +4576,7 @@ function Tooltip2({
     clearTimeout(timer.current);
     setOpen(false);
   }, []);
-  useEffect6(() => () => clearTimeout(timer.current), []);
+  useEffect7(() => () => clearTimeout(timer.current), []);
   const chain = (name, fn) => (e) => {
     child.props[name]?.(e);
     fn(e);
@@ -4537,9 +4594,9 @@ function Tooltip2({
       hide();
     })
   });
-  return /* @__PURE__ */ jsxs24("span", { className: "relative inline-flex", children: [
+  return /* @__PURE__ */ jsxs25("span", { className: "relative inline-flex", children: [
     trigger,
-    open && content != null && /* @__PURE__ */ jsx26(
+    open && content != null && /* @__PURE__ */ jsx27(
       "span",
       {
         id,
@@ -4556,7 +4613,7 @@ function Tooltip2({
 }
 
 // src/molecules/InfoTip.jsx
-import { jsx as jsx27 } from "react/jsx-runtime";
+import { jsx as jsx28 } from "react/jsx-runtime";
 var LONG = 40;
 function InfoTip({
   children,
@@ -4565,19 +4622,19 @@ function InfoTip({
   wide
 }) {
   const long = wide ?? (typeof children === "string" && children.length > LONG);
-  return /* @__PURE__ */ jsx27(Tooltip2, { content: children, side, wide: long, children: /* @__PURE__ */ jsx27(
+  return /* @__PURE__ */ jsx28(Tooltip2, { content: children, side, wide: long, children: /* @__PURE__ */ jsx28(
     "button",
     {
       type: "button",
       "aria-label": label,
       className: "inline-flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
-      children: /* @__PURE__ */ jsx27(HelpCircle, { className: "h-4 w-4", "aria-hidden": true })
+      children: /* @__PURE__ */ jsx28(HelpCircle, { className: "h-4 w-4", "aria-hidden": true })
     }
   ) });
 }
 
 // src/grafici/report/TesseraKpi.jsx
-import { jsx as jsx28, jsxs as jsxs25 } from "react/jsx-runtime";
+import { jsx as jsx29, jsxs as jsxs26 } from "react/jsx-runtime";
 function TesseraKpi({
   label,
   valore: valore2,
@@ -4595,12 +4652,12 @@ function TesseraKpi({
   const giu = delta < 0;
   const buono = meglio && (su || giu) ? meglio === "su" === su : null;
   const Freccia = giu ? ArrowDownRight : ArrowUpRight;
-  return /* @__PURE__ */ jsxs25(Card, { className: cn("flex min-h-[8.5rem] flex-col p-4", className), children: [
-    /* @__PURE__ */ jsxs25("div", { className: "flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-muted-foreground", children: [
-      /* @__PURE__ */ jsx28("span", { className: "truncate", title: label, children: label }),
-      aiuto && /* @__PURE__ */ jsx28(InfoTip, { children: aiuto })
+  return /* @__PURE__ */ jsxs26(Card, { className: cn("flex min-h-[8.5rem] flex-col p-4", className), children: [
+    /* @__PURE__ */ jsxs26("div", { className: "flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-muted-foreground", children: [
+      /* @__PURE__ */ jsx29("span", { className: "truncate", title: label, children: label }),
+      aiuto && /* @__PURE__ */ jsx29(InfoTip, { children: aiuto })
     ] }),
-    loading ? /* @__PURE__ */ jsx28(Skeleton, { className: "mt-2 h-7 w-24" }) : /* @__PURE__ */ jsx28(
+    loading ? /* @__PURE__ */ jsx29(Skeleton, { className: "mt-2 h-7 w-24" }) : /* @__PURE__ */ jsx29(
       "p",
       {
         className: cn(
@@ -4610,9 +4667,9 @@ function TesseraKpi({
         children: valore2
       }
     ),
-    /* @__PURE__ */ jsxs25("div", { className: "mt-auto flex items-end justify-between gap-2 pt-2", children: [
-      /* @__PURE__ */ jsxs25("div", { className: "min-w-0 text-xs", children: [
-        !loading && deltaTesto ? /* @__PURE__ */ jsxs25(
+    /* @__PURE__ */ jsxs26("div", { className: "mt-auto flex items-end justify-between gap-2 pt-2", children: [
+      /* @__PURE__ */ jsxs26("div", { className: "min-w-0 text-xs", children: [
+        !loading && deltaTesto ? /* @__PURE__ */ jsxs26(
           "span",
           {
             className: cn(
@@ -4622,14 +4679,14 @@ function TesseraKpi({
               buono === null && "text-muted-foreground"
             ),
             children: [
-              (su || giu) && /* @__PURE__ */ jsx28(Freccia, { className: "h-3.5 w-3.5", "aria-hidden": true }),
+              (su || giu) && /* @__PURE__ */ jsx29(Freccia, { className: "h-3.5 w-3.5", "aria-hidden": true }),
               deltaTesto
             ]
           }
         ) : null,
-        !loading && deltaNota && /* @__PURE__ */ jsx28("span", { className: "block truncate text-muted-foreground", children: deltaNota })
+        !loading && deltaNota && /* @__PURE__ */ jsx29("span", { className: "block truncate text-muted-foreground", children: deltaNota })
       ] }),
-      /* @__PURE__ */ jsx28(
+      /* @__PURE__ */ jsx29(
         Sparkline,
         {
           valori: andamento,
@@ -4642,7 +4699,7 @@ function TesseraKpi({
 
 // src/organisms/MatriceCalore.jsx
 import { Inbox as Inbox2 } from "lucide-react";
-import { Fragment as Fragment2, jsx as jsx29, jsxs as jsxs26 } from "react/jsx-runtime";
+import { Fragment as Fragment3, jsx as jsx30, jsxs as jsxs27 } from "react/jsx-runtime";
 var num2 = (v) => Number.isFinite(Number(v)) ? Number(v) : 0;
 var somma = (xs) => xs.reduce((a, b) => a + b, 0);
 var percento = (v) => formatNumero(v, { style: "percent", maximumFractionDigits: 1 });
@@ -4657,7 +4714,7 @@ function Cella({ valore: valore2, massimo, format, nd }) {
   const mancante = nd !== void 0 && (valore2 === null || valore2 === void 0);
   const t = mancante ? 0 : intensita(valore2, massimo);
   const alfa = t > 0 ? 0.08 + 0.82 * t : 0;
-  return /* @__PURE__ */ jsx29(
+  return /* @__PURE__ */ jsx30(
     "td",
     {
       className: cn(
@@ -4666,7 +4723,7 @@ function Cella({ valore: valore2, massimo, format, nd }) {
       ),
       style: alfa ? { backgroundColor: `hsl(var(--primary) / ${alfa.toFixed(3)})` } : void 0,
       "data-intensita": t.toFixed(3),
-      children: mancante ? /* @__PURE__ */ jsx29("span", { className: "text-muted-foreground", children: nd }) : valore2 || nd !== void 0 && valore2 === 0 ? format(valore2) : /* @__PURE__ */ jsx29("span", { className: "text-muted-foreground", children: "\u2013" })
+      children: mancante ? /* @__PURE__ */ jsx30("span", { className: "text-muted-foreground", children: nd }) : valore2 || nd !== void 0 && valore2 === 0 ? format(valore2) : /* @__PURE__ */ jsx30("span", { className: "text-muted-foreground", children: "\u2013" })
     }
   );
 }
@@ -4703,12 +4760,12 @@ function MatriceCalore({
   const parziali = cols.some((c) => c.parziale);
   const intest = "px-3 py-2 font-medium whitespace-nowrap";
   if (righe.length === 0 || cols.length === 0)
-    return /* @__PURE__ */ jsx29(Card, { className: cn("p-0", className), ...segnalaAttr(segnala), children: /* @__PURE__ */ jsx29(EmptyState, { icon: Inbox2, title: empty }) });
-  return /* @__PURE__ */ jsxs26(Card, { className: cn("p-0", className), ...segnalaAttr(segnala), children: [
-    /* @__PURE__ */ jsx29("div", { className: "overflow-x-auto scrollbar-thin", children: /* @__PURE__ */ jsxs26("table", { className: "w-full text-sm", children: [
-      caption && /* @__PURE__ */ jsx29("caption", { className: "sr-only", children: caption }),
-      /* @__PURE__ */ jsx29("thead", { className: "border-b bg-muted/50 text-muted-foreground", children: /* @__PURE__ */ jsxs26("tr", { children: [
-        /* @__PURE__ */ jsx29(
+    return /* @__PURE__ */ jsx30(Card, { className: cn("p-0", className), ...segnalaAttr(segnala), children: /* @__PURE__ */ jsx30(EmptyState, { icon: Inbox2, title: empty }) });
+  return /* @__PURE__ */ jsxs27(Card, { className: cn("p-0", className), ...segnalaAttr(segnala), children: [
+    /* @__PURE__ */ jsx30("div", { className: "overflow-x-auto scrollbar-thin", children: /* @__PURE__ */ jsxs27("table", { className: "w-full text-sm", children: [
+      caption && /* @__PURE__ */ jsx30("caption", { className: "sr-only", children: caption }),
+      /* @__PURE__ */ jsx30("thead", { className: "border-b bg-muted/50 text-muted-foreground", children: /* @__PURE__ */ jsxs27("tr", { children: [
+        /* @__PURE__ */ jsx30(
           "th",
           {
             scope: "col",
@@ -4716,7 +4773,7 @@ function MatriceCalore({
             children: etichettaRighe
           }
         ),
-        cols.map((c) => /* @__PURE__ */ jsxs26(
+        cols.map((c) => /* @__PURE__ */ jsxs27(
           "th",
           {
             scope: "col",
@@ -4724,18 +4781,18 @@ function MatriceCalore({
             title: c.parziale ? "Periodo parziale" : void 0,
             children: [
               c.label,
-              c.parziale && /* @__PURE__ */ jsxs26(Fragment2, { children: [
-                /* @__PURE__ */ jsx29("span", { "aria-hidden": true, children: "*" }),
-                /* @__PURE__ */ jsx29("span", { className: "sr-only", children: " (parziale)" })
+              c.parziale && /* @__PURE__ */ jsxs27(Fragment3, { children: [
+                /* @__PURE__ */ jsx30("span", { "aria-hidden": true, children: "*" }),
+                /* @__PURE__ */ jsx30("span", { className: "sr-only", children: " (parziale)" })
               ] })
             ]
           },
           c.key
         )),
-        totale && /* @__PURE__ */ jsx29("th", { scope: "col", className: cn(intest, "text-right"), children: "Totale" }),
-        quota && /* @__PURE__ */ jsx29("th", { scope: "col", className: cn(intest, "text-right"), children: "Quota" })
+        totale && /* @__PURE__ */ jsx30("th", { scope: "col", className: cn(intest, "text-right"), children: "Totale" }),
+        quota && /* @__PURE__ */ jsx30("th", { scope: "col", className: cn(intest, "text-right"), children: "Quota" })
       ] }) }),
-      /* @__PURE__ */ jsx29("tbody", { className: "divide-y", children: righe.map((r2, i) => /* @__PURE__ */ jsxs26(
+      /* @__PURE__ */ jsx30("tbody", { className: "divide-y", children: righe.map((r2, i) => /* @__PURE__ */ jsxs27(
         "tr",
         {
           tabIndex: onRigaClick ? 0 : void 0,
@@ -4750,7 +4807,7 @@ function MatriceCalore({
             onRigaClick && "cursor-pointer hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
           ),
           children: [
-            /* @__PURE__ */ jsx29(
+            /* @__PURE__ */ jsx30(
               "th",
               {
                 scope: "row",
@@ -4758,7 +4815,7 @@ function MatriceCalore({
                 children: r2.label
               }
             ),
-            cols.map((c) => /* @__PURE__ */ jsx29(
+            cols.map((c) => /* @__PURE__ */ jsx30(
               Cella,
               {
                 valore: grezzo(r2, c.key),
@@ -4768,14 +4825,14 @@ function MatriceCalore({
               },
               c.key
             )),
-            totale && /* @__PURE__ */ jsx29("td", { className: "px-3 py-2 text-right font-semibold tabular-nums", children: (r2.format ?? formatValore)(totaliRiga[i]) }),
-            quota && /* @__PURE__ */ jsx29("td", { className: "px-3 py-2 text-right tabular-nums text-muted-foreground", children: generale > 0 ? percento(totaliRiga[i] / generale) : "\u2013" })
+            totale && /* @__PURE__ */ jsx30("td", { className: "px-3 py-2 text-right font-semibold tabular-nums", children: (r2.format ?? formatValore)(totaliRiga[i]) }),
+            quota && /* @__PURE__ */ jsx30("td", { className: "px-3 py-2 text-right tabular-nums text-muted-foreground", children: generale > 0 ? percento(totaliRiga[i] / generale) : "\u2013" })
           ]
         },
         r2.id ?? r2.label
       )) }),
-      rigaTotali && /* @__PURE__ */ jsx29("tfoot", { className: "border-t-2 bg-muted/30 font-semibold", children: /* @__PURE__ */ jsxs26("tr", { children: [
-        /* @__PURE__ */ jsx29(
+      rigaTotali && /* @__PURE__ */ jsx30("tfoot", { className: "border-t-2 bg-muted/30 font-semibold", children: /* @__PURE__ */ jsxs27("tr", { children: [
+        /* @__PURE__ */ jsx30(
           "th",
           {
             scope: "row",
@@ -4783,7 +4840,7 @@ function MatriceCalore({
             children: "Totale"
           }
         ),
-        totaliColonna.map((t, i) => /* @__PURE__ */ jsx29(
+        totaliColonna.map((t, i) => /* @__PURE__ */ jsx30(
           "td",
           {
             className: "px-3 py-2 text-right tabular-nums",
@@ -4791,25 +4848,25 @@ function MatriceCalore({
           },
           cols[i].key
         )),
-        totale && /* @__PURE__ */ jsx29("td", { className: "px-3 py-2 text-right tabular-nums", children: formatValore(generale) }),
-        quota && /* @__PURE__ */ jsx29("td", { className: "px-3 py-2 text-right tabular-nums text-muted-foreground", children: generale > 0 ? percento(1) : "\u2013" })
+        totale && /* @__PURE__ */ jsx30("td", { className: "px-3 py-2 text-right tabular-nums", children: formatValore(generale) }),
+        quota && /* @__PURE__ */ jsx30("td", { className: "px-3 py-2 text-right tabular-nums text-muted-foreground", children: generale > 0 ? percento(1) : "\u2013" })
       ] }) })
     ] }) }),
-    parziali && /* @__PURE__ */ jsx29("p", { className: "border-t px-4 py-2 text-xs text-muted-foreground", children: "* periodo parziale: il filtro lo taglia o non \xE8 ancora chiuso" })
+    parziali && /* @__PURE__ */ jsx30("p", { className: "border-t px-4 py-2 text-xs text-muted-foreground", children: "* periodo parziale: il filtro lo taglia o non \xE8 ancora chiuso" })
   ] });
 }
 
 // src/grafici/report/VariazioniCampagna.jsx
-import { jsx as jsx30, jsxs as jsxs27 } from "react/jsx-runtime";
+import { jsx as jsx31, jsxs as jsxs28 } from "react/jsx-runtime";
 var PERIODI_MATRICE = 3;
 function VariazioniCampagna({ righe = [], periodi = [] }) {
   if (periodi.length < PERIODI_MATRICE)
-    return /* @__PURE__ */ jsxs27("p", { className: "text-sm text-muted-foreground", children: [
+    return /* @__PURE__ */ jsxs28("p", { className: "text-sm text-muted-foreground", children: [
       "La matrice delle variazioni compare con almeno ",
       PERIODI_MATRICE,
       " periodi."
     ] });
-  return /* @__PURE__ */ jsx30(
+  return /* @__PURE__ */ jsx31(
     MatriceCalore,
     {
       righe,
@@ -4825,7 +4882,7 @@ function VariazioniCampagna({ righe = [], periodi = [] }) {
 }
 
 // src/grafici/PaginaReportCampagna.jsx
-import { jsx as jsx31, jsxs as jsxs28 } from "react/jsx-runtime";
+import { jsx as jsx32, jsxs as jsxs29 } from "react/jsx-runtime";
 var NESSUNA = [];
 var IMPILATE = ["forniture_attive", "maturati", "storni"];
 var giornoIt = (iso) => formatData(`${iso}T12:00:00Z`);
@@ -4844,12 +4901,12 @@ function PaginaReportCampagna({
   oggi
 }) {
   const elenco = useMemo2(() => normalizzaCampagne(campagne), [campagne]);
-  const [sceltaInterna, setSceltaInterna] = useState7(null);
+  const [sceltaInterna, setSceltaInterna] = useState8(null);
   const campagna = campagnaControllata ?? sceltaInterna ?? elenco[0]?.id ?? null;
   const scegli = (id) => onCampagnaChange ? onCampagnaChange(id) : setSceltaInterna(id);
   const nome = elenco.find((c) => c.id === campagna)?.label ?? "Report campagna";
-  const [filtri, setFiltri] = useState7({ ...FILTRI_VUOTI, ...filtriIniziali });
-  const [soloMensili, setSoloMensili] = useState7(null);
+  const [filtri, setFiltri] = useState8({ ...FILTRI_VUOTI, ...filtriIniziali });
+  const [soloMensili, setSoloMensili] = useState8(null);
   const giorni = useMemo2(
     () => unisciPerGiorno(
       righe.filter(
@@ -4887,7 +4944,7 @@ function PaginaReportCampagna({
   const rif = foto?.riferimento;
   const prossima = ultima ? prossimaFotoMensile(ultima.data_riferimento) : "";
   const inCostruzione = `Storico in costruzione, ${giorni.some((g) => g.mensile) ? "prossima" : "prima"} foto mensile il ${prossima}.`;
-  const intestazione = /* @__PURE__ */ jsx31(
+  const intestazione = /* @__PURE__ */ jsx32(
     IntestazioneCampagna,
     {
       campagne: elenco,
@@ -4901,9 +4958,9 @@ function PaginaReportCampagna({
     }
   );
   if (!caricando && !errore && giorni.length === 0)
-    return /* @__PURE__ */ jsxs28("div", { className: "space-y-6", children: [
+    return /* @__PURE__ */ jsxs29("div", { className: "space-y-6", children: [
       intestazione,
-      /* @__PURE__ */ jsx31(
+      /* @__PURE__ */ jsx32(
         EmptyState,
         {
           icon: BarChart32,
@@ -4912,10 +4969,10 @@ function PaginaReportCampagna({
         }
       )
     ] });
-  return /* @__PURE__ */ jsxs28("div", { className: "space-y-8", children: [
+  return /* @__PURE__ */ jsxs29("div", { className: "space-y-8", children: [
     intestazione,
-    errore && /* @__PURE__ */ jsx31(Alert, { tone: "danger", title: "Report non disponibile", children: errore }),
-    /* @__PURE__ */ jsx31(
+    errore && /* @__PURE__ */ jsx32(Alert, { tone: "danger", title: "Report non disponibile", children: errore }),
+    /* @__PURE__ */ jsx32(
       "section",
       {
         "aria-label": "Indicatori",
@@ -4924,7 +4981,7 @@ function PaginaReportCampagna({
           const d = foto?.delta?.[v.key];
           const valore2 = ultima ? v.leggi(ultima) : null;
           const negativo = v.key === "guadagno_netto" && Number(valore2) < 0;
-          return /* @__PURE__ */ jsx31(
+          return /* @__PURE__ */ jsx32(
             TesseraKpi,
             {
               label: v.label,
@@ -4943,7 +5000,7 @@ function PaginaReportCampagna({
         })
       }
     ),
-    /* @__PURE__ */ jsx31(
+    /* @__PURE__ */ jsx32(
       FiltriReport,
       {
         value: filtri,
@@ -4951,12 +5008,12 @@ function PaginaReportCampagna({
         predefinito: { ...FILTRI_VUOTI, ...filtriIniziali }
       }
     ),
-    /* @__PURE__ */ jsx31(
+    /* @__PURE__ */ jsx32(
       Section,
       {
         title: "Andamento",
         description: "Una barra per periodo: lo stato all'ultima foto del periodo, non una somma. * = periodo non ancora chiuso o tagliato dal filtro.",
-        children: /* @__PURE__ */ jsx31(
+        children: /* @__PURE__ */ jsx32(
           AndamentoCampagna,
           {
             periodi,
@@ -4967,7 +5024,7 @@ function PaginaReportCampagna({
         )
       }
     ),
-    /* @__PURE__ */ jsx31(
+    /* @__PURE__ */ jsx32(
       StoricoCampagna,
       {
         righe: storico,
@@ -4977,12 +5034,12 @@ function PaginaReportCampagna({
         nomeFile: `report_${campagna ?? "campagna"}`
       }
     ),
-    /* @__PURE__ */ jsx31(
+    /* @__PURE__ */ jsx32(
       Section,
       {
         title: "Variazioni per periodo",
         description: "Di quanto \xE8 cambiato ogni indicatore rispetto alla foto del periodo prima; il colore \xE8 proporzionale al valore della riga. Totale = variazione netta nell'intervallo.",
-        children: /* @__PURE__ */ jsx31(VariazioniCampagna, { righe: matrice, periodi })
+        children: /* @__PURE__ */ jsx32(VariazioniCampagna, { righe: matrice, periodi })
       }
     )
   ] });

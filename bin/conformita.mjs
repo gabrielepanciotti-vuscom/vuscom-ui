@@ -205,6 +205,17 @@ const copieVediCome = tutto(/(?:>|["'`])\s*Vedi (?:l'app |il portale )?come\b|\b
 );
 if (copieVediCome.length)
   segnala("vedi-come", "selettore «Vedi come» scritto nel portale: usare VediCome di @vuscom/ui in topbarRight (viste, attiva, onSeleziona)", copieVediCome.map(({ p }) => rel(p)).join(", "));
+// Wide tables (usabilita p.12, conv. #4534): a hand-written <table> with 7+ columns
+// needs the second scrollbar on top. DataTable already has it.
+const COLONNE_TABELLA_LARGA = 7;
+const tabelleLarghe = sorgenti.filter(({ p, testo }) => {
+  if (/__tests__|\.test\./.test(p) || /\bTopScrollX\b/.test(testo)) return false;
+  return [...testo.matchAll(/<table\b[\s\S]*?<\/table>/g)].some(
+    (m) => (m[0].match(/<th\b/g) || []).length >= COLONNE_TABELLA_LARGA,
+  );
+});
+if (tabelleLarghe.length)
+  segnala("tabella-larga", `tabella con ${COLONNE_TABELLA_LARGA}+ colonne senza TopScrollX: usare DataTable o avvolgerla in TopScrollX di @vuscom/ui (barra di scorrimento anche in alto)`, tabelleLarghe.map(({ p }) => rel(p)).join(", "));
 const icona = tutto(/\bappIcon\s*[:=]/);
 if (icona.length)
   segnala("logo-proprio", "la sidebar riceve un appIcon proprio: il logo VUS COM lo mette AppShell", icona.map(({ p }) => rel(p)).join(", "));

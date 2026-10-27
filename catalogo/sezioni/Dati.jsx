@@ -8,7 +8,9 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  DataOra,
   DataTable,
+  TopScrollX,
   EmptyState,
   KpiCard,
   Pagination,
@@ -85,6 +87,20 @@ export default function Dati() {
           onPageChange={setPage}
         />
         <DataTable columns={COLONNE} rows={[]} rowKey={(r) => r.id} caption="Vuota" />
+        <p className="text-sm text-muted-foreground">
+          TopScrollX (barra anche in alto, nella tabella stretta compare solo se deborda) e DataOra:
+        </p>
+        <TopScrollX>
+          <table className="text-sm" style={{ minWidth: 1400 }}>
+            <tbody>
+              <tr>
+                <td className="px-3 py-2.5"><DataOra value="2026-03-05T14:07:00" /></td>
+                <td className="px-3 py-2.5"><DataOra value="2026-03-05T14:07:00" soloData /></td>
+                <td className="px-3 py-2.5"><DataOra value={null} /></td>
+              </tr>
+            </tbody>
+          </table>
+        </TopScrollX>
         <DataTable
           columns={COLONNE}
           rows={[]}
