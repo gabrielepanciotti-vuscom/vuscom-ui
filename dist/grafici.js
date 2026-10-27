@@ -3213,6 +3213,8 @@ import { jsx as jsx10, jsxs as jsxs9 } from "react/jsx-runtime";
 var CAMPO = "w-full rounded-lg border bg-background text-sm text-foreground placeholder:text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50";
 var campoClasses = (invalid) => cn(
   CAMPO,
+  // Error wired from outside (Field sets aria-invalid) must look invalid without the prop.
+  "aria-[invalid=true]:border-destructive aria-[invalid=true]:focus-visible:ring-destructive",
   invalid ? "border-destructive focus-visible:ring-destructive/40" : "border-input hover:border-ring/60 focus-visible:border-ring focus-visible:ring-ring/40"
 );
 var Input = forwardRef3(function Input2({ invalid, icon: Icon, className, ...props }, ref) {
@@ -3361,17 +3363,26 @@ var CampoData = forwardRef4(function CampoData2({
   invalid,
   disabled,
   "aria-label": ariaLabel,
+  "aria-describedby": ariaDescribedBy,
+  "aria-invalid": ariaInvalid,
   id,
-  className
+  className,
+  onBlur: onBlurProp,
+  onKeyDown: onKeyDownProp,
+  ...rest
 }, ref) {
   const [testo, setTesto] = useState3(formatDataIt(value));
-  const [errato, setErrato] = useState3(false);
+  const [errore, setErrore] = useState3(null);
   const [aperto, setAperto] = useState3(false);
   const radice = useRef3(null);
   const pannello = useId();
+  const erroreId = useId();
+  const errato = errore !== null;
+  const nonValido = invalid || errato || ariaInvalid === true || ariaInvalid === "true";
+  const descritto = [ariaDescribedBy, errore === "formato" ? erroreId : null].filter(Boolean).join(" ") || void 0;
   useEffect4(() => {
     setTesto(formatDataIt(value));
-    setErrato(false);
+    setErrore(null);
   }, [value]);
   useEffect4(() => {
     if (!aperto) return void 0;
@@ -3385,15 +3396,15 @@ var CampoData = forwardRef4(function CampoData2({
     const iso = parseDataIt(testo);
     const fuoriLimiti = iso && (min && iso < min || max && iso > max);
     if (iso === void 0 || fuoriLimiti) {
-      setErrato(true);
+      setErrore(iso === void 0 ? "formato" : "limiti");
       return;
     }
-    setErrato(false);
+    setErrore(null);
     if (iso !== (value ?? null)) onChange?.(iso);
   };
   const scegli = (iso) => {
     setAperto(false);
-    setErrato(false);
+    setErrore(null);
     setTesto(formatDataIt(iso));
     onChange?.(iso);
     radice.current?.querySelector("input")?.focus();
@@ -3414,6 +3425,7 @@ var CampoData = forwardRef4(function CampoData2({
         /* @__PURE__ */ jsx12(
           "input",
           {
+            ...rest,
             ref,
             id,
             type: "text",
@@ -3423,16 +3435,22 @@ var CampoData = forwardRef4(function CampoData2({
             placeholder,
             disabled,
             "aria-label": ariaLabel,
-            "aria-invalid": invalid || errato ? "true" : void 0,
+            "aria-describedby": descritto,
+            "aria-invalid": nonValido ? "true" : ariaInvalid,
             onChange: (e) => setTesto(e.target.value),
-            onBlur: conferma,
+            onBlur: (e) => {
+              onBlurProp?.(e);
+              conferma();
+            },
             onKeyDown: (e) => {
+              onKeyDownProp?.(e);
               if (e.key === "Enter") conferma();
               if (e.key === "ArrowDown" && e.altKey) setAperto(true);
             },
-            className: cn(campoClasses(invalid || errato), "h-9 pl-3 pr-9 tabular-nums")
+            className: cn(campoClasses(nonValido), "h-9 pl-3 pr-9 tabular-nums")
           }
         ),
+        errore === "formato" && /* @__PURE__ */ jsx12("span", { id: erroreId, className: "sr-only", children: "Data non valida, usa il formato gg/mm/aaaa" }),
         /* @__PURE__ */ jsx12(
           IconButton_default,
           {

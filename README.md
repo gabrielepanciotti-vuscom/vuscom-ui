@@ -56,14 +56,14 @@ Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 | Componente | Props principali |
 |---|---|
 | `Field` | `label`, `hint`, `error`, `required`, `id` — un solo figlio (Input, Select…) |
-| `Select` | `value`, `onChange`, `options` (`{value,label,disabled}`), `placeholder`, `allowClear`, `disabled`, `invalid` — la lista si apre in un portal (`position: fixed`), quindi non viene tagliata da tabelle e finestre |
+| `Select` | `value`, `onChange`, `options` (`{value,label,disabled}`), `placeholder`, `allowClear`, `disabled`, `invalid` — la lista si apre in un portal (`position: fixed`), quindi non viene tagliata da tabelle e finestre. Il pulsante è un `combobox` (la lista è etichettata da lui); da tastiera: frecce, Home/End (prima/ultima opzione abilitata), digitazione di un prefisso (buffer azzerato dopo 500 ms), Invio/Spazio, Esc |
 | `Toggle` | `checked`, `onChange`, `label`, `description`, `disabled`, `id` + props extra sul pulsante (cablabile da `Field`) |
 | `Checkbox` | `checked`, `indeterminate`, `onChange`, `label`, `disabled`, `id` + props extra sul pulsante (cablabile da `Field`) |
 | `Tabs` | `value`, `onChange`, `items` (`{id,label}`), `idPrefix` — con `useTabIds()` gli id sono per istanza (`ids.tab(x)`, `ids.panel(x)`); senza, restano `tab-<id>`/`panel-<id>` |
 | `SegmentedControl` | `value`, `onChange`, `options` (`{value,label,icon}`), `size` |
 | `Tooltip` | `content`, `side`, `wide` |
 | `InfoTip` | `children`, `label`, `side`, `wide` (va a capo; automatico per stringhe lunghe) |
-| `CampoData` | `value`/`onChange` in ISO (`"YYYY-MM-DD"`, `null` = vuoto), `min`, `max`, `invalid` — si scrive `gg/mm/aaaa` o si sceglie dal calendario; mai `input type=date` |
+| `CampoData` | `value`/`onChange` in ISO (`"YYYY-MM-DD"`, `null` = vuoto), `min`, `max`, `invalid` — si scrive `gg/mm/aaaa` o si sceglie dal calendario; mai `input type=date`. `aria-describedby`, `aria-invalid` e gli altri attributi vanno all'input; con testo non valido un messaggio sr-only «Data non valida, usa il formato gg/mm/aaaa» si aggiunge a `aria-describedby` |
 | `CalendarioMese` | `value`, `onChange`, `min`, `max`, `oggi` — lunedì primo, frecce/PagSu/PagGiù da tastiera |
 | `ChipFiltro` | `children`, `onRemove` |
 | `PulsanteEsportaCsv` | `nomeFile`, `rows` (array o funzione letta al clic), `columns` (di `DataTable`) |

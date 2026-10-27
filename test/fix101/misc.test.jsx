@@ -86,7 +86,7 @@ test("select chains the consumer's onKeyDown", async () => {
       options={[{ value: "a", label: "Alta" }]}
     />,
   );
-  screen.getByRole("button", { name: "Priorità" }).focus();
+  screen.getByRole("combobox", { name: "Priorità" }).focus();
   await userEvent.keyboard("{Enter}");
   expect(onKeyDown).toHaveBeenCalled();
   expect(screen.getByRole("listbox")).toBeInTheDocument();

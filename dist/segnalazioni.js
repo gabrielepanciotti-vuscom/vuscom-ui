@@ -3112,6 +3112,8 @@ import { jsx as jsx4, jsxs as jsxs3 } from "react/jsx-runtime";
 var CAMPO = "w-full rounded-lg border bg-background text-sm text-foreground placeholder:text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50";
 var campoClasses = (invalid) => cn(
   CAMPO,
+  // Error wired from outside (Field sets aria-invalid) must look invalid without the prop.
+  "aria-[invalid=true]:border-destructive aria-[invalid=true]:focus-visible:ring-destructive",
   invalid ? "border-destructive focus-visible:ring-destructive/40" : "border-input hover:border-ring/60 focus-visible:border-ring focus-visible:ring-ring/40"
 );
 var Input = forwardRef3(function Input2({ invalid, icon: Icon, className, ...props }, ref) {
@@ -3233,7 +3235,7 @@ function Field({
   const auto = useId2();
   const child = Children.only(children);
   const fieldId = id || child.props?.id || auto;
-  const hintId = hint ? `${fieldId}-hint` : null;
+  const hintId = hint && !error ? `${fieldId}-hint` : null;
   const errorId = error ? `${fieldId}-error` : null;
   const describedBy = [child.props?.["aria-describedby"], hintId, errorId].filter(Boolean).join(" ") || void 0;
   const control = isValidElement(child) ? cloneElement(child, {

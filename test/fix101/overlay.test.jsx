@@ -20,7 +20,7 @@ test("Escape on an open Select inside a Dialog closes only the list", async () =
       <Select aria-label="Priorità" value="a" options={opzioni} />
     </Dialog>,
   );
-  await userEvent.click(screen.getByRole("button", { name: "Priorità" }));
+  await userEvent.click(screen.getByRole("combobox", { name: "Priorità" }));
   expect(screen.getByRole("listbox")).toBeInTheDocument();
   await userEvent.keyboard("{Escape}");
   expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
@@ -51,7 +51,7 @@ test("select list is portalled with fixed position out of clipping parents", asy
       <Select aria-label="Priorità" value="a" options={opzioni} />
     </div>,
   );
-  await userEvent.click(screen.getByRole("button", { name: "Priorità" }));
+  await userEvent.click(screen.getByRole("combobox", { name: "Priorità" }));
   const list = screen.getByRole("listbox");
   expect(screen.getByTestId("clip")).not.toContainElement(list);
   expect(list.style.position).toBe("fixed");
@@ -76,7 +76,7 @@ function rect(top, height = 40) {
 
 test("select list flips upward near the viewport bottom and follows scroll", async () => {
   render(<Select aria-label="Priorità" value="a" options={opzioni} />);
-  const trigger = screen.getByRole("button", { name: "Priorità" });
+  const trigger = screen.getByRole("combobox", { name: "Priorità" });
   const r = { current: rect(window.innerHeight - 50) };
   trigger.getBoundingClientRect = () => r.current;
   await userEvent.click(trigger);

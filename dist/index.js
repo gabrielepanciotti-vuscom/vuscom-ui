@@ -3482,6 +3482,8 @@ import { jsx as jsx9, jsxs as jsxs6 } from "react/jsx-runtime";
 var CAMPO = "w-full rounded-lg border bg-background text-sm text-foreground placeholder:text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50";
 var campoClasses = (invalid) => cn(
   CAMPO,
+  // Error wired from outside (Field sets aria-invalid) must look invalid without the prop.
+  "aria-[invalid=true]:border-destructive aria-[invalid=true]:focus-visible:ring-destructive",
   invalid ? "border-destructive focus-visible:ring-destructive/40" : "border-input hover:border-ring/60 focus-visible:border-ring focus-visible:ring-ring/40"
 );
 var Input = forwardRef3(function Input2({ invalid, icon: Icon, className, ...props }, ref) {
@@ -3731,7 +3733,7 @@ function Field({
   const auto = useId();
   const child = Children.only(children);
   const fieldId = id || child.props?.id || auto;
-  const hintId = hint ? `${fieldId}-hint` : null;
+  const hintId = hint && !error ? `${fieldId}-hint` : null;
   const errorId = error ? `${fieldId}-error` : null;
   const describedBy = [child.props?.["aria-describedby"], hintId, errorId].filter(Boolean).join(" ") || void 0;
   const control = isValidElement(child) ? cloneElement(child, {
@@ -3807,6 +3809,7 @@ function useFloatingList(triggerRef, open) {
 // src/molecules/Select.jsx
 import { jsx as jsx17, jsxs as jsxs12 } from "react/jsx-runtime";
 var CLEAR = "__clear__";
+var BUFFER_MS = 500;
 function Select({
   value,
   onChange,
@@ -3827,7 +3830,10 @@ function Select({
   const rootRef = useRef2(null);
   const triggerRef = useRef2(null);
   const listRef = useRef2(null);
+  const buffer = useRef2("");
+  const bufferTimer = useRef2(null);
   const uid = useId2();
+  const triggerId = rest.id ?? `${uid}-trigger`;
   const listStyle = useFloatingList(triggerRef, open);
   const entries = [
     ...allowClear ? [{ value: CLEAR, label: "Nessuno", clear: true }] : [],
@@ -3844,6 +3850,7 @@ function Select({
     document.addEventListener("mousedown", fuori);
     return () => document.removeEventListener("mousedown", fuori);
   }, [open]);
+  useEffect5(() => () => clearTimeout(bufferTimer.current), []);
   const apri = () => {
     if (disabled) return;
     const i = entries.findIndex(
@@ -3867,10 +3874,37 @@ function Select({
       }
     }
   };
+  const estremo = (dir) => {
+    const abilitate = entries.map((o, i) => o.disabled ? -1 : i).filter((i) => i >= 0);
+    return dir > 0 ? abilitate[abilitate.length - 1] : abilitate[0];
+  };
+  const vaiA = (i) => {
+    if (i === void 0) return;
+    setActive(i);
+    setOpen(true);
+  };
+  const cerca = (carattere) => {
+    clearTimeout(bufferTimer.current);
+    buffer.current += carattere.toLowerCase();
+    bufferTimer.current = setTimeout(() => {
+      buffer.current = "";
+    }, BUFFER_MS);
+    const i = entries.findIndex(
+      (o) => !o.disabled && typeof o.label === "string" && o.label.toLowerCase().startsWith(buffer.current)
+    );
+    if (i >= 0) vaiA(i);
+  };
   const onKeyDown = (e) => {
     onKeyDownProp?.(e);
     if (disabled || e.defaultPrevented) return;
-    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    const stampabile = e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key !== " " || buffer.current !== "");
+    if (stampabile) {
+      e.preventDefault();
+      cerca(e.key);
+    } else if (e.key === "Home" || e.key === "End") {
+      e.preventDefault();
+      vaiA(estremo(e.key === "End" ? 1 : -1));
+    } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
       if (!open) apri();
       else muovi(e.key === "ArrowDown" ? 1 : -1);
@@ -3891,7 +3925,9 @@ function Select({
       {
         ...rest,
         ref: triggerRef,
+        id: triggerId,
         type: "button",
+        role: "combobox",
         disabled,
         "aria-label": ariaLabel,
         "aria-haspopup": "listbox",
@@ -3934,6 +3970,7 @@ function Select({
           ref: listRef,
           id: `${uid}-list`,
           role: "listbox",
+          "aria-labelledby": triggerId,
           "aria-label": ariaLabel,
           style: listStyle ?? { position: "fixed" },
           onMouseDown: (e) => e.preventDefault(),
@@ -5354,17 +5391,26 @@ var CampoData = forwardRef5(function CampoData2({
   invalid,
   disabled,
   "aria-label": ariaLabel,
+  "aria-describedby": ariaDescribedBy,
+  "aria-invalid": ariaInvalid,
   id,
-  className
+  className,
+  onBlur: onBlurProp,
+  onKeyDown: onKeyDownProp,
+  ...rest
 }, ref) {
   const [testo, setTesto] = useState12(formatDataIt(value));
-  const [errato, setErrato] = useState12(false);
+  const [errore, setErrore] = useState12(null);
   const [aperto, setAperto] = useState12(false);
   const radice = useRef8(null);
   const pannello = useId7();
+  const erroreId = useId7();
+  const errato = errore !== null;
+  const nonValido = invalid || errato || ariaInvalid === true || ariaInvalid === "true";
+  const descritto = [ariaDescribedBy, errore === "formato" ? erroreId : null].filter(Boolean).join(" ") || void 0;
   useEffect10(() => {
     setTesto(formatDataIt(value));
-    setErrato(false);
+    setErrore(null);
   }, [value]);
   useEffect10(() => {
     if (!aperto) return void 0;
@@ -5378,15 +5424,15 @@ var CampoData = forwardRef5(function CampoData2({
     const iso = parseDataIt(testo);
     const fuoriLimiti = iso && (min && iso < min || max && iso > max);
     if (iso === void 0 || fuoriLimiti) {
-      setErrato(true);
+      setErrore(iso === void 0 ? "formato" : "limiti");
       return;
     }
-    setErrato(false);
+    setErrore(null);
     if (iso !== (value ?? null)) onChange?.(iso);
   };
   const scegli = (iso) => {
     setAperto(false);
-    setErrato(false);
+    setErrore(null);
     setTesto(formatDataIt(iso));
     onChange?.(iso);
     radice.current?.querySelector("input")?.focus();
@@ -5407,6 +5453,7 @@ var CampoData = forwardRef5(function CampoData2({
         /* @__PURE__ */ jsx35(
           "input",
           {
+            ...rest,
             ref,
             id,
             type: "text",
@@ -5416,16 +5463,22 @@ var CampoData = forwardRef5(function CampoData2({
             placeholder,
             disabled,
             "aria-label": ariaLabel,
-            "aria-invalid": invalid || errato ? "true" : void 0,
+            "aria-describedby": descritto,
+            "aria-invalid": nonValido ? "true" : ariaInvalid,
             onChange: (e) => setTesto(e.target.value),
-            onBlur: conferma,
+            onBlur: (e) => {
+              onBlurProp?.(e);
+              conferma();
+            },
             onKeyDown: (e) => {
+              onKeyDownProp?.(e);
               if (e.key === "Enter") conferma();
               if (e.key === "ArrowDown" && e.altKey) setAperto(true);
             },
-            className: cn(campoClasses(invalid || errato), "h-9 pl-3 pr-9 tabular-nums")
+            className: cn(campoClasses(nonValido), "h-9 pl-3 pr-9 tabular-nums")
           }
         ),
+        errore === "formato" && /* @__PURE__ */ jsx35("span", { id: erroreId, className: "sr-only", children: "Data non valida, usa il formato gg/mm/aaaa" }),
         /* @__PURE__ */ jsx35(
           IconButton_default,
           {
