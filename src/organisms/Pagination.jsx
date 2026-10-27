@@ -22,10 +22,16 @@ export default function Pagination({
       aria-label="Paginazione"
       className={cn("flex items-center justify-between gap-3", className)}
     >
-      <p className="text-sm text-muted-foreground tabular-nums">
-        {total > 0
-          ? `${formatNumero(da)}–${formatNumero(a)} di ${formatNumero(total)}`
-          : "Nessun risultato"}
+      <p
+        aria-live="polite"
+        className="text-sm text-muted-foreground tabular-nums"
+      >
+        <span>
+          {total > 0
+            ? `${formatNumero(da)}–${formatNumero(a)} di ${formatNumero(total)}`
+            : "Nessun risultato"}
+        </span>
+        <span className="sr-only">{` Pagina ${p} di ${pagine}`}</span>
       </p>
       <div className="flex items-center gap-2">
         <Button

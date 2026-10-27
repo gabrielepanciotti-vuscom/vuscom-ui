@@ -6,8 +6,15 @@ import { cn } from "../lib/cn.js";
  * sincronizzata con quella in fondo: su una tabella lunga la barra in fondo
  * sta sotto l'ultima riga e non si vede senza scendere fino in basso.
  * La barra in alto compare solo quando il contenuto deborda davvero.
+ * Quando deborda il contenitore è una regione raggiungibile da tastiera
+ * (`tabIndex=0`, `role="region"`, `aria-label`), altrimenti chi non usa il
+ * mouse non può scorrerla.
  */
-export default function TopScrollX({ children, className }) {
+export default function TopScrollX({
+  children,
+  className,
+  ariaLabel = "Tabella scorrevole",
+}) {
   const topRef = useRef(null);
   const bodyRef = useRef(null);
   const syncing = useRef(false);
@@ -62,7 +69,17 @@ export default function TopScrollX({ children, className }) {
       <div
         ref={bodyRef}
         onScroll={() => follow(bodyRef, topRef)}
-        className={cn("overflow-x-auto", className)}
+        {...(overflow && {
+          tabIndex: 0,
+          role: "region",
+          "aria-label": ariaLabel,
+        })}
+        className={cn(
+          "overflow-x-auto",
+          overflow &&
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+          className,
+        )}
       >
         {children}
       </div>
