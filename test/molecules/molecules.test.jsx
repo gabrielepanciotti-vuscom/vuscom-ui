@@ -28,7 +28,7 @@ test("select opens, navigates with keyboard and picks", async () => {
       options={opzioni}
     />,
   );
-  const trigger = screen.getByRole("button", { name: /priorità/i });
+  const trigger = screen.getByRole("combobox", { name: /priorità/i });
   trigger.focus();
   await userEvent.keyboard("{Enter}");
   expect(screen.getByRole("listbox")).toBeInTheDocument();
@@ -47,7 +47,7 @@ test("select closes on Escape without changing", async () => {
       options={opzioni}
     />,
   );
-  await userEvent.click(screen.getByRole("button", { name: /priorità/i }));
+  await userEvent.click(screen.getByRole("combobox", { name: /priorità/i }));
   await userEvent.keyboard("{Escape}");
   expect(onChange).not.toHaveBeenCalled();
   expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
@@ -66,7 +66,7 @@ test("select exposes aria state, picks by click, closes on outside click", async
       <p>fuori</p>
     </div>,
   );
-  const trigger = screen.getByRole("button", { name: /priorità/i });
+  const trigger = screen.getByRole("combobox", { name: /priorità/i });
   expect(trigger).toHaveAttribute("aria-haspopup", "listbox");
   expect(trigger).toHaveAttribute("aria-expanded", "false");
   await userEvent.click(trigger);
@@ -93,7 +93,7 @@ test("select allowClear emits null", async () => {
       options={opzioni}
     />,
   );
-  await userEvent.click(screen.getByRole("button", { name: "P" }));
+  await userEvent.click(screen.getByRole("combobox", { name: "P" }));
   await userEvent.click(screen.getByRole("option", { name: /nessuno/i }));
   expect(onChange).toHaveBeenCalledWith(null);
 });
@@ -108,7 +108,7 @@ test("select skips disabled options", async () => {
   render(
     <Select aria-label="X" value="a" onChange={onChange} options={opts} />,
   );
-  screen.getByRole("button", { name: "X" }).focus();
+  screen.getByRole("combobox", { name: "X" }).focus();
   await userEvent.keyboard("{Enter}{ArrowDown}{Enter}");
   expect(onChange).toHaveBeenCalledWith("c");
 });
