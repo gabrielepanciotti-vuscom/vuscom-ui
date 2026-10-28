@@ -1,12 +1,12 @@
 // src/segnalazioni/SegnalazioniProvider.jsx
-import { useCallback as useCallback2, useEffect as useEffect7, useMemo as useMemo3, useRef as useRef6, useState as useState4 } from "react";
+import { useCallback as useCallback2, useEffect as useEffect8, useMemo as useMemo3, useRef as useRef6, useState as useState4 } from "react";
 
 // src/organisms/Toast.jsx
 import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
+  useEffect as useEffect2,
   useMemo,
   useRef,
   useState
@@ -2494,7 +2494,7 @@ function cn(...inputs) {
 }
 
 // src/atoms/IconButton.jsx
-import { forwardRef as forwardRef2 } from "react";
+import { forwardRef as forwardRef2, useEffect } from "react";
 
 // src/atoms/Button.jsx
 import { forwardRef } from "react";
@@ -2563,21 +2563,30 @@ var QUADRATI = {
   md: "h-10 w-10 max-sm:min-h-11 max-sm:min-w-11",
   lg: "h-12 w-12"
 };
+var haAvvisatoSenzaEtichetta = false;
+var ambienteNode = typeof process !== "undefined" ? process.env : void 0;
 var IconButton = forwardRef2(function IconButton2({
   icon: Icon,
   label,
+  "aria-label": ariaLabel,
   variant = "ghost",
   size = "md",
   className,
   type = "button",
   ...props
 }, ref) {
+  useEffect(() => {
+    if (!label && !ariaLabel && !haAvvisatoSenzaEtichetta && ambienteNode && ambienteNode.NODE_ENV !== "production") {
+      console.warn("IconButton richiede label o aria-label per essere accessibile.");
+      haAvvisatoSenzaEtichetta = true;
+    }
+  }, [ariaLabel, label]);
   return /* @__PURE__ */ jsx2(
     "button",
     {
       ref,
       type,
-      "aria-label": label,
+      "aria-label": ariaLabel || label,
       ...props,
       className: cn(
         buttonClasses(variant, size),
@@ -2706,7 +2715,7 @@ function ToastProvider({ children }) {
     },
     [avviaTimer]
   );
-  useEffect(() => {
+  useEffect2(() => {
     const attivi = timers.current;
     return () => {
       attivi.forEach((timer) => clearTimeout(timer.timer));
@@ -2949,7 +2958,7 @@ function useSegnalazioni() {
 }
 
 // src/segnalazioni/useRegistrazione.js
-import { useEffect as useEffect2, useRef as useRef2 } from "react";
+import { useEffect as useEffect3, useRef as useRef2 } from "react";
 var EVENTO_META = 4;
 var CHECKOUT_MS = 1e4;
 var TUTTI_GLI_INPUT = Object.fromEntries(
@@ -3006,7 +3015,7 @@ function troncaVideo(eventi, maxByte) {
 }
 function useRegistrazione(attivo, durataSec) {
   const finestra = useRef2(null);
-  useEffect2(() => {
+  useEffect3(() => {
     if (!attivo || typeof window === "undefined") return void 0;
     let ferma = null;
     let annullato = false;
@@ -3143,7 +3152,7 @@ async function inviaSegnalazione({ endpoint, fetchImpl, form }) {
 }
 
 // src/segnalazioni/ModaleSegnalazione.jsx
-import { useEffect as useEffect4, useMemo as useMemo2, useRef as useRef4, useState as useState2 } from "react";
+import { useEffect as useEffect5, useMemo as useMemo2, useRef as useRef4, useState as useState2 } from "react";
 import { Bug, ImageOff, MousePointerClick, RotateCw, Send } from "lucide-react";
 
 // src/atoms/Textarea.jsx
@@ -3369,7 +3378,7 @@ function Alert({
 }
 
 // src/organisms/Dialog.jsx
-import { useEffect as useEffect3, useId as useId3, useRef as useRef3 } from "react";
+import { useEffect as useEffect4, useId as useId3, useRef as useRef3 } from "react";
 import { createPortal } from "react-dom";
 import { X as X3 } from "lucide-react";
 import { jsx as jsx9, jsxs as jsxs7 } from "react/jsx-runtime";
@@ -3405,7 +3414,7 @@ function Dialog({
   const panelRef = useRef3(null);
   const onCloseRef = useRef3(onClose);
   onCloseRef.current = onClose;
-  useEffect3(() => {
+  useEffect4(() => {
     if (!open) return void 0;
     const opener = document.activeElement;
     const token = {};
@@ -3537,7 +3546,7 @@ function useAnteprima(blob) {
     if (!blob || typeof URL?.createObjectURL !== "function") return null;
     return URL.createObjectURL(blob);
   }, [blob]);
-  useEffect4(
+  useEffect5(
     () => () => {
       if (url) URL.revokeObjectURL?.(url);
     },
@@ -3711,7 +3720,7 @@ function ModaleSegnalazione({
 }
 
 // src/segnalazioni/SelettoreElemento.jsx
-import { useEffect as useEffect5, useState as useState3 } from "react";
+import { useEffect as useEffect6, useState as useState3 } from "react";
 import { createPortal as createPortal2 } from "react-dom";
 import { Crosshair } from "lucide-react";
 
@@ -3813,7 +3822,7 @@ var bersaglioDi = (el) => el.closest("[data-segnala]") || el;
 var elementoDi = (nodo) => nodo?.nodeType === 1 ? nodo : nodo?.parentElement ?? null;
 function SelettoreElemento({ onScegli, onAnnulla }) {
   const [riquadro, setRiquadro] = useState3(null);
-  useEffect5(() => {
+  useEffect6(() => {
     const radice = document.documentElement;
     const cursore = radice.style.cursor;
     radice.style.cursor = "crosshair";
@@ -3910,7 +3919,7 @@ function SelettoreElemento({ onScegli, onAnnulla }) {
 }
 
 // src/segnalazioni/useRegistroAzioni.js
-import { useEffect as useEffect6, useRef as useRef5 } from "react";
+import { useEffect as useEffect7, useRef as useRef5 } from "react";
 var MAX_AZIONI = 200;
 var MAX_MESSAGGIO = 500;
 var MAX_ETICHETTA = 80;
@@ -4127,7 +4136,7 @@ function creaRegistroAzioni(win, { max = MAX_AZIONI, ignoraUrl = [] } = {}) {
 function useRegistroAzioni(attivo, { ignoraUrl = [] } = {}) {
   const registro = useRef5(null);
   const chiaveIgnora = ignoraUrl.join("|");
-  useEffect6(() => {
+  useEffect7(() => {
     if (!attivo || typeof window === "undefined") return void 0;
     const r2 = creaRegistroAzioni(window, {
       ignoraUrl: chiaveIgnora.split("|")
@@ -4168,7 +4177,7 @@ function SegnalazioniProvider({
     headers.set("Authorization", `Bearer ${token}`);
     return baseRef.current(url, { ...opzioni, headers });
   });
-  useEffect7(() => {
+  useEffect8(() => {
     let annullato = false;
     (async () => {
       try {

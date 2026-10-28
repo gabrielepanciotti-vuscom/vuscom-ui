@@ -24,6 +24,11 @@ const JUSTIFY = {
   center: "justify-center",
 };
 
+let haAvvisatoSenzaCaption = false;
+
+const ambienteNode =
+  typeof process !== "undefined" ? process.env : undefined;
+
 function SortIcon({ dir }) {
   const Icon =
     dir === "asc" ? ChevronUp : dir === "desc" ? ChevronDown : ChevronsUpDown;
@@ -49,6 +54,18 @@ export default function DataTable({
   className,
   mobileCards = false,
 }) {
+  useEffect(() => {
+    if (
+      !caption &&
+      !haAvvisatoSenzaCaption &&
+      ambienteNode &&
+      ambienteNode.NODE_ENV !== "production"
+    ) {
+      console.warn("DataTable richiede caption per essere accessibile.");
+      haAvvisatoSenzaCaption = true;
+    }
+  }, [caption]);
+
   const accessors = {};
   columns.forEach((c) => {
     if (c.sortAccessor) accessors[c.key] = c.sortAccessor;

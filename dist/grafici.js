@@ -2966,7 +2966,7 @@ import { BarChart3 as BarChart32 } from "lucide-react";
 import { AlertTriangle, CheckCircle2, Info, X, XCircle } from "lucide-react";
 
 // src/atoms/IconButton.jsx
-import { forwardRef as forwardRef2 } from "react";
+import { forwardRef as forwardRef2, useEffect as useEffect3 } from "react";
 
 // src/atoms/Button.jsx
 import { forwardRef } from "react";
@@ -3035,21 +3035,30 @@ var QUADRATI = {
   md: "h-10 w-10 max-sm:min-h-11 max-sm:min-w-11",
   lg: "h-12 w-12"
 };
+var haAvvisatoSenzaEtichetta = false;
+var ambienteNode = typeof process !== "undefined" ? process.env : void 0;
 var IconButton = forwardRef2(function IconButton2({
   icon: Icon,
   label,
+  "aria-label": ariaLabel,
   variant = "ghost",
   size = "md",
   className,
   type = "button",
   ...props
 }, ref) {
+  useEffect3(() => {
+    if (!label && !ariaLabel && !haAvvisatoSenzaEtichetta && ambienteNode && ambienteNode.NODE_ENV !== "production") {
+      console.warn("IconButton richiede label o aria-label per essere accessibile.");
+      haAvvisatoSenzaEtichetta = true;
+    }
+  }, [ariaLabel, label]);
   return /* @__PURE__ */ jsx6(
     "button",
     {
       ref,
       type,
-      "aria-label": label,
+      "aria-label": ariaLabel || label,
       ...props,
       className: cn(
         buttonClasses(variant, size),
@@ -3189,7 +3198,7 @@ function AndamentoCampagna({
 import { RotateCcw as RotateCcw2 } from "lucide-react";
 
 // src/molecules/CampoData.jsx
-import { forwardRef as forwardRef4, useEffect as useEffect4, useId, useRef as useRef3, useState as useState3 } from "react";
+import { forwardRef as forwardRef4, useEffect as useEffect5, useId, useRef as useRef3, useState as useState3 } from "react";
 import { CalendarDays } from "lucide-react";
 
 // src/lib/dataIt.js
@@ -3251,7 +3260,7 @@ var Input = forwardRef3(function Input2({ invalid, icon: Icon, className, ...pro
 });
 
 // src/molecules/CalendarioMese.jsx
-import { useEffect as useEffect3, useRef as useRef2, useState as useState2 } from "react";
+import { useEffect as useEffect4, useRef as useRef2, useState as useState2 } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { jsx as jsx11, jsxs as jsxs10 } from "react/jsx-runtime";
 var GIORNO2 = 864e5;
@@ -3285,7 +3294,7 @@ function CalendarioMese({
   const [mese2, setMese] = useState2(() => primoDelMese(daIso(value || oggi)));
   const griglia$ = useRef2(null);
   const daFocalizzare = useRef2(autoFocus);
-  useEffect3(() => {
+  useEffect4(() => {
     if (!daFocalizzare.current) return;
     daFocalizzare.current = false;
     griglia$.current?.querySelector(`[data-giorno="${fuoco}"]`)?.focus();
@@ -3385,11 +3394,11 @@ var CampoData = forwardRef4(function CampoData2({
   const errato = errore !== null;
   const nonValido = invalid || errato || ariaInvalid === true || ariaInvalid === "true";
   const descritto = [ariaDescribedBy, errore === "formato" ? erroreId : null].filter(Boolean).join(" ") || void 0;
-  useEffect4(() => {
+  useEffect5(() => {
     setTesto(formatDataIt(value));
     setErrore(null);
   }, [value]);
-  useEffect4(() => {
+  useEffect5(() => {
     if (!aperto) return void 0;
     const fuori = (e) => {
       if (!radice.current?.contains(e.target)) setAperto(false);
@@ -3536,6 +3545,12 @@ function SegmentedControl({
               } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
                 e.preventDefault();
                 vai(i - 1);
+              } else if (e.key === "Home") {
+                e.preventDefault();
+                vai(0);
+              } else if (e.key === "End") {
+                e.preventDefault();
+                vai(options.length - 1);
               }
             },
             className: cn(
@@ -3694,6 +3709,12 @@ function Tabs({
               } else if (e.key === "ArrowLeft") {
                 e.preventDefault();
                 vai(i - 1);
+              } else if (e.key === "Home") {
+                e.preventDefault();
+                vai(0);
+              } else if (e.key === "End") {
+                e.preventDefault();
+                vai(items.length - 1);
               }
             },
             className: cn(
@@ -3969,11 +3990,11 @@ function Toggle({
 }
 
 // src/organisms/DataTable.jsx
-import { useEffect as useEffect6, useState as useState6 } from "react";
+import { useEffect as useEffect7, useState as useState6 } from "react";
 import { ChevronDown, ChevronUp, ChevronsUpDown, Inbox } from "lucide-react";
 
 // src/molecules/TopScrollX.jsx
-import { useEffect as useEffect5, useRef as useRef6, useState as useState4 } from "react";
+import { useEffect as useEffect6, useRef as useRef6, useState as useState4 } from "react";
 import { Fragment, jsx as jsx21, jsxs as jsxs19 } from "react/jsx-runtime";
 function TopScrollX({
   children,
@@ -3985,7 +4006,7 @@ function TopScrollX({
   const syncing = useRef6(false);
   const [scrollWidth, setScrollWidth] = useState4(0);
   const [overflow, setOverflow] = useState4(false);
-  useEffect5(() => {
+  useEffect6(() => {
     const body = bodyRef.current;
     if (!body) return void 0;
     const measure = () => {
@@ -4245,6 +4266,8 @@ var JUSTIFY = {
   right: "justify-end",
   center: "justify-center"
 };
+var haAvvisatoSenzaCaption = false;
+var ambienteNode2 = typeof process !== "undefined" ? process.env : void 0;
 function SortIcon({ dir }) {
   const Icon = dir === "asc" ? ChevronUp : dir === "desc" ? ChevronDown : ChevronsUpDown;
   return /* @__PURE__ */ jsx26(Icon, { className: cn("h-3.5 w-3.5", !dir && "opacity-40"), "aria-hidden": true });
@@ -4266,6 +4289,12 @@ function DataTable({
   className,
   mobileCards = false
 }) {
+  useEffect7(() => {
+    if (!caption && !haAvvisatoSenzaCaption && ambienteNode2 && ambienteNode2.NODE_ENV !== "production") {
+      console.warn("DataTable richiede caption per essere accessibile.");
+      haAvvisatoSenzaCaption = true;
+    }
+  }, [caption]);
   const accessors = {};
   columns.forEach((c) => {
     if (c.sortAccessor) accessors[c.key] = c.sortAccessor;
@@ -4275,7 +4304,7 @@ function DataTable({
     accessors
   });
   const [pagina, setPagina] = useState6(1);
-  useEffect6(() => setPagina(1), [sort, rows.length]);
+  useEffect7(() => setPagina(1), [sort, rows.length]);
   const visibili = pageSize ? sorted.slice((pagina - 1) * pageSize, pagina * pageSize) : sorted;
   const pad = dense ? "px-3 py-1.5" : "px-3 py-2.5";
   const massimi = massimiBarre(columns, rows);
@@ -4666,7 +4695,7 @@ import {
   Children,
   cloneElement,
   useCallback as useCallback3,
-  useEffect as useEffect7,
+  useEffect as useEffect8,
   useId as useId5,
   useRef as useRef7,
   useState as useState7
@@ -4697,7 +4726,7 @@ function Tooltip2({
     clearTimeout(timer.current);
     setOpen(false);
   }, []);
-  useEffect7(() => () => clearTimeout(timer.current), []);
+  useEffect8(() => () => clearTimeout(timer.current), []);
   const chain = (name, fn) => (e) => {
     child.props[name]?.(e);
     fn(e);

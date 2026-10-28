@@ -70,6 +70,12 @@ export default function Tabs({
               } else if (e.key === "ArrowLeft") {
                 e.preventDefault();
                 vai(i - 1);
+              } else if (e.key === "Home") {
+                e.preventDefault();
+                vai(0);
+              } else if (e.key === "End") {
+                e.preventDefault();
+                vai(items.length - 1);
               }
             }}
             className={cn(

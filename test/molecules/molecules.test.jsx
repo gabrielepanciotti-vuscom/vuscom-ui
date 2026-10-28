@@ -185,6 +185,26 @@ test("tabs switch with arrows", async () => {
   expect(onChange).toHaveBeenCalledWith("b");
 });
 
+test("tabs seleziona la prima e l'ultima voce con Home e End", async () => {
+  const onChange = vi.fn();
+  render(
+    <Tabs
+      value="b"
+      onChange={onChange}
+      items={[
+        { id: "a", label: "Uno" },
+        { id: "b", label: "Due" },
+        { id: "c", label: "Tre" },
+      ]}
+    />,
+  );
+  screen.getByRole("tab", { name: "Due" }).focus();
+  await userEvent.keyboard("{Home}{End}");
+  expect(onChange).toHaveBeenNthCalledWith(1, "a");
+  expect(onChange).toHaveBeenNthCalledWith(2, "c");
+  expect(screen.getByRole("tab", { name: "Tre" })).toHaveFocus();
+});
+
 test("segmented control is a radiogroup", async () => {
   const onChange = vi.fn();
   render(
@@ -204,6 +224,26 @@ test("segmented control is a radiogroup", async () => {
   );
   await userEvent.click(screen.getByRole("radio", { name: "Y" }));
   expect(onChange).toHaveBeenCalledWith("y");
+});
+
+test("segmented control seleziona la prima e l'ultima voce con Home e End", async () => {
+  const onChange = vi.fn();
+  render(
+    <SegmentedControl
+      value="m"
+      onChange={onChange}
+      options={[
+        { value: "a", label: "Alta" },
+        { value: "m", label: "Media" },
+        { value: "b", label: "Bassa" },
+      ]}
+    />,
+  );
+  screen.getByRole("radio", { name: "Media" }).focus();
+  await userEvent.keyboard("{Home}{End}");
+  expect(onChange).toHaveBeenNthCalledWith(1, "a");
+  expect(onChange).toHaveBeenNthCalledWith(2, "b");
+  expect(screen.getByRole("radio", { name: "Bassa" })).toHaveFocus();
 });
 
 test("segmented control options reach 44 px on small screens", () => {

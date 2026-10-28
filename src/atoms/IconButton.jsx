@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, useEffect } from "react";
 import { cn } from "../lib/cn.js";
 import { buttonClasses } from "./Button.jsx";
 
@@ -8,10 +8,16 @@ const QUADRATI = {
   lg: "h-12 w-12",
 };
 
+let haAvvisatoSenzaEtichetta = false;
+
+const ambienteNode =
+  typeof process !== "undefined" ? process.env : undefined;
+
 const IconButton = forwardRef(function IconButton(
   {
     icon: Icon,
     label,
+    "aria-label": ariaLabel,
     variant = "ghost",
     size = "md",
     className,
@@ -20,11 +26,24 @@ const IconButton = forwardRef(function IconButton(
   },
   ref,
 ) {
+  useEffect(() => {
+    if (
+      !label &&
+      !ariaLabel &&
+      !haAvvisatoSenzaEtichetta &&
+      ambienteNode &&
+      ambienteNode.NODE_ENV !== "production"
+    ) {
+      console.warn("IconButton richiede label o aria-label per essere accessibile.");
+      haAvvisatoSenzaEtichetta = true;
+    }
+  }, [ariaLabel, label]);
+
   return (
     <button
       ref={ref}
       type={type}
-      aria-label={label}
+      aria-label={ariaLabel || label}
       {...props}
       className={cn(
         buttonClasses(variant, size),

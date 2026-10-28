@@ -39,6 +39,19 @@ test("ChipFiltro removes", async () => {
   expect(onRemove).toHaveBeenCalled();
 });
 
+test("ChipFiltro usa removeLabel e un fallback per contenuti non testuali", () => {
+  const { rerender } = render(
+    <ChipFiltro onRemove={() => {}} removeLabel="Cancella stato">
+      Stato: attivo
+    </ChipFiltro>,
+  );
+  expect(screen.getByRole("button", { name: "Cancella stato" })).toBeInTheDocument();
+  rerender(
+    <ChipFiltro onRemove={() => {}}><strong>Stato: attivo</strong></ChipFiltro>,
+  );
+  expect(screen.getByRole("button", { name: "Rimuovi filtro" })).toBeInTheDocument();
+});
+
 test("ChipFiltro removal button extends its clickable area", () => {
   render(<ChipFiltro onRemove={() => {}}>Stato: attivo</ChipFiltro>);
   expect(screen.getByRole("button", { name: "Rimuovi filtro: Stato: attivo" })).toHaveClass(

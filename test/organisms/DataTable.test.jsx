@@ -18,6 +18,19 @@ const nomi = () =>
     .slice(1)
     .map((r) => within(r).getAllByRole("cell")[0].textContent);
 
+test("DataTable avvisa una volta senza caption", () => {
+  const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  const { rerender } = render(
+    <DataTable columns={columns} rows={rows} rowKey={(r) => r.id} />,
+  );
+  rerender(<DataTable columns={columns} rows={rows} rowKey={(r) => r.id} />);
+  expect(warn).toHaveBeenCalledTimes(1);
+  expect(warn).toHaveBeenCalledWith(
+    "DataTable richiede caption per essere accessibile.",
+  );
+  warn.mockRestore();
+});
+
 test("sorts by column and toggles direction, nulls last", async () => {
   render(<DataTable columns={columns} rows={rows} rowKey={(r) => r.id} />);
   await userEvent.click(screen.getByRole("button", { name: "Lead" }));

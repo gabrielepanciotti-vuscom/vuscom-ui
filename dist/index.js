@@ -3445,28 +3445,37 @@ var Button = forwardRef(function Button2({
 var Button_default = Button;
 
 // src/atoms/IconButton.jsx
-import { forwardRef as forwardRef2 } from "react";
+import { forwardRef as forwardRef2, useEffect as useEffect5 } from "react";
 import { jsx as jsx8 } from "react/jsx-runtime";
 var QUADRATI = {
   sm: "h-8 w-8 max-sm:min-h-11 max-sm:min-w-11",
   md: "h-10 w-10 max-sm:min-h-11 max-sm:min-w-11",
   lg: "h-12 w-12"
 };
+var haAvvisatoSenzaEtichetta = false;
+var ambienteNode = typeof process !== "undefined" ? process.env : void 0;
 var IconButton = forwardRef2(function IconButton2({
   icon: Icon,
   label,
+  "aria-label": ariaLabel,
   variant = "ghost",
   size = "md",
   className,
   type = "button",
   ...props
 }, ref) {
+  useEffect5(() => {
+    if (!label && !ariaLabel && !haAvvisatoSenzaEtichetta && ambienteNode && ambienteNode.NODE_ENV !== "production") {
+      console.warn("IconButton richiede label o aria-label per essere accessibile.");
+      haAvvisatoSenzaEtichetta = true;
+    }
+  }, [ariaLabel, label]);
   return /* @__PURE__ */ jsx8(
     "button",
     {
       ref,
       type,
-      "aria-label": label,
+      "aria-label": ariaLabel || label,
       ...props,
       className: cn(
         buttonClasses(variant, size),
@@ -3764,7 +3773,7 @@ function Field({
 }
 
 // src/molecules/Select.jsx
-import { useEffect as useEffect5, useId as useId2, useRef as useRef2, useState as useState6 } from "react";
+import { useEffect as useEffect6, useId as useId2, useRef as useRef2, useState as useState6 } from "react";
 import { createPortal } from "react-dom";
 import { Check, ChevronDown as ChevronDown2 } from "lucide-react";
 
@@ -3845,7 +3854,7 @@ function Select({
   ];
   const selected = options.find((o) => o.value === value);
   const optId = (i) => `${uid}-opt-${i}`;
-  useEffect5(() => {
+  useEffect6(() => {
     if (!open) return void 0;
     const fuori = (e) => {
       const dentro = rootRef.current?.contains(e.target) || listRef.current?.contains(e.target);
@@ -3854,7 +3863,7 @@ function Select({
     document.addEventListener("mousedown", fuori);
     return () => document.removeEventListener("mousedown", fuori);
   }, [open]);
-  useEffect5(() => () => clearTimeout(bufferTimer.current), []);
+  useEffect6(() => () => clearTimeout(bufferTimer.current), []);
   const apri = () => {
     if (disabled) return;
     const i = entries.findIndex(
@@ -4207,6 +4216,12 @@ function Tabs({
               } else if (e.key === "ArrowLeft") {
                 e.preventDefault();
                 vai(i - 1);
+              } else if (e.key === "Home") {
+                e.preventDefault();
+                vai(0);
+              } else if (e.key === "End") {
+                e.preventDefault();
+                vai(items.length - 1);
               }
             },
             className: cn(
@@ -4275,6 +4290,12 @@ function SegmentedControl({
               } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
                 e.preventDefault();
                 vai(i - 1);
+              } else if (e.key === "Home") {
+                e.preventDefault();
+                vai(0);
+              } else if (e.key === "End") {
+                e.preventDefault();
+                vai(options.length - 1);
               }
             },
             className: cn(
@@ -4300,7 +4321,7 @@ import {
   Children as Children2,
   cloneElement as cloneElement2,
   useCallback as useCallback3,
-  useEffect as useEffect6,
+  useEffect as useEffect7,
   useId as useId6,
   useRef as useRef5,
   useState as useState7
@@ -4331,7 +4352,7 @@ function Tooltip({
     clearTimeout(timer.current);
     setOpen(false);
   }, []);
-  useEffect6(() => () => clearTimeout(timer.current), []);
+  useEffect7(() => () => clearTimeout(timer.current), []);
   const chain = (name, fn) => (e) => {
     child.props[name]?.(e);
     fn(e);
@@ -4736,11 +4757,11 @@ function Pagination({
 }
 
 // src/organisms/DataTable.jsx
-import { useEffect as useEffect8, useState as useState10 } from "react";
+import { useEffect as useEffect9, useState as useState10 } from "react";
 import { ChevronDown as ChevronDown3, ChevronUp, ChevronsUpDown, Inbox } from "lucide-react";
 
 // src/molecules/TopScrollX.jsx
-import { useEffect as useEffect7, useRef as useRef6, useState as useState8 } from "react";
+import { useEffect as useEffect8, useRef as useRef6, useState as useState8 } from "react";
 import { Fragment as Fragment3, jsx as jsx30, jsxs as jsxs24 } from "react/jsx-runtime";
 function TopScrollX({
   children,
@@ -4752,7 +4773,7 @@ function TopScrollX({
   const syncing = useRef6(false);
   const [scrollWidth, setScrollWidth] = useState8(0);
   const [overflow, setOverflow] = useState8(false);
-  useEffect7(() => {
+  useEffect8(() => {
     const body = bodyRef.current;
     if (!body) return void 0;
     const measure = () => {
@@ -4929,6 +4950,8 @@ var JUSTIFY = {
   right: "justify-end",
   center: "justify-center"
 };
+var haAvvisatoSenzaCaption = false;
+var ambienteNode2 = typeof process !== "undefined" ? process.env : void 0;
 function SortIcon({ dir }) {
   const Icon = dir === "asc" ? ChevronUp : dir === "desc" ? ChevronDown3 : ChevronsUpDown;
   return /* @__PURE__ */ jsx33(Icon, { className: cn("h-3.5 w-3.5", !dir && "opacity-40"), "aria-hidden": true });
@@ -4950,6 +4973,12 @@ function DataTable({
   className,
   mobileCards = false
 }) {
+  useEffect9(() => {
+    if (!caption && !haAvvisatoSenzaCaption && ambienteNode2 && ambienteNode2.NODE_ENV !== "production") {
+      console.warn("DataTable richiede caption per essere accessibile.");
+      haAvvisatoSenzaCaption = true;
+    }
+  }, [caption]);
   const accessors = {};
   columns.forEach((c) => {
     if (c.sortAccessor) accessors[c.key] = c.sortAccessor;
@@ -4959,7 +4988,7 @@ function DataTable({
     accessors
   });
   const [pagina, setPagina] = useState10(1);
-  useEffect8(() => setPagina(1), [sort, rows.length]);
+  useEffect9(() => setPagina(1), [sort, rows.length]);
   const visibili = pageSize ? sorted.slice((pagina - 1) * pageSize, pagina * pageSize) : sorted;
   const pad = dense ? "px-3 py-1.5" : "px-3 py-2.5";
   const massimi = massimiBarre(columns, rows);
@@ -5373,11 +5402,11 @@ function formatDataIt(iso) {
 var isoGiorno = (d) => `${d.getUTCFullYear()}-${due2(d.getUTCMonth() + 1)}-${due2(d.getUTCDate())}`;
 
 // src/molecules/CampoData.jsx
-import { forwardRef as forwardRef5, useEffect as useEffect10, useId as useId7, useRef as useRef8, useState as useState12 } from "react";
+import { forwardRef as forwardRef5, useEffect as useEffect11, useId as useId7, useRef as useRef8, useState as useState12 } from "react";
 import { CalendarDays } from "lucide-react";
 
 // src/molecules/CalendarioMese.jsx
-import { useEffect as useEffect9, useRef as useRef7, useState as useState11 } from "react";
+import { useEffect as useEffect10, useRef as useRef7, useState as useState11 } from "react";
 import { ChevronLeft as ChevronLeft2, ChevronRight as ChevronRight3 } from "lucide-react";
 import { jsx as jsx35, jsxs as jsxs29 } from "react/jsx-runtime";
 var GIORNO2 = 864e5;
@@ -5411,7 +5440,7 @@ function CalendarioMese({
   const [mese2, setMese] = useState11(() => primoDelMese(daIso(value || oggi)));
   const griglia$ = useRef7(null);
   const daFocalizzare = useRef7(autoFocus);
-  useEffect9(() => {
+  useEffect10(() => {
     if (!daFocalizzare.current) return;
     daFocalizzare.current = false;
     griglia$.current?.querySelector(`[data-giorno="${fuoco}"]`)?.focus();
@@ -5511,11 +5540,11 @@ var CampoData = forwardRef5(function CampoData2({
   const errato = errore !== null;
   const nonValido = invalid || errato || ariaInvalid === true || ariaInvalid === "true";
   const descritto = [ariaDescribedBy, errore === "formato" ? erroreId : null].filter(Boolean).join(" ") || void 0;
-  useEffect10(() => {
+  useEffect11(() => {
     setTesto(formatDataIt(value));
     setErrore(null);
   }, [value]);
-  useEffect10(() => {
+  useEffect11(() => {
     if (!aperto) return void 0;
     const fuori = (e) => {
       if (!radice.current?.contains(e.target)) setAperto(false);
@@ -5617,7 +5646,13 @@ var CampoData_default = CampoData;
 // src/molecules/ChipFiltro.jsx
 import { X as X2 } from "lucide-react";
 import { jsx as jsx37, jsxs as jsxs31 } from "react/jsx-runtime";
-function ChipFiltro({ children, onRemove, className }) {
+function ChipFiltro({
+  children,
+  onRemove,
+  removeLabel,
+  className
+}) {
+  const etichettaRimuovi = removeLabel || (typeof children === "string" ? `Rimuovi filtro: ${children}` : "Rimuovi filtro");
   return /* @__PURE__ */ jsxs31(
     "span",
     {
@@ -5633,7 +5668,7 @@ function ChipFiltro({ children, onRemove, className }) {
           {
             type: "button",
             onClick: onRemove,
-            "aria-label": `Rimuovi filtro: ${typeof children === "string" ? children : ""}`.trim(),
+            "aria-label": etichettaRimuovi,
             className: "relative inline-flex h-5 w-5 items-center justify-center rounded-full transition-colors after:absolute after:-inset-3 after:content-[''] hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             children: /* @__PURE__ */ jsx37(X2, { className: "h-3 w-3", "aria-hidden": true })
           }
@@ -5868,7 +5903,7 @@ function PulsanteEsportaCsv({
 }
 
 // src/organisms/Dialog.jsx
-import { useEffect as useEffect11, useId as useId9, useRef as useRef9 } from "react";
+import { useEffect as useEffect12, useId as useId9, useRef as useRef9 } from "react";
 import { createPortal as createPortal2 } from "react-dom";
 import { X as X3 } from "lucide-react";
 import { jsx as jsx41, jsxs as jsxs34 } from "react/jsx-runtime";
@@ -5904,7 +5939,7 @@ function Dialog({
   const panelRef = useRef9(null);
   const onCloseRef = useRef9(onClose);
   onCloseRef.current = onClose;
-  useEffect11(() => {
+  useEffect12(() => {
     if (!open) return void 0;
     const opener = document.activeElement;
     const token = {};
@@ -6024,7 +6059,7 @@ function Dialog({
 }
 
 // src/organisms/ConfirmDialog.jsx
-import { useEffect as useEffect12, useRef as useRef10, useState as useState13 } from "react";
+import { useEffect as useEffect13, useRef as useRef10, useState as useState13 } from "react";
 import { Fragment as Fragment6, jsx as jsx42, jsxs as jsxs35 } from "react/jsx-runtime";
 function ConfirmDialog({
   open,
@@ -6042,7 +6077,7 @@ function ConfirmDialog({
   const [loading, setLoading] = useState13(false);
   const [errore, setErrore] = useState13(null);
   const [testo, setTesto] = useState13("");
-  useEffect12(() => {
+  useEffect13(() => {
     if (!open) {
       generazione.current += 1;
       inCorso.current = false;
@@ -6121,7 +6156,7 @@ import {
   createContext,
   useCallback as useCallback5,
   useContext,
-  useEffect as useEffect13,
+  useEffect as useEffect14,
   useMemo as useMemo3,
   useRef as useRef11,
   useState as useState14
@@ -6220,7 +6255,7 @@ function ToastProvider({ children }) {
     },
     [avviaTimer]
   );
-  useEffect13(() => {
+  useEffect14(() => {
     const attivi = timers.current;
     return () => {
       attivi.forEach((timer) => clearTimeout(timer.timer));
@@ -6273,7 +6308,7 @@ function useToast() {
 }
 
 // src/organisms/VediCome.jsx
-import { useEffect as useEffect14, useId as useId10, useRef as useRef12, useState as useState15 } from "react";
+import { useEffect as useEffect15, useId as useId10, useRef as useRef12, useState as useState15 } from "react";
 import { Check as Check3, ChevronDown as ChevronDown4, Eye, RotateCcw as RotateCcw2 } from "lucide-react";
 import { jsx as jsx44, jsxs as jsxs37 } from "react/jsx-runtime";
 function VediCome({
@@ -6289,7 +6324,7 @@ function VediCome({
   const [open, setOpen] = useState15(false);
   const boxRef = useRef12(null);
   const uid = useId10();
-  useEffect14(() => {
+  useEffect15(() => {
     if (!open) return void 0;
     const fuori = (e) => {
       if (boxRef.current && !boxRef.current.contains(e.target)) setOpen(false);
@@ -6422,7 +6457,7 @@ function VediCome({
 import {
   createContext as createContext2,
   useContext as useContext2,
-  useEffect as useEffect15,
+  useEffect as useEffect16,
   useId as useId11,
   useMemo as useMemo4,
   useRef as useRef13,
@@ -6437,7 +6472,7 @@ var NESSUNA_VOCE = [];
 var CompattaContext = createContext2(null);
 function useSidebarCompatta(attiva = true) {
   const richiedi = useContext2(CompattaContext);
-  useEffect15(() => {
+  useEffect16(() => {
     if (!attiva || !richiedi) return void 0;
     return richiedi();
   }, [attiva, richiedi]);
@@ -6493,7 +6528,7 @@ function AppShell({
     },
     []
   );
-  useEffect15(() => {
+  useEffect16(() => {
     if (richieste === 0) setRiaperta(false);
   }, [richieste]);
   const [apertaQui, setApertaQui] = useState16(false);
@@ -6503,7 +6538,7 @@ function AppShell({
   const [expanded, setExpanded] = useState16(
     () => new Set(activeGroupIds([...mainTree, ...adminTree], pathname))
   );
-  useEffect15(() => {
+  useEffect16(() => {
     if (!isOpen) return void 0;
     function chiudiConEsc(e) {
       if (e.key !== "Escape") return;
@@ -6516,7 +6551,7 @@ function AppShell({
   const mainRef = useRef13(null);
   const treesRef = useRef13(null);
   treesRef.current = [...mainTree, ...adminTree];
-  useEffect15(() => {
+  useEffect16(() => {
     const attivi = activeGroupIds(treesRef.current, pathname);
     if (attivi.length > 0)
       setExpanded(
@@ -6685,7 +6720,7 @@ import { useId as useId12, useState as useState18 } from "react";
 import { Eye as Eye2, EyeOff } from "lucide-react";
 
 // src/accesso/useAccessoMicrosoft.js
-import { useCallback as useCallback6, useEffect as useEffect16, useState as useState17 } from "react";
+import { useCallback as useCallback6, useEffect as useEffect17, useState as useState17 } from "react";
 var BASE_MICROSOFT = "/api/auth/microsoft";
 var MESSAGGI_ERRORE_MICROSOFT = {
   annullato: "Accesso con Microsoft annullato.",
@@ -6716,7 +6751,7 @@ function useAccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso } = {}) {
   const [disponibile, setDisponibile] = useState17(false);
   const [inCorso, setInCorso] = useState17(false);
   const [errore, setErrore] = useState17("");
-  useEffect16(() => {
+  useEffect17(() => {
     let attivo = true;
     const automatico = chiestoDaAltroPortale();
     const { biglietto, errore: codice } = leggiFrammento();

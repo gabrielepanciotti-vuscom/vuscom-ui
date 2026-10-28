@@ -55,6 +55,22 @@ test("icon button exposes its label", () => {
   expect(screen.getByRole("button", { name: "Aggiungi" })).toBeInTheDocument();
 });
 
+test("icon button avvisa una volta se non ha un nome accessibile", () => {
+  const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  const { rerender } = render(<IconButton icon={Plus} />);
+  rerender(<IconButton icon={Plus} />);
+  expect(warn).toHaveBeenCalledTimes(1);
+  expect(warn).toHaveBeenCalledWith(
+    "IconButton richiede label o aria-label per essere accessibile.",
+  );
+  warn.mockRestore();
+});
+
+test("icon button accetta aria-label senza avvisare", () => {
+  render(<IconButton icon={Plus} aria-label="Aggiungi" />);
+  expect(screen.getByRole("button", { name: "Aggiungi" })).toBeInTheDocument();
+});
+
 test("button, icon button and input reach 44 px on small screens", () => {
   render(
     <div>
