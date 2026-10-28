@@ -29,9 +29,10 @@ test("dark focus tokens and reduced motion support accessibility", () => {
   expect(dark).toMatch(/--input:\s*217\.2 32\.6% 45%/);
   expect(dark).toMatch(/--ring:\s*217 91% 60%/);
   expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)/);
-  expect(css).toMatch(/animation-duration:\s*0\.01ms/);
-  expect(css).toMatch(/transition-duration:\s*0\.01ms/);
-  expect(css).toMatch(/scroll-behavior:\s*auto/);
+  expect(css).toMatch(/animation-duration:\s*0\.01ms\s*!important/);
+  expect(css).toMatch(/animation-iteration-count:\s*1\s*!important/);
+  expect(css).toMatch(/transition-duration:\s*0\.01ms\s*!important/);
+  expect(css).toMatch(/scroll-behavior:\s*auto\s*!important/);
 });
 test("focus ring token is never made transparent", () => {
   const files = [
