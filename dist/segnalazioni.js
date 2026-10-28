@@ -2629,7 +2629,7 @@ var TONI = {
   },
   info: { Icona: Info, accent: "border-l-info", icon: TESTO.info }
 };
-function ToastItem({ t, onDismiss }) {
+function ToastItem({ t, onDismiss, onPause, onResume }) {
   const s = TONI[t.tone] ?? TONI.info;
   return /* @__PURE__ */ jsxs2(
     "div",
@@ -2638,6 +2638,12 @@ function ToastItem({ t, onDismiss }) {
         "pointer-events-auto flex w-[360px] max-w-[calc(100vw-2rem)] items-start gap-3 rounded-lg border border-l-4 border-border bg-card p-3 text-card-foreground shadow-lg animate-slide-in",
         s.accent
       ),
+      onMouseEnter: () => onPause(t.id),
+      onMouseLeave: () => onResume(t.id),
+      onFocus: () => onPause(t.id),
+      onBlur: (e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) onResume(t.id);
+      },
       children: [
         /* @__PURE__ */ jsx3(s.Icona, { className: cn("mt-0.5 h-5 w-5 shrink-0", s.icon), "aria-hidden": true }),
         /* @__PURE__ */ jsxs2("div", { className: "min-w-0 flex-1 text-sm", children: [
@@ -2664,27 +2670,42 @@ function ToastProvider({ children }) {
   const seq = useRef(0);
   const dismiss = useCallback((id) => {
     setToasts((l) => l.filter((t) => t.id !== id));
-    clearTimeout(timers.current.get(id));
+    clearTimeout(timers.current.get(id)?.timer);
     timers.current.delete(id);
   }, []);
+  const avviaTimer = useCallback(
+    (id) => {
+      const timer = timers.current.get(id);
+      if (!timer || timer.timer || timer.remaining <= 0) return;
+      timer.startedAt = Date.now();
+      timer.timer = setTimeout(() => dismiss(id), timer.remaining);
+    },
+    [dismiss]
+  );
+  const pausaTimer = useCallback((id) => {
+    const timer = timers.current.get(id);
+    if (!timer?.timer) return;
+    clearTimeout(timer.timer);
+    timer.remaining = Math.max(0, timer.remaining - (Date.now() - timer.startedAt));
+    timer.timer = null;
+  }, []);
   const toast = useCallback(
-    ({ title, description, tone = "success", duration = 4e3 }) => {
+    ({ title, description, tone = "success", duration }) => {
       const id = ++seq.current;
       setToasts((l) => [...l, { id, title, description, tone }]);
-      if (duration > 0) {
-        timers.current.set(
-          id,
-          setTimeout(() => dismiss(id), duration)
-        );
+      const durata = duration === void 0 ? tone === "danger" ? 0 : 4e3 : duration;
+      if (durata > 0) {
+        timers.current.set(id, { remaining: durata, timer: null, startedAt: 0 });
+        avviaTimer(id);
       }
       return id;
     },
-    [dismiss]
+    [avviaTimer]
   );
   useEffect(() => {
     const attivi = timers.current;
     return () => {
-      attivi.forEach(clearTimeout);
+      attivi.forEach((timer) => clearTimeout(timer.timer));
       attivi.clear();
     };
   }, []);
@@ -2694,7 +2715,16 @@ function ToastProvider({ children }) {
   return /* @__PURE__ */ jsxs2(ToastContext.Provider, { value, children: [
     children,
     /* @__PURE__ */ jsxs2("div", { className: "pointer-events-none fixed right-4 top-4 z-[60] flex flex-col", children: [
-      /* @__PURE__ */ jsx3("div", { "aria-live": "assertive", className: "flex flex-col gap-2", children: urgenti.map((t) => /* @__PURE__ */ jsx3(ToastItem, { t, onDismiss: dismiss }, t.id)) }),
+      /* @__PURE__ */ jsx3("div", { "aria-live": "assertive", className: "flex flex-col gap-2", children: urgenti.map((t) => /* @__PURE__ */ jsx3(
+        ToastItem,
+        {
+          t,
+          onDismiss: dismiss,
+          onPause: pausaTimer,
+          onResume: avviaTimer
+        },
+        t.id
+      )) }),
       /* @__PURE__ */ jsx3(
         "div",
         {
@@ -2703,7 +2733,16 @@ function ToastProvider({ children }) {
             "flex flex-col gap-2",
             urgenti.length > 0 && altri.length > 0 && "mt-2"
           ),
-          children: altri.map((t) => /* @__PURE__ */ jsx3(ToastItem, { t, onDismiss: dismiss }, t.id))
+          children: altri.map((t) => /* @__PURE__ */ jsx3(
+            ToastItem,
+            {
+              t,
+              onDismiss: dismiss,
+              onPause: pausaTimer,
+              onResume: avviaTimer
+            },
+            t.id
+          ))
         }
       )
     ] })
@@ -3338,9 +3377,12 @@ var SIZES = {
 };
 var FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 var pila = [];
+var blocchiScroll = 0;
+var overflowPrecedente = "";
 var focusables = (root) => Array.from(root.querySelectorAll(FOCUSABLE)).filter(
   (el) => !el.hasAttribute("hidden") && el.getAttribute("aria-hidden") !== "true"
 );
+var focusIn = (root) => root ? focusables(root)[0] : void 0;
 function Dialog({
   open,
   onClose,
@@ -3365,8 +3407,11 @@ function Dialog({
     const token = {};
     pila.push(token);
     const panel = panelRef.current;
-    const iniziale = panel.querySelector("[data-autofocus]") || focusables(panel)[0] || panel;
+    const iniziale = panel.querySelector("[data-autofocus]") || focusIn(panel.querySelector("[data-dialog-body]")) || focusIn(panel.querySelector("[data-dialog-footer]")) || panel.querySelector("[data-dialog-close]") || panel;
     iniziale.focus();
+    if (blocchiScroll === 0) overflowPrecedente = document.body.style.overflow;
+    blocchiScroll += 1;
+    document.body.style.overflow = "hidden";
     const onKey = (e) => {
       if (pila[pila.length - 1] !== token) return;
       if (e.key === "Escape") {
@@ -3401,6 +3446,8 @@ function Dialog({
       document.removeEventListener("keydown", onKey);
       const i = pila.indexOf(token);
       if (i !== -1) pila.splice(i, 1);
+      blocchiScroll -= 1;
+      if (blocchiScroll === 0) document.body.style.overflow = overflowPrecedente;
       if (opener && typeof opener.focus === "function") opener.focus();
     };
   }, [open]);
@@ -3425,7 +3472,7 @@ function Dialog({
           "aria-describedby": description ? descId : void 0,
           tabIndex: -1,
           className: cn(
-            "relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-xl bg-card text-card-foreground shadow-2xl ring-1 ring-black/5 animate-fade-in focus:outline-none dark:ring-white/10",
+            "relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-xl bg-card text-card-foreground shadow-2xl ring-1 ring-black/5 animate-fade-in focus:outline-none dark:ring-white/10",
             SIZES[size] ?? SIZES.sm,
             className
           ),
@@ -3451,12 +3498,20 @@ function Dialog({
                   size: "sm",
                   onClick: () => onClose?.(),
                   disabled: closeDisabled,
+                  "data-dialog-close": true,
                   className: "-mr-1 -mt-1 shrink-0"
                 }
               )
             ] }),
-            /* @__PURE__ */ jsx9("div", { className: "flex-1 overflow-y-auto px-6 py-5", children }),
-            footer && /* @__PURE__ */ jsx9("div", { className: "flex items-center justify-end gap-2 border-t border-border bg-muted/40 px-6 py-3", children: footer })
+            /* @__PURE__ */ jsx9("div", { "data-dialog-body": true, className: "flex-1 overflow-y-auto px-6 py-5", children }),
+            footer && /* @__PURE__ */ jsx9(
+              "div",
+              {
+                "data-dialog-footer": true,
+                className: "flex flex-wrap items-center justify-end gap-2 border-t border-border bg-muted/40 px-6 py-3",
+                children: footer
+              }
+            )
           ]
         }
       ) })

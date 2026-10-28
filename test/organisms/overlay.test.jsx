@@ -1,4 +1,4 @@
-import { render, screen, waitFor, act } from "@testing-library/react";
+import { render, screen, waitFor, act, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import {
@@ -46,6 +46,44 @@ test("dialog moves focus inside and traps Tab", async () => {
   expect(document.activeElement).not.toBe(due);
   await userEvent.tab({ shift: true });
   expect(dialog).toContainElement(document.activeElement);
+});
+
+test("dialog prioritizes autofocus, then body and footer controls", () => {
+  const { rerender } = render(
+    <Dialog open onClose={() => {}} title="T" footer={<button>Salva</button>}>
+      <button>Nel corpo</button>
+    </Dialog>,
+  );
+  expect(screen.getByRole("button", { name: "Nel corpo" })).toHaveFocus();
+
+  rerender(
+    <Dialog open={false} onClose={() => {}} title="T" footer={<button>Salva</button>}>
+      <button data-autofocus>Preferito</button>
+    </Dialog>,
+  );
+  rerender(
+    <Dialog open onClose={() => {}} title="T" footer={<button>Salva</button>}>
+      <button data-autofocus>Preferito</button>
+    </Dialog>,
+  );
+  expect(screen.getByRole("button", { name: "Preferito" })).toHaveFocus();
+});
+
+test("dialog blocks body scroll until the last stacked dialog closes", () => {
+  const { rerender } = render(
+    <Dialog open onClose={() => {}} title="Primo">x</Dialog>,
+  );
+  expect(document.body.style.overflow).toBe("hidden");
+  rerender(
+    <>
+      <Dialog open onClose={() => {}} title="Primo">x</Dialog>
+      <Dialog open onClose={() => {}} title="Secondo">x</Dialog>
+    </>,
+  );
+  rerender(<Dialog open onClose={() => {}} title="Secondo">x</Dialog>);
+  expect(document.body.style.overflow).toBe("hidden");
+  rerender(<Dialog open={false} onClose={() => {}} title="Secondo">x</Dialog>);
+  expect(document.body.style.overflow).toBe("");
 });
 
 test("dialog backdrop click closes unless disabled", async () => {
@@ -281,6 +319,36 @@ test("toast auto-dismisses after duration", () => {
       vi.advanceTimersByTime(1001);
     });
     expect(screen.queryByText("Ciao")).not.toBeInTheDocument();
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test("danger toast stays open by default and pauses its explicit timer on hover", () => {
+  vi.useFakeTimers();
+  try {
+    let api;
+    function Demo() {
+      api = useToast();
+      return null;
+    }
+    render(
+      <ToastProvider>
+        <Demo />
+      </ToastProvider>,
+    );
+    act(() => api.toast({ title: "Critico", tone: "danger" }));
+    act(() => vi.advanceTimersByTime(5000));
+    expect(screen.getByText("Critico")).toBeInTheDocument();
+
+    act(() => api.toast({ title: "In pausa", duration: 1000 }));
+    const toast = screen.getByText("In pausa").closest("div.pointer-events-auto");
+    fireEvent.mouseEnter(toast);
+    act(() => vi.advanceTimersByTime(1000));
+    expect(screen.getByText("In pausa")).toBeInTheDocument();
+    fireEvent.mouseLeave(toast);
+    act(() => vi.advanceTimersByTime(1001));
+    expect(screen.queryByText("In pausa")).not.toBeInTheDocument();
   } finally {
     vi.useRealTimers();
   }

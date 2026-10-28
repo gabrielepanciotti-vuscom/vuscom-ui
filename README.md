@@ -82,10 +82,10 @@ Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 | `useSort` | `useSort(rows, { initial, accessors })` — numeri e date per valore, stringhe con ordinamento numerico («9» prima di «10»), `null`/`NaN` sempre in fondo |
 | `Dialog` | `open`, `onClose`, `title`, `description`, `icon`, `size`, `footer`, `closeOnBackdrop`, `closeDisabled` |
 | `ConfirmDialog` | `open`, `onClose`, `onConfirm` (async), `title`, `confirmLabel`, `cancelLabel`, `tone` (`primary`/`danger`), `requireText` |
-| `ToastProvider`, `useToast` | `const { toast } = useToast(); toast({ title, description, tone, duration })` — annunciati dagli screen reader (`danger` in una regione `assertive`, gli altri `polite`) |
+| `ToastProvider`, `useToast` | `const { toast } = useToast(); toast({ title, description, tone, duration })` — annunciati dagli screen reader (`danger` in una regione `assertive`, gli altri `polite`). I toast `danger` restano aperti senza una `duration` esplicita; il timer si ferma durante hover o focus |
 | `VediCome` (dalla 1.14.0) | `viste` (`{key,label,descrizione}`; vuoto → non si vede), `attiva` (key o `null`), `onSeleziona(key \| null)`, `labelAttiva`, `nota`, `labelRipristino`, `titolo` — selettore «Vedi come» della top bar, da mettere in `topbarRight` di `AppShell`. Solo presentazione: cosa vuol dire cambiare vista lo decide il portale |
 | `Alert` | `tone` (`info` `success` `warning` `danger`), `title`, `onClose` |
-| `EmptyState` | `icon`, `title`, `description`, `action` |
+| `EmptyState` | `icon` (opzionale), `title`, `titleAs` (predefinito: `h3`), `description`, `action` |
 | `Skeleton`, `SkeletonText`, `SkeletonCard`, `SkeletonTable` | `lines` (SkeletonText) |
 
 ### Template

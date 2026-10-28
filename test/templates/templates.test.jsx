@@ -85,6 +85,9 @@ test("section renders title and actions", () => {
     screen.getByRole("heading", { level: 2, name: "Dettagli" }),
   ).toBeInTheDocument();
   expect(screen.getByText("corpo")).toBeInTheDocument();
+  const actions = screen.getByRole("button", { name: "Azione" }).parentElement;
+  expect(actions).toHaveClass("flex-wrap");
+  expect(actions.parentElement).toHaveClass("flex-wrap");
 });
 
 test("login submits credentials and shows error", async () => {

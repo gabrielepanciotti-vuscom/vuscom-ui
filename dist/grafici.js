@@ -2542,6 +2542,7 @@ import { jsx as jsx2, jsxs as jsxs2 } from "react/jsx-runtime";
 function EmptyState({
   icon: Icon,
   title,
+  titleAs: Title = "h3",
   description,
   action,
   className
@@ -2554,9 +2555,9 @@ function EmptyState({
         className
       ),
       children: [
-        /* @__PURE__ */ jsx2("span", { className: "flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground", children: /* @__PURE__ */ jsx2(Icon, { className: "h-6 w-6", "aria-hidden": true }) }),
+        Icon && /* @__PURE__ */ jsx2("span", { className: "flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground", children: /* @__PURE__ */ jsx2(Icon, { className: "h-6 w-6", "aria-hidden": true }) }),
         /* @__PURE__ */ jsxs2("div", { className: "space-y-1", children: [
-          /* @__PURE__ */ jsx2("p", { className: "text-base font-semibold", children: title }),
+          /* @__PURE__ */ jsx2(Title, { className: "text-base font-semibold", children: title }),
           description && /* @__PURE__ */ jsx2("p", { className: "max-w-sm text-sm text-muted-foreground", children: description })
         ] }),
         action && /* @__PURE__ */ jsx2("div", { className: "mt-1", children: action })
@@ -3131,12 +3132,12 @@ function Section({
   children
 }) {
   return /* @__PURE__ */ jsxs7("section", { className: cn("space-y-3", className), children: [
-    (title || description || actions) && /* @__PURE__ */ jsxs7("div", { className: "flex items-start justify-between gap-3", children: [
+    (title || description || actions) && /* @__PURE__ */ jsxs7("div", { className: "flex flex-wrap items-start justify-between gap-3", children: [
       /* @__PURE__ */ jsxs7("div", { className: "min-w-0", children: [
         title && /* @__PURE__ */ jsx8("h2", { className: "text-lg font-semibold", children: title }),
         description && /* @__PURE__ */ jsx8("p", { className: "text-sm text-muted-foreground", children: description })
       ] }),
-      actions && /* @__PURE__ */ jsx8("div", { className: "flex shrink-0 items-center gap-2", children: actions })
+      actions && /* @__PURE__ */ jsx8("div", { className: "flex flex-wrap items-center gap-2", children: actions })
     ] }),
     children
   ] });
@@ -4041,7 +4042,8 @@ function Skeleton({ className, ...props }) {
   );
 }
 function SkeletonTable({ rows = 5, cols = 4 }) {
-  return /* @__PURE__ */ jsxs20("div", { className: "space-y-3", role: "status", "aria-label": "Caricamento", children: [
+  return /* @__PURE__ */ jsxs20("div", { className: "space-y-3", role: "status", "aria-busy": "true", "aria-label": "Caricamento", children: [
+    /* @__PURE__ */ jsx22("span", { className: "sr-only", children: "Caricamento\u2026" }),
     /* @__PURE__ */ jsx22("div", { className: "flex gap-4", children: Array.from({ length: cols }, (_, c) => /* @__PURE__ */ jsx22(Skeleton, { className: "h-4 flex-1" }, c)) }),
     Array.from({ length: rows }, (_, r2) => /* @__PURE__ */ jsx22("div", { className: "flex gap-4", children: Array.from({ length: cols }, (_2, c) => /* @__PURE__ */ jsx22(Skeleton, { className: "h-6 flex-1" }, c)) }, r2))
   ] });

@@ -16,12 +16,16 @@ const FOCUSABLE =
 
 // Open dialogs, oldest first: only the topmost one handles Esc and Tab.
 const pila = [];
+let blocchiScroll = 0;
+let overflowPrecedente = "";
 
 const focusables = (root) =>
   Array.from(root.querySelectorAll(FOCUSABLE)).filter(
     (el) =>
       !el.hasAttribute("hidden") && el.getAttribute("aria-hidden") !== "true",
   );
+
+const focusIn = (root) => (root ? focusables(root)[0] : undefined);
 
 export default function Dialog({
   open,
@@ -50,8 +54,16 @@ export default function Dialog({
     pila.push(token);
     const panel = panelRef.current;
     const iniziale =
-      panel.querySelector("[data-autofocus]") || focusables(panel)[0] || panel;
+      panel.querySelector("[data-autofocus]") ||
+      focusIn(panel.querySelector("[data-dialog-body]")) ||
+      focusIn(panel.querySelector("[data-dialog-footer]")) ||
+      panel.querySelector("[data-dialog-close]") ||
+      panel;
     iniziale.focus();
+
+    if (blocchiScroll === 0) overflowPrecedente = document.body.style.overflow;
+    blocchiScroll += 1;
+    document.body.style.overflow = "hidden";
 
     const onKey = (e) => {
       if (pila[pila.length - 1] !== token) return;
@@ -88,6 +100,8 @@ export default function Dialog({
       document.removeEventListener("keydown", onKey);
       const i = pila.indexOf(token);
       if (i !== -1) pila.splice(i, 1);
+      blocchiScroll -= 1;
+      if (blocchiScroll === 0) document.body.style.overflow = overflowPrecedente;
       if (opener && typeof opener.focus === "function") opener.focus();
     };
   }, [open]);
@@ -110,7 +124,7 @@ export default function Dialog({
           aria-describedby={description ? descId : undefined}
           tabIndex={-1}
           className={cn(
-            "relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-xl bg-card text-card-foreground shadow-2xl ring-1 ring-black/5 animate-fade-in focus:outline-none dark:ring-white/10",
+            "relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-xl bg-card text-card-foreground shadow-2xl ring-1 ring-black/5 animate-fade-in focus:outline-none dark:ring-white/10",
             SIZES[size] ?? SIZES.sm,
             className,
           )}
@@ -140,12 +154,18 @@ export default function Dialog({
               size="sm"
               onClick={() => onClose?.()}
               disabled={closeDisabled}
+              data-dialog-close
               className="-mr-1 -mt-1 shrink-0"
             />
           </div>
-          <div className="flex-1 overflow-y-auto px-6 py-5">{children}</div>
+          <div data-dialog-body className="flex-1 overflow-y-auto px-6 py-5">
+            {children}
+          </div>
           {footer && (
-            <div className="flex items-center justify-end gap-2 border-t border-border bg-muted/40 px-6 py-3">
+            <div
+              data-dialog-footer
+              className="flex flex-wrap items-center justify-end gap-2 border-t border-border bg-muted/40 px-6 py-3"
+            >
               {footer}
             </div>
           )}

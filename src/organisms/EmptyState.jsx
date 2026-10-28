@@ -3,6 +3,7 @@ import { cn } from "../lib/cn.js";
 export default function EmptyState({
   icon: Icon,
   title,
+  titleAs: Title = "h3",
   description,
   action,
   className,
@@ -14,11 +15,13 @@ export default function EmptyState({
         className,
       )}
     >
-      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-        <Icon className="h-6 w-6" aria-hidden />
-      </span>
+      {Icon && (
+        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
+          <Icon className="h-6 w-6" aria-hidden />
+        </span>
+      )}
       <div className="space-y-1">
-        <p className="text-base font-semibold">{title}</p>
+        <Title className="text-base font-semibold">{title}</Title>
         {description && (
           <p className="max-w-sm text-sm text-muted-foreground">
             {description}

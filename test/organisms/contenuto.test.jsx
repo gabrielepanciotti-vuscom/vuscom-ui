@@ -47,8 +47,14 @@ test("empty state renders title and action", () => {
       action={<button>Carica</button>}
     />,
   );
-  expect(screen.getByText("Nessun lead")).toBeInTheDocument();
+  expect(screen.getByRole("heading", { level: 3, name: "Nessun lead" })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Carica" })).toBeInTheDocument();
+});
+
+test("empty state can omit its icon and choose the title level", () => {
+  const { container } = render(<EmptyState title="Vuoto" titleAs="h2" />);
+  expect(screen.getByRole("heading", { level: 2, name: "Vuoto" })).toBeInTheDocument();
+  expect(container.querySelector("svg")).not.toBeInTheDocument();
 });
 
 test("danger alert is role=alert and closable", async () => {
@@ -131,4 +137,8 @@ test("skeleton family renders", () => {
   expect(container.querySelectorAll(".animate-pulse").length).toBeGreaterThan(
     8,
   );
+  screen.getAllByRole("status").forEach((status) => {
+    expect(status).toHaveAttribute("aria-busy", "true");
+    expect(status).toHaveTextContent("Caricamento…");
+  });
 });

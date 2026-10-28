@@ -12,7 +12,8 @@ export function Skeleton({ className, ...props }) {
 
 export function SkeletonText({ lines = 3 }) {
   return (
-    <div className="space-y-2" role="status" aria-label="Caricamento">
+    <div className="space-y-2" role="status" aria-busy="true" aria-label="Caricamento">
+      <span className="sr-only">Caricamento…</span>
       {Array.from({ length: lines }, (_, i) => (
         <Skeleton
           key={i}
@@ -38,7 +39,8 @@ export function SkeletonCard() {
 
 export function SkeletonTable({ rows = 5, cols = 4 }) {
   return (
-    <div className="space-y-3" role="status" aria-label="Caricamento">
+    <div className="space-y-3" role="status" aria-busy="true" aria-label="Caricamento">
+      <span className="sr-only">Caricamento…</span>
       <div className="flex gap-4">
         {Array.from({ length: cols }, (_, c) => (
           <Skeleton key={c} className="h-4 flex-1" />

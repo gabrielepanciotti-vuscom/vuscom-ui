@@ -33,7 +33,7 @@ const TONI = {
   info: { Icona: Info, accent: "border-l-info", icon: TESTO.info },
 };
 
-function ToastItem({ t, onDismiss }) {
+function ToastItem({ t, onDismiss, onPause, onResume }) {
   const s = TONI[t.tone] ?? TONI.info;
   return (
     <div
@@ -41,6 +41,12 @@ function ToastItem({ t, onDismiss }) {
         "pointer-events-auto flex w-[360px] max-w-[calc(100vw-2rem)] items-start gap-3 rounded-lg border border-l-4 border-border bg-card p-3 text-card-foreground shadow-lg animate-slide-in",
         s.accent,
       )}
+      onMouseEnter={() => onPause(t.id)}
+      onMouseLeave={() => onResume(t.id)}
+      onFocus={() => onPause(t.id)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) onResume(t.id);
+      }}
     >
       <s.Icona className={cn("mt-0.5 h-5 w-5 shrink-0", s.icon)} aria-hidden />
       <div className="min-w-0 flex-1 text-sm">
@@ -67,30 +73,47 @@ export function ToastProvider({ children }) {
 
   const dismiss = useCallback((id) => {
     setToasts((l) => l.filter((t) => t.id !== id));
-    clearTimeout(timers.current.get(id));
+    clearTimeout(timers.current.get(id)?.timer);
     timers.current.delete(id);
   }, []);
 
+  const avviaTimer = useCallback(
+    (id) => {
+      const timer = timers.current.get(id);
+      if (!timer || timer.timer || timer.remaining <= 0) return;
+      timer.startedAt = Date.now();
+      timer.timer = setTimeout(() => dismiss(id), timer.remaining);
+    },
+    [dismiss],
+  );
+
+  const pausaTimer = useCallback((id) => {
+    const timer = timers.current.get(id);
+    if (!timer?.timer) return;
+    clearTimeout(timer.timer);
+    timer.remaining = Math.max(0, timer.remaining - (Date.now() - timer.startedAt));
+    timer.timer = null;
+  }, []);
+
   const toast = useCallback(
-    ({ title, description, tone = "success", duration = 4000 }) => {
+    ({ title, description, tone = "success", duration }) => {
       const id = ++seq.current;
       setToasts((l) => [...l, { id, title, description, tone }]);
-      if (duration > 0) {
-        timers.current.set(
-          id,
-          setTimeout(() => dismiss(id), duration),
-        );
+      const durata = duration === undefined ? (tone === "danger" ? 0 : 4000) : duration;
+      if (durata > 0) {
+        timers.current.set(id, { remaining: durata, timer: null, startedAt: 0 });
+        avviaTimer(id);
       }
       return id;
     },
-    [dismiss],
+    [avviaTimer],
   );
 
   // Pending timers must not fire (and set state) after the provider is gone.
   useEffect(() => {
     const attivi = timers.current;
     return () => {
-      attivi.forEach(clearTimeout);
+      attivi.forEach((timer) => clearTimeout(timer.timer));
       attivi.clear();
     };
   }, []);
@@ -106,7 +129,13 @@ export function ToastProvider({ children }) {
       <div className="pointer-events-none fixed right-4 top-4 z-[60] flex flex-col">
         <div aria-live="assertive" className="flex flex-col gap-2">
           {urgenti.map((t) => (
-            <ToastItem key={t.id} t={t} onDismiss={dismiss} />
+            <ToastItem
+              key={t.id}
+              t={t}
+              onDismiss={dismiss}
+              onPause={pausaTimer}
+              onResume={avviaTimer}
+            />
           ))}
         </div>
         {/* No container gap: two empty live regions would push the stack down. */}
@@ -118,7 +147,13 @@ export function ToastProvider({ children }) {
           )}
         >
           {altri.map((t) => (
-            <ToastItem key={t.id} t={t} onDismiss={dismiss} />
+            <ToastItem
+              key={t.id}
+              t={t}
+              onDismiss={dismiss}
+              onPause={pausaTimer}
+              onResume={avviaTimer}
+            />
           ))}
         </div>
       </div>
