@@ -2959,7 +2959,7 @@ function Sparkline({
 }
 
 // src/grafici/PaginaReportCampagna.jsx
-import { useMemo as useMemo2, useState as useState8 } from "react";
+import { useMemo as useMemo2, useState as useState9 } from "react";
 import { BarChart3 as BarChart32 } from "lucide-react";
 
 // src/organisms/Alert.jsx
@@ -3659,7 +3659,7 @@ function FiltriReport({
 }
 
 // src/molecules/Tabs.jsx
-import { useId as useId3, useRef as useRef5 } from "react";
+import { useId as useId3, useLayoutEffect, useRef as useRef5, useState as useState4 } from "react";
 import { jsx as jsx16, jsxs as jsxs15 } from "react/jsx-runtime";
 var tabId = (prefix, id) => prefix ? `${prefix}-tab-${id}` : `tab-${id}`;
 var panelId = (prefix, id) => prefix ? `${prefix}-panel-${id}` : `panel-${id}`;
@@ -3669,9 +3669,19 @@ function Tabs({
   items = [],
   "aria-label": ariaLabel,
   idPrefix,
+  controllaPannello,
   className
 }) {
   const refs = useRef5([]);
+  const listRef = useRef5(null);
+  const idAttivo = panelId(idPrefix, value);
+  const [pannelloPresente, setPannelloPresente] = useState4(false);
+  useLayoutEffect(() => {
+    if (controllaPannello !== void 0) return;
+    const doc = listRef.current?.ownerDocument;
+    setPannelloPresente(Boolean(doc?.getElementById(idAttivo)));
+  });
+  const collega = controllaPannello ?? pannelloPresente;
   const vai = (i) => {
     const n = (i + items.length) % items.length;
     onChange?.(items[n].id);
@@ -3680,6 +3690,7 @@ function Tabs({
   return /* @__PURE__ */ jsx16(
     "div",
     {
+      ref: listRef,
       role: "tablist",
       "aria-label": ariaLabel,
       className: cn(
@@ -3699,7 +3710,7 @@ function Tabs({
             role: "tab",
             id: tabId(idPrefix, t.id),
             "aria-selected": attiva,
-            "aria-controls": attiva ? panelId(idPrefix, t.id) : void 0,
+            "aria-controls": attiva && collega ? idAttivo : void 0,
             tabIndex: attiva ? 0 : -1,
             onClick: () => onChange?.(t.id),
             onKeyDown: (e) => {
@@ -3990,11 +4001,11 @@ function Toggle({
 }
 
 // src/organisms/DataTable.jsx
-import { useEffect as useEffect7, useState as useState6 } from "react";
+import { useEffect as useEffect7, useState as useState7 } from "react";
 import { ChevronDown, ChevronUp, ChevronsUpDown, Inbox } from "lucide-react";
 
 // src/molecules/TopScrollX.jsx
-import { useEffect as useEffect6, useRef as useRef6, useState as useState4 } from "react";
+import { useEffect as useEffect6, useRef as useRef6, useState as useState5 } from "react";
 import { Fragment, jsx as jsx21, jsxs as jsxs19 } from "react/jsx-runtime";
 function TopScrollX({
   children,
@@ -4004,8 +4015,8 @@ function TopScrollX({
   const topRef = useRef6(null);
   const bodyRef = useRef6(null);
   const syncing = useRef6(false);
-  const [scrollWidth, setScrollWidth] = useState4(0);
-  const [overflow, setOverflow] = useState4(false);
+  const [scrollWidth, setScrollWidth] = useState5(0);
+  const [overflow, setOverflow] = useState5(false);
   useEffect6(() => {
     const body = bodyRef.current;
     if (!body) return void 0;
@@ -4144,7 +4155,7 @@ function Pagination({
 }
 
 // src/organisms/useSort.js
-import { useCallback as useCallback2, useMemo, useState as useState5 } from "react";
+import { useCallback as useCallback2, useMemo, useState as useState6 } from "react";
 function normalizza(v) {
   const x = v instanceof Date ? v.valueOf() : v;
   return typeof x === "number" && Number.isNaN(x) ? null : x;
@@ -4158,7 +4169,7 @@ function compare(a, b) {
   });
 }
 function useSort(rows, { initial = null, accessors = {} } = {}) {
-  const [sort, setSort] = useState5(initial);
+  const [sort, setSort] = useState6(initial);
   const toggle = useCallback2((key) => {
     setSort(
       (prev) => prev && prev.key === key ? { key, dir: prev.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }
@@ -4303,7 +4314,7 @@ function DataTable({
     initial: initialSort,
     accessors
   });
-  const [pagina, setPagina] = useState6(1);
+  const [pagina, setPagina] = useState7(1);
   useEffect7(() => setPagina(1), [sort, rows.length]);
   const visibili = pageSize ? sorted.slice((pagina - 1) * pageSize, pagina * pageSize) : sorted;
   const pad = dense ? "px-3 py-1.5" : "px-3 py-2.5";
@@ -4698,7 +4709,7 @@ import {
   useEffect as useEffect8,
   useId as useId5,
   useRef as useRef7,
-  useState as useState7
+  useState as useState8
 } from "react";
 import { jsx as jsx28, jsxs as jsxs26 } from "react/jsx-runtime";
 var DELAY_MS = 150;
@@ -4715,7 +4726,7 @@ function Tooltip2({
   children
 }) {
   const id = useId5();
-  const [open, setOpen] = useState7(false);
+  const [open, setOpen] = useState8(false);
   const timer = useRef7(null);
   const child = Children.only(children);
   const show = useCallback3(() => {
@@ -4860,6 +4871,8 @@ function intensita(valore2, massimo) {
   if (!(massimo > 0) || !(valore2 > 0)) return 0;
   return Math.sqrt(Math.min(valore2 / massimo, 1));
 }
+var SOGLIA_TESTO_CHIARO = 0.65;
+var coloreTesto = (alfa) => alfa >= SOGLIA_TESTO_CHIARO ? "text-primary-foreground" : "text-foreground";
 function Cella({ valore: valore2, massimo, format, nd }) {
   const mancante = nd !== void 0 && (valore2 === null || valore2 === void 0);
   const t = mancante ? 0 : intensita(valore2, massimo);
@@ -4869,7 +4882,7 @@ function Cella({ valore: valore2, massimo, format, nd }) {
     {
       className: cn(
         "px-3 py-2 text-right tabular-nums transition-colors",
-        alfa > 0.55 ? "text-primary-foreground" : "text-foreground"
+        coloreTesto(alfa)
       ),
       style: alfa ? { backgroundColor: `hsl(var(--primary) / ${alfa.toFixed(3)})` } : void 0,
       "data-intensita": t.toFixed(3),
@@ -5051,12 +5064,12 @@ function PaginaReportCampagna({
   oggi
 }) {
   const elenco = useMemo2(() => normalizzaCampagne(campagne), [campagne]);
-  const [sceltaInterna, setSceltaInterna] = useState8(null);
+  const [sceltaInterna, setSceltaInterna] = useState9(null);
   const campagna = campagnaControllata ?? sceltaInterna ?? elenco[0]?.id ?? null;
   const scegli = (id) => onCampagnaChange ? onCampagnaChange(id) : setSceltaInterna(id);
   const nome = elenco.find((c) => c.id === campagna)?.label ?? "Report campagna";
-  const [filtri, setFiltri] = useState8({ ...FILTRI_VUOTI, ...filtriIniziali });
-  const [soloMensili, setSoloMensili] = useState8(null);
+  const [filtri, setFiltri] = useState9({ ...FILTRI_VUOTI, ...filtriIniziali });
+  const [soloMensili, setSoloMensili] = useState9(null);
   const giorni = useMemo2(
     () => unisciPerGiorno(
       righe.filter(

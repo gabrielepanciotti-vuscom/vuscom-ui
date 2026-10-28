@@ -28,6 +28,15 @@ export function intensita(valore, massimo) {
   return Math.sqrt(Math.min(valore / massimo, 1));
 }
 
+/**
+ * Text colour readable on a cell: below SOGLIA_TESTO_CHIARO of background
+ * alpha the primary tint is still light, so the text stays dark; above it the
+ * background is dark enough for light text. Deterministic, alpha in 0..1.
+ */
+export const SOGLIA_TESTO_CHIARO = 0.65;
+export const coloreTesto = (alfa) =>
+  alfa >= SOGLIA_TESTO_CHIARO ? "text-primary-foreground" : "text-foreground";
+
 function Cella({ valore, massimo, format, nd }) {
   const mancante = nd !== undefined && (valore === null || valore === undefined);
   const t = mancante ? 0 : intensita(valore, massimo);
@@ -36,7 +45,7 @@ function Cella({ valore, massimo, format, nd }) {
     <td
       className={cn(
         "px-3 py-2 text-right tabular-nums transition-colors",
-        alfa > 0.55 ? "text-primary-foreground" : "text-foreground",
+        coloreTesto(alfa),
       )}
       style={
         alfa

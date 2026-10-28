@@ -295,7 +295,7 @@ export default function AppSidebar({
               {appName}
             </div>
             {appSubtitle && (
-              <div className="text-slate-400 dark:text-slate-500 text-[10px] tracking-wide truncate">
+              <div className="text-slate-500 dark:text-slate-400 text-[11px] tracking-wide truncate">
                 {appSubtitle}
               </div>
             )}
@@ -395,7 +395,7 @@ export default function AppSidebar({
                   <div className="text-slate-900 dark:text-slate-200 text-xs font-medium truncate">
                     {user?.username}
                   </div>
-                  <div className="text-slate-400 dark:text-slate-500 text-[10px]">
+                  <div className="text-slate-500 dark:text-slate-400 text-[11px]">
                     {user?.ruolo}
                   </div>
                 </div>

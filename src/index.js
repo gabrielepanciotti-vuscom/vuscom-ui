@@ -18,7 +18,7 @@ export { default as Field } from "./molecules/Field.jsx";
 export { default as Select } from "./molecules/Select.jsx";
 export { default as Toggle } from "./molecules/Toggle.jsx";
 export { default as Checkbox } from "./molecules/Checkbox.jsx";
-export { default as Tabs, useTabIds } from "./molecules/Tabs.jsx";
+export { default as Tabs, useTabIds, tabPanelId } from "./molecules/Tabs.jsx";
 export { default as SegmentedControl } from "./molecules/SegmentedControl.jsx";
 export { default as Tooltip } from "./molecules/Tooltip.jsx";
 export { default as InfoTip } from "./molecules/InfoTip.jsx";
@@ -42,7 +42,7 @@ export { default as Alert } from "./organisms/Alert.jsx";
 export { default as Pagination } from "./organisms/Pagination.jsx";
 export { default as DataTable } from "./organisms/DataTable.jsx";
 export { default as BarraInline } from "./organisms/BarraInline.jsx";
-export { default as MatriceCalore, intensita } from "./organisms/MatriceCalore.jsx";
+export { default as MatriceCalore, intensita, coloreTesto, SOGLIA_TESTO_CHIARO } from "./organisms/MatriceCalore.jsx";
 export {
   default as BarraFiltriPeriodo,
   GRANULARITA_REPORT,

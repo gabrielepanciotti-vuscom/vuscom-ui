@@ -1,4 +1,4 @@
-import { useId, useRef } from "react";
+import { useId, useLayoutEffect, useRef, useState } from "react";
 import { cn } from "../lib/cn.js";
 
 const tabId = (prefix, id) => (prefix ? `${prefix}-tab-${id}` : `tab-${id}`);
@@ -21,18 +21,35 @@ export function useTabIds() {
   };
 }
 
+/** Id of the panel of a tab, matching what Tabs puts in aria-controls. */
+export const tabPanelId = (id, idPrefix) => panelId(idPrefix, id);
+
 // Underline tabs. The caller renders each panel with role="tabpanel"
 // id="panel-<id>" aria-labelledby="tab-<id>" (legacy, page-global ids), or
 // passes `idPrefix` from useTabIds() and uses its `panel`/`tab` helpers.
+// aria-controls must point at an element that exists: with
+// `controllaPannello` unset it is set only when the panel is in the page.
 export default function Tabs({
   value,
   onChange,
   items = [],
   "aria-label": ariaLabel,
   idPrefix,
+  controllaPannello,
   className,
 }) {
   const refs = useRef([]);
+  const listRef = useRef(null);
+  const idAttivo = panelId(idPrefix, value);
+  const [pannelloPresente, setPannelloPresente] = useState(false);
+  // No deps on purpose: the panel can mount after the tab bar; setState with
+  // an unchanged value is a no-op, so this does not loop.
+  useLayoutEffect(() => {
+    if (controllaPannello !== undefined) return;
+    const doc = listRef.current?.ownerDocument;
+    setPannelloPresente(Boolean(doc?.getElementById(idAttivo)));
+  });
+  const collega = controllaPannello ?? pannelloPresente;
   const vai = (i) => {
     const n = (i + items.length) % items.length;
     onChange?.(items[n].id);
@@ -40,6 +57,7 @@ export default function Tabs({
   };
   return (
     <div
+      ref={listRef}
       role="tablist"
       aria-label={ariaLabel}
       className={cn(
@@ -60,7 +78,7 @@ export default function Tabs({
             role="tab"
             id={tabId(idPrefix, t.id)}
             aria-selected={attiva}
-            aria-controls={attiva ? panelId(idPrefix, t.id) : undefined}
+            aria-controls={attiva && collega ? idAttivo : undefined}
             tabIndex={attiva ? 0 : -1}
             onClick={() => onChange?.(t.id)}
             onKeyDown={(e) => {

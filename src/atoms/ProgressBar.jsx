@@ -9,6 +9,7 @@ export default function ProgressBar({
   showValue = false,
   className,
   "aria-label": ariaLabel,
+  labelledBy,
 }) {
   const tetto = max > 0 ? max : 0;
   const now = tetto > 0 ? Math.min(Math.max(Number(value) || 0, 0), tetto) : 0;
@@ -28,7 +29,14 @@ export default function ProgressBar({
       )}
       <div
         role="progressbar"
-        aria-label={ariaLabel ?? label}
+        // A progressbar always needs a name: explicit aria-label, then the
+        // element referenced by labelledBy, then the visible label, then a
+        // generic default.
+        aria-label={
+          ariaLabel ?? (labelledBy ? undefined : label || "Avanzamento")
+        }
+        aria-labelledby={ariaLabel ? undefined : labelledBy}
+        aria-valuetext={testo}
         aria-valuenow={now}
         aria-valuemin={0}
         aria-valuemax={tetto}

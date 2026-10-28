@@ -578,7 +578,7 @@ function AppSidebar({
               /* @__PURE__ */ jsx5("div", { className: "flex-shrink-0", children: appIcon ?? /* @__PURE__ */ jsx5(LogoV, { portale: iconaPortale }) }),
               !isCollapsed && /* @__PURE__ */ jsxs4("div", { className: "flex-1 min-w-0", children: [
                 /* @__PURE__ */ jsx5("div", { className: "text-slate-900 dark:text-slate-100 text-[13px] font-bold leading-tight truncate", children: appName }),
-                appSubtitle && /* @__PURE__ */ jsx5("div", { className: "text-slate-400 dark:text-slate-500 text-[10px] tracking-wide truncate", children: appSubtitle })
+                appSubtitle && /* @__PURE__ */ jsx5("div", { className: "text-slate-500 dark:text-slate-400 text-[11px] tracking-wide truncate", children: appSubtitle })
               ] }),
               /* @__PURE__ */ jsx5(PulsanteGuida, { guida, compressa: isCollapsed }),
               showCollapseButton && onToggleCollapse && /* @__PURE__ */ jsx5(
@@ -650,7 +650,7 @@ function AppSidebar({
                       !isCollapsed && /* @__PURE__ */ jsxs4(Fragment2, { children: [
                         /* @__PURE__ */ jsxs4("div", { className: "flex-1 min-w-0 text-left", children: [
                           /* @__PURE__ */ jsx5("div", { className: "text-slate-900 dark:text-slate-200 text-xs font-medium truncate", children: user?.username }),
-                          /* @__PURE__ */ jsx5("div", { className: "text-slate-400 dark:text-slate-500 text-[10px]", children: user?.ruolo })
+                          /* @__PURE__ */ jsx5("div", { className: "text-slate-500 dark:text-slate-400 text-[11px]", children: user?.ruolo })
                         ] }),
                         /* @__PURE__ */ jsx5("div", { className: "w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0" })
                       ] })
@@ -3679,7 +3679,8 @@ function ProgressBar({
   label,
   showValue = false,
   className,
-  "aria-label": ariaLabel
+  "aria-label": ariaLabel,
+  labelledBy
 }) {
   const tetto = max > 0 ? max : 0;
   const now = tetto > 0 ? Math.min(Math.max(Number(value) || 0, 0), tetto) : 0;
@@ -3695,7 +3696,9 @@ function ProgressBar({
       "div",
       {
         role: "progressbar",
-        "aria-label": ariaLabel ?? label,
+        "aria-label": ariaLabel ?? (labelledBy ? void 0 : label || "Avanzamento"),
+        "aria-labelledby": ariaLabel ? void 0 : labelledBy,
+        "aria-valuetext": testo,
         "aria-valuenow": now,
         "aria-valuemin": 0,
         "aria-valuemax": tetto,
@@ -4158,7 +4161,7 @@ function Checkbox({
 }
 
 // src/molecules/Tabs.jsx
-import { useId as useId5, useRef as useRef3 } from "react";
+import { useId as useId5, useLayoutEffect as useLayoutEffect2, useRef as useRef3, useState as useState7 } from "react";
 import { jsx as jsx20, jsxs as jsxs15 } from "react/jsx-runtime";
 var tabId = (prefix, id) => prefix ? `${prefix}-tab-${id}` : `tab-${id}`;
 var panelId = (prefix, id) => prefix ? `${prefix}-panel-${id}` : `panel-${id}`;
@@ -4170,15 +4173,26 @@ function useTabIds() {
     panel: (id) => panelId(prefix, id)
   };
 }
+var tabPanelId = (id, idPrefix) => panelId(idPrefix, id);
 function Tabs({
   value,
   onChange,
   items = [],
   "aria-label": ariaLabel,
   idPrefix,
+  controllaPannello,
   className
 }) {
   const refs = useRef3([]);
+  const listRef = useRef3(null);
+  const idAttivo = panelId(idPrefix, value);
+  const [pannelloPresente, setPannelloPresente] = useState7(false);
+  useLayoutEffect2(() => {
+    if (controllaPannello !== void 0) return;
+    const doc = listRef.current?.ownerDocument;
+    setPannelloPresente(Boolean(doc?.getElementById(idAttivo)));
+  });
+  const collega = controllaPannello ?? pannelloPresente;
   const vai = (i) => {
     const n = (i + items.length) % items.length;
     onChange?.(items[n].id);
@@ -4187,6 +4201,7 @@ function Tabs({
   return /* @__PURE__ */ jsx20(
     "div",
     {
+      ref: listRef,
       role: "tablist",
       "aria-label": ariaLabel,
       className: cn(
@@ -4206,7 +4221,7 @@ function Tabs({
             role: "tab",
             id: tabId(idPrefix, t.id),
             "aria-selected": attiva,
-            "aria-controls": attiva ? panelId(idPrefix, t.id) : void 0,
+            "aria-controls": attiva && collega ? idAttivo : void 0,
             tabIndex: attiva ? 0 : -1,
             onClick: () => onChange?.(t.id),
             onKeyDown: (e) => {
@@ -4324,7 +4339,7 @@ import {
   useEffect as useEffect7,
   useId as useId6,
   useRef as useRef5,
-  useState as useState7
+  useState as useState8
 } from "react";
 import { jsx as jsx22, jsxs as jsxs17 } from "react/jsx-runtime";
 var DELAY_MS = 150;
@@ -4341,7 +4356,7 @@ function Tooltip({
   children
 }) {
   const id = useId6();
-  const [open, setOpen] = useState7(false);
+  const [open, setOpen] = useState8(false);
   const timer = useRef5(null);
   const child = Children2.only(children);
   const show = useCallback3(() => {
@@ -4757,11 +4772,11 @@ function Pagination({
 }
 
 // src/organisms/DataTable.jsx
-import { useEffect as useEffect9, useState as useState10 } from "react";
+import { useEffect as useEffect9, useState as useState11 } from "react";
 import { ChevronDown as ChevronDown3, ChevronUp, ChevronsUpDown, Inbox } from "lucide-react";
 
 // src/molecules/TopScrollX.jsx
-import { useEffect as useEffect8, useRef as useRef6, useState as useState8 } from "react";
+import { useEffect as useEffect8, useRef as useRef6, useState as useState9 } from "react";
 import { Fragment as Fragment3, jsx as jsx30, jsxs as jsxs24 } from "react/jsx-runtime";
 function TopScrollX({
   children,
@@ -4771,8 +4786,8 @@ function TopScrollX({
   const topRef = useRef6(null);
   const bodyRef = useRef6(null);
   const syncing = useRef6(false);
-  const [scrollWidth, setScrollWidth] = useState8(0);
-  const [overflow, setOverflow] = useState8(false);
+  const [scrollWidth, setScrollWidth] = useState9(0);
+  const [overflow, setOverflow] = useState9(false);
   useEffect8(() => {
     const body = bodyRef.current;
     if (!body) return void 0;
@@ -4828,7 +4843,7 @@ function TopScrollX({
 }
 
 // src/organisms/useSort.js
-import { useCallback as useCallback4, useMemo as useMemo2, useState as useState9 } from "react";
+import { useCallback as useCallback4, useMemo as useMemo2, useState as useState10 } from "react";
 function normalizza(v) {
   const x = v instanceof Date ? v.valueOf() : v;
   return typeof x === "number" && Number.isNaN(x) ? null : x;
@@ -4842,7 +4857,7 @@ function compare(a, b) {
   });
 }
 function useSort(rows, { initial = null, accessors = {} } = {}) {
-  const [sort, setSort] = useState9(initial);
+  const [sort, setSort] = useState10(initial);
   const toggle = useCallback4((key) => {
     setSort(
       (prev) => prev && prev.key === key ? { key, dir: prev.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }
@@ -4987,7 +5002,7 @@ function DataTable({
     initial: initialSort,
     accessors
   });
-  const [pagina, setPagina] = useState10(1);
+  const [pagina, setPagina] = useState11(1);
   useEffect9(() => setPagina(1), [sort, rows.length]);
   const visibili = pageSize ? sorted.slice((pagina - 1) * pageSize, pagina * pageSize) : sorted;
   const pad = dense ? "px-3 py-1.5" : "px-3 py-2.5";
@@ -5231,6 +5246,8 @@ function intensita(valore2, massimo) {
   if (!(massimo > 0) || !(valore2 > 0)) return 0;
   return Math.sqrt(Math.min(valore2 / massimo, 1));
 }
+var SOGLIA_TESTO_CHIARO = 0.65;
+var coloreTesto = (alfa) => alfa >= SOGLIA_TESTO_CHIARO ? "text-primary-foreground" : "text-foreground";
 function Cella({ valore: valore2, massimo, format, nd }) {
   const mancante = nd !== void 0 && (valore2 === null || valore2 === void 0);
   const t = mancante ? 0 : intensita(valore2, massimo);
@@ -5240,7 +5257,7 @@ function Cella({ valore: valore2, massimo, format, nd }) {
     {
       className: cn(
         "px-3 py-2 text-right tabular-nums transition-colors",
-        alfa > 0.55 ? "text-primary-foreground" : "text-foreground"
+        coloreTesto(alfa)
       ),
       style: alfa ? { backgroundColor: `hsl(var(--primary) / ${alfa.toFixed(3)})` } : void 0,
       "data-intensita": t.toFixed(3),
@@ -5402,11 +5419,11 @@ function formatDataIt(iso) {
 var isoGiorno = (d) => `${d.getUTCFullYear()}-${due2(d.getUTCMonth() + 1)}-${due2(d.getUTCDate())}`;
 
 // src/molecules/CampoData.jsx
-import { forwardRef as forwardRef5, useEffect as useEffect11, useId as useId7, useRef as useRef8, useState as useState12 } from "react";
+import { forwardRef as forwardRef5, useEffect as useEffect11, useId as useId7, useRef as useRef8, useState as useState13 } from "react";
 import { CalendarDays } from "lucide-react";
 
 // src/molecules/CalendarioMese.jsx
-import { useEffect as useEffect10, useRef as useRef7, useState as useState11 } from "react";
+import { useEffect as useEffect10, useRef as useRef7, useState as useState12 } from "react";
 import { ChevronLeft as ChevronLeft2, ChevronRight as ChevronRight3 } from "lucide-react";
 import { jsx as jsx35, jsxs as jsxs29 } from "react/jsx-runtime";
 var GIORNO2 = 864e5;
@@ -5436,8 +5453,8 @@ function CalendarioMese({
   autoFocus = false,
   className
 }) {
-  const [fuoco, setFuoco] = useState11(value || oggi);
-  const [mese2, setMese] = useState11(() => primoDelMese(daIso(value || oggi)));
+  const [fuoco, setFuoco] = useState12(value || oggi);
+  const [mese2, setMese] = useState12(() => primoDelMese(daIso(value || oggi)));
   const griglia$ = useRef7(null);
   const daFocalizzare = useRef7(autoFocus);
   useEffect10(() => {
@@ -5531,9 +5548,9 @@ var CampoData = forwardRef5(function CampoData2({
   onKeyDown: onKeyDownProp,
   ...rest
 }, ref) {
-  const [testo, setTesto] = useState12(formatDataIt(value));
-  const [errore, setErrore] = useState12(null);
-  const [aperto, setAperto] = useState12(false);
+  const [testo, setTesto] = useState13(formatDataIt(value));
+  const [errore, setErrore] = useState13(null);
+  const [aperto, setAperto] = useState13(false);
   const radice = useRef8(null);
   const pannello = useId7();
   const erroreId = useId7();
@@ -6059,7 +6076,7 @@ function Dialog({
 }
 
 // src/organisms/ConfirmDialog.jsx
-import { useEffect as useEffect13, useRef as useRef10, useState as useState13 } from "react";
+import { useEffect as useEffect13, useRef as useRef10, useState as useState14 } from "react";
 import { Fragment as Fragment6, jsx as jsx42, jsxs as jsxs35 } from "react/jsx-runtime";
 function ConfirmDialog({
   open,
@@ -6074,9 +6091,9 @@ function ConfirmDialog({
 }) {
   const inCorso = useRef10(false);
   const generazione = useRef10(0);
-  const [loading, setLoading] = useState13(false);
-  const [errore, setErrore] = useState13(null);
-  const [testo, setTesto] = useState13("");
+  const [loading, setLoading] = useState14(false);
+  const [errore, setErrore] = useState14(null);
+  const [testo, setTesto] = useState14("");
   useEffect13(() => {
     if (!open) {
       generazione.current += 1;
@@ -6159,7 +6176,7 @@ import {
   useEffect as useEffect14,
   useMemo as useMemo3,
   useRef as useRef11,
-  useState as useState14
+  useState as useState15
 } from "react";
 import { AlertTriangle as AlertTriangle2, CheckCircle2 as CheckCircle22, Info as Info2, X as X4, XCircle as XCircle2 } from "lucide-react";
 import { jsx as jsx43, jsxs as jsxs36 } from "react/jsx-runtime";
@@ -6218,7 +6235,7 @@ function ToastItem({ t, onDismiss, onPause, onResume }) {
   );
 }
 function ToastProvider({ children }) {
-  const [toasts, setToasts] = useState14([]);
+  const [toasts, setToasts] = useState15([]);
   const timers = useRef11(/* @__PURE__ */ new Map());
   const seq = useRef11(0);
   const dismiss = useCallback5((id) => {
@@ -6308,7 +6325,7 @@ function useToast() {
 }
 
 // src/organisms/VediCome.jsx
-import { useEffect as useEffect15, useId as useId10, useRef as useRef12, useState as useState15 } from "react";
+import { useEffect as useEffect15, useId as useId10, useRef as useRef12, useState as useState16 } from "react";
 import { Check as Check3, ChevronDown as ChevronDown4, Eye, RotateCcw as RotateCcw2 } from "lucide-react";
 import { jsx as jsx44, jsxs as jsxs37 } from "react/jsx-runtime";
 function VediCome({
@@ -6321,7 +6338,7 @@ function VediCome({
   titolo: titolo2 = "Vedi l'app come",
   className
 }) {
-  const [open, setOpen] = useState15(false);
+  const [open, setOpen] = useState16(false);
   const boxRef = useRef12(null);
   const uid = useId10();
   useEffect15(() => {
@@ -6461,7 +6478,7 @@ import {
   useId as useId11,
   useMemo as useMemo4,
   useRef as useRef13,
-  useState as useState16
+  useState as useState17
 } from "react";
 import { useLocation as useLocation2 } from "react-router-dom";
 import { Menu } from "lucide-react";
@@ -6517,9 +6534,9 @@ function AppShell({
   useFaviconVuscom(sidebar.iconaPortale);
   const mainTree = useMemo4(() => normalizeNavTree(nav), [nav]);
   const adminTree = useMemo4(() => normalizeNavTree(adminNav), [adminNav]);
-  const [collapsed, setCollapsed] = useState16(readCollapsed2);
-  const [richieste, setRichieste] = useState16(0);
-  const [compattaQui, setCompattaQui] = useState16(null);
+  const [collapsed, setCollapsed] = useState17(readCollapsed2);
+  const [richieste, setRichieste] = useState17(0);
+  const [compattaQui, setCompattaQui] = useState17(null);
   const forzata = richieste > 0;
   const richiediCompatta = useMemo4(
     () => () => {
@@ -6531,11 +6548,11 @@ function AppShell({
   useEffect16(() => {
     if (richieste === 0) setCompattaQui(null);
   }, [richieste]);
-  const [apertaQui, setApertaQui] = useState16(false);
-  const [isOpen, setIsOpen] = useState16(false);
+  const [apertaQui, setApertaQui] = useState17(false);
+  const [isOpen, setIsOpen] = useState17(false);
   const idPannelloMobile = useId11();
   const burgerRef = useRef13(null);
-  const [expanded, setExpanded] = useState16(
+  const [expanded, setExpanded] = useState17(
     () => new Set(activeGroupIds([...mainTree, ...adminTree], pathname))
   );
   useEffect16(() => {
@@ -6716,11 +6733,11 @@ function Section({
 }
 
 // src/templates/LoginPage.jsx
-import { useId as useId12, useState as useState18 } from "react";
+import { useId as useId12, useState as useState19 } from "react";
 import { Eye as Eye2, EyeOff } from "lucide-react";
 
 // src/accesso/useAccessoMicrosoft.js
-import { useCallback as useCallback6, useEffect as useEffect17, useState as useState17 } from "react";
+import { useCallback as useCallback6, useEffect as useEffect17, useState as useState18 } from "react";
 var BASE_MICROSOFT = "/api/auth/microsoft";
 var MESSAGGI_ERRORE_MICROSOFT = {
   annullato: "Accesso con Microsoft annullato.",
@@ -6748,9 +6765,9 @@ function chiestoDaAltroPortale() {
   return true;
 }
 function useAccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso } = {}) {
-  const [disponibile, setDisponibile] = useState17(false);
-  const [inCorso, setInCorso] = useState17(false);
-  const [errore, setErrore] = useState17("");
+  const [disponibile, setDisponibile] = useState18(false);
+  const [inCorso, setInCorso] = useState18(false);
+  const [errore, setErrore] = useState18("");
   useEffect17(() => {
     let attivo = true;
     const automatico = chiestoDaAltroPortale();
@@ -6883,11 +6900,11 @@ function LoginPage({
 }) {
   const passwordId = useId12();
   useFaviconVuscom(iconaPortale);
-  const [username, setUsername] = useState18("");
-  const [password, setPassword] = useState18("");
-  const [show, setShow] = useState18(false);
-  const [loading, setLoading] = useState18(false);
-  const [error, setError] = useState18("");
+  const [username, setUsername] = useState19("");
+  const [password, setPassword] = useState19("");
+  const [show, setShow] = useState19(false);
+  const [loading, setLoading] = useState19(false);
+  const [error, setError] = useState19("");
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
@@ -7025,6 +7042,7 @@ export {
   PortaliSidebar,
   ProgressBar,
   PulsanteEsportaCsv,
+  SOGLIA_TESTO_CHIARO,
   Section,
   SegmentedControl,
   Select,
@@ -7047,6 +7065,7 @@ export {
   altriPortali,
   cn,
   collectGroupIds,
+  coloreTesto,
   esportaCsv,
   formatData,
   formatDataIt,
@@ -7067,6 +7086,7 @@ export {
   periodsBetween,
   portaliRicordati,
   ricordaPortali,
+  tabPanelId,
   toCsv,
   toUtcDay,
   useAccessoMicrosoft,

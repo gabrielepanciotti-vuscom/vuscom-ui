@@ -91,8 +91,8 @@ export default function Azioni() {
       <Section title="ProgressBar">
         <div className="max-w-md space-y-3">
           <ProgressBar value={35} label="Avanzamento" showValue />
-          <ProgressBar value={80} tone="success" />
-          <ProgressBar value={95} tone="danger" />
+          <ProgressBar value={80} tone="success" aria-label="Pratiche completate" />
+          <ProgressBar value={95} tone="danger" aria-label="Budget consumato" />
         </div>
       </Section>
     </>

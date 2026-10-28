@@ -10,6 +10,7 @@ import {
   Section,
   Select,
   Tabs,
+  useTabIds,
   Textarea,
   Toggle,
   Tooltip,
@@ -26,6 +27,7 @@ export default function Moduli() {
   const [on, setOn] = useState(true);
   const [chk, setChk] = useState(true);
   const [tab, setTab] = useState("uno");
+  const ids = useTabIds();
   const [seg, setSeg] = useState("m");
   return (
     <>
@@ -102,12 +104,21 @@ export default function Moduli() {
           value={tab}
           onChange={setTab}
           aria-label="Esempio"
+          idPrefix={ids.prefix}
           items={[
             { id: "uno", label: "Uno" },
             { id: "due", label: "Due" },
             { id: "tre", label: "Tre" },
           ]}
         />
+        <div
+          role="tabpanel"
+          id={ids.panel(tab)}
+          aria-labelledby={ids.tab(tab)}
+          className="pt-3 text-sm text-muted-foreground"
+        >
+          Contenuto della scheda «{tab}».
+        </div>
       </Section>
     </>
   );
