@@ -34,6 +34,19 @@ test("backend irraggiungibile = nessun pulsante", async () => {
   expect(container).toBeEmptyDOMElement();
 });
 
+test("mostra il separatore per impostazione predefinita", async () => {
+  vi.stubGlobal("fetch", rispondi({ "/api/auth/microsoft/disponibile": { body: { disponibile: true } } }));
+  render(<AccessoMicrosoft onAccesso={() => {}} />);
+  expect(await screen.findByText(/^oppure$/i)).toBeInTheDocument();
+});
+
+test("nasconde il separatore quando separatore è falso", async () => {
+  vi.stubGlobal("fetch", rispondi({ "/api/auth/microsoft/disponibile": { body: { disponibile: true } } }));
+  render(<AccessoMicrosoft onAccesso={() => {}} separatore={false} />);
+  await screen.findByRole("button", { name: /accedi con microsoft/i });
+  expect(screen.queryByText(/^oppure$/i)).not.toBeInTheDocument();
+});
+
 test("dentro la rete il pulsante porta al login Microsoft", async () => {
   vi.stubGlobal("fetch", rispondi({ "/api/auth/microsoft/disponibile": { body: { disponibile: true } } }));
   const assign = vi.fn();

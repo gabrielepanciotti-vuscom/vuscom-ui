@@ -6816,13 +6816,13 @@ function LogoMicrosoft() {
     /* @__PURE__ */ jsx48("rect", { x: "11", y: "11", width: "9", height: "9", fill: "#ffb900" })
   ] });
 }
-function AccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso, className }) {
+function AccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso, className, separatore = true }) {
   const { disponibile, inCorso, errore, accedi } = useAccessoMicrosoft({ base, onAccesso });
   if (!disponibile && !errore && !inCorso) return null;
   return /* @__PURE__ */ jsxs41("div", { className: cn("space-y-4", className), children: [
     errore && /* @__PURE__ */ jsx48(Alert, { tone: "danger", children: errore }),
     (disponibile || inCorso) && /* @__PURE__ */ jsxs41(Fragment8, { children: [
-      /* @__PURE__ */ jsxs41("div", { className: "flex items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground", children: [
+      separatore && /* @__PURE__ */ jsxs41("div", { className: "flex items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground", children: [
         /* @__PURE__ */ jsx48("span", { className: "h-px flex-1 bg-border" }),
         "oppure",
         /* @__PURE__ */ jsx48("span", { className: "h-px flex-1 bg-border" })

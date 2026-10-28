@@ -484,6 +484,8 @@ con un tag `vMAJOR.MINOR.PATCH` su `main`; i progetti si aggiornano cambiando il
 
 ```jsx
 <AccessoMicrosoft onAccesso={(risposta) => salvaSessione(risposta)} />
+// Per una pagina con il solo accesso Microsoft:
+<AccessoMicrosoft onAccesso={(risposta) => salvaSessione(risposta)} separatore={false} />
 // oppure
 <LoginPage title="Cruscotto" onSubmit={login} microsoft={{ onAccesso: salvaSessione }} />
 ```
@@ -496,5 +498,7 @@ con un tag `vMAJOR.MINOR.PATCH` su `main`; i progetti si aggiornano cambiando il
   salva come già fa (token, utente, `must_change_password`…) e naviga.
 - `#microsoft_errore=<codice>` → messaggio in italiano (`MESSAGGI_ERRORE_MICROSOFT`), mostrato
   anche fuori rete.
+- `AccessoMicrosoft` accetta `separatore` (predefinito `true`): impostalo a `false` quando
+  Microsoft è l'unico metodo di accesso, per non mostrare «oppure» senza un'alternativa.
 - `useAccessoMicrosoft({ base, onAccesso })` → `{ disponibile, inCorso, errore, accedi }` per chi
   vuole un aspetto diverso.

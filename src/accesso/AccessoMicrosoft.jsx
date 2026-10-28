@@ -19,7 +19,7 @@ function LogoMicrosoft() {
  * network (the backend says so in `/disponibile`), except an error coming back
  * from the callback. `onAccesso` stores the session like the password login.
  */
-export default function AccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso, className }) {
+export default function AccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso, className, separatore = true }) {
   const { disponibile, inCorso, errore, accedi } = useAccessoMicrosoft({ base, onAccesso });
   if (!disponibile && !errore && !inCorso) return null;
 
@@ -28,11 +28,13 @@ export default function AccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso, cla
       {errore && <Alert tone="danger">{errore}</Alert>}
       {(disponibile || inCorso) && (
         <>
-          <div className="flex items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground">
-            <span className="h-px flex-1 bg-border" />
-            oppure
-            <span className="h-px flex-1 bg-border" />
-          </div>
+          {separatore && (
+            <div className="flex items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground">
+              <span className="h-px flex-1 bg-border" />
+              oppure
+              <span className="h-px flex-1 bg-border" />
+            </div>
+          )}
           <Button
             type="button"
             variant="outline"
