@@ -28,7 +28,8 @@ const CompattaContext = createContext(null);
 /**
  * Keeps the sidebar compact while the calling page is mounted (`attiva`), and
  * gives it back to the user's saved preference when the page goes away. The
- * preference itself is never overwritten: only a click on the toggle does.
+ * preference itself is never overwritten while a page is forcing the compact
+ * layout: its toggle is local to that page.
  */
 export function useSidebarCompatta(attiva = true) {
   const richiedi = useContext(CompattaContext);
@@ -101,11 +102,11 @@ export default function AppShell({
   const adminTree = useMemo(() => normalizeNavTree(adminNav), [adminNav]);
 
   const [collapsed, setCollapsed] = useState(readCollapsed);
-  // Pages currently asking for a compact sidebar, and whether the user
-  // reopened it anyway (reset when the last request goes away).
+  // Pages currently asking for a compact sidebar. A manual choice while one
+  // is active is local to those pages and is forgotten with the last request.
   const [richieste, setRichieste] = useState(0);
-  const [riaperta, setRiaperta] = useState(false);
-  const forzata = richieste > 0 && !riaperta;
+  const [compattaQui, setCompattaQui] = useState(null);
+  const forzata = richieste > 0;
   const richiediCompatta = useMemo(
     () => () => {
       setRichieste((n) => n + 1);
@@ -114,7 +115,7 @@ export default function AppShell({
     [],
   );
   useEffect(() => {
-    if (richieste === 0) setRiaperta(false);
+    if (richieste === 0) setCompattaQui(null);
   }, [richieste]);
   // `compattaAdOgniPagina`: every page opens with the sidebar compact; the
   // toggle reopens it for the current page only, and the next one starts
@@ -169,11 +170,11 @@ export default function AppShell({
       setApertaQui((v) => !v);
       return;
     }
-    // Forced compact by a page: the click opens it for this page only, and
-    // the saved preference (whatever it was) becomes «open».
+    // Forced compact by a page: every toggle is local to the forced page(s),
+    // including a later click that compacts it again.
     if (forzata) {
-      setRiaperta(true);
-      if (!collapsed) return;
+      setCompattaQui((prev) => !(prev !== false));
+      return;
     }
     setCollapsed((prev) => {
       const next = !prev;
@@ -194,7 +195,11 @@ export default function AppShell({
       return next;
     });
 
-  const compressa = compattaAdOgniPagina ? !apertaQui : collapsed || forzata;
+  const compressa = compattaAdOgniPagina
+    ? !apertaQui
+    : forzata
+      ? compattaQui !== false
+      : collapsed;
   const azioni =
     typeof azioniSidebar === "function"
       ? azioniSidebar({ compressa })

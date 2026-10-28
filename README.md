@@ -92,10 +92,23 @@ Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 | Componente | Props principali |
 |---|---|
 | `AppShell` | `sidebar` (props di `AppSidebar` + `nav`, `adminNav`), `topbarRight`, `azioniSidebar` (nodo, o funzione `({ compressa }) => nodo`: aperta una riga sua nel piè della sidebar sopra «Tema», compressa sopra l'interruttore; per le segnalazioni `azioniSegnalazioni`), `maxWidth`, `compattaAdOgniPagina` (ogni pagina si apre con la sidebar compressa; il pulsante — pieno, nel colore primario — la riapre solo per la pagina corrente; default spento: vale la preferenza salvata); `idContenuto` (id del `<main>`, bersaglio del link «Vai al contenuto» in cima alla pagina; default `contenuto`); il menu mobile ha `aria-expanded`/`aria-controls`, si chiude con Esc (il focus torna al burger) e a ogni cambio di pagina; va dentro un Router |
-| `useSidebarCompatta(attiva = true)` | hook per le pagine che vogliono spazio (builder di report, tabelle larghe): finché la pagina è montata la sidebar resta compressa, poi torna alla preferenza dell'utente, che non viene sovrascritta |
+| `useSidebarCompatta(attiva = true)` | hook per le pagine che vogliono spazio (builder di report, tabelle larghe): finché almeno una pagina montata lo richiede la sidebar resta compressa, poi torna alla preferenza dell'utente. Anche il toggle durante la forzatura vale solo per quella pagina e non sovrascrive la preferenza; fuori da `AppShell` non fa nulla |
 | `PageHeader` | `title`, `description`, `icon`, `help`, `helpHref`, `actions`, `tabs`, `className` |
 | `Section` | `title`, `description`, `actions`, `className` |
 | `LoginPage` | `title`, `subtitle`, `logoLight`, `logoDark`, `onSubmit`, `usernameLabel`, `footer`, `microsoft` (`{ onAccesso, base? }`: aggiunge «Accedi con Microsoft») |
+
+Una pagina larga chiede la sidebar compatta direttamente nel proprio componente:
+
+```jsx
+import { useSidebarCompatta } from "@vuscom/ui";
+
+function ReportAmpio() {
+  useSidebarCompatta();
+  return <TabellaConMolteColonne />;
+}
+```
+
+Passa `false` quando la richiesta è condizionale: `useSidebarCompatta(mostraTabella)`.
 
 ## Installazione in un'app
 

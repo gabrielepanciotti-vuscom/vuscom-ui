@@ -6519,8 +6519,8 @@ function AppShell({
   const adminTree = useMemo4(() => normalizeNavTree(adminNav), [adminNav]);
   const [collapsed, setCollapsed] = useState16(readCollapsed2);
   const [richieste, setRichieste] = useState16(0);
-  const [riaperta, setRiaperta] = useState16(false);
-  const forzata = richieste > 0 && !riaperta;
+  const [compattaQui, setCompattaQui] = useState16(null);
+  const forzata = richieste > 0;
   const richiediCompatta = useMemo4(
     () => () => {
       setRichieste((n) => n + 1);
@@ -6529,7 +6529,7 @@ function AppShell({
     []
   );
   useEffect16(() => {
-    if (richieste === 0) setRiaperta(false);
+    if (richieste === 0) setCompattaQui(null);
   }, [richieste]);
   const [apertaQui, setApertaQui] = useState16(false);
   const [isOpen, setIsOpen] = useState16(false);
@@ -6567,8 +6567,8 @@ function AppShell({
       return;
     }
     if (forzata) {
-      setRiaperta(true);
-      if (!collapsed) return;
+      setCompattaQui((prev) => !(prev !== false));
+      return;
     }
     setCollapsed((prev) => {
       const next = !prev;
@@ -6585,7 +6585,7 @@ function AppShell({
     else next.add(id);
     return next;
   });
-  const compressa = compattaAdOgniPagina ? !apertaQui : collapsed || forzata;
+  const compressa = compattaAdOgniPagina ? !apertaQui : forzata ? compattaQui !== false : collapsed;
   const azioni = typeof azioniSidebar === "function" ? azioniSidebar({ compressa }) : azioniSidebar;
   return /* @__PURE__ */ jsx45(CompattaContext.Provider, { value: richiediCompatta, children: /* @__PURE__ */ jsxs38("div", { className: "flex h-screen bg-app", children: [
     /* @__PURE__ */ jsx45(
