@@ -2,7 +2,11 @@ import { forwardRef } from "react";
 import { cn } from "../lib/cn.js";
 import { buttonClasses } from "./Button.jsx";
 
-const QUADRATI = { sm: "h-8 w-8", md: "h-10 w-10", lg: "h-12 w-12" };
+const QUADRATI = {
+  sm: "h-8 w-8 max-sm:min-h-11 max-sm:min-w-11",
+  md: "h-10 w-10 max-sm:min-h-11 max-sm:min-w-11",
+  lg: "h-12 w-12",
+};
 
 const IconButton = forwardRef(function IconButton(
   {

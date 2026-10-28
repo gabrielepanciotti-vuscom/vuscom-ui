@@ -149,6 +149,25 @@ test("checkbox toggles", async () => {
   expect(onChange).toHaveBeenCalledWith(false);
 });
 
+test("small controls extend their clickable area without changing their visual size", () => {
+  render(
+    <div>
+      <Checkbox checked={false} onChange={() => {}} label="Tutti" />
+      <Toggle checked={false} onChange={() => {}} label="Reinvia" />
+    </div>,
+  );
+  expect(screen.getByRole("checkbox", { name: "Tutti" })).toHaveClass(
+    "relative",
+    "after:absolute",
+    "after:-inset-3",
+  );
+  expect(screen.getByRole("switch", { name: "Reinvia" })).toHaveClass(
+    "relative",
+    "after:absolute",
+    "after:-inset-3",
+  );
+});
+
 test("tabs switch with arrows", async () => {
   const onChange = vi.fn();
   render(
@@ -185,6 +204,17 @@ test("segmented control is a radiogroup", async () => {
   );
   await userEvent.click(screen.getByRole("radio", { name: "Y" }));
   expect(onChange).toHaveBeenCalledWith("y");
+});
+
+test("segmented control options reach 44 px on small screens", () => {
+  render(
+    <SegmentedControl
+      value="x"
+      onChange={() => {}}
+      options={[{ value: "x", label: "X" }]}
+    />,
+  );
+  expect(screen.getByRole("radio", { name: "X" })).toHaveClass("max-sm:min-h-11");
 });
 
 test("field wires label, hint and error", () => {

@@ -36,6 +36,7 @@ export default function Pagination({
           disabled={page <= 1}
           onClick={() => onPageChange(Math.min(page - 1, pagine))}
           aria-label="Pagina precedente"
+          className="max-sm:min-h-11"
         >
           Precedente
         </Button>
@@ -46,6 +47,7 @@ export default function Pagination({
           disabled={p >= pagine}
           onClick={() => onPageChange(p + 1)}
           aria-label="Pagina successiva"
+          className="max-sm:min-h-11"
         >
           Successiva
         </Button>

@@ -25,6 +25,13 @@ test("select trigger is a combobox, not a button", () => {
   expect(screen.queryByRole("button", { name: "Lettera" })).not.toBeInTheDocument();
 });
 
+test("select trigger reaches 44 px on small screens", () => {
+  render(<Select aria-label="Lettera" value="a" options={lettere} />);
+  expect(screen.getByRole("combobox", { name: "Lettera" })).toHaveClass(
+    "max-sm:min-h-11",
+  );
+});
+
 test("select listbox is labelled by the trigger id", async () => {
   render(<Select aria-label="Lettera" value="a" options={lettere} />);
   const trigger = screen.getByRole("combobox", { name: "Lettera" });
@@ -159,6 +166,17 @@ test("CampoData forwards aria attributes and the other props to the input", () =
   expect(input).toHaveAttribute("aria-invalid", "true");
   expect(input).toHaveAttribute("data-testid", "campo");
   expect(input).toHaveAttribute("name", "scadenza");
+});
+
+test("CampoData field and calendar button reach 44 px on small screens", () => {
+  render(<CampoData aria-label="Scadenza" />);
+  expect(screen.getByRole("textbox", { name: "Scadenza" })).toHaveClass(
+    "max-sm:min-h-11",
+  );
+  expect(screen.getByRole("button", { name: "Apri calendario" })).toHaveClass(
+    "max-sm:min-h-11",
+    "max-sm:min-w-11",
+  );
 });
 
 test("CampoData aria-invalid=true gives the invalid style", () => {

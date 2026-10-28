@@ -3397,8 +3397,8 @@ var VARIANTI = {
   link: "text-primary underline-offset-4 hover:underline"
 };
 var TAGLIE = {
-  sm: "h-8 px-3 text-xs gap-1.5",
-  md: "h-10 px-4 text-sm gap-2",
+  sm: "h-8 max-sm:min-h-11 px-3 text-xs gap-1.5",
+  md: "h-10 max-sm:min-h-11 px-4 text-sm gap-2",
   lg: "h-12 px-6 text-base gap-2"
 };
 var buttonClasses = (variant = "primary", size = "md") => cn(
@@ -3447,7 +3447,11 @@ var Button_default = Button;
 // src/atoms/IconButton.jsx
 import { forwardRef as forwardRef2 } from "react";
 import { jsx as jsx8 } from "react/jsx-runtime";
-var QUADRATI = { sm: "h-8 w-8", md: "h-10 w-10", lg: "h-12 w-12" };
+var QUADRATI = {
+  sm: "h-8 w-8 max-sm:min-h-11 max-sm:min-w-11",
+  md: "h-10 w-10 max-sm:min-h-11 max-sm:min-w-11",
+  lg: "h-12 w-12"
+};
 var IconButton = forwardRef2(function IconButton2({
   icon: Icon,
   label,
@@ -3495,7 +3499,7 @@ var Input = forwardRef3(function Input2({ invalid, icon: Icon, className, ...pro
       ...props,
       className: cn(
         campoClasses(invalid),
-        "h-10 px-3",
+        "h-10 max-sm:min-h-11 px-3",
         Icon && "pl-9",
         className
       )
@@ -3946,7 +3950,7 @@ function Select({
         },
         className: cn(
           campoClasses(invalid),
-          "flex h-10 items-center justify-between gap-2 px-3 text-left"
+          "flex h-10 max-sm:min-h-11 items-center justify-between gap-2 px-3 text-left"
         ),
         children: [
           /* @__PURE__ */ jsx17("span", { className: cn("truncate", !selected && "text-muted-foreground"), children: selected ? selected.label : placeholder }),
@@ -4044,7 +4048,7 @@ function Toggle({
         disabled,
         onClick: cambia,
         className: cn(
-          "relative mt-0.5 inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors",
+          "relative mt-0.5 inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors after:absolute after:-inset-3 after:content-['']",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "active:scale-95 disabled:cursor-not-allowed disabled:opacity-50",
           checked ? "bg-primary hover:bg-primary/90" : "bg-muted-foreground/30 hover:bg-muted-foreground/40"
@@ -4120,7 +4124,7 @@ function Checkbox({
         disabled,
         onClick: cambia,
         className: cn(
-          "flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors",
+          "relative flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors after:absolute after:-inset-3 after:content-['']",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "active:scale-90 disabled:cursor-not-allowed disabled:opacity-50",
           on ? "border-primary bg-primary text-primary-foreground hover:bg-primary/90" : "border-input bg-background hover:border-ring/60"
@@ -4226,7 +4230,10 @@ function Tabs({
 // src/molecules/SegmentedControl.jsx
 import { useRef as useRef4 } from "react";
 import { jsx as jsx21, jsxs as jsxs16 } from "react/jsx-runtime";
-var SIZE = { sm: "h-7 px-3 text-xs", md: "h-9 px-4 text-sm" };
+var SIZE = {
+  sm: "h-7 max-sm:min-h-11 px-3 text-xs",
+  md: "h-9 max-sm:min-h-11 px-4 text-sm"
+};
 function SegmentedControl({
   value,
   onChange,
@@ -4705,6 +4712,7 @@ function Pagination({
               disabled: page <= 1,
               onClick: () => onPageChange(Math.min(page - 1, pagine)),
               "aria-label": "Pagina precedente",
+              className: "max-sm:min-h-11",
               children: "Precedente"
             }
           ),
@@ -4717,6 +4725,7 @@ function Pagination({
               disabled: p >= pagine,
               onClick: () => onPageChange(p + 1),
               "aria-label": "Pagina successiva",
+              className: "max-sm:min-h-11",
               children: "Successiva"
             }
           )
@@ -5569,7 +5578,10 @@ var CampoData = forwardRef5(function CampoData2({
               if (e.key === "Enter") conferma();
               if (e.key === "ArrowDown" && e.altKey) setAperto(true);
             },
-            className: cn(campoClasses(nonValido), "h-9 pl-3 pr-9 tabular-nums")
+            className: cn(
+              campoClasses(nonValido),
+              "h-9 max-sm:min-h-11 pl-3 pr-9 tabular-nums"
+            )
           }
         ),
         errore === "formato" && /* @__PURE__ */ jsx36("span", { id: erroreId, className: "sr-only", children: "Data non valida, usa il formato gg/mm/aaaa" }),
@@ -5583,7 +5595,7 @@ var CampoData = forwardRef5(function CampoData2({
             "aria-expanded": aperto,
             "aria-controls": aperto ? pannello : void 0,
             onClick: () => setAperto((a) => !a),
-            className: "absolute right-0.5 top-1/2 h-8 w-8 -translate-y-1/2"
+            className: "absolute right-0.5 top-1/2 h-8 w-8 max-sm:min-h-11 max-sm:min-w-11 -translate-y-1/2"
           }
         ),
         aperto && /* @__PURE__ */ jsx36(
@@ -5622,7 +5634,7 @@ function ChipFiltro({ children, onRemove, className }) {
             type: "button",
             onClick: onRemove,
             "aria-label": `Rimuovi filtro: ${typeof children === "string" ? children : ""}`.trim(),
-            className: "inline-flex h-5 w-5 items-center justify-center rounded-full transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            className: "relative inline-flex h-5 w-5 items-center justify-center rounded-full transition-colors after:absolute after:-inset-3 after:content-[''] hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             children: /* @__PURE__ */ jsx37(X2, { className: "h-3 w-3", "aria-hidden": true })
           }
         )

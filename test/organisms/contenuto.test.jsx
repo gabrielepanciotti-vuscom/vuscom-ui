@@ -90,6 +90,18 @@ test("pagination bounds", async () => {
   expect(onPageChange).toHaveBeenCalledWith(2);
 });
 
+test("pagination buttons reach 44 px on small screens", () => {
+  render(
+    <Pagination page={1} pageSize={50} total={120} onPageChange={() => {}} />,
+  );
+  expect(screen.getByRole("button", { name: /precedente/i })).toHaveClass(
+    "max-sm:min-h-11",
+  );
+  expect(screen.getByRole("button", { name: /successiva/i })).toHaveClass(
+    "max-sm:min-h-11",
+  );
+});
+
 test("pagination last page clamps range and disables next", () => {
   render(
     <Pagination page={3} pageSize={50} total={120} onPageChange={() => {}} />,

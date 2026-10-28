@@ -2509,8 +2509,8 @@ var VARIANTI = {
   link: "text-primary underline-offset-4 hover:underline"
 };
 var TAGLIE = {
-  sm: "h-8 px-3 text-xs gap-1.5",
-  md: "h-10 px-4 text-sm gap-2",
+  sm: "h-8 max-sm:min-h-11 px-3 text-xs gap-1.5",
+  md: "h-10 max-sm:min-h-11 px-4 text-sm gap-2",
   lg: "h-12 px-6 text-base gap-2"
 };
 var buttonClasses = (variant = "primary", size = "md") => cn(
@@ -2558,7 +2558,11 @@ var Button_default = Button;
 
 // src/atoms/IconButton.jsx
 import { jsx as jsx2 } from "react/jsx-runtime";
-var QUADRATI = { sm: "h-8 w-8", md: "h-10 w-10", lg: "h-12 w-12" };
+var QUADRATI = {
+  sm: "h-8 w-8 max-sm:min-h-11 max-sm:min-w-11",
+  md: "h-10 w-10 max-sm:min-h-11 max-sm:min-w-11",
+  lg: "h-12 w-12"
+};
 var IconButton = forwardRef2(function IconButton2({
   icon: Icon,
   label,
@@ -3164,7 +3168,7 @@ var Input = forwardRef3(function Input2({ invalid, icon: Icon, className, ...pro
       ...props,
       className: cn(
         campoClasses(invalid),
-        "h-10 px-3",
+        "h-10 max-sm:min-h-11 px-3",
         Icon && "pl-9",
         className
       )
@@ -3235,7 +3239,7 @@ function Checkbox({
         disabled,
         onClick: cambia,
         className: cn(
-          "flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors",
+          "relative flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors after:absolute after:-inset-3 after:content-['']",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "active:scale-90 disabled:cursor-not-allowed disabled:opacity-50",
           on ? "border-primary bg-primary text-primary-foreground hover:bg-primary/90" : "border-input bg-background hover:border-ring/60"

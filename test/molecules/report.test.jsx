@@ -39,6 +39,15 @@ test("ChipFiltro removes", async () => {
   expect(onRemove).toHaveBeenCalled();
 });
 
+test("ChipFiltro removal button extends its clickable area", () => {
+  render(<ChipFiltro onRemove={() => {}}>Stato: attivo</ChipFiltro>);
+  expect(screen.getByRole("button", { name: "Rimuovi filtro: Stato: attivo" })).toHaveClass(
+    "relative",
+    "after:absolute",
+    "after:-inset-3",
+  );
+});
+
 test("PulsanteEsportaCsv exports rows read at click time", async () => {
   const spia = vi.spyOn(csv, "esportaCsv").mockImplementation(() => {});
   const cols = [{ key: "a", header: "A" }];

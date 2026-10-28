@@ -170,7 +170,7 @@ export default function Select({
         }}
         className={cn(
           campoClasses(invalid),
-          "flex h-10 items-center justify-between gap-2 px-3 text-left",
+          "flex h-10 max-sm:min-h-11 items-center justify-between gap-2 px-3 text-left",
         )}
       >
         <span className={cn("truncate", !selected && "text-muted-foreground")}>

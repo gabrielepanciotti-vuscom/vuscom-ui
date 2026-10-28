@@ -13,8 +13,8 @@ const VARIANTI = {
   link: "text-primary underline-offset-4 hover:underline",
 };
 const TAGLIE = {
-  sm: "h-8 px-3 text-xs gap-1.5",
-  md: "h-10 px-4 text-sm gap-2",
+  sm: "h-8 max-sm:min-h-11 px-3 text-xs gap-1.5",
+  md: "h-10 max-sm:min-h-11 px-4 text-sm gap-2",
   lg: "h-12 px-6 text-base gap-2",
 };
 

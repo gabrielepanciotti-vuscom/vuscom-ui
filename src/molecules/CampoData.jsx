@@ -113,7 +113,10 @@ const CampoData = forwardRef(function CampoData(
           if (e.key === "Enter") conferma();
           if (e.key === "ArrowDown" && e.altKey) setAperto(true);
         }}
-        className={cn(campoClasses(nonValido), "h-9 pl-3 pr-9 tabular-nums")}
+        className={cn(
+          campoClasses(nonValido),
+          "h-9 max-sm:min-h-11 pl-3 pr-9 tabular-nums",
+        )}
       />
       {errore === "formato" && (
         <span id={erroreId} className="sr-only">
@@ -128,7 +131,7 @@ const CampoData = forwardRef(function CampoData(
         aria-expanded={aperto}
         aria-controls={aperto ? pannello : undefined}
         onClick={() => setAperto((a) => !a)}
-        className="absolute right-0.5 top-1/2 h-8 w-8 -translate-y-1/2"
+        className="absolute right-0.5 top-1/2 h-8 w-8 max-sm:min-h-11 max-sm:min-w-11 -translate-y-1/2"
       />
       {aperto && (
         <div

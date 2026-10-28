@@ -27,7 +27,7 @@ const Input = forwardRef(function Input(
       {...props}
       className={cn(
         campoClasses(invalid),
-        "h-10 px-3",
+        "h-10 max-sm:min-h-11 px-3",
         Icon && "pl-9",
         className,
       )}

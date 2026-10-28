@@ -55,6 +55,24 @@ test("icon button exposes its label", () => {
   expect(screen.getByRole("button", { name: "Aggiungi" })).toBeInTheDocument();
 });
 
+test("button, icon button and input reach 44 px on small screens", () => {
+  render(
+    <div>
+      <Button size="sm">Salva</Button>
+      <Button size="md">Invia</Button>
+      <IconButton icon={Plus} label="Aggiungi" size="sm" />
+      <Input aria-label="Nome" />
+    </div>,
+  );
+  expect(screen.getByRole("button", { name: "Salva" })).toHaveClass("max-sm:min-h-11");
+  expect(screen.getByRole("button", { name: "Invia" })).toHaveClass("max-sm:min-h-11");
+  expect(screen.getByRole("button", { name: "Aggiungi" })).toHaveClass(
+    "max-sm:min-h-11",
+    "max-sm:min-w-11",
+  );
+  expect(screen.getByLabelText("Nome")).toHaveClass("max-sm:min-h-11");
+});
+
 test("badge tones render text", () => {
   render(
     <Badge tone="success" dot>

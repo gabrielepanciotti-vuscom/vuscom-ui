@@ -1,7 +1,10 @@
 import { useRef } from "react";
 import { cn } from "../lib/cn.js";
 
-const SIZE = { sm: "h-7 px-3 text-xs", md: "h-9 px-4 text-sm" };
+const SIZE = {
+  sm: "h-7 max-sm:min-h-11 px-3 text-xs",
+  md: "h-9 max-sm:min-h-11 px-4 text-sm",
+};
 
 export default function SegmentedControl({
   value,

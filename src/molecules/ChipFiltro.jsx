@@ -17,7 +17,7 @@ export default function ChipFiltro({ children, onRemove, className }) {
           type="button"
           onClick={onRemove}
           aria-label={`Rimuovi filtro: ${typeof children === "string" ? children : ""}`.trim()}
-          className="inline-flex h-5 w-5 items-center justify-center rounded-full transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="relative inline-flex h-5 w-5 items-center justify-center rounded-full transition-colors after:absolute after:-inset-3 after:content-[''] hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <X className="h-3 w-3" aria-hidden />
         </button>
