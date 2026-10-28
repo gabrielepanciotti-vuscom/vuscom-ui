@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { afterEach, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { LayoutDashboard } from "lucide-react";
-import { vi } from "vitest";
+import { afterEach, expect, test, vi } from "vitest";
 import { AppShell, useSidebarCompatta } from "../../src/index.js";
 
 const future = { v7_startTransition: true, v7_relativeSplatPath: true };
