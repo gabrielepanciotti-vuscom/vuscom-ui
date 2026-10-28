@@ -33,10 +33,18 @@ describe("con overflow e ResizeObserver", () => {
   });
 
   test("mostra la barra in alto, larga quanto il contenuto, e le due si seguono", () => {
-    const { container } = render(<TopScrollX className="x"><table /></TopScrollX>);
+    const { container } = render(
+      <TopScrollX className="x" ariaLabel="Elenco clienti">
+        <table />
+      </TopScrollX>,
+    );
     const top = screen.getByTestId("top-scroll-x");
     expect(top.firstChild).toHaveStyle({ width: "1000px" });
     const body = container.querySelector(".x");
+    expect(body).toHaveAttribute("tabindex", "0");
+    expect(body).toHaveAttribute("role", "region");
+    expect(body).toHaveAttribute("aria-label", "Elenco clienti");
+    expect(body).toHaveClass("focus-visible:ring-2");
     top.scrollLeft = 120;
     fireEvent.scroll(top);
     expect(body.scrollLeft).toBe(120);

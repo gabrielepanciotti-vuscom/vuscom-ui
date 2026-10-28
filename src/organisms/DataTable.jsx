@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import { ChevronDown, ChevronUp, ChevronsUpDown, Inbox } from "lucide-react";
 import { cn } from "../lib/cn.js";
 import { Card } from "./Card.jsx";
+import Button from "../atoms/Button.jsx";
 import TopScrollX from "../molecules/TopScrollX.jsx";
 import { SkeletonTable } from "./Skeleton.jsx";
 import EmptyState from "./EmptyState.jsx";
 import Pagination from "./Pagination.jsx";
 import useSort from "./useSort.js";
 import BarraInline, { massimiBarre, valoreBarra } from "./BarraInline.jsx";
+import Alert from "./Alert.jsx";
+import DataTableCards from "./DataTableCards.jsx";
 import { segnalaAttr } from "../segnalazioni/segnalaAttr.js";
 
 // Clicks on these (or inside them) belong to the control, not to the row.
@@ -35,6 +38,8 @@ export default function DataTable({
   rowKey,
   onRowClick,
   loading = false,
+  error,
+  onRetry,
   empty,
   initialSort,
   dense = false,
@@ -42,6 +47,7 @@ export default function DataTable({
   pageSize,
   segnala,
   className,
+  mobileCards = false,
 }) {
   const accessors = {};
   columns.forEach((c) => {
@@ -65,7 +71,16 @@ export default function DataTable({
   const massimi = massimiBarre(columns, rows);
 
   let body;
-  if (loading && rows.length === 0) {
+  if (error !== undefined && error !== null) {
+    body = (
+      <Alert tone="danger">
+        <div className="space-y-3">
+          <div>{error}</div>
+          {onRetry && <Button onClick={onRetry}>Riprova</Button>}
+        </div>
+      </Alert>
+    );
+  } else if (loading && rows.length === 0) {
     body = (
       <div className="p-4">
         <SkeletonTable rows={5} cols={columns.length} />
@@ -86,122 +101,136 @@ export default function DataTable({
 
   return (
     <Card className={cn("p-0", className)} {...segnalaAttr(segnala)}>
-      <TopScrollX>
-        {body ? (
-          body
-        ) : (
-          <table className="w-full text-sm">
-            {caption && <caption className="sr-only">{caption}</caption>}
-            <thead className="border-b bg-muted/50 font-medium text-muted-foreground">
-              <tr>
-                {columns.map((c) => {
-                  const active = sort && sort.key === c.key ? sort.dir : null;
-                  const align = ALIGN[c.align] || ALIGN.left;
-                  return (
-                    <th
-                      key={c.key}
-                      scope="col"
-                      {...segnalaAttr(c.segnala)}
-                      style={c.width ? { width: c.width } : undefined}
-                      aria-sort={
-                        c.sortable
-                          ? active === "asc"
-                            ? "ascending"
-                            : active === "desc"
-                              ? "descending"
-                              : "none"
-                          : undefined
-                      }
-                      className={cn(
-                        pad,
-                        "whitespace-nowrap font-medium",
-                        align,
-                        c.className,
-                      )}
-                    >
-                      {c.sortable ? (
-                        <button
-                          type="button"
-                          onClick={() => toggle(c.key)}
-                          className={cn(
-                            "inline-flex items-center gap-1 rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                            JUSTIFY[c.align] || JUSTIFY.left,
-                            active && "text-foreground",
-                          )}
-                        >
-                          {c.header}
-                          <SortIcon dir={active} />
-                        </button>
-                      ) : (
-                        c.srOnly ? (
-                          <span className="sr-only">{c.header}</span>
+      {body ? (
+        body
+      ) : (
+        <>
+          <TopScrollX
+            ariaLabel={caption}
+            className={mobileCards ? "hidden sm:block" : undefined}
+          >
+            <table className="w-full text-sm" aria-busy={loading}>
+              {caption && <caption className="sr-only">{caption}</caption>}
+              <thead className="border-b bg-muted/50 font-medium text-muted-foreground">
+                <tr>
+                  {columns.map((c) => {
+                    const active = sort && sort.key === c.key ? sort.dir : null;
+                    const align = ALIGN[c.align] || ALIGN.left;
+                    return (
+                      <th
+                        key={c.key}
+                        scope="col"
+                        {...segnalaAttr(c.segnala)}
+                        style={c.width ? { width: c.width } : undefined}
+                        aria-sort={
+                          c.sortable
+                            ? active === "asc"
+                              ? "ascending"
+                              : active === "desc"
+                                ? "descending"
+                                : "none"
+                            : undefined
+                        }
+                        className={cn(
+                          pad,
+                          "whitespace-nowrap font-medium",
+                          align,
+                          c.className,
+                        )}
+                      >
+                        {c.sortable ? (
+                          <button
+                            type="button"
+                            onClick={() => toggle(c.key)}
+                            className={cn(
+                              "inline-flex items-center gap-1 rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                              JUSTIFY[c.align] || JUSTIFY.left,
+                              active && "text-foreground",
+                            )}
+                          >
+                            {c.header}
+                            <SortIcon dir={active} />
+                          </button>
                         ) : (
-                          c.header
-                        )
-                      )}
-                    </th>
-                  );
-                })}
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {visibili.map((row) => (
-                <tr
-                  key={rowKey(row)}
-                  tabIndex={onRowClick ? 0 : undefined}
-                  onClick={
-                    onRowClick
-                      ? (e) => {
-                          const hit = e.target.closest?.(INTERATTIVI);
-                          if (hit && e.currentTarget.contains(hit)) return;
-                          onRowClick(row);
-                        }
-                      : undefined
-                  }
-                  onKeyDown={
-                    onRowClick
-                      ? (e) => {
-                          if (e.key === "Enter" && e.target === e.currentTarget)
-                            onRowClick(row);
-                        }
-                      : undefined
-                  }
-                  className={cn(
-                    "transition-colors hover:bg-muted/40",
-                    onRowClick &&
-                      "cursor-pointer focus-visible:outline-none focus-visible:bg-muted/60 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
-                  )}
-                >
-                  {columns.map((c) => (
-                    <td
-                      key={c.key}
-                      {...segnalaAttr(c.segnala)}
-                      className={cn(
-                        pad,
-                        ALIGN[c.align] || ALIGN.left,
-                        c.className,
-                      )}
-                    >
-                      {c.bar ? (
-                        <BarraInline
-                          value={valoreBarra(c, row)}
-                          max={massimi[c.key]}
-                        >
-                          {c.cell ? c.cell(row) : (row[c.key] ?? "")}
-                        </BarraInline>
-                      ) : c.cell ? (
-                        c.cell(row)
-                      ) : (
-                        (row[c.key] ?? "")
-                      )}
-                    </td>
-                  ))}
+                          c.srOnly ? (
+                            <span className="sr-only">{c.header}</span>
+                          ) : (
+                            c.header
+                          )
+                        )}
+                      </th>
+                    );
+                  })}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </TopScrollX>
+              </thead>
+              <tbody className="divide-y">
+                {visibili.map((row) => (
+                  <tr
+                    key={rowKey(row)}
+                    tabIndex={onRowClick ? 0 : undefined}
+                    onClick={
+                      onRowClick
+                        ? (e) => {
+                            const hit = e.target.closest?.(INTERATTIVI);
+                            if (hit && e.currentTarget.contains(hit)) return;
+                            onRowClick(row);
+                          }
+                        : undefined
+                    }
+                    onKeyDown={
+                      onRowClick
+                        ? (e) => {
+                            if (e.key === "Enter" && e.target === e.currentTarget)
+                              onRowClick(row);
+                          }
+                        : undefined
+                    }
+                    className={cn(
+                      "transition-colors hover:bg-muted/40",
+                      onRowClick &&
+                        "cursor-pointer focus-visible:outline-none focus-visible:bg-muted/60 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+                    )}
+                  >
+                    {columns.map((c) => (
+                      <td
+                        key={c.key}
+                        {...segnalaAttr(c.segnala)}
+                        className={cn(
+                          pad,
+                          ALIGN[c.align] || ALIGN.left,
+                          c.className,
+                        )}
+                      >
+                        {c.bar ? (
+                          <BarraInline
+                            value={valoreBarra(c, row)}
+                            max={massimi[c.key]}
+                          >
+                            {c.cell ? c.cell(row) : (row[c.key] ?? "")}
+                          </BarraInline>
+                        ) : c.cell ? (
+                          c.cell(row)
+                        ) : (
+                          (row[c.key] ?? "")
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </TopScrollX>
+          {mobileCards && (
+            <DataTableCards
+              columns={columns}
+              rows={visibili}
+              rowKey={rowKey}
+              onRowClick={onRowClick}
+              massimi={massimi}
+            />
+          )}
+        </>
+      )}
       {pageSize && !body && (
         <Pagination
           page={pagina}

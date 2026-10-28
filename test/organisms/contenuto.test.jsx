@@ -92,6 +92,15 @@ test("pagination last page clamps range and disables next", () => {
   expect(screen.getByRole("button", { name: /successiva/i })).toBeDisabled();
 });
 
+test("pagination annuncia intervallo e pagina corrente", () => {
+  render(
+    <Pagination page={2} pageSize={50} total={120} onPageChange={() => {}} />,
+  );
+  const intervallo = screen.getByText("51–100 di 120");
+  expect(intervallo).toHaveAttribute("aria-live", "polite");
+  expect(intervallo).toHaveTextContent("Pagina 2 di 3");
+});
+
 test("pagination hidden when one page", () => {
   const { container } = render(
     <Pagination page={1} pageSize={50} total={10} onPageChange={() => {}} />,

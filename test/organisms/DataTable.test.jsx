@@ -78,3 +78,53 @@ test("default empty state and loading skeleton", () => {
   );
   expect(screen.queryByText("Nessun dato")).not.toBeInTheDocument();
 });
+
+test("annuncia il caricamento sulla tabella", () => {
+  render(
+    <DataTable
+      columns={columns}
+      rows={rows}
+      rowKey={(r) => r.id}
+      loading
+      caption="Elenco contatti"
+    />,
+  );
+  expect(screen.getByRole("table")).toHaveAttribute("aria-busy", "true");
+});
+
+test("mostra l'errore e consente di riprovare", async () => {
+  const onRetry = vi.fn();
+  render(
+    <DataTable
+      columns={columns}
+      rows={rows}
+      rowKey={(r) => r.id}
+      error="Impossibile caricare i dati"
+      onRetry={onRetry}
+    />,
+  );
+  expect(screen.getByRole("alert")).toHaveTextContent("Impossibile caricare i dati");
+  await userEvent.click(screen.getByRole("button", { name: "Riprova" }));
+  expect(onRetry).toHaveBeenCalledTimes(1);
+  expect(screen.queryByRole("table")).toBeNull();
+});
+
+test("mobileCards conserva la resa della cella e rende cliccabile ogni Card", async () => {
+  const onRowClick = vi.fn();
+  render(
+    <DataTable
+      columns={[...columns, { key: "descrizione", header: "Descrizione", cell: (r) => <strong>{r.nome} esteso</strong> }]}
+      rows={rows}
+      rowKey={(r) => r.id}
+      onRowClick={onRowClick}
+      mobileCards
+    />,
+  );
+  const cards = screen.getAllByRole("button", { name: /nome.*beta.*lead.*10.*descrizione.*beta esteso/i });
+  expect(cards).toHaveLength(1);
+  await userEvent.click(cards[0]);
+  await userEvent.keyboard("{Enter}");
+  expect(onRowClick).toHaveBeenCalledWith(rows[0]);
+  expect(screen.getAllByText("Beta esteso")).toHaveLength(2);
+  expect(screen.getByRole("table").parentElement).toHaveClass("hidden", "sm:block");
+});

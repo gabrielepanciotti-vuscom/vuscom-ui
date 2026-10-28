@@ -7,7 +7,11 @@ import { cn } from "../lib/cn.js";
  * sta sotto l'ultima riga e non si vede senza scendere fino in basso.
  * La barra in alto compare solo quando il contenuto deborda davvero.
  */
-export default function TopScrollX({ children, className }) {
+export default function TopScrollX({
+  children,
+  className,
+  ariaLabel = "Tabella scorrevole",
+}) {
   const topRef = useRef(null);
   const bodyRef = useRef(null);
   const syncing = useRef(false);
@@ -62,7 +66,13 @@ export default function TopScrollX({ children, className }) {
       <div
         ref={bodyRef}
         onScroll={() => follow(bodyRef, topRef)}
-        className={cn("overflow-x-auto", className)}
+        tabIndex={overflow ? 0 : undefined}
+        role={overflow ? "region" : undefined}
+        aria-label={overflow ? ariaLabel : undefined}
+        className={cn(
+          "overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+          className,
+        )}
       >
         {children}
       </div>
