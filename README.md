@@ -192,6 +192,12 @@ scheda, così i portali si distinguono a colpo d'occhio (`TESSERE_PORTALE`, imma
 
 - Il portale passa `iconaPortale` nelle props della sidebar di `AppShell`. `LoginPage` accetta
   la stessa prop, per l'icona della scheda.
+- **Il colore del portale è automatico (dalla 1.20.0).** Il portale passa solo il suo codice:
+  `iconaPortale: "vicky"`. I portali registrati (`COLORI_PORTALE`) tengono il loro colore;
+  ogni altro codice ne riceve uno fisso, ricavato dal codice (`coloreAutomatico`, in
+  `src/brand/registroColori.js`) e sempre ad almeno 60 di distanza RGB da tutti i registrati
+  e dal navy pubblico. Nessun colore si sceglie più a mano; il tester accetta qualunque codice
+  in minuscolo e blocca solo ciò che non è un codice né un `#rrggbb` valido.
 - **Aggiungere un portale non richiede una release (dalla 1.10.0).** `iconaPortale` accetta,
   oltre alle chiavi sopra, un colore esadecimale: `iconaPortale: "#0e7490"` oppure
   `iconaPortale: { colore: "#0e7490" }`. Vale ovunque: sidebar, `LogoV portale="#0e7490"`,

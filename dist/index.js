@@ -8,6 +8,66 @@ import { useEffect, useState } from "react";
 // src/brand/logo-v-scuro.png
 var logo_v_scuro_default = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHQAAACACAMAAADtR70aAAABgFBMVEXfnZv40qP3mCKXZW3gayrTmFCcZjywcqD239mgK3yijVy8j7bjX1PQkMQzP19+Hn5vdprIO2/CZrD/wl4bOmkrOmz+/f4wSG9ONnVqNXqQK4hNQ2h0MYFsRmqzR3OsKY/MWGdvZ1XPZVJPVVx0VVKKMYSMRm2zVWaOWFOuNYVJTFqSOXmNaUixY0rGSnF6LoOuW1WUeUy4lkjKWlhGU2CYHYasPHzmak/w5uvzeTFsJHqTUWSwQ5u0aTWzi0nPu8rpu9NdYFx0UWWWaaLXdy/+yjTrxc88RVpXJ3R5cVa2TFy3czTSd5DNmrDvkyft2bvv3OlrTlSMcKKkHYnENofOQIDNbjjSZm3VjS/SmDvVo8nWwdDX0MXT2ePb5fHkVmwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACX+DKbAAAAYHRSTlP///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////9ebwvOAAAFX0lEQVR42u2aV3vTSBSGnRA6bJ2zc2akUW+25Zbi9B4CIfSlw8L//xd7RnKA3QeMZSRxIz258OTCr7/vlDkzdov9hKfVQBtoA22gDbSBNtAG2kAbaDUP/Awowte51UFRAwHrVor4DYMrggIIba0WCnVBs2CimQFrgwITgtQyUaO92loAqeEAtUDJWgSUU4RWAM2tRZCZ3Hrq1CChiDKTi7V0JBJmIHYZmCBRr+pIJIMpZNjVRKRSraXhk7UqwhDYAIX59cQtGUoMZaBi0EYpKK6ANWxtBhjkroUhMmlSN6pDqRZqYQTQNk2pMwmheqWRAsXwhaAiHUg0YYrQkqAGAGfKQSGgLalISegUZklQYFEMlEYvuiIEtFFMFfrjUP3egWIGVx8j0YXQxgEyExlUOphx6kKG+mhQhY7bQiLaAqcLLQEacJVQT1B9C8do2iZlEopKR1Cu/VVD5SjDUuPnYjAAezBVZSnQYWIkYMRRvy+6QtiSkghEuVD+hQiqEq6r5Wh927EMKxo/D4UEKb8rtAA043H+H5m9TtDj28pwLIuEhiQUMBsES4F2+IVI+FImsGB4tB7HjrKsbjtEMteG779ba+ZqJJHuKlt12Spnvv5fypMeT7iKM6Fd0TZtG0DvpCVBOz5zfa0t1+ezoEOvkyS4NVxxYieKSKhNWxrOInRWaB7Ls1W2vMqXOX2EDg92IWAqMZzI6lvWWLRDaaMOKZQD5drQ0YiNVnVkfeanPGWdINgcel7sxJaltFCBAwixtPMpJc1I+8o5yXT3wOXsvLPLjUR5Q4dK1LLaIpQD22QApUGzYB6O2J0zvgzuiL1O04Bt9nqJ4SkKaF+N222qlsG3h845oNCBN9zVYrnLXZenEJwECffWPc9xYi20K2xTyhmFzlwy2lx2+YZ7x3+z5y6m551kM+g9HcYR5ZElSKgNU2exOaA+9/3DO3zZBZdKp5PeXTxJer31hLLI0UJpS5MztYVibXDk6qx1O4vpo9fnj5KXwUsv8Vac+9SJxt3rJNTU43W5UN2Clt0bC+8X3j9+vHCyu9nz6Ilf7b87fXe6/1bqUbf0Kx3gl7W5H/7KnstPTwg69O638vXbNdpbyodyarj88O5CDllY0krJ3NN8vbOFlUDh0KXM3csh15KsWlYu5cuDv0MTWflQBmc6kzqPJ/4u9YZefOthvjpeQ2lWAdXb597elT9zTGtp3VuJnSfZYsO2EaEKKNNd12XpRsb50KNGbz3IP8HDe5S8WA2U/lJ/cZJKrRXHsSa5u6PHomqUUmfwF/0raQ46JXOdXPXBmp5SKoLSpmqwYHc/p76K+1fzV3+smYNCyEIjqM8ejdKlSZm0+v2DPI1MfTCsyl7QMwoP7l7LSzWKc3dvrxXN3YLDdpAGi1cm6eNMcnfnXlgwooWgNOQGPPnlwt/9i24kESpUyoFDLxjmVbOxMelGplmtvTSMbSbDib/Z80TSEIiMVQjNbheOLv3zGXr715AOpFXayyCAdZoXHn6G7gzMwsiiSqk/gFJHn5j7MjRDFNVCKYGN7bh7cAE93gph+p1GKUoTY3s7evApjWgIDKGwv0UTSV+lGNEklW5u0QEYqo4pgxjoXPj7zYtNTYSFi3Suiw4OKIyrv1199uwYzdmOhj+q1GCWvqa6fm9ta0tiCN/6Dq/kmCoQAts0ilGx6A4IddiL+tZaAPHEfOYWt5dBBPqSCm1TSH3DitVDL8j6axeYJ5zzQUkalYkNEjFkOB93bqVQp1KdSvkVFSADqA2afQOcx7Q+KGPz+vrjMZ2f3PyMpIE20AbaQBtoA22gDbSBNtAG2kAb6P+h/Cc8/wJv980MNNB3ggAAAABJRU5ErkJggg==";
 
+// src/brand/registroColori.js
+var COLORI_PORTALE = Object.freeze({
+  offerte: "#2563eb",
+  // portal blue, lighter than the public navy
+  cruscotto: "#0f5c55",
+  // petrol green
+  outbound: "#7f1d1d",
+  // bordeaux
+  configuratore: "#1b3a69",
+  // navy: it has public pages, and public is always the original navy
+  dataapi: "#4c1d95",
+  // violet (Data API admin, vuscom-db#89)
+  braineditor: "#b45309"
+  // amber (Brain Editor, BrainEditor#1)
+});
+var NAVY_PUBBLICO = "#1b3a69";
+var DISTANZA_MINIMA_COLORI = 60;
+var CODICE = /^[a-z][a-z0-9_-]*$/;
+function isCodicePortale(valore2) {
+  return typeof valore2 === "string" && CODICE.test(valore2);
+}
+function rgbDa(hex) {
+  return [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+}
+function distanzaRgb(a, b) {
+  const [x, y] = [rgbDa(a), rgbDa(b)];
+  return Math.hypot(x[0] - y[0], x[1] - y[1], x[2] - y[2]);
+}
+function hslHex(h, s, l) {
+  const k = (n) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  return `#${[f(0), f(8), f(4)].map((v) => Math.round(v * 255).toString(16).padStart(2, "0")).join("")}`;
+}
+function hash(testo) {
+  let h = 2166136261;
+  for (const c of testo) {
+    h ^= c.codePointAt(0);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h;
+}
+var TONI = [
+  [0.62, 0.32],
+  [0.55, 0.26],
+  [0.7, 0.38]
+];
+function coloreAutomatico(codice) {
+  if (!isCodicePortale(codice)) return null;
+  if (COLORI_PORTALE[codice]) return COLORI_PORTALE[codice];
+  const occupati = [...Object.values(COLORI_PORTALE), NAVY_PUBBLICO];
+  const partenza = hash(codice) % 360;
+  for (const [s, l] of TONI)
+    for (let i = 0; i < 360; i++) {
+      const colore = hslHex((partenza + i * 137.508) % 360, s, l);
+      if (occupati.every((o) => distanzaRgb(colore, o) >= DISTANZA_MINIMA_COLORI)) return colore;
+    }
+  return null;
+}
+
 // src/brand/colore.js
 var NAVY_ORIGINALE = Object.freeze([27, 58, 105]);
 var HEX = /^#[0-9a-f]{6}$/i;
@@ -22,7 +82,9 @@ function leggiPortale(spec) {
   if (typeof spec === "object") return isEsadecimale(spec.colore) ? { colore: spec.colore.toLowerCase() } : null;
   if (typeof spec !== "string") return null;
   if (spec.startsWith("#")) return isEsadecimale(spec) ? { colore: spec.toLowerCase() } : null;
-  return { chiave: spec };
+  if (COLORI_PORTALE[spec]) return { chiave: spec };
+  const colore = coloreAutomatico(spec);
+  return colore ? { chiave: spec, colore } : { chiave: spec };
 }
 function ricolora(dati, nuovo, base = NAVY_ORIGINALE) {
   for (let i = 0; i < dati.length; i += 4)
@@ -106,20 +168,6 @@ var TESSERE_PORTALE = Object.freeze({
   configuratore: tessera_configuratore_default,
   dataapi: tessera_dataapi_default,
   braineditor: tessera_braineditor_default
-});
-var COLORI_PORTALE = Object.freeze({
-  offerte: "#2563eb",
-  // portal blue, lighter than the public navy
-  cruscotto: "#0f5c55",
-  // petrol green
-  outbound: "#7f1d1d",
-  // bordeaux
-  configuratore: "#1b3a69",
-  // navy: it has public pages, and public is always the original navy
-  dataapi: "#4c1d95",
-  // violet (Data API admin, vuscom-db#89)
-  braineditor: "#b45309"
-  // amber (Brain Editor, BrainEditor#1)
 });
 function useTessera(portale) {
   const p = leggiPortale(portale);
@@ -4647,7 +4695,7 @@ function EmptyState({
 // src/organisms/Alert.jsx
 import { AlertTriangle, CheckCircle2, Info, X, XCircle } from "lucide-react";
 import { jsx as jsx28, jsxs as jsxs22 } from "react/jsx-runtime";
-var TONI = {
+var TONI2 = {
   info: {
     box: "border-info/30 bg-info/10 text-sky-900 dark:text-sky-100",
     icon: "text-info",
@@ -4676,7 +4724,7 @@ function Alert({
   onClose,
   className
 }) {
-  const t = TONI[tone] ?? TONI.info;
+  const t = TONI2[tone] ?? TONI2.info;
   const urgente = tone === "danger" || tone === "warning";
   return /* @__PURE__ */ jsxs22(
     "div",
@@ -6181,7 +6229,7 @@ import {
 import { AlertTriangle as AlertTriangle2, CheckCircle2 as CheckCircle22, Info as Info2, X as X4, XCircle as XCircle2 } from "lucide-react";
 import { jsx as jsx43, jsxs as jsxs36 } from "react/jsx-runtime";
 var ToastContext = createContext(null);
-var TONI2 = {
+var TONI3 = {
   success: {
     Icona: CheckCircle22,
     accent: "border-l-success",
@@ -6200,7 +6248,7 @@ var TONI2 = {
   info: { Icona: Info2, accent: "border-l-info", icon: TESTO.info }
 };
 function ToastItem({ t, onDismiss, onPause, onResume }) {
-  const s = TONI2[t.tone] ?? TONI2.info;
+  const s = TONI3[t.tone] ?? TONI3.info;
   return /* @__PURE__ */ jsxs36(
     "div",
     {
@@ -7065,6 +7113,7 @@ export {
   altriPortali,
   cn,
   collectGroupIds,
+  coloreAutomatico,
   coloreTesto,
   esportaCsv,
   formatData,

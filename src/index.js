@@ -91,6 +91,7 @@ export {
   BASE_MICROSOFT,
   MESSAGGI_ERRORE_MICROSOFT,
 } from "./accesso/useAccessoMicrosoft.js";
+export { coloreAutomatico } from "./brand/registroColori.js";
 export {
   COLORI_PORTALE,
   TESSERE_PORTALE,

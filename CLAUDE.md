@@ -6,7 +6,7 @@ Le regole globali (stack, git, portali, ruoli) vengono da `~/.claude/CLAUDE.shar
 
 ## Stack
 React 18 + Tailwind 3 (preset) · esbuild · vitest + Testing Library · peer: react, react-dom, react-router-dom (opz.), lucide-react.
-Repo pubblico, `dist/` versionato, rilascio per tag `vX.Y.Z` (oggi v1.19.0). Path: `$PATH_VUSCOM_UI`.
+Repo pubblico, `dist/` versionato, rilascio per tag `vX.Y.Z` (oggi v1.20.0). Path: `$PATH_VUSCOM_UI`.
 
 ## Struttura
 - `src/{atoms,molecules,organisms,templates,theme,brand,lib,accesso,segnalazioni,utenti,grafici}`, `src/AppSidebar.jsx`, `src/navTree.js`
@@ -56,4 +56,4 @@ Configuratore, OutBound. Usano il pacchetto ma non sono ancora registrati: Brain
 ## Gotcha
 - Il lockfile del consumatore tiene il tag vecchio: serve `npm install "...#vX.Y.Z"`.
 - `vuscom-ui-conformita` sul repo stesso segnala avvisi su `src/`: non sono regressioni.
-- I portali pubblici restano col navy originale; i colori dei portali sono decisione di Gabriele.
+- I portali pubblici restano col navy originale; gli altri passano il loro codice e il colore è automatico (`registroColori.js`, dalla 1.20.0).

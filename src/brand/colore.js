@@ -8,6 +8,7 @@
 // white fixed. For a pixel that is a blend of background and white this is
 // exact, and accents shift proportionally instead of being cut out.
 import vScuro from "./logo-v-scuro.png";
+import { COLORI_PORTALE, coloreAutomatico } from "./registroColori.js";
 
 /** The navy of the original tile (also the public-portal colour). */
 export const NAVY_ORIGINALE = Object.freeze([27, 58, 105]);
@@ -34,7 +35,11 @@ export function leggiPortale(spec) {
   if (typeof spec === "object") return isEsadecimale(spec.colore) ? { colore: spec.colore.toLowerCase() } : null;
   if (typeof spec !== "string") return null;
   if (spec.startsWith("#")) return isEsadecimale(spec) ? { colore: spec.toLowerCase() } : null;
-  return { chiave: spec };
+  // A registered key has its bundled tile; any other portal code gets its
+  // automatic colour (registroColori.js), so no portal picks a hex by hand.
+  if (COLORI_PORTALE[spec]) return { chiave: spec };
+  const colore = coloreAutomatico(spec);
+  return colore ? { chiave: spec, colore } : { chiave: spec };
 }
 
 /** Remaps RGBA pixels (in place) from the navy background to `nuovo` ([r,g,b]). */

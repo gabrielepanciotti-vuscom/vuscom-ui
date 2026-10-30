@@ -130,9 +130,10 @@ test("tester: a valid distinct hex is accepted", () => {
   expect(tester('{ colore: "#0e7490" }')).toEqual([]);
 });
 
-test("tester: known keys still pass, unknown words still block", () => {
+test("tester: any portal code passes (automatic colour), a non-code blocks", () => {
   expect(tester('"outbound"')).toEqual([]);
-  const r = tester('"inventato"');
+  expect(tester('"inventato"')).toEqual([]);
+  const r = tester('"Non Un Codice"');
   expect(r).toHaveLength(1);
   expect(r[0].gravita).toBe("blocca");
 });

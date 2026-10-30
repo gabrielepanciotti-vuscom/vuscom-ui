@@ -34,7 +34,9 @@ import {
  *    quindi i suoi link non entrano nel Tab ne' nei lettori di schermo.
  *  - idPannelloMobile: id dell'<aside> del pannello mobile, per l'`aria-controls` del
  *    pulsante che lo apre (AppShell lo genera con useId).
- *  - iconaPortale: chiave di COLORI_PORTALE ("outbound"…), oppure un colore esadecimale
+ *  - iconaPortale: il codice del portale ("outbound", "vicky"…): i portali registrati in
+ *    COLORI_PORTALE hanno il loro colore, ogni altro codice uno automatico e distinto
+ *    (registroColori.js). Ancora accettato, ma sconsigliato: un colore esadecimale
  *    ("#0e7490" / { colore: "#0e7490" }, tessera generata a runtime, nessuna release):
  *    la V sul colore del portale, in sidebar e nella scheda del browser.
  *  - portali: codici dei portali a cui l'utente e' abilitato (dal /me del portale):

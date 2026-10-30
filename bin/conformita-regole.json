@@ -63,7 +63,7 @@
     {
       "codice": "icona-portale",
       "gravita": "blocca",
-      "descrizione": "la sidebar passa iconaPortale con la chiave di un portale noto o con un colore #rrggbb valido: la V ha il colore del portale in sidebar e nella scheda"
+      "descrizione": "la sidebar passa iconaPortale con il codice del portale (colore assegnato in automatico da @vuscom/ui) o con un colore #rrggbb valido: la V ha il colore del portale in sidebar e nella scheda"
     },
     {
       "codice": "icona-portale-vicina",

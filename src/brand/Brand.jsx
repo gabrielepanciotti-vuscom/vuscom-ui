@@ -29,7 +29,8 @@ export const LOGHI_VUSCOM = Object.freeze({
  * One tile colour per internal portal, so their icons (sidebar and browser
  * tab) tell them apart while staying the same V (Gabriele, 09/10/2026). Decided
  * here, not in each portal, so two portals can never pick the same colour. A new
- * portal gets a new entry here first. Public portals keep the original navy tile
+ * portal needs no entry: its code gets an automatic colour (registroColori.js).
+ * Public portals keep the original navy tile
  * (Portale Segnalazioni has no entry; Configuratore, which serves clients too,
  * uses navy), so a lighter blue marks the internal-only Hub Offerte.
  */
@@ -42,14 +43,7 @@ export const TESSERE_PORTALE = Object.freeze({
   braineditor: tesseraBraineditor,
 });
 
-export const COLORI_PORTALE = Object.freeze({
-  offerte: "#2563eb", // portal blue, lighter than the public navy
-  cruscotto: "#0f5c55", // petrol green
-  outbound: "#7f1d1d", // bordeaux
-  configuratore: "#1b3a69", // navy: it has public pages, and public is always the original navy
-  dataapi: "#4c1d95", // violet (Data API admin, vuscom-db#89)
-  braineditor: "#b45309", // amber (Brain Editor, BrainEditor#1)
-});
+export { COLORI_PORTALE } from "./registroColori.js";
 
 
 /**

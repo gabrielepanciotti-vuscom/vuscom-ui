@@ -17,6 +17,7 @@ import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join, dirname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
+import { isCodicePortale } from "../src/brand/registroColori.js";
 
 const QUI = dirname(fileURLToPath(import.meta.url));
 const REGOLE = JSON.parse(readFileSync(join(QUI, "conformita-regole.json"), "utf8"));
@@ -172,11 +173,12 @@ if (struttura === "appshell") {
     ),
   ];
   if (!valori.length)
-    segnala("icona-portale", `la sidebar non dice di che portale è: passare iconaPortale (${REGOLE.portali_interni.join(", ")}, oppure un colore #rrggbb), che dà alla V il colore del portale`, "src/");
+    segnala("icona-portale", `la sidebar non dice di che portale è: passare iconaPortale con il codice del portale (es. "vicky"): @vuscom/ui gli assegna un colore distinto da tutti gli altri`, "src/");
   for (const v of valori) {
     if (!v.startsWith("#")) {
-      if (!REGOLE.portali_interni.includes(v))
-        segnala("icona-portale", `iconaPortale "${v}" non è un portale noto: usare un colore #rrggbb oppure una chiave di COLORI_PORTALE (${REGOLE.portali_interni.join(", ")})`, "src/");
+      // Any portal code is fine: an unregistered one gets its automatic colour.
+      if (!isCodicePortale(v))
+        segnala("icona-portale", `iconaPortale "${v}" non è un codice di portale: serve il codice in minuscolo (es. "vicky"), il colore lo assegna @vuscom/ui da solo`, "src/");
       continue;
     }
     if (!/^#[0-9a-f]{6}$/i.test(v)) {
@@ -185,7 +187,7 @@ if (struttura === "appshell") {
     }
     const vicino = colorePiuVicino(v, { ...REGOLE.colori_portali, "il navy dei portali pubblici": REGOLE.navy_pubblico });
     if (vicino && vicino.distanza < REGOLE.distanza_minima_colori)
-      segnala("icona-portale-vicina", `il colore ${v} è troppo vicino a ${vicino.nome} (${vicino.colore}, distanza ${Math.round(vicino.distanza)} < ${REGOLE.distanza_minima_colori}): due portali sarebbero indistinguibili`, "src/");
+      segnala("icona-portale-vicina", `il colore ${v} è troppo vicino a ${vicino.nome} (${vicino.colore}, distanza ${Math.round(vicino.distanza)} < ${REGOLE.distanza_minima_colori}): due portali sarebbero indistinguibili; passa il codice del portale e il colore lo sceglie @vuscom/ui`, "src/");
   }
 }
 // altri portali (vuscom-db#89): one catalogue in @vuscom/ui, filtered by the user's access
