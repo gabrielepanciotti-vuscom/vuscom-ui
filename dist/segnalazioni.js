@@ -13,7 +13,7 @@ import {
 } from "react";
 import { AlertTriangle, CheckCircle2, Info, X, XCircle } from "lucide-react";
 
-// ../../../work/vuscom-ui/node_modules/clsx/dist/clsx.mjs
+// node_modules/clsx/dist/clsx.mjs
 function r(e) {
   var t, f, n = "";
   if ("string" == typeof e || "number" == typeof e) n += e;
@@ -28,7 +28,7 @@ function clsx() {
   return n;
 }
 
-// ../../../work/vuscom-ui/node_modules/tailwind-merge/dist/bundle-mjs.mjs
+// node_modules/tailwind-merge/dist/bundle-mjs.mjs
 var CLASS_PART_SEPARATOR = "-";
 var createClassGroupUtils = (config) => {
   const classMap = createClassMap(config);
