@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { etichettaPortale, etichettaRuolo } from "./ruoli.js";
 
 const RUOLO_COLORE = {
@@ -34,6 +36,27 @@ export function ElencoPortali({ portali }) {
       {portali.map((p) => (
         <BadgePortale key={p.portale} portale={p.portale} ruolo={p.ruolo} />
       ))}
+    </div>
+  );
+}
+
+/** Compact summary ("2 portali") that expands, on click, to the portal → role badges. */
+export function AltriPortali({ portali }) {
+  const [aperto, setAperto] = useState(false);
+  if (!portali?.length) return <span className="text-slate-400 dark:text-slate-500">—</span>;
+  const Freccia = aperto ? ChevronDown : ChevronRight;
+  return (
+    <div className="flex flex-col items-start gap-1">
+      <button
+        type="button"
+        aria-expanded={aperto}
+        onClick={() => setAperto((a) => !a)}
+        className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600 ring-1 ring-inset ring-slate-200 hover:bg-slate-200/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:bg-white/[0.06] dark:text-slate-300 dark:ring-white/10 dark:hover:bg-white/10"
+      >
+        <Freccia className="h-3 w-3" aria-hidden="true" />
+        {portali.length === 1 ? "1 portale" : `${portali.length} portali`}
+      </button>
+      {aperto && <ElencoPortali portali={portali} />}
     </div>
   );
 }

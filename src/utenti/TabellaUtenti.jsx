@@ -1,10 +1,12 @@
 import { KeyRound, Pencil, RotateCcw, Trash2, UserMinus, UserX } from "lucide-react";
-import { BadgeRuolo, ElencoPortali } from "./BadgePortale.jsx";
+import { AltriPortali, BadgeRuolo } from "./BadgePortale.jsx";
 import { ICONA_AZIONE } from "./stili.js";
 import { LIVELLO, livello } from "./ruoli.js";
-import { formattaAccesso, nomeCompleto } from "./formato.js";
+import { nomeCompleto } from "./formato.js";
+import DataOra from "../atoms/DataOra.jsx";
+import TopScrollX from "../molecules/TopScrollX.jsx";
 
-const COLONNE = ["Nome", "Username", "Email", "Ruolo", "Altri portali", "Ultimo accesso", "Stato", ""];
+const COLONNE = ["Nome", "Email", "Ruolo", "Altri portali", "Ultimo accesso", "Stato", ""];
 const CELLA = "px-3 py-2.5 align-middle";
 
 function Azione({ titolo, icona: Icona, onClick, pericolo }) {
@@ -51,7 +53,8 @@ export default function TabellaUtenti({ utenti, caricando, attore, onAzione }) {
   const adminPlus = livello(attore?.ruolo) >= LIVELLO.admin;
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
+    <div className="rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
+      <TopScrollX ariaLabel="Tabella utenti scorrevole">
       <table className="min-w-full text-left text-[13px]">
         <thead className="border-b border-slate-100 bg-slate-50/70 text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:border-white/[0.06] dark:bg-white/[0.02] dark:text-slate-400">
           <tr>
@@ -75,11 +78,10 @@ export default function TabellaUtenti({ utenti, caricando, attore, onAzione }) {
                   {nomeCompleto(u)}
                   {io && <span className="ml-1.5 text-[11px] font-normal text-slate-400">(tu)</span>}
                 </td>
-                <td className={`${CELLA} text-slate-600 dark:text-slate-300`}>{u.username}</td>
                 <td className={`${CELLA} text-slate-600 dark:text-slate-300`}>{u.email || "—"}</td>
                 <td className={CELLA}><BadgeRuolo ruolo={u.ruolo} /></td>
-                <td className={CELLA}><ElencoPortali portali={u.altri_portali} /></td>
-                <td className={`${CELLA} whitespace-nowrap text-slate-500 dark:text-slate-400`}>{formattaAccesso(u.last_login)}</td>
+                <td className={CELLA}><AltriPortali portali={u.altri_portali} /></td>
+                <td className={`${CELLA} text-slate-500 dark:text-slate-400`}>{u.last_login ? <DataOra value={u.last_login} /> : "mai"}</td>
                 <td className={CELLA}><Stato attivo={u.is_active} /></td>
                 <td className={`${CELLA} whitespace-nowrap text-right`}>
                   <div className="inline-flex gap-0.5">
@@ -102,6 +104,7 @@ export default function TabellaUtenti({ utenti, caricando, attore, onAzione }) {
           })}
         </tbody>
       </table>
+      </TopScrollX>
     </div>
   );
 }

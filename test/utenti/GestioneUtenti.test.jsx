@@ -25,6 +25,7 @@ const IO = {
   ...MARIO,
   id: 21,
   username: "io",
+  email: "io@example.com",
   nome: "Io",
   cognome: "Admin",
   ruolo: "admin",
@@ -63,10 +64,17 @@ describe("GestioneUtenti", () => {
   it("renders the list with other-portal badges", async () => {
     const client = makeClient();
     renderPage(client);
-    expect(await screen.findByText("mario.bianchi")).toBeInTheDocument();
+    expect(await screen.findByText("mario@example.com")).toBeInTheDocument();
+    expect(screen.queryByText("mario.bianchi")).not.toBeInTheDocument();
+    expect(screen.queryByRole("columnheader", { name: "Username" })).not.toBeInTheDocument();
     expect(screen.getByText("Utenti — Cruscotto")).toBeInTheDocument();
-    expect(screen.getAllByText(/Hub Offerte/).length).toBeGreaterThan(0);
-    expect(screen.getByText("20/09/2026 08:05")).toBeInTheDocument();
+    const riepilogo = screen.getByRole("button", { name: /1 portale/ });
+    expect(riepilogo).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByText(/Hub Offerte/)).not.toBeInTheDocument();
+    await userEvent.click(riepilogo);
+    expect(riepilogo).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByText(/Hub Offerte/)).toBeInTheDocument();
+    expect(screen.getByText("08:05")).toBeInTheDocument();
     expect(screen.getByText("mai")).toBeInTheDocument();
     expect(client.get).toHaveBeenCalledWith(
       "/api/utenti?includi_disattivati=false",
@@ -99,7 +107,7 @@ describe("GestioneUtenti", () => {
         }),
     });
     renderPage(client);
-    await screen.findByText("mario.bianchi");
+    await screen.findByText("mario@example.com");
     await user.click(screen.getByRole("button", { name: "Nuovo utente" }));
     await user.type(screen.getByLabelText("Username"), "mrossi");
     await user.type(screen.getByLabelText(/^Nome/), "Mario");
@@ -157,7 +165,7 @@ describe("GestioneUtenti", () => {
         }),
     });
     renderPage(client);
-    await screen.findByText("mario.bianchi");
+    await screen.findByText("mario@example.com");
     await user.click(screen.getByRole("button", { name: "Nuovo utente" }));
     await user.type(screen.getByLabelText("Username"), "mrossi");
     await user.type(screen.getByLabelText(/^Nome/), "Mario");
@@ -189,7 +197,7 @@ describe("GestioneUtenti", () => {
   it("disables Crea utente until nome and cognome are filled", async () => {
     const user = userEvent.setup();
     renderPage(makeClient());
-    await screen.findByText("mario.bianchi");
+    await screen.findByText("mario@example.com");
     await user.click(screen.getByRole("button", { name: "Nuovo utente" }));
     const crea = screen.getByRole("button", { name: "Crea utente" });
     await user.type(screen.getByLabelText("Username"), "mrossi");
@@ -212,7 +220,7 @@ describe("GestioneUtenti", () => {
       }),
     });
     renderPage(client);
-    await screen.findByText("mario.bianchi");
+    await screen.findByText("mario@example.com");
     await user.click(screen.getByRole("button", { name: "Nuovo utente" }));
     await user.type(screen.getByLabelText("Username"), "nuovo");
     await user.type(screen.getByLabelText(/^Nome/), "Nuovo");
@@ -273,7 +281,7 @@ describe("GestioneUtenti", () => {
       ),
     );
     renderPage(client);
-    const riga = (await screen.findByText("mario.bianchi")).closest("tr");
+    const riga = (await screen.findByText("mario@example.com")).closest("tr");
     await user.click(within(riga).getByTitle("Elimina"));
     expect(client.get).toHaveBeenCalledWith("/api/utenti/7/eliminazione");
     expect(await screen.findByText(/dati collegati/)).toBeInTheDocument();
@@ -292,12 +300,12 @@ describe("GestioneUtenti", () => {
   it("hides admin-only actions from a manager and self-actions from the actor", async () => {
     const client = makeClient();
     renderPage(client, { id: 21, ruolo: "manager" });
-    await screen.findByText("mario.bianchi");
+    await screen.findByText("mario@example.com");
     expect(screen.queryByTitle("Elimina")).toBeNull();
     expect(screen.queryByTitle("Disattiva")).toBeNull();
-    const mia = screen.getByText("io").closest("tr");
+    const mia = screen.getByText("io@example.com").closest("tr");
     expect(within(mia).queryByTitle("Togli accesso")).toBeNull();
-    const sua = screen.getByText("mario.bianchi").closest("tr");
+    const sua = screen.getByText("mario@example.com").closest("tr");
     expect(within(sua).getByTitle("Togli accesso")).toBeInTheDocument();
   });
 
@@ -305,7 +313,7 @@ describe("GestioneUtenti", () => {
     const user = userEvent.setup();
     const client = makeClient({ put: vi.fn().mockResolvedValue(MARIO) });
     renderPage(client);
-    const riga = (await screen.findByText("mario.bianchi")).closest("tr");
+    const riga = (await screen.findByText("mario@example.com")).closest("tr");
     await user.click(within(riga).getByTitle("Modifica"));
     const nome = screen.getByLabelText(/^Nome/);
     await user.clear(nome);
@@ -323,7 +331,7 @@ describe("GestioneUtenti", () => {
     const user = userEvent.setup();
     const client = makeClient();
     renderPage(client);
-    const riga = (await screen.findByText("mario.bianchi")).closest("tr");
+    const riga = (await screen.findByText("mario@example.com")).closest("tr");
     await user.click(within(riga).getByTitle("Modifica"));
     const salva = screen.getByRole("button", { name: "Salva" });
     await user.clear(screen.getByLabelText(/^Nome/));
@@ -349,7 +357,7 @@ describe("GestioneUtenti", () => {
       ),
     });
     renderPage(client);
-    const riga = (await screen.findByText("mario.bianchi")).closest("tr");
+    const riga = (await screen.findByText("mario@example.com")).closest("tr");
     await user.click(within(riga).getByTitle("Togli accesso"));
     const dialogo = screen.getByRole("dialog");
     expect(
@@ -370,7 +378,7 @@ describe("GestioneUtenti", () => {
     const user = userEvent.setup();
     const client = makeClient();
     const { container } = renderPage(client);
-    await screen.findByText("mario.bianchi");
+    await screen.findByText("mario@example.com");
     const nativi = "select, input[type=checkbox], input[type=radio]";
     expect(container.querySelector(nativi)).toBeNull();
     await user.click(screen.getByRole("button", { name: "Nuovo utente" }));
@@ -380,7 +388,7 @@ describe("GestioneUtenti", () => {
   it("focuses the first field on open and restores focus to the opener on close", async () => {
     const user = userEvent.setup();
     renderPage(makeClient());
-    await screen.findByText("mario.bianchi");
+    await screen.findByText("mario@example.com");
     const apri = screen.getByRole("button", { name: "Nuovo utente" });
     await user.click(apri);
     expect(screen.getByLabelText("Username")).toHaveFocus();
@@ -420,7 +428,7 @@ describe("GestioneUtenti", () => {
           ),
       });
       renderPage(client);
-      await screen.findByText("mario.bianchi");
+      await screen.findByText("mario@example.com");
       await user.click(screen.getByRole("button", { name: "Nuovo utente" }));
       await user.type(screen.getByLabelText("Username"), "mrossi");
       await user.type(screen.getByLabelText(/^Nome/), "Mario");
@@ -441,7 +449,7 @@ describe("GestioneUtenti", () => {
       }),
     });
     renderPage(client);
-    await screen.findByText("mario.bianchi");
+    await screen.findByText("mario@example.com");
     await user.click(screen.getByRole("button", { name: "Nuovo utente" }));
     await user.type(screen.getByLabelText("Username"), "nuovo");
     await user.type(screen.getByLabelText(/^Nome/), "Nuovo");
@@ -464,7 +472,7 @@ describe("GestioneUtenti", () => {
       Promise.resolve(path.includes("/cerca") ? [MARIO] : [MARIO, IO]),
     );
     renderPage(client);
-    await screen.findByText("mario.bianchi");
+    await screen.findByText("mario@example.com");
     await user.click(
       screen.getByRole("button", { name: "Aggiungi utente esistente" }),
     );
@@ -494,7 +502,7 @@ describe("GestioneUtenti", () => {
       Promise.resolve(path.includes("/cerca") ? [MARIO] : [MARIO, IO]),
     );
     renderPage(client);
-    await screen.findByText("mario.bianchi");
+    await screen.findByText("mario@example.com");
     await user.click(
       screen.getByRole("button", { name: "Aggiungi utente esistente" }),
     );
@@ -534,7 +542,7 @@ describe("GestioneUtenti", () => {
       Promise.resolve(path.includes("/cerca") ? [MARIO] : [MARIO, IO]),
     );
     renderPage(client);
-    await screen.findByText("mario.bianchi");
+    await screen.findByText("mario@example.com");
     await user.click(
       screen.getByRole("button", { name: "Aggiungi utente esistente" }),
     );
@@ -571,7 +579,7 @@ describe("GestioneUtenti", () => {
       Promise.resolve(path.includes("/cerca") ? [SENZA_EMAIL] : [MARIO, IO]),
     );
     renderPage(client);
-    await screen.findByText("mario.bianchi");
+    await screen.findByText("mario@example.com");
     await user.click(
       screen.getByRole("button", { name: "Aggiungi utente esistente" }),
     );
@@ -603,7 +611,7 @@ describe("GestioneUtenti", () => {
   it("does not offer a lower role on the actor's own row", async () => {
     const user = userEvent.setup();
     renderPage(makeClient());
-    const mia = (await screen.findByText("io")).closest("tr");
+    const mia = (await screen.findByText("io@example.com")).closest("tr");
     await user.click(within(mia).getByTitle("Modifica"));
     expect(screen.queryByRole("radio", { name: "viewer" })).toBeNull();
     expect(screen.queryByRole("radio", { name: "manager" })).toBeNull();

@@ -344,6 +344,12 @@ su 204) e, su errore HTTP, **lancia** un `Error` con `.status` (numero) e `.body
 che ha fallito, e riconosce il 409 `{detail: {codice: "esiste", utente}}` per
 proporre «Dai accesso a …» invece di un errore.
 
+La tabella è pensata stretta (dalla 1.22.0): niente colonna Username (resta nella
+ricerca e nei titoli delle finestre), «Altri portali» è un solo chip «N portali» che
+si apre con un click sul dettaglio portale → ruolo, «Ultimo accesso» va su due righe
+(data sopra, ora sotto) e una barra di scorrimento sta anche in alto (`TopScrollX`),
+così le azioni a fine riga si vedono senza scorrere.
+
 Le regole di permesso le applica il backend; la pagina nasconde solo ciò che
 l'attore non potrebbe mai fare (Disattiva/Riattiva/Elimina sotto admin, le
 azioni distruttive sulla propria riga). Niente `<select>`, checkbox o radio
