@@ -1,5 +1,5 @@
 {
-  "_nota": "Portali che usano @vuscom/ui. 'frontend' è relativo a $VUSCOM_SRV (default: la cartella che contiene questo repo). 'usa' elenca i moduli del pacchetto che il portale importa: index (@vuscom/ui), utenti, segnalazioni, grafici, preset, theme (theme.css), conformita (npx vuscom-ui-conformita). Letto da scripts/rilascia-e-notifica.mjs e scripts/controlla-deriva.mjs.",
+  "_nota": "Portali che usano @vuscom/ui. 'frontend' è relativo a $VUSCOM_SRV (default: la cartella che contiene questo repo). 'usa' elenca i moduli del pacchetto che il portale importa: index (@vuscom/ui), utenti, segnalazioni, grafici, email, preset, theme (theme.css), conformita (npx vuscom-ui-conformita). Letto da scripts/rilascia-e-notifica.mjs e scripts/controlla-deriva.mjs.",
   "consumatori": [
     {
       "nome": "Offerte",
@@ -12,7 +12,8 @@
         "segnalazioni",
         "preset",
         "theme",
-        "conformita"
+        "conformita",
+        "email"
       ]
     },
     {
