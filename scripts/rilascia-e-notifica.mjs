@@ -51,7 +51,8 @@ function apriConversazione(agente, oggetto, testo) {
     encoding: "utf8",
     stdio: ["ignore", "pipe", "ignore"],
   });
-  const id = JSON.parse(out)?.id;
+  // hub_send prints "conv_id=N ..." (older versions printed JSON)
+  const id = Number(/conv_id=(\d+)/.exec(out)?.[1] ?? JSON.parse(out)?.id);
   if (!Number.isInteger(id)) throw new Error(`risposta del bus senza id per ${agente}`);
   return id;
 }
