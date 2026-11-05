@@ -51,6 +51,10 @@ describe("moduliCambiati", () => {
     ).toEqual(["segnalazioni", "theme", "conformita"]);
   });
 
+  it("knows the email entry", () => {
+    expect(moduliCambiati(["dist/email.js"])).toEqual(["email"]);
+  });
+
   it("returns nothing for a docs-only release", () => {
     expect(
       moduliCambiati([

@@ -10,6 +10,7 @@ const FILE_MODULO = {
   "dist/utenti.js": "utenti",
   "dist/segnalazioni.js": "segnalazioni",
   "dist/grafici.js": "grafici",
+  "dist/email.js": "email",
   "dist/preset.cjs": "preset",
   "dist/theme.css": "theme",
 };
