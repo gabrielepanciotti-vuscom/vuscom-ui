@@ -105,12 +105,10 @@ test("select typeahead accumulates a multi-letter prefix", async () => {
   render(<Select aria-label="Lettera" value="a" options={lettere} />);
   const trigger = screen.getByRole("combobox", { name: "Lettera" });
   trigger.focus();
-  await userEvent.keyboard("b");
-  expect(trigger).toHaveAttribute(
-    "aria-activedescendant",
-    screen.getByRole("option", { name: "Beta" }).id,
-  );
-  await userEvent.keyboard("r");
+  // One call, so no assertion sits between the keys: on a loaded machine that gap
+  // could exceed the buffer pause. "r" alone matches nothing, so landing on Bravo
+  // proves the prefix "br" was accumulated.
+  await userEvent.keyboard("br");
   expect(trigger).toHaveAttribute(
     "aria-activedescendant",
     screen.getByRole("option", { name: "Bravo" }).id,

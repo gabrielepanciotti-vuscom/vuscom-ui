@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom/vitest";
 import { act } from "react";
 import { configure } from "@testing-library/dom";
+import { configure as configureRtl } from "@testing-library/react";
 
 // @testing-library/react 14 bundles its own @testing-library/dom (9.x) and
 // wires only that copy to React's act(); user-event resolves the top-level
@@ -33,3 +34,9 @@ configure({
     }
   },
 });
+
+// findBy*/waitFor give up after 1 s by default: on the shared dev box (load often
+// above the core count) a render plus a mocked fetch can take longer. Set on both
+// copies of @testing-library/dom (RTL's own, behind `screen`, and the top-level one).
+configure({ asyncUtilTimeout: 5000 });
+configureRtl({ asyncUtilTimeout: 5000 });

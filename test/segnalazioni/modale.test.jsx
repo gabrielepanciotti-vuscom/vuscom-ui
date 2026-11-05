@@ -117,10 +117,10 @@ test("retry after 503 reuses the same segnalazione_id", async () => {
   render(<Pagina fetchImpl={fetchImpl} />);
   await apriSenzaElemento(user);
 
-  await user.type(
-    screen.getByRole("textbox", { name: /cosa non va/i }),
-    "Il totale è sbagliato",
-  );
+  // Pasted, not typed: three round trips plus per-key typing overran the 5 s
+  // timeout on a loaded machine. Typing itself is covered by the other tests.
+  await user.click(screen.getByRole("textbox", { name: /cosa non va/i }));
+  await user.paste("Il totale è sbagliato");
   await user.click(screen.getByRole("button", { name: /^invia$/i }));
   expect(
     await screen.findByText("Non sono riuscito a inviarla. Riprova."),
