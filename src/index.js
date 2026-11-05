@@ -79,6 +79,12 @@ export { default as AccessoMicrosoft } from "./accesso/AccessoMicrosoft.jsx";
 export { default as AltriPortali } from "./accesso/AltriPortali.jsx";
 export { default as PortaliSidebar } from "./accesso/PortaliSidebar.jsx";
 export {
+  BASE_SSO,
+  esciSessioneVuscom,
+  scambiaSessioneVuscom,
+  useSessioneVuscom,
+} from "./accesso/sessioneVuscom.js";
+export {
   PORTALI_INTERNI,
   PARAMETRO_ACCEDI,
   altriPortali,

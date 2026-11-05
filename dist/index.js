@@ -6137,7 +6137,7 @@ function ConfirmDialog({
   tone = "primary",
   requireText
 }) {
-  const inCorso = useRef10(false);
+  const inCorso2 = useRef10(false);
   const generazione = useRef10(0);
   const [loading, setLoading] = useState14(false);
   const [errore, setErrore] = useState14(null);
@@ -6145,7 +6145,7 @@ function ConfirmDialog({
   useEffect13(() => {
     if (!open) {
       generazione.current += 1;
-      inCorso.current = false;
+      inCorso2.current = false;
       setLoading(false);
       setErrore(null);
       setTesto("");
@@ -6153,9 +6153,9 @@ function ConfirmDialog({
   }, [open]);
   const sbloccato = !requireText || testo.trim() === requireText;
   async function conferma() {
-    if (inCorso.current || !sbloccato) return;
+    if (inCorso2.current || !sbloccato) return;
     const mia = generazione.current;
-    inCorso.current = true;
+    inCorso2.current = true;
     setLoading(true);
     setErrore(null);
     try {
@@ -6168,13 +6168,13 @@ function ConfirmDialog({
         );
     } finally {
       if (mia === generazione.current) {
-        inCorso.current = false;
+        inCorso2.current = false;
         setLoading(false);
       }
     }
   }
   const chiudi = () => {
-    if (!inCorso.current) onClose();
+    if (!inCorso2.current) onClose();
   };
   return /* @__PURE__ */ jsx42(
     Dialog,
@@ -6814,7 +6814,7 @@ function chiestoDaAltroPortale() {
 }
 function useAccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso } = {}) {
   const [disponibile, setDisponibile] = useState18(false);
-  const [inCorso, setInCorso] = useState18(false);
+  const [inCorso2, setInCorso] = useState18(false);
   const [errore, setErrore] = useState18("");
   useEffect17(() => {
     let attivo = true;
@@ -6868,7 +6868,7 @@ function useAccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso } = {}) {
     setInCorso(true);
     window.location.assign(`${base}/login`);
   }, [base]);
-  return { disponibile, inCorso, errore, accedi };
+  return { disponibile, inCorso: inCorso2, errore, accedi };
 }
 
 // src/accesso/AccessoMicrosoft.jsx
@@ -6882,11 +6882,11 @@ function LogoMicrosoft() {
   ] });
 }
 function AccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso, className, separatore = true }) {
-  const { disponibile, inCorso, errore, accedi } = useAccessoMicrosoft({ base, onAccesso });
-  if (!disponibile && !errore && !inCorso) return null;
+  const { disponibile, inCorso: inCorso2, errore, accedi } = useAccessoMicrosoft({ base, onAccesso });
+  if (!disponibile && !errore && !inCorso2) return null;
   return /* @__PURE__ */ jsxs41("div", { className: cn("space-y-4", className), children: [
     errore && /* @__PURE__ */ jsx48(Alert, { tone: "danger", children: errore }),
-    (disponibile || inCorso) && /* @__PURE__ */ jsxs41(Fragment8, { children: [
+    (disponibile || inCorso2) && /* @__PURE__ */ jsxs41(Fragment8, { children: [
       separatore && /* @__PURE__ */ jsxs41("div", { className: "flex items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground", children: [
         /* @__PURE__ */ jsx48("span", { className: "h-px flex-1 bg-border" }),
         "oppure",
@@ -6899,7 +6899,7 @@ function AccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso, className, separat
           variant: "outline",
           size: "lg",
           fullWidth: true,
-          loading: inCorso,
+          loading: inCorso2,
           icon: LogoMicrosoft,
           onClick: accedi,
           children: "Accedi con Microsoft"
@@ -7043,6 +7043,51 @@ function LoginPage({
     ] })
   ] });
 }
+
+// src/accesso/sessioneVuscom.js
+import { useEffect as useEffect18, useState as useState20 } from "react";
+var BASE_SSO = "/api/auth/sso";
+var inCorso = null;
+function scambiaSessioneVuscom({ base = BASE_SSO } = {}) {
+  if (!inCorso) {
+    inCorso = (async () => {
+      try {
+        const res = await fetch(`${base}/scambia`, { method: "POST", credentials: "same-origin" });
+        return res.ok ? await res.json() : null;
+      } catch {
+        return null;
+      } finally {
+        inCorso = null;
+      }
+    })();
+  }
+  return inCorso;
+}
+async function esciSessioneVuscom({ base = BASE_SSO } = {}) {
+  try {
+    await fetch(`${base}/esci`, { method: "POST", credentials: "same-origin" });
+  } catch {
+  }
+}
+function useSessioneVuscom({ autenticato, onAccesso, base = BASE_SSO } = {}) {
+  const [verificando, setVerificando] = useState20(!autenticato);
+  useEffect18(() => {
+    if (autenticato) {
+      setVerificando(false);
+      return void 0;
+    }
+    let attivo = true;
+    setVerificando(true);
+    scambiaSessioneVuscom({ base }).then(async (dati) => {
+      if (dati && attivo) await onAccesso?.(dati);
+      if (attivo) setVerificando(false);
+    });
+    return () => {
+      attivo = false;
+    };
+  }, [autenticato, base]);
+  return { verificando };
+}
 export {
   AccessoMicrosoft,
   Alert,
@@ -7050,6 +7095,7 @@ export {
   AppShell,
   AppSidebar,
   BASE_MICROSOFT,
+  BASE_SSO,
   Badge,
   BarraFiltriPeriodo,
   BarraInline,
@@ -7115,6 +7161,7 @@ export {
   collectGroupIds,
   coloreAutomatico,
   coloreTesto,
+  esciSessioneVuscom,
   esportaCsv,
   formatData,
   formatDataIt,
@@ -7135,11 +7182,13 @@ export {
   periodsBetween,
   portaliRicordati,
   ricordaPortali,
+  scambiaSessioneVuscom,
   tabPanelId,
   toCsv,
   toUtcDay,
   useAccessoMicrosoft,
   useFaviconVuscom,
+  useSessioneVuscom,
   useSidebarCompatta,
   useSort,
   useTabIds,

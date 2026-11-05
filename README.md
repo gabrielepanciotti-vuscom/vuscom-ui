@@ -537,3 +537,27 @@ con un tag `vMAJOR.MINOR.PATCH` su `main`; i progetti si aggiornano cambiando il
   Microsoft è l'unico metodo di accesso, per non mostrare «oppure» senza un'alternativa.
 - `useAccessoMicrosoft({ base, onAccesso })` → `{ disponibile, inCorso, errore, accedi }` per chi
   vuole un aspetto diverso.
+
+## Sessione VUS COM unica (dalla 1.24.0)
+
+Lato frontend di `vuscom_auth.sso` (vuscom-auth 1.19.0): login una volta, dentro in tutti i
+portali `*.vuscom.dev` per mesi. Il backend monta `crea_router_sso` su `/api/auth/sso`.
+
+```jsx
+import { useSessioneVuscom, scambiaSessioneVuscom, esciSessioneVuscom } from "@vuscom/ui";
+
+// 1. all'avvio, prima del form di login
+const { verificando } = useSessioneVuscom({ autenticato: !!token, onAccesso: salvaSessione });
+if (verificando) return <Caricamento />;
+
+// 2. nel client API, su un 401: riprova una volta con la sessione VUS COM
+const dati = await scambiaSessioneVuscom();      // null = vai al login
+if (dati) { salvaSessione(dati); return riprova(); }
+
+// 3. al logout del portale
+await esciSessioneVuscom();
+```
+
+- `onAccesso` riceve la stessa risposta del login con password: salvala allo stesso modo.
+- Più 401 insieme condividono un solo scambio.
+- `null` copre 401 (nessuna sessione), 403 (nessun accesso a questo portale) e rete giù.
