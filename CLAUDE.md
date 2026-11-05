@@ -9,7 +9,7 @@ React 18 + Tailwind 3 (preset) · esbuild · vitest + Testing Library · peer: r
 Repo pubblico, `dist/` versionato, rilascio per tag `vX.Y.Z` (oggi v1.22.0). Path: `$PATH_VUSCOM_UI`.
 
 ## Struttura
-- `src/{atoms,molecules,organisms,templates,theme,brand,lib,accesso,segnalazioni,utenti,grafici}`, `src/AppSidebar.jsx`, `src/navTree.js`
+- `src/{atoms,molecules,organisms,templates,theme,brand,lib,accesso,segnalazioni,utenti,grafici,email}`, `src/AppSidebar.jsx`, `src/navTree.js`
 - `bin/conformita.mjs` + `bin/conformita-regole.json` — tester dei portali (regole come dati)
 - `consumatori.json` + `scripts/` — portali consumer, notifica di rilascio, controllo di deriva
 - `catalogo/` — pagina di ogni componente · `test/` — specchio di `src/` · `build.mjs` → `dist/`
@@ -21,7 +21,7 @@ npx vuscom-ui-conformita                                    # dentro un portale
 ```
 
 ## Entry
-`@vuscom/ui`, `/utenti`, `/segnalazioni`, `/grafici` (chart.js 4.4.x peer opzionale), `/preset`, `/theme.css`. Props e uso: `README.md`.
+`@vuscom/ui`, `/utenti`, `/segnalazioni`, `/grafici`, `/email` (chart.js 4.4.x peer opzionale), `/preset`, `/theme.css`. Props e uso: `README.md`.
 
 ## Regole del pacchetto
 Solo presentazione · nessun controllo nativo · niente esadecimali nei componenti · max 300 righe per file ·

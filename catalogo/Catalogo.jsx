@@ -10,6 +10,7 @@ import Moduli from "./sezioni/Moduli.jsx";
 import Dati from "./sezioni/Dati.jsx";
 import Feedback from "./sezioni/Feedback.jsx";
 import Report from "./sezioni/Report.jsx";
+import Email from "./sezioni/Email.jsx";
 import {
   azioniSegnalazioni,
   SegnalazioniProvider,
@@ -70,6 +71,7 @@ export default function Catalogo() {
             <Moduli />
             <Dati />
             <Report />
+            <Email />
             <Feedback />
           </div>
         </AppShell>

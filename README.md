@@ -474,6 +474,29 @@ Righe con il campo `campagna` vengono filtrate su quella scelta; senza, sono tut
 `etichetteIndicatori` (`{chiave: "Etichetta"}`) e `formatiIndicatori` (`{chiave: "euro"|"numero"}`)
 correggono le etichette e l'unità degli indicatori (di default `bonus_*`, `costo*`, `margine*` sono euro).
 
+## Editor dei template email (`@vuscom/ui/email`, dalla 1.23.0)
+
+```jsx
+import { EmailTemplateEditor } from "@vuscom/ui/email";
+
+<EmailTemplateEditor
+  value={template}            // JSON v1: { version: 1, subject, blocks: [...] }
+  onChange={setTemplate}      // riceve sempre un oggetto nuovo
+  catalog={{ variables: [{ name, label }], dataBlocks: [{ name, label, description, kind }] }}
+  preview={{ subject, html, parts }}   // dal backend: parts[block.id] = HTML dei blocchi dati
+  toolbar={<ScegliPratica />} // slot nella barra in alto (opzionale)
+  onSendTest={() => {}}       // mostra «Prova a me» (opzionale)
+  sourceLabel="Hub"           // «Calcolato da Hub» sui blocchi dati (default «progetto»)
+/>
+```
+
+Tre colonne: palette (blocchi base, blocchi dati del progetto, variabili), email con barra del blocco
+(trascina, su, giù, duplica, elimina) e proprietà del blocco scelto, compresi «Mostra solo se»
+(`show_if`) e «Se i dati mancano» (`missing`). Nei testi `{{nome}}` è un'etichetta non modificabile e
+si salva com'è; il testo ricco tiene solo `b i a br span[data-tone]`. «Anteprima» mostra
+`preview.html` in un iframe `sandbox=""` largo 640 o 375 px. Il blocco `html` dei template vecchi si
+vede ma non si offre. Il progetto mette pagina, Salva e scelta dei dati di prova.
+
 ## Sviluppo e versionamento
 
 ```bash

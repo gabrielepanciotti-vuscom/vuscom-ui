@@ -23,6 +23,10 @@
       "import": "./dist/grafici.js",
       "default": "./dist/grafici.js"
     },
+    "./email": {
+      "import": "./dist/email.js",
+      "default": "./dist/email.js"
+    },
     "./preset": {
       "require": "./dist/preset.cjs",
       "default": "./dist/preset.cjs"
