@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { etichettaRuolo } from "./ruoli.js";
 
 /**
  * Segmented role picker (role="radiogroup"), never a native <select>.
@@ -42,7 +43,7 @@ export default function SelettoreRuolo({ ruoli, valore, onCambia, etichetta = "R
                   : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
               }`}
             >
-              {r}
+              {etichettaRuolo(r)}
             </button>
           );
         })}

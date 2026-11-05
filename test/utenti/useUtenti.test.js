@@ -1,7 +1,7 @@
 import { renderHook, waitFor, act } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { useUtenti } from "../../src/utenti/useUtenti.js";
-import { ruoliAssegnabili, livello, ETICHETTE_PORTALE } from "../../src/utenti/ruoli.js";
+import { ruoliAssegnabili, livello, eLaterale, etichettaRuolo, ETICHETTE_PORTALE } from "../../src/utenti/ruoli.js";
 
 describe("useUtenti", () => {
   it("loads the list and reloads with the disabled flag", async () => {
@@ -36,8 +36,12 @@ describe("useUtenti", () => {
 describe("ruoli", () => {
   it("limits assignable roles by actor level", () => {
     expect(ruoliAssegnabili("manager")).toEqual(["viewer", "manager"]);
-    expect(ruoliAssegnabili("admin")).toEqual(["viewer", "manager", "admin"]);
-    expect(ruoliAssegnabili("superadmin")).toEqual(["viewer", "manager", "admin", "superadmin"]);
+    expect(ruoliAssegnabili("admin")).toEqual(["viewer", "manager", "billing", "admin"]);
+    expect(ruoliAssegnabili("superadmin")).toEqual(["viewer", "manager", "billing", "admin", "superadmin"]);
+    expect(livello("billing")).toBe(1);
+    expect(eLaterale("billing")).toBe(true);
+    expect(eLaterale("manager")).toBe(false);
+    expect(etichettaRuolo("billing")).toBe("Fatturazione");
     expect(livello("boh")).toBe(0);
   });
 });

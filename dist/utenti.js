@@ -6,8 +6,16 @@ import { AlertCircle as AlertCircle2, Search as Search2, UserPlus, Users } from 
 import { KeyRound, Pencil, RotateCcw, Trash2, UserMinus, UserX } from "lucide-react";
 
 // src/utenti/ruoli.js
-var RUOLI = ["viewer", "manager", "admin", "superadmin"];
-var LIVELLO = { viewer: 1, manager: 2, admin: 3, superadmin: 4 };
+var RUOLI = ["viewer", "manager", "billing", "admin", "superadmin"];
+var LIVELLO = { viewer: 1, manager: 2, admin: 3, superadmin: 4, billing: 1 };
+var RUOLI_LATERALI = ["billing"];
+var ETICHETTE_RUOLO = { billing: "Fatturazione" };
+function eLaterale(ruolo) {
+  return RUOLI_LATERALI.includes(ruolo);
+}
+function etichettaRuolo(ruolo) {
+  return ETICHETTE_RUOLO[ruolo] || ruolo;
+}
 var ETICHETTE_PORTALE = {
   offerte: "Hub Offerte",
   cruscotto: "Cruscotto",
@@ -20,7 +28,7 @@ function ruoliAssegnabili(ruoloAttore) {
   const lv = livello(ruoloAttore);
   if (lv >= LIVELLO.superadmin) return [...RUOLI];
   const tetto = Math.min(lv, LIVELLO.admin);
-  return RUOLI.filter((r) => livello(r) <= tetto);
+  return RUOLI.filter((r) => livello(r) <= tetto && (!eLaterale(r) || lv >= LIVELLO.admin));
 }
 function etichettaPortale(portale) {
   return ETICHETTE_PORTALE[portale] || portale;
@@ -32,19 +40,20 @@ var RUOLO_COLORE = {
   superadmin: "bg-purple-50 text-purple-700 ring-purple-200 dark:bg-purple-500/10 dark:text-purple-300 dark:ring-purple-500/30",
   admin: "bg-brand-50 text-brand-700 ring-brand-200 dark:bg-brand-500/10 dark:text-brand-300 dark:ring-brand-500/30",
   manager: "bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/30",
+  billing: "bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30",
   viewer: "bg-slate-100 text-slate-600 ring-slate-200 dark:bg-white/[0.06] dark:text-slate-300 dark:ring-white/10"
 };
 var pillola = "inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ring-inset";
 function BadgeRuolo({ ruolo }) {
   if (!ruolo) return /* @__PURE__ */ jsx("span", { className: "text-slate-400 dark:text-slate-500", children: "\u2014" });
-  return /* @__PURE__ */ jsx("span", { className: `${pillola} capitalize ${RUOLO_COLORE[ruolo] || RUOLO_COLORE.viewer}`, children: ruolo });
+  return /* @__PURE__ */ jsx("span", { className: `${pillola} capitalize ${RUOLO_COLORE[ruolo] || RUOLO_COLORE.viewer}`, children: etichettaRuolo(ruolo) });
 }
 function BadgePortale({ portale, ruolo }) {
   return /* @__PURE__ */ jsxs("span", { className: `${pillola} ${RUOLO_COLORE[ruolo] || RUOLO_COLORE.viewer}`, children: [
     etichettaPortale(portale),
     ruolo && /* @__PURE__ */ jsxs("span", { className: "opacity-70", children: [
       "\xB7 ",
-      ruolo
+      etichettaRuolo(ruolo)
     ] })
   ] });
 }
@@ -326,7 +335,7 @@ function SelettoreRuolo({ ruoli, valore, onCambia, etichetta = "Ruolo" }) {
               onClick: () => onCambia(r),
               onKeyDown: (e) => tasto(e, i),
               className: `rounded-md px-3 py-1.5 text-[12.5px] font-medium capitalize transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 ${scelto ? "bg-white text-brand-700 shadow-sm dark:bg-slate-800 dark:text-brand-300" : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"}`,
-              children: r
+              children: etichettaRuolo(r)
             },
             r
           );
@@ -1359,9 +1368,12 @@ function GestioneUtenti({
 }
 export {
   ETICHETTE_PORTALE,
+  ETICHETTE_RUOLO,
   GestioneUtenti,
   LIVELLO,
   RUOLI,
+  eLaterale,
+  etichettaRuolo,
   livello,
   ruoliAssegnabili,
   useUtenti
