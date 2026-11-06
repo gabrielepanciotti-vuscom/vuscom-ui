@@ -5,6 +5,7 @@ import {
   MousePointerClick,
   PanelBottom,
   Table,
+  Terminal,
   Type,
 } from "lucide-react";
 
@@ -19,6 +20,7 @@ export const BASE_BLOCKS = [
   { type: "divider", label: "Separatore", icon: Minus },
   { type: "image", label: "Logo", icon: Image },
   { type: "footer", label: "Piè di pagina", icon: PanelBottom },
+  { type: "code", label: "Dettaglio tecnico", icon: Terminal },
 ];
 
 export const TYPE_LABEL = {
@@ -41,6 +43,7 @@ const DEFAULTS = {
   divider: () => ({}),
   image: () => ({ asset: "logo_vuscom_blu.png", width: 160 }),
   footer: () => ({ html: FOOTER_HTML }),
+  code: () => ({ text: "" }),
   data: () => ({ missing: "warn" }),
 };
 

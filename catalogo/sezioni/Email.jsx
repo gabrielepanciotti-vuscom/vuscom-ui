@@ -36,6 +36,7 @@ const INIZIALE = {
     { id: "b7", type: "text", html: "In allegato il report Cerved.", show_if: "cerved" },
     { id: "b8", type: "button", label: "Apri la pratica", url: "{{link_pratica}}", style: "primary" },
     { id: "b9", type: "divider" },
+    { id: "b9b", type: "code", text: "Errore 500 su {{cliente}}" },
     { id: "b10", type: "footer", html: "Sede legale: {{sede}}<br>{{cap_citta}}<br>{{email}}" },
   ],
 };

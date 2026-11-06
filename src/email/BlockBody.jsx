@@ -84,7 +84,17 @@ export default function BlockBody({ block, onPatch, catalog, preview, sourceLabe
           VUS COM
         </div>
         <Editable rich aria-label="Piè di pagina" value={block.html} onChange={(html) => onPatch({ html })} />
+        {block.style !== "short" && (
+          <p className="mt-1.5 border-t border-slate-200 pt-1.5 text-[10.5px] text-slate-500">Banner e informativa privacy</p>
+        )}
       </div>
+    );
+
+  if (type === "code")
+    return (
+      <pre className="my-1 whitespace-pre-wrap break-words rounded border border-slate-200 bg-slate-100 p-2.5 font-mono text-xs text-slate-800">
+        {block.text || "Dettaglio tecnico (errore, log)"}
+      </pre>
     );
 
   if (type === "data") {

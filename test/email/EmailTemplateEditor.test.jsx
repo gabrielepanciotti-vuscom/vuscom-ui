@@ -63,6 +63,22 @@ describe("EmailTemplateEditor", () => {
     expect(new Set(next.blocks.map((b) => b.id)).size).toBe(5);
   });
 
+  it("adds a code block and edits its text", async () => {
+    const onChange = setup();
+    await userEvent.click(screen.getByRole("button", { name: "Dettaglio tecnico" }));
+    const added = onChange.mock.calls.at(-1)[0].blocks.at(-1);
+    expect(added).toMatchObject({ type: "code", text: "" });
+  });
+
+  it("switches the footer style, omitting full", async () => {
+    const onChange = setup({
+      value: { ...template(), blocks: [{ id: "b1", type: "footer", html: "x" }] },
+    });
+    await userEvent.click(block(1));
+    await userEvent.click(screen.getByRole("radio", { name: /Corto/ }));
+    expect(onChange.mock.calls.at(-1)[0].blocks[0].style).toBe("short");
+  });
+
   it("adds a data block from the palette", async () => {
     const onChange = setup();
     await userEvent.click(screen.getByRole("button", { name: /Riepilogo/ }));

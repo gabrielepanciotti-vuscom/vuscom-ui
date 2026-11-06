@@ -2880,8 +2880,11 @@ function BlockBody({ block, onPatch, catalog, preview, sourceLabel }) {
   if (type === "footer")
     return /* @__PURE__ */ jsxs3("div", { className: "rounded border border-slate-200 bg-slate-50 p-2.5 text-xs text-slate-600", children: [
       /* @__PURE__ */ jsx5("div", { className: "mb-1.5 inline-block rounded bg-gradient-to-r from-blue-900 to-blue-600 px-2 py-0.5 text-[10px] font-bold tracking-widest text-white", children: "VUS COM" }),
-      /* @__PURE__ */ jsx5(Editable, { rich: true, "aria-label": "Pi\xE8 di pagina", value: block.html, onChange: (html) => onPatch({ html }) })
+      /* @__PURE__ */ jsx5(Editable, { rich: true, "aria-label": "Pi\xE8 di pagina", value: block.html, onChange: (html) => onPatch({ html }) }),
+      block.style !== "short" && /* @__PURE__ */ jsx5("p", { className: "mt-1.5 border-t border-slate-200 pt-1.5 text-[10.5px] text-slate-500", children: "Banner e informativa privacy" })
     ] });
+  if (type === "code")
+    return /* @__PURE__ */ jsx5("pre", { className: "my-1 whitespace-pre-wrap break-words rounded border border-slate-200 bg-slate-100 p-2.5 font-mono text-xs text-slate-800", children: block.text || "Dettaglio tecnico (errore, log)" });
   if (type === "data") {
     const info = catalog?.dataBlocks?.find((d) => d.name === block.ref);
     const part = preview?.parts?.[block.id];
@@ -2916,6 +2919,7 @@ import {
   MousePointerClick,
   PanelBottom,
   Table,
+  Terminal,
   Type
 } from "lucide-react";
 var FOOTER_HTML = "Sede legale: {{sede}}<br>{{cap_citta}}<br>{{email}}";
@@ -2926,7 +2930,8 @@ var BASE_BLOCKS = [
   { type: "button", label: "Pulsante", icon: MousePointerClick },
   { type: "divider", label: "Separatore", icon: Minus },
   { type: "image", label: "Logo", icon: Image },
-  { type: "footer", label: "Pi\xE8 di pagina", icon: PanelBottom }
+  { type: "footer", label: "Pi\xE8 di pagina", icon: PanelBottom },
+  { type: "code", label: "Dettaglio tecnico", icon: Terminal }
 ];
 var TYPE_LABEL = {
   ...Object.fromEntries(BASE_BLOCKS.map((b) => [b.type, b.label])),
@@ -2947,6 +2952,7 @@ var DEFAULTS = {
   divider: () => ({}),
   image: () => ({ asset: "logo_vuscom_blu.png", width: 160 }),
   footer: () => ({ html: FOOTER_HTML }),
+  code: () => ({ text: "" }),
   data: () => ({ missing: "warn" })
 };
 function nextId(blocks) {
@@ -3238,6 +3244,27 @@ var Input = forwardRef3(function Input2({ invalid, icon: Icon, className, ...pro
 });
 var Input_default = Input;
 
+// src/atoms/Textarea.jsx
+import { forwardRef as forwardRef4 } from "react";
+import { jsx as jsx10 } from "react/jsx-runtime";
+var Textarea = forwardRef4(function Textarea2({ invalid, className, rows = 3, ...props }, ref) {
+  return /* @__PURE__ */ jsx10(
+    "textarea",
+    {
+      ref,
+      rows,
+      "aria-invalid": invalid ? "true" : void 0,
+      ...props,
+      className: cn(
+        campoClasses(invalid),
+        "min-h-[80px] resize-y px-3 py-2",
+        className
+      )
+    }
+  );
+});
+var Textarea_default = Textarea;
+
 // src/molecules/Select.jsx
 import { useEffect as useEffect2, useId, useRef as useRef4, useState as useState3 } from "react";
 import { createPortal } from "react-dom";
@@ -3286,7 +3313,7 @@ function useFloatingList(triggerRef, open) {
 }
 
 // src/molecules/Select.jsx
-import { jsx as jsx10, jsxs as jsxs8 } from "react/jsx-runtime";
+import { jsx as jsx11, jsxs as jsxs8 } from "react/jsx-runtime";
 var CLEAR = "__clear__";
 var BUFFER_MS = 500;
 function Select({
@@ -3428,8 +3455,8 @@ function Select({
           "flex h-10 max-sm:min-h-11 items-center justify-between gap-2 px-3 text-left"
         ),
         children: [
-          /* @__PURE__ */ jsx10("span", { className: cn("truncate", !selected && "text-muted-foreground"), children: selected ? selected.label : placeholder }),
-          /* @__PURE__ */ jsx10(
+          /* @__PURE__ */ jsx11("span", { className: cn("truncate", !selected && "text-muted-foreground"), children: selected ? selected.label : placeholder }),
+          /* @__PURE__ */ jsx11(
             ChevronDown2,
             {
               className: cn(
@@ -3443,7 +3470,7 @@ function Select({
       }
     ),
     open && createPortal(
-      /* @__PURE__ */ jsx10(
+      /* @__PURE__ */ jsx11(
         "ul",
         {
           ref: listRef,
@@ -3474,10 +3501,10 @@ function Select({
                 ),
                 children: [
                   /* @__PURE__ */ jsxs8("div", { className: "min-w-0 flex-1", children: [
-                    /* @__PURE__ */ jsx10("div", { className: "font-medium", children: o.label }),
-                    o.description && /* @__PURE__ */ jsx10("div", { className: "mt-0.5 text-xs text-muted-foreground", children: o.description })
+                    /* @__PURE__ */ jsx11("div", { className: "font-medium", children: o.label }),
+                    o.description && /* @__PURE__ */ jsx11("div", { className: "mt-0.5 text-xs text-muted-foreground", children: o.description })
                   ] }),
-                  sel && /* @__PURE__ */ jsx10(Check, { className: "mt-0.5 h-4 w-4 shrink-0", "aria-hidden": true })
+                  sel && /* @__PURE__ */ jsx11(Check, { className: "mt-0.5 h-4 w-4 shrink-0", "aria-hidden": true })
                 ]
               },
               o.value
@@ -3493,7 +3520,7 @@ function Select({
 // src/email/FormatBar.jsx
 import { useState as useState4 } from "react";
 import { Bold, Italic, Link as LinkIcon } from "lucide-react";
-import { jsx as jsx11, jsxs as jsxs9 } from "react/jsx-runtime";
+import { jsx as jsx12, jsxs as jsxs9 } from "react/jsx-runtime";
 function FormatBar({ caret }) {
   const [asking, setAsking] = useState4(false);
   const [url, setUrl] = useState4("");
@@ -3501,14 +3528,14 @@ function FormatBar({ caret }) {
   const run = (cmd, arg) => caret.current && applyFormat(caret.current, cmd, arg);
   return /* @__PURE__ */ jsxs9("div", { className: "space-y-2", children: [
     /* @__PURE__ */ jsxs9("div", { className: "flex flex-wrap gap-1", onMouseDown: keep, children: [
-      /* @__PURE__ */ jsx11(IconButton_default, { icon: Bold, variant: "outline", size: "sm", "aria-label": "Grassetto", onClick: () => run("bold") }),
-      /* @__PURE__ */ jsx11(IconButton_default, { icon: Italic, variant: "outline", size: "sm", "aria-label": "Corsivo", onClick: () => run("italic") }),
-      /* @__PURE__ */ jsx11(Button_default, { variant: "outline", size: "sm", "aria-label": "Rosso", className: "font-bold text-red-700", onClick: () => run("tone"), children: "A" }),
-      /* @__PURE__ */ jsx11(Button_default, { variant: "outline", size: "sm", icon: LinkIcon, "aria-expanded": asking, onClick: () => setAsking((a) => !a), children: "Link" })
+      /* @__PURE__ */ jsx12(IconButton_default, { icon: Bold, variant: "outline", size: "sm", "aria-label": "Grassetto", onClick: () => run("bold") }),
+      /* @__PURE__ */ jsx12(IconButton_default, { icon: Italic, variant: "outline", size: "sm", "aria-label": "Corsivo", onClick: () => run("italic") }),
+      /* @__PURE__ */ jsx12(Button_default, { variant: "outline", size: "sm", "aria-label": "Rosso", className: "font-bold text-red-700", onClick: () => run("tone"), children: "A" }),
+      /* @__PURE__ */ jsx12(Button_default, { variant: "outline", size: "sm", icon: LinkIcon, "aria-expanded": asking, onClick: () => setAsking((a) => !a), children: "Link" })
     ] }),
     asking && /* @__PURE__ */ jsxs9("div", { className: "flex gap-1", children: [
-      /* @__PURE__ */ jsx11(Input_default, { "aria-label": "Indirizzo del link", placeholder: "https://\u2026 o {{variabile}}", value: url, onChange: (e) => setUrl(e.target.value) }),
-      /* @__PURE__ */ jsx11(
+      /* @__PURE__ */ jsx12(Input_default, { "aria-label": "Indirizzo del link", placeholder: "https://\u2026 o {{variabile}}", value: url, onChange: (e) => setUrl(e.target.value) }),
+      /* @__PURE__ */ jsx12(
         Button_default,
         {
           size: "sm",
@@ -3528,27 +3555,27 @@ function FormatBar({ caret }) {
 }
 
 // src/email/PropertiesPanel.jsx
-import { Fragment, jsx as jsx12, jsxs as jsxs10 } from "react/jsx-runtime";
+import { Fragment, jsx as jsx13, jsxs as jsxs10 } from "react/jsx-runtime";
 var Row = ({ label, children, hint }) => /* @__PURE__ */ jsxs10("div", { className: "grid gap-1.5", children: [
-  /* @__PURE__ */ jsx12("span", { className: "text-xs font-semibold", children: label }),
+  /* @__PURE__ */ jsx13("span", { className: "text-xs font-semibold", children: label }),
   children,
-  hint && /* @__PURE__ */ jsx12("p", { className: "text-[11.5px] text-muted-foreground", children: hint })
+  hint && /* @__PURE__ */ jsx13("p", { className: "text-[11.5px] text-muted-foreground", children: hint })
 ] });
 var ALWAYS = "";
 function PropertiesPanel({ block, catalog, caret, onPatch, mode, preview }) {
   if (mode === "preview")
     return /* @__PURE__ */ jsxs10("div", { className: "space-y-2", children: [
-      /* @__PURE__ */ jsx12("h3", { className: "text-[11.5px] font-semibold uppercase tracking-wider text-muted-foreground", children: "Anteprima" }),
+      /* @__PURE__ */ jsx13("h3", { className: "text-[11.5px] font-semibold uppercase tracking-wider text-muted-foreground", children: "Anteprima" }),
       /* @__PURE__ */ jsxs10("div", { className: "rounded-lg border border-border bg-muted p-2.5 text-[12.5px]", children: [
-        /* @__PURE__ */ jsx12("b", { className: "block", children: "Com'\xE8 l'email con i dati di prova" }),
+        /* @__PURE__ */ jsx13("b", { className: "block", children: "Com'\xE8 l'email con i dati di prova" }),
         "Oggetto: ",
         preview?.subject ?? "\u2014"
       ] })
     ] });
   if (!block)
     return /* @__PURE__ */ jsxs10("div", { children: [
-      /* @__PURE__ */ jsx12("h3", { className: "mb-2 text-[11.5px] font-semibold uppercase tracking-wider text-muted-foreground", children: "Propriet\xE0" }),
-      /* @__PURE__ */ jsx12("p", { className: "text-sm text-muted-foreground", children: "Scegli un blocco nell'email per vederne le propriet\xE0." })
+      /* @__PURE__ */ jsx13("h3", { className: "mb-2 text-[11.5px] font-semibold uppercase tracking-wider text-muted-foreground", children: "Propriet\xE0" }),
+      /* @__PURE__ */ jsx13("p", { className: "text-sm text-muted-foreground", children: "Scegli un blocco nell'email per vederne le propriet\xE0." })
     ] });
   const showIf = [
     { value: ALWAYS, label: "Sempre" },
@@ -3559,42 +3586,44 @@ function PropertiesPanel({ block, catalog, caret, onPatch, mode, preview }) {
     showIf.push({ value: block.show_if, label: block.show_if });
   const info = block.type === "data" ? catalog?.dataBlocks?.find((d) => d.name === block.ref) : null;
   return /* @__PURE__ */ jsxs10("div", { className: "space-y-3", children: [
-    /* @__PURE__ */ jsx12("h3", { className: "text-[11.5px] font-semibold uppercase tracking-wider text-muted-foreground", children: TYPE_LABEL[block.type] ?? block.type }),
-    (block.type === "text" || block.type === "footer") && /* @__PURE__ */ jsx12(Row, { label: "Formato del testo selezionato", hint: "Scrivi direttamente nell'email. Per una variabile, clic su un'etichetta a sinistra.", children: /* @__PURE__ */ jsx12(FormatBar, { caret }) }),
-    block.type === "heading" && /* @__PURE__ */ jsx12(Row, { label: "Grandezza", children: /* @__PURE__ */ jsx12(SegmentedControl, { "aria-label": "Grandezza", value: block.level, onChange: (level) => onPatch({ level }), options: [{ value: 1, label: "Titolo" }, { value: 2, label: "Sottotitolo" }] }) }),
-    block.type === "table" && /* @__PURE__ */ jsx12(Row, { label: "Tabella", hint: "Scrivi nelle celle, anche con variabili.", children: /* @__PURE__ */ jsxs10("div", { className: "flex flex-wrap gap-1.5", children: [
-      /* @__PURE__ */ jsx12(Button_default, { variant: "outline", size: "sm", icon: Plus2, onClick: () => onPatch({ rows: [...block.rows, block.columns.map(() => "")] }), children: "Riga" }),
-      /* @__PURE__ */ jsx12(Button_default, { variant: "outline", size: "sm", icon: Plus2, onClick: () => onPatch({ columns: [...block.columns, "Nuova"], rows: block.rows.map((r2) => [...r2, ""]) }), children: "Colonna" }),
-      /* @__PURE__ */ jsx12(Button_default, { variant: "outline", size: "sm", disabled: block.rows.length < 2, onClick: () => onPatch({ rows: block.rows.slice(0, -1) }), children: "Togli riga" })
+    /* @__PURE__ */ jsx13("h3", { className: "text-[11.5px] font-semibold uppercase tracking-wider text-muted-foreground", children: TYPE_LABEL[block.type] ?? block.type }),
+    (block.type === "text" || block.type === "footer") && /* @__PURE__ */ jsx13(Row, { label: "Formato del testo selezionato", hint: "Scrivi direttamente nell'email. Per una variabile, clic su un'etichetta a sinistra.", children: /* @__PURE__ */ jsx13(FormatBar, { caret }) }),
+    block.type === "footer" && /* @__PURE__ */ jsx13(Row, { label: "Stile del pi\xE8 di pagina", children: /* @__PURE__ */ jsx13(SegmentedControl, { "aria-label": "Stile del pi\xE8 di pagina", value: block.style ?? "full", onChange: (style) => onPatch({ style: style === "full" ? void 0 : style }), options: [{ value: "full", label: "Completo (firma e banner)" }, { value: "short", label: "Corto (logo e nome del portale)" }] }) }),
+    block.type === "code" && /* @__PURE__ */ jsx13(Row, { label: "Testo", hint: "Testo semplice su pi\xF9 righe, per errori e log. Le variabili si scrivono come {{nome}}.", children: /* @__PURE__ */ jsx13(Textarea_default, { "aria-label": "Testo del dettaglio tecnico", rows: 6, className: "font-mono text-xs", value: block.text, onChange: (e) => onPatch({ text: e.target.value }) }) }),
+    block.type === "heading" && /* @__PURE__ */ jsx13(Row, { label: "Grandezza", children: /* @__PURE__ */ jsx13(SegmentedControl, { "aria-label": "Grandezza", value: block.level, onChange: (level) => onPatch({ level }), options: [{ value: 1, label: "Titolo" }, { value: 2, label: "Sottotitolo" }] }) }),
+    block.type === "table" && /* @__PURE__ */ jsx13(Row, { label: "Tabella", hint: "Scrivi nelle celle, anche con variabili.", children: /* @__PURE__ */ jsxs10("div", { className: "flex flex-wrap gap-1.5", children: [
+      /* @__PURE__ */ jsx13(Button_default, { variant: "outline", size: "sm", icon: Plus2, onClick: () => onPatch({ rows: [...block.rows, block.columns.map(() => "")] }), children: "Riga" }),
+      /* @__PURE__ */ jsx13(Button_default, { variant: "outline", size: "sm", icon: Plus2, onClick: () => onPatch({ columns: [...block.columns, "Nuova"], rows: block.rows.map((r2) => [...r2, ""]) }), children: "Colonna" }),
+      /* @__PURE__ */ jsx13(Button_default, { variant: "outline", size: "sm", disabled: block.rows.length < 2, onClick: () => onPatch({ rows: block.rows.slice(0, -1) }), children: "Togli riga" })
     ] }) }),
     block.type === "button" && /* @__PURE__ */ jsxs10(Fragment, { children: [
-      /* @__PURE__ */ jsx12(Row, { label: "Testo del pulsante", children: /* @__PURE__ */ jsx12(Input_default, { "aria-label": "Testo del pulsante", value: block.label, onChange: (e) => onPatch({ label: e.target.value }) }) }),
-      /* @__PURE__ */ jsx12(Row, { label: "Link", hint: "Accetta variabili, es. {{link_pratica}}.", children: /* @__PURE__ */ jsx12(Input_default, { "aria-label": "Link del pulsante", value: block.url, onChange: (e) => onPatch({ url: e.target.value }) }) }),
-      /* @__PURE__ */ jsx12(Row, { label: "Stile", children: /* @__PURE__ */ jsx12(SegmentedControl, { "aria-label": "Stile", value: block.style, onChange: (style) => onPatch({ style }), options: [{ value: "primary", label: "Pieno" }, { value: "secondary", label: "Contorno" }] }) })
+      /* @__PURE__ */ jsx13(Row, { label: "Testo del pulsante", children: /* @__PURE__ */ jsx13(Input_default, { "aria-label": "Testo del pulsante", value: block.label, onChange: (e) => onPatch({ label: e.target.value }) }) }),
+      /* @__PURE__ */ jsx13(Row, { label: "Link", hint: "Accetta variabili, es. {{link_pratica}}.", children: /* @__PURE__ */ jsx13(Input_default, { "aria-label": "Link del pulsante", value: block.url, onChange: (e) => onPatch({ url: e.target.value }) }) }),
+      /* @__PURE__ */ jsx13(Row, { label: "Stile", children: /* @__PURE__ */ jsx13(SegmentedControl, { "aria-label": "Stile", value: block.style, onChange: (style) => onPatch({ style }), options: [{ value: "primary", label: "Pieno" }, { value: "secondary", label: "Contorno" }] }) })
     ] }),
-    block.type === "image" && /* @__PURE__ */ jsx12(Row, { label: "Larghezza", hint: "Immagini da vuscom-email-assets, mai caricate a mano.", children: /* @__PURE__ */ jsx12(SegmentedControl, { "aria-label": "Larghezza", value: block.width, onChange: (width) => onPatch({ width }), options: [{ value: 120, label: "Piccolo" }, { value: 160, label: "Medio" }, { value: 220, label: "Grande" }] }) }),
+    block.type === "image" && /* @__PURE__ */ jsx13(Row, { label: "Larghezza", hint: "Immagini da vuscom-email-assets, mai caricate a mano.", children: /* @__PURE__ */ jsx13(SegmentedControl, { "aria-label": "Larghezza", value: block.width, onChange: (width) => onPatch({ width }), options: [{ value: 120, label: "Piccolo" }, { value: 160, label: "Medio" }, { value: 220, label: "Grande" }] }) }),
     block.type === "data" && /* @__PURE__ */ jsxs10(Fragment, { children: [
       /* @__PURE__ */ jsxs10("div", { className: "rounded-lg border border-border bg-muted p-2.5 text-[12.5px]", children: [
-        /* @__PURE__ */ jsx12("b", { className: "block", children: info?.label ?? block.ref }),
+        /* @__PURE__ */ jsx13("b", { className: "block", children: info?.label ?? block.ref }),
         info?.description,
-        info?.kind && /* @__PURE__ */ jsx12("span", { className: "block text-[11.5px] text-muted-foreground", children: info.kind })
+        info?.kind && /* @__PURE__ */ jsx13("span", { className: "block text-[11.5px] text-muted-foreground", children: info.kind })
       ] }),
-      /* @__PURE__ */ jsx12(Row, { label: "Se i dati mancano", hint: "Il contenuto lo calcola il progetto: qui scegli solo cosa succede se manca.", children: /* @__PURE__ */ jsx12(SegmentedControl, { "aria-label": "Se i dati mancano", value: block.missing ?? "warn", onChange: (missing) => onPatch({ missing }), options: [{ value: "warn", label: "Mostra l'avviso" }, { value: "hide", label: "Nascondi il blocco" }] }) })
+      /* @__PURE__ */ jsx13(Row, { label: "Se i dati mancano", hint: "Il contenuto lo calcola il progetto: qui scegli solo cosa succede se manca.", children: /* @__PURE__ */ jsx13(SegmentedControl, { "aria-label": "Se i dati mancano", value: block.missing ?? "warn", onChange: (missing) => onPatch({ missing }), options: [{ value: "warn", label: "Mostra l'avviso" }, { value: "hide", label: "Nascondi il blocco" }] }) })
     ] }),
-    block.type === "html" && /* @__PURE__ */ jsx12("p", { className: "text-sm text-muted-foreground", children: "Blocco HTML da un template vecchio: non si modifica, si pu\xF2 eliminare." }),
-    /* @__PURE__ */ jsx12(Row, { label: "Mostra solo se", hint: "Il blocco compare solo quando il valore scelto \xE8 pieno.", children: /* @__PURE__ */ jsx12(Select, { "aria-label": "Mostra solo se", value: block.show_if ?? ALWAYS, onChange: (v) => onPatch({ show_if: v || void 0 }), options: showIf }) })
+    block.type === "html" && /* @__PURE__ */ jsx13("p", { className: "text-sm text-muted-foreground", children: "Blocco HTML da un template vecchio: non si modifica, si pu\xF2 eliminare." }),
+    /* @__PURE__ */ jsx13(Row, { label: "Mostra solo se", hint: "Il blocco compare solo quando il valore scelto \xE8 pieno.", children: /* @__PURE__ */ jsx13(Select, { "aria-label": "Mostra solo se", value: block.show_if ?? ALWAYS, onChange: (v) => onPatch({ show_if: v || void 0 }), options: showIf }) })
   ] });
 }
 
 // src/email/EmailTemplateEditor.jsx
-import { jsx as jsx13, jsxs as jsxs11 } from "react/jsx-runtime";
+import { jsx as jsx14, jsxs as jsxs11 } from "react/jsx-runtime";
 var MODES = [
   { value: "edit", label: "Modifica", icon: Pencil },
   { value: "preview", label: "Anteprima", icon: Eye }
 ];
 var WIDTHS = [
-  { value: "desk", label: /* @__PURE__ */ jsx13("span", { className: "sr-only", children: "Computer" }), icon: Monitor },
-  { value: "phone", label: /* @__PURE__ */ jsx13("span", { className: "sr-only", children: "Telefono" }), icon: Smartphone }
+  { value: "desk", label: /* @__PURE__ */ jsx14("span", { className: "sr-only", children: "Computer" }), icon: Monitor },
+  { value: "phone", label: /* @__PURE__ */ jsx14("span", { className: "sr-only", children: "Telefono" }), icon: Smartphone }
 ];
 function useCaret(rootRef) {
   const last = useRef5(null);
@@ -3666,16 +3695,16 @@ function EmailTemplateEditor({
     if (el) insertVariable(el, range, name, labels[name]);
   };
   const phone = width === "phone";
-  return /* @__PURE__ */ jsx13(EditorContext.Provider, { value: ctx, children: /* @__PURE__ */ jsxs11("div", { ref: rootRef, className: "overflow-hidden rounded-xl border border-border bg-background text-foreground", children: [
+  return /* @__PURE__ */ jsx14(EditorContext.Provider, { value: ctx, children: /* @__PURE__ */ jsxs11("div", { ref: rootRef, className: "overflow-hidden rounded-xl border border-border bg-background text-foreground", children: [
     /* @__PURE__ */ jsxs11("div", { className: "flex flex-wrap items-center gap-3 border-b border-border bg-card px-4 py-2.5", children: [
-      /* @__PURE__ */ jsx13(SegmentedControl, { "aria-label": "Modalit\xE0", value: mode, onChange: setMode, options: MODES }),
-      /* @__PURE__ */ jsx13(SegmentedControl, { "aria-label": "Larghezza", value: width, onChange: setWidth, options: WIDTHS }),
+      /* @__PURE__ */ jsx14(SegmentedControl, { "aria-label": "Modalit\xE0", value: mode, onChange: setMode, options: MODES }),
+      /* @__PURE__ */ jsx14(SegmentedControl, { "aria-label": "Larghezza", value: width, onChange: setWidth, options: WIDTHS }),
       toolbar,
-      onSendTest && /* @__PURE__ */ jsx13(Button_default, { variant: "outline", size: "sm", icon: Send, className: "ml-auto", onClick: onSendTest, children: "Prova a me" })
+      onSendTest && /* @__PURE__ */ jsx14(Button_default, { variant: "outline", size: "sm", icon: Send, className: "ml-auto", onClick: onSendTest, children: "Prova a me" })
     ] }),
     /* @__PURE__ */ jsxs11("div", { className: "grid min-h-[560px] lg:grid-cols-[240px_minmax(0,1fr)_290px]", children: [
-      /* @__PURE__ */ jsx13("aside", { className: "border-b border-border bg-card p-3.5 lg:border-b-0 lg:border-r", children: /* @__PURE__ */ jsx13(Palette, { catalog, onAdd: add, onInsertVariable: insertVar }) }),
-      /* @__PURE__ */ jsx13("main", { className: "min-w-0 overflow-auto bg-background p-4 lg:p-5", children: mode === "edit" ? /* @__PURE__ */ jsx13(
+      /* @__PURE__ */ jsx14("aside", { className: "border-b border-border bg-card p-3.5 lg:border-b-0 lg:border-r", children: /* @__PURE__ */ jsx14(Palette, { catalog, onAdd: add, onInsertVariable: insertVar }) }),
+      /* @__PURE__ */ jsx14("main", { className: "min-w-0 overflow-auto bg-background p-4 lg:p-5", children: mode === "edit" ? /* @__PURE__ */ jsx14(
         Canvas,
         {
           template: value,
@@ -3688,7 +3717,7 @@ function EmailTemplateEditor({
           onSubject: (subject) => onChange({ ...value, subject }),
           onAddText: () => add("text")
         }
-      ) : preview?.html ? /* @__PURE__ */ jsx13(
+      ) : preview?.html ? /* @__PURE__ */ jsx14(
         "iframe",
         {
           title: "Anteprima dell'email",
@@ -3696,8 +3725,8 @@ function EmailTemplateEditor({
           srcDoc: preview.html,
           className: cn("mx-auto block h-[640px] w-full rounded-md border border-border bg-white", phone ? "max-w-[375px]" : "max-w-[640px]")
         }
-      ) : /* @__PURE__ */ jsx13("p", { className: "py-10 text-center text-sm text-muted-foreground", children: "Anteprima non disponibile." }) }),
-      /* @__PURE__ */ jsx13("aside", { className: "border-t border-border bg-card p-3.5 lg:border-l lg:border-t-0", children: /* @__PURE__ */ jsx13(
+      ) : /* @__PURE__ */ jsx14("p", { className: "py-10 text-center text-sm text-muted-foreground", children: "Anteprima non disponibile." }) }),
+      /* @__PURE__ */ jsx14("aside", { className: "border-t border-border bg-card p-3.5 lg:border-l lg:border-t-0", children: /* @__PURE__ */ jsx14(
         PropertiesPanel,
         {
           block: selected,

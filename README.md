@@ -495,7 +495,11 @@ Tre colonne: palette (blocchi base, blocchi dati del progetto, variabili), email
 (`show_if`) e «Se i dati mancano» (`missing`). Nei testi `{{nome}}` è un'etichetta non modificabile e
 si salva com'è; il testo ricco tiene solo `b i a br span[data-tone]`. «Anteprima» mostra
 `preview.html` in un iframe `sandbox=""` largo 640 o 375 px. Il blocco `html` dei template vecchi si
-vede ma non si offre. Il progetto mette pagina, Salva e scelta dei dati di prova.
+vede ma non si offre.
+
+Dalla 1.25.0: blocco `code` «Dettaglio tecnico» (`{ type: "code", id, text }`, riquadro monospace per errori e log,
+testo semplice su più righe modificato nel pannello delle proprietà) e `footer.style` (`"full"` di default e omesso,
+oppure `"short"`: logo e nome del portale, senza banner né privacy) scelto nelle proprietà del piè di pagina. Il progetto mette pagina, Salva e scelta dei dati di prova.
 
 ## Sviluppo e versionamento
 

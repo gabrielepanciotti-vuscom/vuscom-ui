@@ -1,6 +1,7 @@
 import { Plus } from "lucide-react";
 import Button from "../atoms/Button.jsx";
 import Input from "../atoms/Input.jsx";
+import Textarea from "../atoms/Textarea.jsx";
 import Select from "../molecules/Select.jsx";
 import SegmentedControl from "../molecules/SegmentedControl.jsx";
 import FormatBar from "./FormatBar.jsx";
@@ -54,6 +55,18 @@ export default function PropertiesPanel({ block, catalog, caret, onPatch, mode, 
       {(block.type === "text" || block.type === "footer") && (
         <Row label="Formato del testo selezionato" hint="Scrivi direttamente nell'email. Per una variabile, clic su un'etichetta a sinistra.">
           <FormatBar caret={caret} />
+        </Row>
+      )}
+
+      {block.type === "footer" && (
+        <Row label="Stile del piè di pagina">
+          <SegmentedControl aria-label="Stile del piè di pagina" value={block.style ?? "full"} onChange={(style) => onPatch({ style: style === "full" ? undefined : style })} options={[{ value: "full", label: "Completo (firma e banner)" }, { value: "short", label: "Corto (logo e nome del portale)" }]} />
+        </Row>
+      )}
+
+      {block.type === "code" && (
+        <Row label="Testo" hint="Testo semplice su più righe, per errori e log. Le variabili si scrivono come {{nome}}.">
+          <Textarea aria-label="Testo del dettaglio tecnico" rows={6} className="font-mono text-xs" value={block.text} onChange={(e) => onPatch({ text: e.target.value })} />
         </Row>
       )}
 
