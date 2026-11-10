@@ -6781,7 +6781,7 @@ function Section({
 }
 
 // src/templates/LoginPage.jsx
-import { useId as useId12, useState as useState19 } from "react";
+import { useId as useId12, useState as useState21 } from "react";
 import { Eye as Eye2, EyeOff } from "lucide-react";
 
 // src/accesso/useAccessoMicrosoft.js
@@ -6932,39 +6932,15 @@ function AltriPortali({ corrente }) {
   ] });
 }
 
-// src/templates/LoginPage.jsx
+// src/templates/LoginCornice.jsx
 import { jsx as jsx50, jsxs as jsxs43 } from "react/jsx-runtime";
-function LoginPage({
+function LoginCornice({
   title,
-  subtitle = "Accedi al tuo account",
+  subtitle,
   logoLight = LOGHI_VUSCOM.marchioChiaro,
   logoDark = LOGHI_VUSCOM.marchioScuro,
-  onSubmit,
-  usernameLabel = "Username o email",
-  footer = "\xA9 VUS COM SRL",
-  microsoft,
-  iconaPortale,
-  altriPortali: altriPortali2 = true
+  children
 }) {
-  const passwordId = useId12();
-  useFaviconVuscom(iconaPortale);
-  const [username, setUsername] = useState19("");
-  const [password, setPassword] = useState19("");
-  const [show, setShow] = useState19(false);
-  const [loading, setLoading] = useState19(false);
-  const [error, setError] = useState19("");
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-    try {
-      await onSubmit(username, password);
-    } catch (err) {
-      setError(err?.message || "Accesso non riuscito");
-    } finally {
-      setLoading(false);
-    }
-  }
   return /* @__PURE__ */ jsxs43("div", { className: "relative flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-50 to-brand-100 px-4 dark:from-slate-900 dark:to-slate-800", children: [
     /* @__PURE__ */ jsx50("div", { className: "absolute right-4 top-4", children: /* @__PURE__ */ jsx50(ThemeToggle, {}) }),
     /* @__PURE__ */ jsxs43("div", { className: "w-full max-w-md space-y-8 rounded-xl bg-card p-8 shadow-2xl", children: [
@@ -6988,64 +6964,310 @@ function LoginPage({
         /* @__PURE__ */ jsx50("h1", { className: "mt-6 text-3xl font-bold text-foreground", children: title }),
         /* @__PURE__ */ jsx50("p", { className: "mt-2 text-sm text-muted-foreground", children: subtitle })
       ] }),
-      /* @__PURE__ */ jsxs43("form", { className: "space-y-5", onSubmit: handleSubmit, children: [
-        error && /* @__PURE__ */ jsx50(Alert, { tone: "danger", children: error }),
-        /* @__PURE__ */ jsx50(Field, { label: usernameLabel, children: /* @__PURE__ */ jsx50(
-          Input_default,
-          {
-            name: "username",
-            autoComplete: "username",
-            value: username,
-            onChange: (e) => setUsername(e.target.value),
-            required: true
-          }
-        ) }),
-        /* @__PURE__ */ jsxs43("div", { className: "flex flex-col gap-1.5", children: [
-          /* @__PURE__ */ jsx50(
-            "label",
-            {
-              htmlFor: passwordId,
-              className: "text-sm font-medium text-foreground",
-              children: "Password"
-            }
-          ),
-          /* @__PURE__ */ jsxs43("div", { className: "relative", children: [
-            /* @__PURE__ */ jsx50(
-              Input_default,
-              {
-                id: passwordId,
-                name: "password",
-                type: show ? "text" : "password",
-                autoComplete: "current-password",
-                value: password,
-                onChange: (e) => setPassword(e.target.value),
-                className: "pr-11",
-                required: true
-              }
-            ),
-            /* @__PURE__ */ jsx50(
-              IconButton_default,
-              {
-                icon: show ? EyeOff : Eye2,
-                label: show ? "Nascondi password" : "Mostra password",
-                size: "sm",
-                className: "absolute right-1 top-1",
-                onClick: () => setShow((s) => !s)
-              }
-            )
-          ] })
-        ] }),
-        /* @__PURE__ */ jsx50(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Accedi" })
-      ] }),
-      microsoft && /* @__PURE__ */ jsx50(AccessoMicrosoft, { ...microsoft }),
-      altriPortali2 && /* @__PURE__ */ jsx50(AltriPortali, { corrente: iconaPortale }),
-      footer && /* @__PURE__ */ jsx50("div", { className: "text-center text-xs text-muted-foreground", children: footer })
+      children
     ] })
   ] });
 }
 
+// src/accesso/RecuperoPassword.jsx
+import { useState as useState20 } from "react";
+
+// src/theme/useTemaLogin.js
+import { useState as useState19 } from "react";
+function useTemaLogin() {
+  useState19(() => {
+    if (typeof document === "undefined") return;
+    let salvato = null;
+    try {
+      salvato = window.localStorage.getItem("theme");
+    } catch {
+    }
+    const scuro = salvato ? salvato === "dark" : window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
+    document.documentElement.classList.toggle("dark", scuro);
+  });
+}
+
+// src/accesso/RecuperoPassword.jsx
+import { Fragment as Fragment9, jsx as jsx51, jsxs as jsxs44 } from "react/jsx-runtime";
+var BASE_RECUPERO = "/api/auth";
+var MINIMO = 8;
+var GENERICO = "Se l'account esiste, ricever\xE0 un'email con le istruzioni per reimpostare la password.";
+async function postJson(url, body) {
+  const r2 = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(body)
+  });
+  return { ok: r2.ok, data: await r2.json().catch(() => ({})) };
+}
+function RichiestaRecupero({
+  base = BASE_RECUPERO,
+  onIndietro,
+  ...cornice
+}) {
+  const [email, setEmail] = useState20("");
+  const [loading, setLoading] = useState20(false);
+  const [error, setError] = useState20("");
+  const [message, setMessage] = useState20("");
+  async function invia(e) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const { data } = await postJson(`${base}/forgot-password`, { email });
+      setMessage(data.message || GENERICO);
+    } catch {
+      setError("Errore di connessione al server");
+    } finally {
+      setLoading(false);
+    }
+  }
+  return /* @__PURE__ */ jsx51(LoginCornice, { ...cornice, subtitle: "Recupera la tua password", children: /* @__PURE__ */ jsxs44("form", { className: "space-y-5", onSubmit: invia, children: [
+    error && /* @__PURE__ */ jsx51(Alert, { tone: "danger", children: error }),
+    message ? /* @__PURE__ */ jsx51(Alert, { tone: "success", children: message }) : /* @__PURE__ */ jsxs44(Fragment9, { children: [
+      /* @__PURE__ */ jsx51(
+        Field,
+        {
+          label: "Email o username",
+          hint: "Ti invieremo un link, valido 60 minuti, per reimpostare la password.",
+          children: /* @__PURE__ */ jsx51(
+            Input_default,
+            {
+              name: "email",
+              autoComplete: "username",
+              value: email,
+              onChange: (e) => setEmail(e.target.value),
+              required: true
+            }
+          )
+        }
+      ),
+      /* @__PURE__ */ jsx51(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Invia link di reset" })
+    ] }),
+    /* @__PURE__ */ jsx51("div", { className: "text-center", children: /* @__PURE__ */ jsx51(Button_default, { variant: "link", onClick: onIndietro, children: "Torna al login" }) })
+  ] }) });
+}
+function ReimpostaPassword({
+  base = BASE_RECUPERO,
+  token = typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("token") || "",
+  onFatto,
+  iconaPortale,
+  ...cornice
+}) {
+  useTemaLogin();
+  useFaviconVuscom(iconaPortale);
+  const [password, setPassword] = useState20("");
+  const [conferma, setConferma] = useState20("");
+  const [loading, setLoading] = useState20(false);
+  const [error, setError] = useState20("");
+  const [fatto, setFatto] = useState20(false);
+  async function invia(e) {
+    e.preventDefault();
+    setError("");
+    if (!token) return setError("Link non valido: token mancante.");
+    if (password !== conferma)
+      return setError("Le password non corrispondono.");
+    if (password.length < MINIMO)
+      return setError(`La password deve essere di almeno ${MINIMO} caratteri.`);
+    setLoading(true);
+    try {
+      const { ok, data } = await postJson(`${base}/reset-password`, {
+        token,
+        new_password: password,
+        confirm_password: conferma
+      });
+      if (!ok)
+        return setError(data.detail || "Impossibile reimpostare la password.");
+      setFatto(true);
+    } catch {
+      setError("Errore di connessione al server.");
+    } finally {
+      setLoading(false);
+    }
+  }
+  return /* @__PURE__ */ jsx51(LoginCornice, { ...cornice, subtitle: "Reimposta la tua password", children: fatto ? /* @__PURE__ */ jsxs44("div", { className: "space-y-5", children: [
+    /* @__PURE__ */ jsx51(Alert, { tone: "success", children: "Password reimpostata. Per sicurezza le sessioni aperte su tutti i portali sono state chiuse." }),
+    /* @__PURE__ */ jsx51(Button_default, { size: "lg", fullWidth: true, onClick: onFatto, children: "Vai al login" })
+  ] }) : /* @__PURE__ */ jsxs44("form", { className: "space-y-5", onSubmit: invia, children: [
+    error && /* @__PURE__ */ jsx51(Alert, { tone: "danger", children: error }),
+    /* @__PURE__ */ jsx51(Field, { label: "Nuova password", children: /* @__PURE__ */ jsx51(
+      Input_default,
+      {
+        type: "password",
+        autoComplete: "new-password",
+        minLength: MINIMO,
+        value: password,
+        onChange: (e) => setPassword(e.target.value),
+        required: true
+      }
+    ) }),
+    /* @__PURE__ */ jsx51(Field, { label: "Conferma nuova password", children: /* @__PURE__ */ jsx51(
+      Input_default,
+      {
+        type: "password",
+        autoComplete: "new-password",
+        minLength: MINIMO,
+        value: conferma,
+        onChange: (e) => setConferma(e.target.value),
+        required: true
+      }
+    ) }),
+    /* @__PURE__ */ jsx51(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Reimposta password" }),
+    /* @__PURE__ */ jsx51("div", { className: "text-center", children: /* @__PURE__ */ jsx51(Button_default, { variant: "link", onClick: onFatto, children: "Torna al login" }) })
+  ] }) });
+}
+
+// src/templates/LoginPage.jsx
+import { jsx as jsx52, jsxs as jsxs45 } from "react/jsx-runtime";
+function leggiRicordami() {
+  try {
+    return localStorage.getItem("rememberMe") === "true";
+  } catch {
+    return false;
+  }
+}
+function LoginPage({
+  title,
+  subtitle = "Accedi al tuo account",
+  logoLight = LOGHI_VUSCOM.marchioChiaro,
+  logoDark = LOGHI_VUSCOM.marchioScuro,
+  onSubmit,
+  usernameLabel = "Username o email",
+  footer = "\xA9 VUS COM SRL",
+  microsoft,
+  iconaPortale,
+  altriPortali: altriPortali2 = true,
+  ricordami = false,
+  recupero
+}) {
+  const passwordId = useId12();
+  useFaviconVuscom(iconaPortale);
+  const [username, setUsername] = useState21("");
+  const [password, setPassword] = useState21("");
+  const [show, setShow] = useState21(false);
+  const [loading, setLoading] = useState21(false);
+  const [error, setError] = useState21("");
+  const [recuperoAperto, setRecuperoAperto] = useState21(false);
+  const [ricorda, setRicorda] = useState21(
+    () => typeof window !== "undefined" && leggiRicordami()
+  );
+  useTemaLogin();
+  function cambiaRicorda(v) {
+    setRicorda(v);
+    try {
+      localStorage.setItem("rememberMe", String(v));
+    } catch {
+    }
+  }
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      await (ricordami ? onSubmit(username, password, ricorda) : onSubmit(username, password));
+    } catch (err) {
+      setError(err?.message || "Accesso non riuscito");
+    } finally {
+      setLoading(false);
+    }
+  }
+  if (recupero && recuperoAperto)
+    return /* @__PURE__ */ jsx52(
+      RichiestaRecupero,
+      {
+        base: recupero.base,
+        title,
+        logoLight,
+        logoDark,
+        onIndietro: () => setRecuperoAperto(false)
+      }
+    );
+  return /* @__PURE__ */ jsxs45(
+    LoginCornice,
+    {
+      title,
+      subtitle,
+      logoLight,
+      logoDark,
+      children: [
+        /* @__PURE__ */ jsxs45("form", { className: "space-y-5", onSubmit: handleSubmit, children: [
+          error && /* @__PURE__ */ jsx52(Alert, { tone: "danger", children: error }),
+          /* @__PURE__ */ jsx52(Field, { label: usernameLabel, children: /* @__PURE__ */ jsx52(
+            Input_default,
+            {
+              name: "username",
+              autoComplete: "username",
+              value: username,
+              onChange: (e) => setUsername(e.target.value),
+              required: true
+            }
+          ) }),
+          /* @__PURE__ */ jsxs45("div", { className: "flex flex-col gap-1.5", children: [
+            /* @__PURE__ */ jsx52(
+              "label",
+              {
+                htmlFor: passwordId,
+                className: "text-sm font-medium text-foreground",
+                children: "Password"
+              }
+            ),
+            /* @__PURE__ */ jsxs45("div", { className: "relative", children: [
+              /* @__PURE__ */ jsx52(
+                Input_default,
+                {
+                  id: passwordId,
+                  name: "password",
+                  type: show ? "text" : "password",
+                  autoComplete: "current-password",
+                  value: password,
+                  onChange: (e) => setPassword(e.target.value),
+                  className: "pr-11",
+                  required: true
+                }
+              ),
+              /* @__PURE__ */ jsx52(
+                IconButton_default,
+                {
+                  icon: show ? EyeOff : Eye2,
+                  label: show ? "Nascondi password" : "Mostra password",
+                  size: "sm",
+                  className: "absolute right-1 top-1",
+                  onClick: () => setShow((s) => !s)
+                }
+              )
+            ] })
+          ] }),
+          (ricordami || recupero) && /* @__PURE__ */ jsxs45("div", { className: "flex items-center justify-between gap-3", children: [
+            ricordami ? /* @__PURE__ */ jsx52(
+              Checkbox,
+              {
+                checked: ricorda,
+                onChange: cambiaRicorda,
+                label: "Ricordami"
+              }
+            ) : /* @__PURE__ */ jsx52("span", {}),
+            recupero && /* @__PURE__ */ jsx52(
+              Button_default,
+              {
+                variant: "link",
+                size: "sm",
+                onClick: () => setRecuperoAperto(true),
+                children: "Password dimenticata?"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsx52(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Accedi" })
+        ] }),
+        microsoft && /* @__PURE__ */ jsx52(AccessoMicrosoft, { ...microsoft }),
+        altriPortali2 && /* @__PURE__ */ jsx52(AltriPortali, { corrente: iconaPortale }),
+        footer && /* @__PURE__ */ jsx52("div", { className: "text-center text-xs text-muted-foreground", children: footer })
+      ]
+    }
+  );
+}
+
 // src/accesso/sessioneVuscom.js
-import { useEffect as useEffect18, useState as useState20 } from "react";
+import { useEffect as useEffect18, useState as useState22 } from "react";
 var BASE_SSO = "/api/auth/sso";
 var inCorso = null;
 function scambiaSessioneVuscom({ base = BASE_SSO } = {}) {
@@ -7070,7 +7292,7 @@ async function esciSessioneVuscom({ base = BASE_SSO } = {}) {
   }
 }
 function useSessioneVuscom({ autenticato, onAccesso, base = BASE_SSO } = {}) {
-  const [verificando, setVerificando] = useState20(!autenticato);
+  const [verificando, setVerificando] = useState22(!autenticato);
   useEffect18(() => {
     if (autenticato) {
       setVerificando(false);
@@ -7136,6 +7358,7 @@ export {
   PortaliSidebar,
   ProgressBar,
   PulsanteEsportaCsv,
+  ReimpostaPassword,
   SOGLIA_TESTO_CHIARO,
   Section,
   SegmentedControl,

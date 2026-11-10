@@ -95,7 +95,8 @@ Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 | `useSidebarCompatta(attiva = true)` | hook per le pagine che vogliono spazio (builder di report, tabelle larghe): finché almeno una pagina montata lo richiede la sidebar resta compressa, poi torna alla preferenza dell'utente. Anche il toggle durante la forzatura vale solo per quella pagina e non sovrascrive la preferenza; fuori da `AppShell` non fa nulla |
 | `PageHeader` | `title`, `description`, `icon`, `help`, `helpHref`, `actions`, `tabs`, `className` |
 | `Section` | `title`, `description`, `actions`, `className` |
-| `LoginPage` | `title`, `subtitle`, `logoLight`, `logoDark`, `onSubmit`, `usernameLabel`, `footer`, `microsoft` (`{ onAccesso, base? }`: aggiunge «Accedi con Microsoft») |
+| `ReimpostaPassword` | schermata «nuova password» aperta dal link email: `token` (default `?token=`), `onFatto()` (torna al login), `base`, `title`, `iconaPortale` |
+| `LoginPage` | `title`, `subtitle`, `logoLight`, `logoDark`, `onSubmit`, `usernameLabel`, `footer`, `microsoft` (`{ onAccesso, base? }`: aggiunge «Accedi con Microsoft»), `ricordami` (checkbox «Ricordami»; `onSubmit(user, pw, ricorda)`, scelta in `localStorage.rememberMe`), `recupero` (`true` o `{ base? }`, default `/api/auth`: «Password dimenticata?» + schermata, `vuscom_auth.recupero`) |
 
 Una pagina larga chiede la sidebar compatta direttamente nel proprio componente:
 
