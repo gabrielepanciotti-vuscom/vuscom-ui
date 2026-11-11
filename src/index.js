@@ -17,6 +17,7 @@ export { default as Kbd } from "./atoms/Kbd.jsx";
 export { default as Field } from "./molecules/Field.jsx";
 export { default as Select } from "./molecules/Select.jsx";
 export { default as Toggle } from "./molecules/Toggle.jsx";
+export { default as FileDrop } from "./molecules/FileDrop.jsx";
 export { default as Checkbox } from "./molecules/Checkbox.jsx";
 export { default as Tabs, useTabIds, tabPanelId } from "./molecules/Tabs.jsx";
 export { default as SegmentedControl } from "./molecules/SegmentedControl.jsx";

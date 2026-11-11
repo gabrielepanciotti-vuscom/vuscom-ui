@@ -4,6 +4,7 @@ import {
   Button,
   Checkbox,
   Field,
+  FileDrop,
   InfoTip,
   Input,
   SegmentedControl,
@@ -65,6 +66,20 @@ export default function Moduli() {
             disabled
             aria-label="Disabilitata"
           />
+        </div>
+      </Section>
+      <Section title="Caricamento file">
+        <div className="grid max-w-3xl gap-4 md:grid-cols-2">
+          <FileDrop
+            accept=".pdf,image/*"
+            maxSize={5 * 1048576}
+            multiple
+            hint="PDF o immagini, max 5 MB"
+            onFiles={() => {}}
+          />
+          <FileDrop loading onFiles={() => {}} />
+          <FileDrop disabled onFiles={() => {}} />
+          <FileDrop error="Caricamento non riuscito" onFiles={() => {}} />
         </div>
       </Section>
       <Section title="Controlli">

@@ -4152,10 +4152,190 @@ function Toggle({
   ] });
 }
 
-// src/molecules/Checkbox.jsx
-import { useId as useId4 } from "react";
-import { Check as Check2, Minus } from "lucide-react";
+// src/molecules/FileDrop.jsx
+import { useId as useId4, useRef as useRef3, useState as useState7 } from "react";
+import { UploadCloud } from "lucide-react";
+
+// src/organisms/Alert.jsx
+import { AlertTriangle, CheckCircle2, Info, X, XCircle } from "lucide-react";
 import { jsx as jsx19, jsxs as jsxs14 } from "react/jsx-runtime";
+var TONI2 = {
+  info: {
+    box: "border-info/30 bg-info/10 text-sky-900 dark:text-sky-100",
+    icon: "text-info",
+    Icona: Info
+  },
+  success: {
+    box: "border-success/30 bg-success/10 text-green-900 dark:text-green-100",
+    icon: "text-success",
+    Icona: CheckCircle2
+  },
+  warning: {
+    box: "border-warning/40 bg-warning/10 text-amber-900 dark:text-amber-100",
+    icon: "text-warning",
+    Icona: AlertTriangle
+  },
+  danger: {
+    box: "border-destructive/30 bg-destructive/10 text-red-900 dark:text-red-100",
+    icon: "text-destructive",
+    Icona: XCircle
+  }
+};
+function Alert({
+  tone = "info",
+  title,
+  children,
+  onClose,
+  className
+}) {
+  const t = TONI2[tone] ?? TONI2.info;
+  const urgente = tone === "danger" || tone === "warning";
+  return /* @__PURE__ */ jsxs14(
+    "div",
+    {
+      role: urgente ? "alert" : "status",
+      className: cn(
+        "flex gap-3 rounded-lg border p-4 text-sm",
+        t.box,
+        className
+      ),
+      children: [
+        /* @__PURE__ */ jsx19(t.Icona, { className: cn("mt-0.5 h-5 w-5 shrink-0", t.icon), "aria-hidden": true }),
+        /* @__PURE__ */ jsxs14("div", { className: "min-w-0 flex-1", children: [
+          title && /* @__PURE__ */ jsx19("p", { className: "font-semibold", children: title }),
+          children && /* @__PURE__ */ jsx19("div", { className: cn(title && "mt-0.5"), children })
+        ] }),
+        onClose && /* @__PURE__ */ jsx19(
+          IconButton_default,
+          {
+            icon: X,
+            label: "Chiudi",
+            size: "sm",
+            onClick: onClose,
+            className: "-my-1 -mr-1 shrink-0"
+          }
+        )
+      ]
+    }
+  );
+}
+
+// src/molecules/FileDrop.jsx
+import { jsx as jsx20, jsxs as jsxs15 } from "react/jsx-runtime";
+var mb = (n) => `${+(n / 1048576).toFixed(1)} MB`;
+function accettato(file, accept) {
+  const regole = (accept || "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+  if (!regole.length) return true;
+  const nome = file.name.toLowerCase();
+  const tipo = (file.type || "").toLowerCase();
+  return regole.some(
+    (r2) => r2.startsWith(".") ? nome.endsWith(r2) : r2.endsWith("/*") ? tipo.startsWith(r2.slice(0, -1)) : tipo === r2
+  );
+}
+function FileDrop({
+  accept,
+  maxSize,
+  multiple = false,
+  disabled = false,
+  loading = false,
+  error,
+  onFiles,
+  onReject,
+  label = "Trascina qui il file",
+  buttonLabel = "Scegli file",
+  hint,
+  className
+}) {
+  const uid = useId4();
+  const inputRef = useRef3(null);
+  const [sopra, setSopra] = useState7(false);
+  const [scartati, setScartati] = useState7([]);
+  const bloccato = disabled || loading;
+  const gestisci = (lista) => {
+    let files = Array.from(lista || []);
+    if (!files.length) return;
+    if (!multiple) files = files.slice(0, 1);
+    const validi = [];
+    const respinti = [];
+    for (const f of files) {
+      if (!accettato(f, accept)) respinti.push({ file: f, motivo: "tipo non ammesso" });
+      else if (maxSize && f.size > maxSize)
+        respinti.push({ file: f, motivo: `supera ${mb(maxSize)}` });
+      else validi.push(f);
+    }
+    setScartati(respinti);
+    if (respinti.length) onReject?.(respinti);
+    if (validi.length) onFiles?.(validi);
+  };
+  const trascina = (e, dentro) => {
+    e.preventDefault();
+    if (!bloccato) setSopra(dentro);
+  };
+  return /* @__PURE__ */ jsxs15("div", { className: cn("space-y-2", className), children: [
+    /* @__PURE__ */ jsxs15(
+      "div",
+      {
+        "data-testid": "filedrop-zona",
+        onDragOver: (e) => trascina(e, true),
+        onDragLeave: (e) => trascina(e, false),
+        onDrop: (e) => {
+          trascina(e, false);
+          if (!bloccato) gestisci(e.dataTransfer?.files);
+        },
+        "aria-busy": loading || void 0,
+        className: cn(
+          "flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-input bg-background p-6 text-center transition-colors",
+          sopra && "border-primary bg-primary/5",
+          disabled && "opacity-50"
+        ),
+        children: [
+          loading ? /* @__PURE__ */ jsx20(Spinner, { size: "md", label: "Caricamento in corso" }) : /* @__PURE__ */ jsx20(UploadCloud, { className: "h-8 w-8 text-muted-foreground", "aria-hidden": true }),
+          /* @__PURE__ */ jsx20("p", { id: `${uid}-t`, className: "text-sm font-medium text-foreground", children: label }),
+          hint && /* @__PURE__ */ jsx20("p", { id: `${uid}-h`, className: "text-xs text-muted-foreground", children: hint }),
+          /* @__PURE__ */ jsx20(
+            Button_default,
+            {
+              variant: "outline",
+              disabled: bloccato,
+              "aria-describedby": hint ? `${uid}-h` : void 0,
+              onClick: () => inputRef.current?.click(),
+              children: buttonLabel
+            }
+          ),
+          /* @__PURE__ */ jsx20(
+            "input",
+            {
+              ref: inputRef,
+              type: "file",
+              hidden: true,
+              tabIndex: -1,
+              "aria-hidden": "true",
+              "data-testid": "filedrop-input",
+              accept,
+              multiple,
+              disabled: bloccato,
+              onChange: (e) => {
+                gestisci(e.target.files);
+                e.target.value = "";
+              }
+            }
+          )
+        ]
+      }
+    ),
+    error && /* @__PURE__ */ jsx20(Alert, { tone: "danger", children: error }),
+    scartati.length > 0 && /* @__PURE__ */ jsx20(Alert, { tone: "warning", title: "File non caricati", children: /* @__PURE__ */ jsx20("ul", { className: "list-disc pl-4", children: scartati.map((r2, i) => /* @__PURE__ */ jsxs15("li", { children: [
+      r2.file.name,
+      ": ",
+      r2.motivo
+    ] }, i)) }) })
+  ] });
+}
+
+// src/molecules/Checkbox.jsx
+import { useId as useId5 } from "react";
+import { Check as Check2, Minus } from "lucide-react";
+import { jsx as jsx21, jsxs as jsxs16 } from "react/jsx-runtime";
 function Checkbox({
   checked,
   indeterminate,
@@ -4166,13 +4346,13 @@ function Checkbox({
   id,
   ...rest
 }) {
-  const uid = useId4();
+  const uid = useId5();
   const on = indeterminate || checked;
   const cambia = () => {
     if (!disabled) onChange?.(indeterminate ? true : !checked);
   };
-  return /* @__PURE__ */ jsxs14("div", { className: cn("flex items-center gap-2", className), children: [
-    /* @__PURE__ */ jsx19(
+  return /* @__PURE__ */ jsxs16("div", { className: cn("flex items-center gap-2", className), children: [
+    /* @__PURE__ */ jsx21(
       "button",
       {
         "aria-labelledby": label ? uid : void 0,
@@ -4189,10 +4369,10 @@ function Checkbox({
           "active:scale-90 disabled:cursor-not-allowed disabled:opacity-50",
           on ? "border-primary bg-primary text-primary-foreground hover:bg-primary/90" : "border-input bg-background hover:border-ring/60"
         ),
-        children: indeterminate ? /* @__PURE__ */ jsx19(Minus, { className: "h-3 w-3", strokeWidth: 3, "aria-hidden": true }) : checked && /* @__PURE__ */ jsx19(Check2, { className: "h-3 w-3", strokeWidth: 3, "aria-hidden": true })
+        children: indeterminate ? /* @__PURE__ */ jsx21(Minus, { className: "h-3 w-3", strokeWidth: 3, "aria-hidden": true }) : checked && /* @__PURE__ */ jsx21(Check2, { className: "h-3 w-3", strokeWidth: 3, "aria-hidden": true })
       }
     ),
-    label && /* @__PURE__ */ jsx19(
+    label && /* @__PURE__ */ jsx21(
       "span",
       {
         id: uid,
@@ -4209,12 +4389,12 @@ function Checkbox({
 }
 
 // src/molecules/Tabs.jsx
-import { useId as useId5, useLayoutEffect as useLayoutEffect2, useRef as useRef3, useState as useState7 } from "react";
-import { jsx as jsx20, jsxs as jsxs15 } from "react/jsx-runtime";
+import { useId as useId6, useLayoutEffect as useLayoutEffect2, useRef as useRef4, useState as useState8 } from "react";
+import { jsx as jsx22, jsxs as jsxs17 } from "react/jsx-runtime";
 var tabId = (prefix, id) => prefix ? `${prefix}-tab-${id}` : `tab-${id}`;
 var panelId = (prefix, id) => prefix ? `${prefix}-panel-${id}` : `panel-${id}`;
 function useTabIds() {
-  const prefix = useId5().replace(/:/g, "");
+  const prefix = useId6().replace(/:/g, "");
   return {
     prefix,
     tab: (id) => tabId(prefix, id),
@@ -4231,10 +4411,10 @@ function Tabs({
   controllaPannello,
   className
 }) {
-  const refs = useRef3([]);
-  const listRef = useRef3(null);
+  const refs = useRef4([]);
+  const listRef = useRef4(null);
   const idAttivo = panelId(idPrefix, value);
-  const [pannelloPresente, setPannelloPresente] = useState7(false);
+  const [pannelloPresente, setPannelloPresente] = useState8(false);
   useLayoutEffect2(() => {
     if (controllaPannello !== void 0) return;
     const doc = listRef.current?.ownerDocument;
@@ -4246,7 +4426,7 @@ function Tabs({
     onChange?.(items[n].id);
     refs.current[n]?.focus();
   };
-  return /* @__PURE__ */ jsx20(
+  return /* @__PURE__ */ jsx22(
     "div",
     {
       ref: listRef,
@@ -4259,7 +4439,7 @@ function Tabs({
       children: items.map((t, i) => {
         const attiva = t.id === value;
         const Icon = t.icon;
-        return /* @__PURE__ */ jsxs15(
+        return /* @__PURE__ */ jsxs17(
           "button",
           {
             ref: (el) => {
@@ -4293,9 +4473,9 @@ function Tabs({
               attiva ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
             ),
             children: [
-              Icon && /* @__PURE__ */ jsx20(Icon, { className: "h-4 w-4", "aria-hidden": true }),
+              Icon && /* @__PURE__ */ jsx22(Icon, { className: "h-4 w-4", "aria-hidden": true }),
               t.label,
-              t.count != null && /* @__PURE__ */ jsx20("span", { className: "rounded-full bg-muted px-1.5 text-xs tabular-nums text-muted-foreground", children: t.count })
+              t.count != null && /* @__PURE__ */ jsx22("span", { className: "rounded-full bg-muted px-1.5 text-xs tabular-nums text-muted-foreground", children: t.count })
             ]
           },
           t.id
@@ -4306,8 +4486,8 @@ function Tabs({
 }
 
 // src/molecules/SegmentedControl.jsx
-import { useRef as useRef4 } from "react";
-import { jsx as jsx21, jsxs as jsxs16 } from "react/jsx-runtime";
+import { useRef as useRef5 } from "react";
+import { jsx as jsx23, jsxs as jsxs18 } from "react/jsx-runtime";
 var SIZE = {
   sm: "h-7 max-sm:min-h-11 px-3 text-xs",
   md: "h-9 max-sm:min-h-11 px-4 text-sm"
@@ -4320,13 +4500,13 @@ function SegmentedControl({
   "aria-label": ariaLabel,
   className
 }) {
-  const refs = useRef4([]);
+  const refs = useRef5([]);
   const vai = (i) => {
     const n = (i + options.length) % options.length;
     onChange?.(options[n].value);
     refs.current[n]?.focus();
   };
-  return /* @__PURE__ */ jsx21(
+  return /* @__PURE__ */ jsx23(
     "div",
     {
       role: "radiogroup",
@@ -4335,7 +4515,7 @@ function SegmentedControl({
       children: options.map((o, i) => {
         const attivo = o.value === value;
         const Icon = o.icon;
-        return /* @__PURE__ */ jsxs16(
+        return /* @__PURE__ */ jsxs18(
           "button",
           {
             ref: (el) => {
@@ -4368,7 +4548,7 @@ function SegmentedControl({
               attivo ? "bg-background text-primary shadow" : "text-muted-foreground hover:text-foreground"
             ),
             children: [
-              Icon && /* @__PURE__ */ jsx21(Icon, { className: "h-3.5 w-3.5", "aria-hidden": true }),
+              Icon && /* @__PURE__ */ jsx23(Icon, { className: "h-3.5 w-3.5", "aria-hidden": true }),
               o.label
             ]
           },
@@ -4385,11 +4565,11 @@ import {
   cloneElement as cloneElement2,
   useCallback as useCallback3,
   useEffect as useEffect7,
-  useId as useId6,
-  useRef as useRef5,
-  useState as useState8
+  useId as useId7,
+  useRef as useRef6,
+  useState as useState9
 } from "react";
-import { jsx as jsx22, jsxs as jsxs17 } from "react/jsx-runtime";
+import { jsx as jsx24, jsxs as jsxs19 } from "react/jsx-runtime";
 var DELAY_MS = 150;
 var SIDE = {
   top: "bottom-full left-1/2 mb-2 -translate-x-1/2",
@@ -4403,9 +4583,9 @@ function Tooltip({
   wide = false,
   children
 }) {
-  const id = useId6();
-  const [open, setOpen] = useState8(false);
-  const timer = useRef5(null);
+  const id = useId7();
+  const [open, setOpen] = useState9(false);
+  const timer = useRef6(null);
   const child = Children2.only(children);
   const show = useCallback3(() => {
     clearTimeout(timer.current);
@@ -4433,9 +4613,9 @@ function Tooltip({
       hide();
     })
   });
-  return /* @__PURE__ */ jsxs17("span", { className: "relative inline-flex", children: [
+  return /* @__PURE__ */ jsxs19("span", { className: "relative inline-flex", children: [
     trigger,
-    open && content != null && /* @__PURE__ */ jsx22(
+    open && content != null && /* @__PURE__ */ jsx24(
       "span",
       {
         id,
@@ -4453,7 +4633,7 @@ function Tooltip({
 
 // src/molecules/InfoTip.jsx
 import { HelpCircle } from "lucide-react";
-import { jsx as jsx23 } from "react/jsx-runtime";
+import { jsx as jsx25 } from "react/jsx-runtime";
 var LONG = 40;
 function InfoTip({
   children,
@@ -4462,21 +4642,21 @@ function InfoTip({
   wide
 }) {
   const long = wide ?? (typeof children === "string" && children.length > LONG);
-  return /* @__PURE__ */ jsx23(Tooltip, { content: children, side, wide: long, children: /* @__PURE__ */ jsx23(
+  return /* @__PURE__ */ jsx25(Tooltip, { content: children, side, wide: long, children: /* @__PURE__ */ jsx25(
     "button",
     {
       type: "button",
       "aria-label": label,
       className: "inline-flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-      children: /* @__PURE__ */ jsx23(HelpCircle, { className: "h-4 w-4", "aria-hidden": true })
+      children: /* @__PURE__ */ jsx25(HelpCircle, { className: "h-4 w-4", "aria-hidden": true })
     }
   ) });
 }
 
 // src/organisms/Card.jsx
-import { jsx as jsx24, jsxs as jsxs18 } from "react/jsx-runtime";
+import { jsx as jsx26, jsxs as jsxs20 } from "react/jsx-runtime";
 function Card({ className, interactive = false, children, ...props }) {
-  return /* @__PURE__ */ jsx24(
+  return /* @__PURE__ */ jsx26(
     "div",
     {
       ...props,
@@ -4496,7 +4676,7 @@ function CardHeader({
   className,
   children
 }) {
-  return /* @__PURE__ */ jsxs18(
+  return /* @__PURE__ */ jsxs20(
     "div",
     {
       className: cn(
@@ -4504,18 +4684,18 @@ function CardHeader({
         className
       ),
       children: [
-        /* @__PURE__ */ jsxs18("div", { className: "min-w-0 space-y-1", children: [
-          title && /* @__PURE__ */ jsx24(CardTitle, { children: title }),
-          description && /* @__PURE__ */ jsx24(CardDescription, { children: description }),
+        /* @__PURE__ */ jsxs20("div", { className: "min-w-0 space-y-1", children: [
+          title && /* @__PURE__ */ jsx26(CardTitle, { children: title }),
+          description && /* @__PURE__ */ jsx26(CardDescription, { children: description }),
           children
         ] }),
-        actions && /* @__PURE__ */ jsx24("div", { className: "flex shrink-0 items-center gap-2", children: actions })
+        actions && /* @__PURE__ */ jsx26("div", { className: "flex shrink-0 items-center gap-2", children: actions })
       ]
     }
   );
 }
 function CardTitle({ className, children, ...props }) {
-  return /* @__PURE__ */ jsx24(
+  return /* @__PURE__ */ jsx26(
     "h3",
     {
       ...props,
@@ -4525,13 +4705,13 @@ function CardTitle({ className, children, ...props }) {
   );
 }
 function CardDescription({ className, children, ...props }) {
-  return /* @__PURE__ */ jsx24("p", { ...props, className: cn("text-sm text-muted-foreground", className), children });
+  return /* @__PURE__ */ jsx26("p", { ...props, className: cn("text-sm text-muted-foreground", className), children });
 }
 function CardContent({ className, children, ...props }) {
-  return /* @__PURE__ */ jsx24("div", { ...props, className: cn("p-5", className), children });
+  return /* @__PURE__ */ jsx26("div", { ...props, className: cn("p-5", className), children });
 }
 function CardFooter({ className, children, ...props }) {
-  return /* @__PURE__ */ jsx24(
+  return /* @__PURE__ */ jsx26(
     "div",
     {
       ...props,
@@ -4545,9 +4725,9 @@ function CardFooter({ className, children, ...props }) {
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 
 // src/organisms/Skeleton.jsx
-import { jsx as jsx25, jsxs as jsxs19 } from "react/jsx-runtime";
+import { jsx as jsx27, jsxs as jsxs21 } from "react/jsx-runtime";
 function Skeleton({ className, ...props }) {
-  return /* @__PURE__ */ jsx25(
+  return /* @__PURE__ */ jsx27(
     "div",
     {
       "aria-hidden": true,
@@ -4557,9 +4737,9 @@ function Skeleton({ className, ...props }) {
   );
 }
 function SkeletonText({ lines = 3 }) {
-  return /* @__PURE__ */ jsxs19("div", { className: "space-y-2", role: "status", "aria-busy": "true", "aria-label": "Caricamento", children: [
-    /* @__PURE__ */ jsx25("span", { className: "sr-only", children: "Caricamento\u2026" }),
-    Array.from({ length: lines }, (_, i) => /* @__PURE__ */ jsx25(
+  return /* @__PURE__ */ jsxs21("div", { className: "space-y-2", role: "status", "aria-busy": "true", "aria-label": "Caricamento", children: [
+    /* @__PURE__ */ jsx27("span", { className: "sr-only", children: "Caricamento\u2026" }),
+    Array.from({ length: lines }, (_, i) => /* @__PURE__ */ jsx27(
       Skeleton,
       {
         className: cn(
@@ -4572,17 +4752,17 @@ function SkeletonText({ lines = 3 }) {
   ] });
 }
 function SkeletonCard() {
-  return /* @__PURE__ */ jsxs19("div", { className: "rounded-xl border bg-card p-5 shadow-sm space-y-4", children: [
-    /* @__PURE__ */ jsx25(Skeleton, { className: "h-4 w-1/3" }),
-    /* @__PURE__ */ jsx25(Skeleton, { className: "h-8 w-1/2" }),
-    /* @__PURE__ */ jsx25(SkeletonText, { lines: 2 })
+  return /* @__PURE__ */ jsxs21("div", { className: "rounded-xl border bg-card p-5 shadow-sm space-y-4", children: [
+    /* @__PURE__ */ jsx27(Skeleton, { className: "h-4 w-1/3" }),
+    /* @__PURE__ */ jsx27(Skeleton, { className: "h-8 w-1/2" }),
+    /* @__PURE__ */ jsx27(SkeletonText, { lines: 2 })
   ] });
 }
 function SkeletonTable({ rows = 5, cols = 4 }) {
-  return /* @__PURE__ */ jsxs19("div", { className: "space-y-3", role: "status", "aria-busy": "true", "aria-label": "Caricamento", children: [
-    /* @__PURE__ */ jsx25("span", { className: "sr-only", children: "Caricamento\u2026" }),
-    /* @__PURE__ */ jsx25("div", { className: "flex gap-4", children: Array.from({ length: cols }, (_, c) => /* @__PURE__ */ jsx25(Skeleton, { className: "h-4 flex-1" }, c)) }),
-    Array.from({ length: rows }, (_, r2) => /* @__PURE__ */ jsx25("div", { className: "flex gap-4", children: Array.from({ length: cols }, (_2, c) => /* @__PURE__ */ jsx25(Skeleton, { className: "h-6 flex-1" }, c)) }, r2))
+  return /* @__PURE__ */ jsxs21("div", { className: "space-y-3", role: "status", "aria-busy": "true", "aria-label": "Caricamento", children: [
+    /* @__PURE__ */ jsx27("span", { className: "sr-only", children: "Caricamento\u2026" }),
+    /* @__PURE__ */ jsx27("div", { className: "flex gap-4", children: Array.from({ length: cols }, (_, c) => /* @__PURE__ */ jsx27(Skeleton, { className: "h-4 flex-1" }, c)) }),
+    Array.from({ length: rows }, (_, r2) => /* @__PURE__ */ jsx27("div", { className: "flex gap-4", children: Array.from({ length: cols }, (_2, c) => /* @__PURE__ */ jsx27(Skeleton, { className: "h-6 flex-1" }, c)) }, r2))
   ] });
 }
 
@@ -4599,13 +4779,13 @@ function segnalaAttr(descrittore) {
 }
 
 // src/organisms/KpiCard.jsx
-import { jsx as jsx26, jsxs as jsxs20 } from "react/jsx-runtime";
+import { jsx as jsx28, jsxs as jsxs22 } from "react/jsx-runtime";
 var vuoto = (v) => v === null || v === void 0 || typeof v === "number" && Number.isNaN(v);
 function Delta({ delta }) {
   const su = delta.value > 0;
   const giu = delta.value < 0;
   const Icona = giu ? ArrowDownRight : ArrowUpRight;
-  return /* @__PURE__ */ jsxs20(
+  return /* @__PURE__ */ jsxs22(
     "span",
     {
       className: cn(
@@ -4615,10 +4795,10 @@ function Delta({ delta }) {
         !su && !giu && "text-muted-foreground"
       ),
       children: [
-        (su || giu) && /* @__PURE__ */ jsx26(Icona, { className: "h-3.5 w-3.5", "aria-hidden": true }),
+        (su || giu) && /* @__PURE__ */ jsx28(Icona, { className: "h-3.5 w-3.5", "aria-hidden": true }),
         su ? "+" : "",
         formatNumero(delta.value),
-        delta.label && /* @__PURE__ */ jsx26("span", { className: "ml-1 font-normal text-muted-foreground", children: delta.label })
+        delta.label && /* @__PURE__ */ jsx28("span", { className: "ml-1 font-normal text-muted-foreground", children: delta.label })
       ]
     }
   );
@@ -4636,35 +4816,35 @@ function KpiCard({
   className
 }) {
   const mostrato = vuoto(value) ? "\u2014" : typeof value === "number" ? formatNumero(value) : value;
-  return /* @__PURE__ */ jsxs20(Card, { className: cn("p-5", className), ...segnalaAttr(segnala), children: [
-    /* @__PURE__ */ jsxs20("div", { className: "flex items-start justify-between gap-3", children: [
-      /* @__PURE__ */ jsxs20("div", { className: "min-w-0", children: [
-        /* @__PURE__ */ jsxs20("div", { className: "flex items-center gap-1 text-sm text-muted-foreground", children: [
-          /* @__PURE__ */ jsx26("span", { className: "truncate", children: label }),
-          help && /* @__PURE__ */ jsx26(InfoTip, { children: help })
+  return /* @__PURE__ */ jsxs22(Card, { className: cn("p-5", className), ...segnalaAttr(segnala), children: [
+    /* @__PURE__ */ jsxs22("div", { className: "flex items-start justify-between gap-3", children: [
+      /* @__PURE__ */ jsxs22("div", { className: "min-w-0", children: [
+        /* @__PURE__ */ jsxs22("div", { className: "flex items-center gap-1 text-sm text-muted-foreground", children: [
+          /* @__PURE__ */ jsx28("span", { className: "truncate", children: label }),
+          help && /* @__PURE__ */ jsx28(InfoTip, { children: help })
         ] }),
-        loading ? /* @__PURE__ */ jsx26(Skeleton, { className: "mt-2 h-8 w-24" }) : /* @__PURE__ */ jsx26("p", { className: "mt-1 text-3xl font-bold tabular-nums tracking-tight", children: mostrato })
+        loading ? /* @__PURE__ */ jsx28(Skeleton, { className: "mt-2 h-8 w-24" }) : /* @__PURE__ */ jsx28("p", { className: "mt-1 text-3xl font-bold tabular-nums tracking-tight", children: mostrato })
       ] }),
-      Icon && /* @__PURE__ */ jsx26(
+      Icon && /* @__PURE__ */ jsx28(
         "span",
         {
           className: cn(
             "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
             TINTE[tone] ?? TINTE.neutral
           ),
-          children: /* @__PURE__ */ jsx26(Icon, { className: "h-5 w-5", "aria-hidden": true })
+          children: /* @__PURE__ */ jsx28(Icon, { className: "h-5 w-5", "aria-hidden": true })
         }
       )
     ] }),
-    !loading && (delta || hint) && /* @__PURE__ */ jsxs20("div", { className: "mt-2 flex flex-wrap items-center gap-2", children: [
-      delta && /* @__PURE__ */ jsx26(Delta, { delta }),
-      hint && /* @__PURE__ */ jsx26("span", { className: "text-xs text-muted-foreground", children: hint })
+    !loading && (delta || hint) && /* @__PURE__ */ jsxs22("div", { className: "mt-2 flex flex-wrap items-center gap-2", children: [
+      delta && /* @__PURE__ */ jsx28(Delta, { delta }),
+      hint && /* @__PURE__ */ jsx28("span", { className: "text-xs text-muted-foreground", children: hint })
     ] })
   ] });
 }
 
 // src/organisms/EmptyState.jsx
-import { jsx as jsx27, jsxs as jsxs21 } from "react/jsx-runtime";
+import { jsx as jsx29, jsxs as jsxs23 } from "react/jsx-runtime";
 function EmptyState({
   icon: Icon,
   title,
@@ -4673,7 +4853,7 @@ function EmptyState({
   action,
   className
 }) {
-  return /* @__PURE__ */ jsxs21(
+  return /* @__PURE__ */ jsxs23(
     "div",
     {
       className: cn(
@@ -4681,76 +4861,12 @@ function EmptyState({
         className
       ),
       children: [
-        Icon && /* @__PURE__ */ jsx27("span", { className: "flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground", children: /* @__PURE__ */ jsx27(Icon, { className: "h-6 w-6", "aria-hidden": true }) }),
-        /* @__PURE__ */ jsxs21("div", { className: "space-y-1", children: [
-          /* @__PURE__ */ jsx27(Title, { className: "text-base font-semibold", children: title }),
-          description && /* @__PURE__ */ jsx27("p", { className: "max-w-sm text-sm text-muted-foreground", children: description })
+        Icon && /* @__PURE__ */ jsx29("span", { className: "flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground", children: /* @__PURE__ */ jsx29(Icon, { className: "h-6 w-6", "aria-hidden": true }) }),
+        /* @__PURE__ */ jsxs23("div", { className: "space-y-1", children: [
+          /* @__PURE__ */ jsx29(Title, { className: "text-base font-semibold", children: title }),
+          description && /* @__PURE__ */ jsx29("p", { className: "max-w-sm text-sm text-muted-foreground", children: description })
         ] }),
-        action && /* @__PURE__ */ jsx27("div", { className: "mt-1", children: action })
-      ]
-    }
-  );
-}
-
-// src/organisms/Alert.jsx
-import { AlertTriangle, CheckCircle2, Info, X, XCircle } from "lucide-react";
-import { jsx as jsx28, jsxs as jsxs22 } from "react/jsx-runtime";
-var TONI2 = {
-  info: {
-    box: "border-info/30 bg-info/10 text-sky-900 dark:text-sky-100",
-    icon: "text-info",
-    Icona: Info
-  },
-  success: {
-    box: "border-success/30 bg-success/10 text-green-900 dark:text-green-100",
-    icon: "text-success",
-    Icona: CheckCircle2
-  },
-  warning: {
-    box: "border-warning/40 bg-warning/10 text-amber-900 dark:text-amber-100",
-    icon: "text-warning",
-    Icona: AlertTriangle
-  },
-  danger: {
-    box: "border-destructive/30 bg-destructive/10 text-red-900 dark:text-red-100",
-    icon: "text-destructive",
-    Icona: XCircle
-  }
-};
-function Alert({
-  tone = "info",
-  title,
-  children,
-  onClose,
-  className
-}) {
-  const t = TONI2[tone] ?? TONI2.info;
-  const urgente = tone === "danger" || tone === "warning";
-  return /* @__PURE__ */ jsxs22(
-    "div",
-    {
-      role: urgente ? "alert" : "status",
-      className: cn(
-        "flex gap-3 rounded-lg border p-4 text-sm",
-        t.box,
-        className
-      ),
-      children: [
-        /* @__PURE__ */ jsx28(t.Icona, { className: cn("mt-0.5 h-5 w-5 shrink-0", t.icon), "aria-hidden": true }),
-        /* @__PURE__ */ jsxs22("div", { className: "min-w-0 flex-1", children: [
-          title && /* @__PURE__ */ jsx28("p", { className: "font-semibold", children: title }),
-          children && /* @__PURE__ */ jsx28("div", { className: cn(title && "mt-0.5"), children })
-        ] }),
-        onClose && /* @__PURE__ */ jsx28(
-          IconButton_default,
-          {
-            icon: X,
-            label: "Chiudi",
-            size: "sm",
-            onClick: onClose,
-            className: "-my-1 -mr-1 shrink-0"
-          }
-        )
+        action && /* @__PURE__ */ jsx29("div", { className: "mt-1", children: action })
       ]
     }
   );
@@ -4758,7 +4874,7 @@ function Alert({
 
 // src/organisms/Pagination.jsx
 import { ChevronLeft, ChevronRight as ChevronRight2 } from "lucide-react";
-import { jsx as jsx29, jsxs as jsxs23 } from "react/jsx-runtime";
+import { jsx as jsx30, jsxs as jsxs24 } from "react/jsx-runtime";
 function Pagination({
   page,
   pageSize,
@@ -4771,23 +4887,23 @@ function Pagination({
   const p = Math.min(Math.max(1, page), pagine);
   const da = (p - 1) * pageSize + 1;
   const a = Math.min(p * pageSize, total);
-  return /* @__PURE__ */ jsxs23(
+  return /* @__PURE__ */ jsxs24(
     "nav",
     {
       "aria-label": "Paginazione",
       className: cn("flex items-center justify-between gap-3", className),
       children: [
-        /* @__PURE__ */ jsxs23("p", { "aria-live": "polite", className: "text-sm text-muted-foreground tabular-nums", children: [
+        /* @__PURE__ */ jsxs24("p", { "aria-live": "polite", className: "text-sm text-muted-foreground tabular-nums", children: [
           total > 0 ? `${formatNumero(da)}\u2013${formatNumero(a)} di ${formatNumero(total)}` : "Nessun risultato",
-          /* @__PURE__ */ jsxs23("span", { className: "sr-only", children: [
+          /* @__PURE__ */ jsxs24("span", { className: "sr-only", children: [
             "Pagina ",
             p,
             " di ",
             pagine
           ] })
         ] }),
-        /* @__PURE__ */ jsxs23("div", { className: "flex items-center gap-2", children: [
-          /* @__PURE__ */ jsx29(
+        /* @__PURE__ */ jsxs24("div", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ jsx30(
             Button_default,
             {
               variant: "outline",
@@ -4800,7 +4916,7 @@ function Pagination({
               children: "Precedente"
             }
           ),
-          /* @__PURE__ */ jsx29(
+          /* @__PURE__ */ jsx30(
             Button_default,
             {
               variant: "outline",
@@ -4820,22 +4936,22 @@ function Pagination({
 }
 
 // src/organisms/DataTable.jsx
-import { useEffect as useEffect9, useState as useState11 } from "react";
+import { useEffect as useEffect9, useState as useState12 } from "react";
 import { ChevronDown as ChevronDown3, ChevronUp, ChevronsUpDown, Inbox } from "lucide-react";
 
 // src/molecules/TopScrollX.jsx
-import { useEffect as useEffect8, useRef as useRef6, useState as useState9 } from "react";
-import { Fragment as Fragment3, jsx as jsx30, jsxs as jsxs24 } from "react/jsx-runtime";
+import { useEffect as useEffect8, useRef as useRef7, useState as useState10 } from "react";
+import { Fragment as Fragment3, jsx as jsx31, jsxs as jsxs25 } from "react/jsx-runtime";
 function TopScrollX({
   children,
   className,
   ariaLabel = "Tabella scorrevole"
 }) {
-  const topRef = useRef6(null);
-  const bodyRef = useRef6(null);
-  const syncing = useRef6(false);
-  const [scrollWidth, setScrollWidth] = useState9(0);
-  const [overflow, setOverflow] = useState9(false);
+  const topRef = useRef7(null);
+  const bodyRef = useRef7(null);
+  const syncing = useRef7(false);
+  const [scrollWidth, setScrollWidth] = useState10(0);
+  const [overflow, setOverflow] = useState10(false);
   useEffect8(() => {
     const body = bodyRef.current;
     if (!body) return void 0;
@@ -4860,8 +4976,8 @@ function TopScrollX({
       to.current.scrollLeft = from.current.scrollLeft;
     }
   };
-  return /* @__PURE__ */ jsxs24(Fragment3, { children: [
-    overflow && /* @__PURE__ */ jsx30(
+  return /* @__PURE__ */ jsxs25(Fragment3, { children: [
+    overflow && /* @__PURE__ */ jsx31(
       "div",
       {
         ref: topRef,
@@ -4869,10 +4985,10 @@ function TopScrollX({
         onScroll: () => follow(topRef, bodyRef),
         className: "overflow-x-auto overflow-y-hidden border-b",
         "aria-hidden": "true",
-        children: /* @__PURE__ */ jsx30("div", { style: { width: scrollWidth, height: 1 } })
+        children: /* @__PURE__ */ jsx31("div", { style: { width: scrollWidth, height: 1 } })
       }
     ),
-    /* @__PURE__ */ jsx30(
+    /* @__PURE__ */ jsx31(
       "div",
       {
         ref: bodyRef,
@@ -4891,7 +5007,7 @@ function TopScrollX({
 }
 
 // src/organisms/useSort.js
-import { useCallback as useCallback4, useMemo as useMemo2, useState as useState10 } from "react";
+import { useCallback as useCallback4, useMemo as useMemo2, useState as useState11 } from "react";
 function normalizza(v) {
   const x = v instanceof Date ? v.valueOf() : v;
   return typeof x === "number" && Number.isNaN(x) ? null : x;
@@ -4905,7 +5021,7 @@ function compare(a, b) {
   });
 }
 function useSort(rows, { initial = null, accessors = {} } = {}) {
-  const [sort, setSort] = useState10(initial);
+  const [sort, setSort] = useState11(initial);
   const toggle = useCallback4((key) => {
     setSort(
       (prev) => prev && prev.key === key ? { key, dir: prev.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }
@@ -4928,7 +5044,7 @@ function useSort(rows, { initial = null, accessors = {} } = {}) {
 }
 
 // src/organisms/BarraInline.jsx
-import { jsx as jsx31, jsxs as jsxs25 } from "react/jsx-runtime";
+import { jsx as jsx32, jsxs as jsxs26 } from "react/jsx-runtime";
 var valoreBarra = (c, row) => {
   const v = c.barValue ? c.barValue(row) : c.sortAccessor ? c.sortAccessor(row) : row[c.key];
   const n = Number(v);
@@ -4940,14 +5056,14 @@ var massimiBarre = (columns, rows) => Object.fromEntries(
 function BarraInline({ value, max, children, className }) {
   const pct = max > 0 ? Math.min(Math.max(value / max, 0), 1) * 100 : 0;
   const larghezza = pct > 0 && pct < 2 ? 2 : pct;
-  return /* @__PURE__ */ jsxs25("div", { className: cn("flex items-center justify-end gap-2", className), children: [
-    /* @__PURE__ */ jsx31(
+  return /* @__PURE__ */ jsxs26("div", { className: cn("flex items-center justify-end gap-2", className), children: [
+    /* @__PURE__ */ jsx32(
       "div",
       {
         className: "h-1.5 min-w-[3rem] flex-1 overflow-hidden rounded-full bg-muted",
         "aria-hidden": true,
         "data-barra": "",
-        children: /* @__PURE__ */ jsx31(
+        children: /* @__PURE__ */ jsx32(
           "div",
           {
             className: "h-full rounded-full bg-primary/70 transition-all duration-300",
@@ -4956,17 +5072,17 @@ function BarraInline({ value, max, children, className }) {
         )
       }
     ),
-    /* @__PURE__ */ jsx31("span", { className: "shrink-0 tabular-nums", children })
+    /* @__PURE__ */ jsx32("span", { className: "shrink-0 tabular-nums", children })
   ] });
 }
 
 // src/organisms/DataTableCards.jsx
-import { jsx as jsx32, jsxs as jsxs26 } from "react/jsx-runtime";
+import { jsx as jsx33, jsxs as jsxs27 } from "react/jsx-runtime";
 var INTERATTIVI = "a,button,input,textarea,select,[role=listbox],[role=option],[role=switch],[role=checkbox],[data-no-row-click]";
 function valoreCella(colonna, riga, massimi) {
   const contenuto = colonna.cell ? colonna.cell(riga) : riga[colonna.key] ?? "";
   if (!colonna.bar) return contenuto;
-  return /* @__PURE__ */ jsx32(BarraInline, { value: valoreBarra(colonna, riga), max: massimi[colonna.key], children: contenuto });
+  return /* @__PURE__ */ jsx33(BarraInline, { value: valoreBarra(colonna, riga), max: massimi[colonna.key], children: contenuto });
 }
 function DataTableCards({
   columns,
@@ -4979,7 +5095,7 @@ function DataTableCards({
     const hit = event.target.closest?.(INTERATTIVI);
     if (!hit || !event.currentTarget.contains(hit)) onRowClick(riga);
   };
-  return /* @__PURE__ */ jsx32("div", { className: "space-y-3 p-3 sm:hidden", children: rows.map((riga) => /* @__PURE__ */ jsx32(
+  return /* @__PURE__ */ jsx33("div", { className: "space-y-3 p-3 sm:hidden", children: rows.map((riga) => /* @__PURE__ */ jsx33(
     Card,
     {
       role: onRowClick ? "button" : void 0,
@@ -4995,9 +5111,9 @@ function DataTableCards({
         "p-4",
         onRowClick && "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       ),
-      children: /* @__PURE__ */ jsx32("dl", { className: "space-y-2", children: columns.map((colonna) => /* @__PURE__ */ jsxs26("div", { className: "grid grid-cols-2 gap-3 text-sm", children: [
-        /* @__PURE__ */ jsx32("dt", { className: "text-muted-foreground", children: colonna.header }),
-        /* @__PURE__ */ jsx32("dd", { className: "min-w-0 text-right", children: valoreCella(colonna, riga, massimi) })
+      children: /* @__PURE__ */ jsx33("dl", { className: "space-y-2", children: columns.map((colonna) => /* @__PURE__ */ jsxs27("div", { className: "grid grid-cols-2 gap-3 text-sm", children: [
+        /* @__PURE__ */ jsx33("dt", { className: "text-muted-foreground", children: colonna.header }),
+        /* @__PURE__ */ jsx33("dd", { className: "min-w-0 text-right", children: valoreCella(colonna, riga, massimi) })
       ] }, colonna.key)) })
     },
     rowKey(riga)
@@ -5005,7 +5121,7 @@ function DataTableCards({
 }
 
 // src/organisms/DataTable.jsx
-import { Fragment as Fragment4, jsx as jsx33, jsxs as jsxs27 } from "react/jsx-runtime";
+import { Fragment as Fragment4, jsx as jsx34, jsxs as jsxs28 } from "react/jsx-runtime";
 var INTERATTIVI2 = "a,button,input,textarea,select,[role=listbox],[role=option],[role=switch],[role=checkbox],[data-no-row-click]";
 var ALIGN = { left: "text-left", right: "text-right", center: "text-center" };
 var JUSTIFY = {
@@ -5017,7 +5133,7 @@ var haAvvisatoSenzaCaption = false;
 var ambienteNode2 = typeof process !== "undefined" ? process.env : void 0;
 function SortIcon({ dir }) {
   const Icon = dir === "asc" ? ChevronUp : dir === "desc" ? ChevronDown3 : ChevronsUpDown;
-  return /* @__PURE__ */ jsx33(Icon, { className: cn("h-3.5 w-3.5", !dir && "opacity-40"), "aria-hidden": true });
+  return /* @__PURE__ */ jsx34(Icon, { className: cn("h-3.5 w-3.5", !dir && "opacity-40"), "aria-hidden": true });
 }
 function DataTable({
   columns,
@@ -5050,35 +5166,35 @@ function DataTable({
     initial: initialSort,
     accessors
   });
-  const [pagina, setPagina] = useState11(1);
+  const [pagina, setPagina] = useState12(1);
   useEffect9(() => setPagina(1), [sort, rows.length]);
   const visibili = pageSize ? sorted.slice((pagina - 1) * pageSize, pagina * pageSize) : sorted;
   const pad = dense ? "px-3 py-1.5" : "px-3 py-2.5";
   const massimi = massimiBarre(columns, rows);
   let body;
   if (error !== void 0 && error !== null) {
-    body = /* @__PURE__ */ jsx33(Alert, { tone: "danger", children: /* @__PURE__ */ jsxs27("div", { className: "space-y-3", children: [
-      /* @__PURE__ */ jsx33("div", { children: error }),
-      onRetry && /* @__PURE__ */ jsx33(Button_default, { onClick: onRetry, children: "Riprova" })
+    body = /* @__PURE__ */ jsx34(Alert, { tone: "danger", children: /* @__PURE__ */ jsxs28("div", { className: "space-y-3", children: [
+      /* @__PURE__ */ jsx34("div", { children: error }),
+      onRetry && /* @__PURE__ */ jsx34(Button_default, { onClick: onRetry, children: "Riprova" })
     ] }) });
   } else if (loading && rows.length === 0) {
-    body = /* @__PURE__ */ jsx33("div", { className: "p-4", children: /* @__PURE__ */ jsx33(SkeletonTable, { rows: 5, cols: columns.length }) });
+    body = /* @__PURE__ */ jsx34("div", { className: "p-4", children: /* @__PURE__ */ jsx34(SkeletonTable, { rows: 5, cols: columns.length }) });
   } else if (rows.length === 0) {
-    body = empty === void 0 ? /* @__PURE__ */ jsx33(EmptyState, { icon: Inbox, title: "Nessun dato" }) : typeof empty === "string" ? /* @__PURE__ */ jsx33("p", { className: "px-6 py-12 text-center text-sm text-muted-foreground", children: empty }) : empty;
+    body = empty === void 0 ? /* @__PURE__ */ jsx34(EmptyState, { icon: Inbox, title: "Nessun dato" }) : typeof empty === "string" ? /* @__PURE__ */ jsx34("p", { className: "px-6 py-12 text-center text-sm text-muted-foreground", children: empty }) : empty;
   }
-  return /* @__PURE__ */ jsxs27(Card, { className: cn("p-0", className), ...segnalaAttr(segnala), children: [
-    body ? body : /* @__PURE__ */ jsxs27(Fragment4, { children: [
-      /* @__PURE__ */ jsx33(
+  return /* @__PURE__ */ jsxs28(Card, { className: cn("p-0", className), ...segnalaAttr(segnala), children: [
+    body ? body : /* @__PURE__ */ jsxs28(Fragment4, { children: [
+      /* @__PURE__ */ jsx34(
         TopScrollX,
         {
           ariaLabel: caption,
           className: mobileCards ? "hidden sm:block" : void 0,
-          children: /* @__PURE__ */ jsxs27("table", { className: "w-full text-sm", "aria-busy": loading, children: [
-            caption && /* @__PURE__ */ jsx33("caption", { className: "sr-only", children: caption }),
-            /* @__PURE__ */ jsx33("thead", { className: "border-b bg-muted/50 font-medium text-muted-foreground", children: /* @__PURE__ */ jsx33("tr", { children: columns.map((c) => {
+          children: /* @__PURE__ */ jsxs28("table", { className: "w-full text-sm", "aria-busy": loading, children: [
+            caption && /* @__PURE__ */ jsx34("caption", { className: "sr-only", children: caption }),
+            /* @__PURE__ */ jsx34("thead", { className: "border-b bg-muted/50 font-medium text-muted-foreground", children: /* @__PURE__ */ jsx34("tr", { children: columns.map((c) => {
               const active = sort && sort.key === c.key ? sort.dir : null;
               const align = ALIGN[c.align] || ALIGN.left;
-              return /* @__PURE__ */ jsx33(
+              return /* @__PURE__ */ jsx34(
                 "th",
                 {
                   scope: "col",
@@ -5091,7 +5207,7 @@ function DataTable({
                     align,
                     c.className
                   ),
-                  children: c.sortable ? /* @__PURE__ */ jsxs27(
+                  children: c.sortable ? /* @__PURE__ */ jsxs28(
                     "button",
                     {
                       type: "button",
@@ -5103,15 +5219,15 @@ function DataTable({
                       ),
                       children: [
                         c.header,
-                        /* @__PURE__ */ jsx33(SortIcon, { dir: active })
+                        /* @__PURE__ */ jsx34(SortIcon, { dir: active })
                       ]
                     }
-                  ) : c.srOnly ? /* @__PURE__ */ jsx33("span", { className: "sr-only", children: c.header }) : c.header
+                  ) : c.srOnly ? /* @__PURE__ */ jsx34("span", { className: "sr-only", children: c.header }) : c.header
                 },
                 c.key
               );
             }) }) }),
-            /* @__PURE__ */ jsx33("tbody", { className: "divide-y", children: visibili.map((row) => /* @__PURE__ */ jsx33(
+            /* @__PURE__ */ jsx34("tbody", { className: "divide-y", children: visibili.map((row) => /* @__PURE__ */ jsx34(
               "tr",
               {
                 tabIndex: onRowClick ? 0 : void 0,
@@ -5128,7 +5244,7 @@ function DataTable({
                   "transition-colors hover:bg-muted/40",
                   onRowClick && "cursor-pointer focus-visible:outline-none focus-visible:bg-muted/60 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                 ),
-                children: columns.map((c) => /* @__PURE__ */ jsx33(
+                children: columns.map((c) => /* @__PURE__ */ jsx34(
                   "td",
                   {
                     ...segnalaAttr(c.segnala),
@@ -5137,7 +5253,7 @@ function DataTable({
                       ALIGN[c.align] || ALIGN.left,
                       c.className
                     ),
-                    children: c.bar ? /* @__PURE__ */ jsx33(
+                    children: c.bar ? /* @__PURE__ */ jsx34(
                       BarraInline,
                       {
                         value: valoreBarra(c, row),
@@ -5154,7 +5270,7 @@ function DataTable({
           ] })
         }
       ),
-      mobileCards && /* @__PURE__ */ jsx33(
+      mobileCards && /* @__PURE__ */ jsx34(
         DataTableCards,
         {
           columns,
@@ -5165,7 +5281,7 @@ function DataTable({
         }
       )
     ] }),
-    pageSize && !body && /* @__PURE__ */ jsx33(
+    pageSize && !body && /* @__PURE__ */ jsx34(
       Pagination,
       {
         page: pagina,
@@ -5283,7 +5399,7 @@ function isPartial(key, { from, to, now = /* @__PURE__ */ new Date() } = {}) {
 }
 
 // src/organisms/MatriceCalore.jsx
-import { Fragment as Fragment5, jsx as jsx34, jsxs as jsxs28 } from "react/jsx-runtime";
+import { Fragment as Fragment5, jsx as jsx35, jsxs as jsxs29 } from "react/jsx-runtime";
 var num = (v) => Number.isFinite(Number(v)) ? Number(v) : 0;
 var somma = (xs) => xs.reduce((a, b) => a + b, 0);
 var percento = (v) => formatNumero(v, { style: "percent", maximumFractionDigits: 1 });
@@ -5300,7 +5416,7 @@ function Cella({ valore: valore2, massimo, format, nd }) {
   const mancante = nd !== void 0 && (valore2 === null || valore2 === void 0);
   const t = mancante ? 0 : intensita(valore2, massimo);
   const alfa = t > 0 ? 0.08 + 0.82 * t : 0;
-  return /* @__PURE__ */ jsx34(
+  return /* @__PURE__ */ jsx35(
     "td",
     {
       className: cn(
@@ -5309,7 +5425,7 @@ function Cella({ valore: valore2, massimo, format, nd }) {
       ),
       style: alfa ? { backgroundColor: `hsl(var(--primary) / ${alfa.toFixed(3)})` } : void 0,
       "data-intensita": t.toFixed(3),
-      children: mancante ? /* @__PURE__ */ jsx34("span", { className: "text-muted-foreground", children: nd }) : valore2 || nd !== void 0 && valore2 === 0 ? format(valore2) : /* @__PURE__ */ jsx34("span", { className: "text-muted-foreground", children: "\u2013" })
+      children: mancante ? /* @__PURE__ */ jsx35("span", { className: "text-muted-foreground", children: nd }) : valore2 || nd !== void 0 && valore2 === 0 ? format(valore2) : /* @__PURE__ */ jsx35("span", { className: "text-muted-foreground", children: "\u2013" })
     }
   );
 }
@@ -5346,12 +5462,12 @@ function MatriceCalore({
   const parziali = cols.some((c) => c.parziale);
   const intest = "px-3 py-2 font-medium whitespace-nowrap";
   if (righe.length === 0 || cols.length === 0)
-    return /* @__PURE__ */ jsx34(Card, { className: cn("p-0", className), ...segnalaAttr(segnala), children: /* @__PURE__ */ jsx34(EmptyState, { icon: Inbox2, title: empty }) });
-  return /* @__PURE__ */ jsxs28(Card, { className: cn("p-0", className), ...segnalaAttr(segnala), children: [
-    /* @__PURE__ */ jsx34("div", { className: "overflow-x-auto scrollbar-thin", children: /* @__PURE__ */ jsxs28("table", { className: "w-full text-sm", children: [
-      caption && /* @__PURE__ */ jsx34("caption", { className: "sr-only", children: caption }),
-      /* @__PURE__ */ jsx34("thead", { className: "border-b bg-muted/50 text-muted-foreground", children: /* @__PURE__ */ jsxs28("tr", { children: [
-        /* @__PURE__ */ jsx34(
+    return /* @__PURE__ */ jsx35(Card, { className: cn("p-0", className), ...segnalaAttr(segnala), children: /* @__PURE__ */ jsx35(EmptyState, { icon: Inbox2, title: empty }) });
+  return /* @__PURE__ */ jsxs29(Card, { className: cn("p-0", className), ...segnalaAttr(segnala), children: [
+    /* @__PURE__ */ jsx35("div", { className: "overflow-x-auto scrollbar-thin", children: /* @__PURE__ */ jsxs29("table", { className: "w-full text-sm", children: [
+      caption && /* @__PURE__ */ jsx35("caption", { className: "sr-only", children: caption }),
+      /* @__PURE__ */ jsx35("thead", { className: "border-b bg-muted/50 text-muted-foreground", children: /* @__PURE__ */ jsxs29("tr", { children: [
+        /* @__PURE__ */ jsx35(
           "th",
           {
             scope: "col",
@@ -5359,7 +5475,7 @@ function MatriceCalore({
             children: etichettaRighe
           }
         ),
-        cols.map((c) => /* @__PURE__ */ jsxs28(
+        cols.map((c) => /* @__PURE__ */ jsxs29(
           "th",
           {
             scope: "col",
@@ -5367,18 +5483,18 @@ function MatriceCalore({
             title: c.parziale ? "Periodo parziale" : void 0,
             children: [
               c.label,
-              c.parziale && /* @__PURE__ */ jsxs28(Fragment5, { children: [
-                /* @__PURE__ */ jsx34("span", { "aria-hidden": true, children: "*" }),
-                /* @__PURE__ */ jsx34("span", { className: "sr-only", children: " (parziale)" })
+              c.parziale && /* @__PURE__ */ jsxs29(Fragment5, { children: [
+                /* @__PURE__ */ jsx35("span", { "aria-hidden": true, children: "*" }),
+                /* @__PURE__ */ jsx35("span", { className: "sr-only", children: " (parziale)" })
               ] })
             ]
           },
           c.key
         )),
-        totale && /* @__PURE__ */ jsx34("th", { scope: "col", className: cn(intest, "text-right"), children: "Totale" }),
-        quota && /* @__PURE__ */ jsx34("th", { scope: "col", className: cn(intest, "text-right"), children: "Quota" })
+        totale && /* @__PURE__ */ jsx35("th", { scope: "col", className: cn(intest, "text-right"), children: "Totale" }),
+        quota && /* @__PURE__ */ jsx35("th", { scope: "col", className: cn(intest, "text-right"), children: "Quota" })
       ] }) }),
-      /* @__PURE__ */ jsx34("tbody", { className: "divide-y", children: righe.map((r2, i) => /* @__PURE__ */ jsxs28(
+      /* @__PURE__ */ jsx35("tbody", { className: "divide-y", children: righe.map((r2, i) => /* @__PURE__ */ jsxs29(
         "tr",
         {
           tabIndex: onRigaClick ? 0 : void 0,
@@ -5393,7 +5509,7 @@ function MatriceCalore({
             onRigaClick && "cursor-pointer hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
           ),
           children: [
-            /* @__PURE__ */ jsx34(
+            /* @__PURE__ */ jsx35(
               "th",
               {
                 scope: "row",
@@ -5401,7 +5517,7 @@ function MatriceCalore({
                 children: r2.label
               }
             ),
-            cols.map((c) => /* @__PURE__ */ jsx34(
+            cols.map((c) => /* @__PURE__ */ jsx35(
               Cella,
               {
                 valore: grezzo(r2, c.key),
@@ -5411,14 +5527,14 @@ function MatriceCalore({
               },
               c.key
             )),
-            totale && /* @__PURE__ */ jsx34("td", { className: "px-3 py-2 text-right font-semibold tabular-nums", children: (r2.format ?? formatValore)(totaliRiga[i]) }),
-            quota && /* @__PURE__ */ jsx34("td", { className: "px-3 py-2 text-right tabular-nums text-muted-foreground", children: generale > 0 ? percento(totaliRiga[i] / generale) : "\u2013" })
+            totale && /* @__PURE__ */ jsx35("td", { className: "px-3 py-2 text-right font-semibold tabular-nums", children: (r2.format ?? formatValore)(totaliRiga[i]) }),
+            quota && /* @__PURE__ */ jsx35("td", { className: "px-3 py-2 text-right tabular-nums text-muted-foreground", children: generale > 0 ? percento(totaliRiga[i] / generale) : "\u2013" })
           ]
         },
         r2.id ?? r2.label
       )) }),
-      rigaTotali && /* @__PURE__ */ jsx34("tfoot", { className: "border-t-2 bg-muted/30 font-semibold", children: /* @__PURE__ */ jsxs28("tr", { children: [
-        /* @__PURE__ */ jsx34(
+      rigaTotali && /* @__PURE__ */ jsx35("tfoot", { className: "border-t-2 bg-muted/30 font-semibold", children: /* @__PURE__ */ jsxs29("tr", { children: [
+        /* @__PURE__ */ jsx35(
           "th",
           {
             scope: "row",
@@ -5426,7 +5542,7 @@ function MatriceCalore({
             children: "Totale"
           }
         ),
-        totaliColonna.map((t, i) => /* @__PURE__ */ jsx34(
+        totaliColonna.map((t, i) => /* @__PURE__ */ jsx35(
           "td",
           {
             className: "px-3 py-2 text-right tabular-nums",
@@ -5434,16 +5550,16 @@ function MatriceCalore({
           },
           cols[i].key
         )),
-        totale && /* @__PURE__ */ jsx34("td", { className: "px-3 py-2 text-right tabular-nums", children: formatValore(generale) }),
-        quota && /* @__PURE__ */ jsx34("td", { className: "px-3 py-2 text-right tabular-nums text-muted-foreground", children: generale > 0 ? percento(1) : "\u2013" })
+        totale && /* @__PURE__ */ jsx35("td", { className: "px-3 py-2 text-right tabular-nums", children: formatValore(generale) }),
+        quota && /* @__PURE__ */ jsx35("td", { className: "px-3 py-2 text-right tabular-nums text-muted-foreground", children: generale > 0 ? percento(1) : "\u2013" })
       ] }) })
     ] }) }),
-    parziali && /* @__PURE__ */ jsx34("p", { className: "border-t px-4 py-2 text-xs text-muted-foreground", children: "* periodo parziale: il filtro lo taglia o non \xE8 ancora chiuso" })
+    parziali && /* @__PURE__ */ jsx35("p", { className: "border-t px-4 py-2 text-xs text-muted-foreground", children: "* periodo parziale: il filtro lo taglia o non \xE8 ancora chiuso" })
   ] });
 }
 
 // src/organisms/BarraFiltriPeriodo.jsx
-import { useId as useId8 } from "react";
+import { useId as useId9 } from "react";
 import { RotateCcw } from "lucide-react";
 
 // src/lib/dataIt.js
@@ -5467,13 +5583,13 @@ function formatDataIt(iso) {
 var isoGiorno = (d) => `${d.getUTCFullYear()}-${due2(d.getUTCMonth() + 1)}-${due2(d.getUTCDate())}`;
 
 // src/molecules/CampoData.jsx
-import { forwardRef as forwardRef5, useEffect as useEffect11, useId as useId7, useRef as useRef8, useState as useState13 } from "react";
+import { forwardRef as forwardRef5, useEffect as useEffect11, useId as useId8, useRef as useRef9, useState as useState14 } from "react";
 import { CalendarDays } from "lucide-react";
 
 // src/molecules/CalendarioMese.jsx
-import { useEffect as useEffect10, useRef as useRef7, useState as useState12 } from "react";
+import { useEffect as useEffect10, useRef as useRef8, useState as useState13 } from "react";
 import { ChevronLeft as ChevronLeft2, ChevronRight as ChevronRight3 } from "lucide-react";
-import { jsx as jsx35, jsxs as jsxs29 } from "react/jsx-runtime";
+import { jsx as jsx36, jsxs as jsxs30 } from "react/jsx-runtime";
 var GIORNO2 = 864e5;
 var SETTIMANA = ["lu", "ma", "me", "gi", "ve", "sa", "do"];
 var TITOLO = new Intl.DateTimeFormat("it-IT", {
@@ -5501,10 +5617,10 @@ function CalendarioMese({
   autoFocus = false,
   className
 }) {
-  const [fuoco, setFuoco] = useState12(value || oggi);
-  const [mese2, setMese] = useState12(() => primoDelMese(daIso(value || oggi)));
-  const griglia$ = useRef7(null);
-  const daFocalizzare = useRef7(autoFocus);
+  const [fuoco, setFuoco] = useState13(value || oggi);
+  const [mese2, setMese] = useState13(() => primoDelMese(daIso(value || oggi)));
+  const griglia$ = useRef8(null);
+  const daFocalizzare = useRef8(autoFocus);
   useEffect10(() => {
     if (!daFocalizzare.current) return;
     daFocalizzare.current = false;
@@ -5534,20 +5650,20 @@ function CalendarioMese({
   };
   const giorni = griglia(mese2);
   const tabbabile = giorni.some((d) => isoGiorno(d) === fuoco) ? fuoco : isoGiorno(mese2);
-  return /* @__PURE__ */ jsxs29("div", { className: cn("w-72 select-none p-3", className), children: [
-    /* @__PURE__ */ jsxs29("div", { className: "mb-2 flex items-center justify-between", children: [
-      /* @__PURE__ */ jsx35(IconButton_default, { icon: ChevronLeft2, label: "Mese precedente", size: "sm", onClick: () => setMese(spostaMese(mese2, -1)) }),
-      /* @__PURE__ */ jsx35("span", { className: "text-sm font-semibold capitalize", "aria-live": "polite", children: TITOLO.format(mese2) }),
-      /* @__PURE__ */ jsx35(IconButton_default, { icon: ChevronRight3, label: "Mese successivo", size: "sm", onClick: () => setMese(spostaMese(mese2, 1)) })
+  return /* @__PURE__ */ jsxs30("div", { className: cn("w-72 select-none p-3", className), children: [
+    /* @__PURE__ */ jsxs30("div", { className: "mb-2 flex items-center justify-between", children: [
+      /* @__PURE__ */ jsx36(IconButton_default, { icon: ChevronLeft2, label: "Mese precedente", size: "sm", onClick: () => setMese(spostaMese(mese2, -1)) }),
+      /* @__PURE__ */ jsx36("span", { className: "text-sm font-semibold capitalize", "aria-live": "polite", children: TITOLO.format(mese2) }),
+      /* @__PURE__ */ jsx36(IconButton_default, { icon: ChevronRight3, label: "Mese successivo", size: "sm", onClick: () => setMese(spostaMese(mese2, 1)) })
     ] }),
-    /* @__PURE__ */ jsxs29("div", { role: "grid", "aria-label": TITOLO.format(mese2), ref: griglia$, onKeyDown: tasto, children: [
-      /* @__PURE__ */ jsx35("div", { role: "row", className: "grid grid-cols-7 text-center text-xs text-muted-foreground", children: SETTIMANA.map((g) => /* @__PURE__ */ jsx35("span", { role: "columnheader", className: "py-1", children: g }, g)) }),
-      [0, 1, 2, 3, 4, 5].map((s) => /* @__PURE__ */ jsx35("div", { role: "row", className: "grid grid-cols-7", children: giorni.slice(s * 7, s * 7 + 7).map((d) => {
+    /* @__PURE__ */ jsxs30("div", { role: "grid", "aria-label": TITOLO.format(mese2), ref: griglia$, onKeyDown: tasto, children: [
+      /* @__PURE__ */ jsx36("div", { role: "row", className: "grid grid-cols-7 text-center text-xs text-muted-foreground", children: SETTIMANA.map((g) => /* @__PURE__ */ jsx36("span", { role: "columnheader", className: "py-1", children: g }, g)) }),
+      [0, 1, 2, 3, 4, 5].map((s) => /* @__PURE__ */ jsx36("div", { role: "row", className: "grid grid-cols-7", children: giorni.slice(s * 7, s * 7 + 7).map((d) => {
         const iso = isoGiorno(d);
         const scelto = iso === value;
         const altroMese = d.getUTCMonth() !== mese2.getUTCMonth();
         const disattivo = fuori(iso);
-        return /* @__PURE__ */ jsx35(
+        return /* @__PURE__ */ jsx36(
           "button",
           {
             type: "button",
@@ -5578,7 +5694,7 @@ function CalendarioMese({
 }
 
 // src/molecules/CampoData.jsx
-import { jsx as jsx36, jsxs as jsxs30 } from "react/jsx-runtime";
+import { jsx as jsx37, jsxs as jsxs31 } from "react/jsx-runtime";
 var CampoData = forwardRef5(function CampoData2({
   value,
   onChange,
@@ -5596,12 +5712,12 @@ var CampoData = forwardRef5(function CampoData2({
   onKeyDown: onKeyDownProp,
   ...rest
 }, ref) {
-  const [testo, setTesto] = useState13(formatDataIt(value));
-  const [errore, setErrore] = useState13(null);
-  const [aperto, setAperto] = useState13(false);
-  const radice = useRef8(null);
-  const pannello = useId7();
-  const erroreId = useId7();
+  const [testo, setTesto] = useState14(formatDataIt(value));
+  const [errore, setErrore] = useState14(null);
+  const [aperto, setAperto] = useState14(false);
+  const radice = useRef9(null);
+  const pannello = useId8();
+  const erroreId = useId8();
   const errato = errore !== null;
   const nonValido = invalid || errato || ariaInvalid === true || ariaInvalid === "true";
   const descritto = [ariaDescribedBy, errore === "formato" ? erroreId : null].filter(Boolean).join(" ") || void 0;
@@ -5634,7 +5750,7 @@ var CampoData = forwardRef5(function CampoData2({
     onChange?.(iso);
     radice.current?.querySelector("input")?.focus();
   };
-  return /* @__PURE__ */ jsxs30(
+  return /* @__PURE__ */ jsxs31(
     "div",
     {
       ref: radice,
@@ -5647,7 +5763,7 @@ var CampoData = forwardRef5(function CampoData2({
         }
       },
       children: [
-        /* @__PURE__ */ jsx36(
+        /* @__PURE__ */ jsx37(
           "input",
           {
             ...rest,
@@ -5678,8 +5794,8 @@ var CampoData = forwardRef5(function CampoData2({
             )
           }
         ),
-        errore === "formato" && /* @__PURE__ */ jsx36("span", { id: erroreId, className: "sr-only", children: "Data non valida, usa il formato gg/mm/aaaa" }),
-        /* @__PURE__ */ jsx36(
+        errore === "formato" && /* @__PURE__ */ jsx37("span", { id: erroreId, className: "sr-only", children: "Data non valida, usa il formato gg/mm/aaaa" }),
+        /* @__PURE__ */ jsx37(
           IconButton_default,
           {
             icon: CalendarDays,
@@ -5692,14 +5808,14 @@ var CampoData = forwardRef5(function CampoData2({
             className: "absolute right-0.5 top-1/2 h-8 w-8 max-sm:min-h-11 max-sm:min-w-11 -translate-y-1/2"
           }
         ),
-        aperto && /* @__PURE__ */ jsx36(
+        aperto && /* @__PURE__ */ jsx37(
           "div",
           {
             id: pannello,
             role: "dialog",
             "aria-label": "Scegli una data",
             className: "absolute left-0 top-full z-50 mt-1 animate-fade-in rounded-lg border bg-popover text-popover-foreground shadow-lg",
-            children: /* @__PURE__ */ jsx36(CalendarioMese, { value, onChange: scegli, min, max, autoFocus: true })
+            children: /* @__PURE__ */ jsx37(CalendarioMese, { value, onChange: scegli, min, max, autoFocus: true })
           }
         )
       ]
@@ -5710,7 +5826,7 @@ var CampoData_default = CampoData;
 
 // src/molecules/ChipFiltro.jsx
 import { X as X2 } from "lucide-react";
-import { jsx as jsx37, jsxs as jsxs31 } from "react/jsx-runtime";
+import { jsx as jsx38, jsxs as jsxs32 } from "react/jsx-runtime";
 function ChipFiltro({
   children,
   onRemove,
@@ -5718,7 +5834,7 @@ function ChipFiltro({
   className
 }) {
   const etichettaRimuovi = removeLabel || (typeof children === "string" ? `Rimuovi filtro: ${children}` : "Rimuovi filtro");
-  return /* @__PURE__ */ jsxs31(
+  return /* @__PURE__ */ jsxs32(
     "span",
     {
       className: cn(
@@ -5728,14 +5844,14 @@ function ChipFiltro({
       ),
       children: [
         children,
-        onRemove && /* @__PURE__ */ jsx37(
+        onRemove && /* @__PURE__ */ jsx38(
           "button",
           {
             type: "button",
             onClick: onRemove,
             "aria-label": etichettaRimuovi,
             className: "relative inline-flex h-5 w-5 items-center justify-center rounded-full transition-colors after:absolute after:-inset-3 after:content-[''] hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-            children: /* @__PURE__ */ jsx37(X2, { className: "h-3 w-3", "aria-hidden": true })
+            children: /* @__PURE__ */ jsx38(X2, { className: "h-3 w-3", "aria-hidden": true })
           }
         )
       ]
@@ -5744,7 +5860,7 @@ function ChipFiltro({
 }
 
 // src/organisms/BarraFiltriPeriodo.jsx
-import { jsx as jsx38, jsxs as jsxs32 } from "react/jsx-runtime";
+import { jsx as jsx39, jsxs as jsxs33 } from "react/jsx-runtime";
 var GRANULARITA_REPORT = [
   { value: "settimana", label: "Settimana" },
   { value: "mese", label: "Mese" }
@@ -5763,7 +5879,7 @@ function BarraFiltriPeriodo({
   segnala,
   className
 }) {
-  const uid = useId8();
+  const uid = useId9();
   const v = { ...VUOTO, ...value };
   const imposta = (patch) => onChange?.({ ...v, ...patch });
   const invertito = v.dal && v.al && v.dal > v.al;
@@ -5782,10 +5898,10 @@ function BarraFiltriPeriodo({
   ].filter(Boolean);
   const modificato = chips.length > 0 || v.dal !== (predefinito.dal ?? null) || v.al !== (predefinito.al ?? null) || v.granularita !== (predefinito.granularita ?? VUOTO.granularita);
   const azzera = () => onReset ? onReset() : onChange?.({ ...VUOTO, ...predefinito });
-  return /* @__PURE__ */ jsxs32("div", { className: cn("space-y-3", className), ...segnalaAttr(segnala), children: [
-    /* @__PURE__ */ jsxs32("div", { className: "flex flex-wrap items-end gap-3", children: [
-      /* @__PURE__ */ jsxs32("div", { className: "space-y-1", children: [
-        /* @__PURE__ */ jsx38(
+  return /* @__PURE__ */ jsxs33("div", { className: cn("space-y-3", className), ...segnalaAttr(segnala), children: [
+    /* @__PURE__ */ jsxs33("div", { className: "flex flex-wrap items-end gap-3", children: [
+      /* @__PURE__ */ jsxs33("div", { className: "space-y-1", children: [
+        /* @__PURE__ */ jsx39(
           "label",
           {
             htmlFor: `${uid}-dal`,
@@ -5793,7 +5909,7 @@ function BarraFiltriPeriodo({
             children: "Dal"
           }
         ),
-        /* @__PURE__ */ jsx38(
+        /* @__PURE__ */ jsx39(
           CampoData_default,
           {
             id: `${uid}-dal`,
@@ -5805,8 +5921,8 @@ function BarraFiltriPeriodo({
           }
         )
       ] }),
-      /* @__PURE__ */ jsxs32("div", { className: "space-y-1", children: [
-        /* @__PURE__ */ jsx38(
+      /* @__PURE__ */ jsxs33("div", { className: "space-y-1", children: [
+        /* @__PURE__ */ jsx39(
           "label",
           {
             htmlFor: `${uid}-al`,
@@ -5814,7 +5930,7 @@ function BarraFiltriPeriodo({
             children: "Al"
           }
         ),
-        /* @__PURE__ */ jsx38(
+        /* @__PURE__ */ jsx39(
           CampoData_default,
           {
             id: `${uid}-al`,
@@ -5826,8 +5942,8 @@ function BarraFiltriPeriodo({
           }
         )
       ] }),
-      /* @__PURE__ */ jsxs32("div", { className: "space-y-1", children: [
-        /* @__PURE__ */ jsx38(
+      /* @__PURE__ */ jsxs33("div", { className: "space-y-1", children: [
+        /* @__PURE__ */ jsx39(
           "span",
           {
             className: "block text-xs font-medium text-muted-foreground",
@@ -5835,7 +5951,7 @@ function BarraFiltriPeriodo({
             children: "Raggruppa per"
           }
         ),
-        /* @__PURE__ */ jsx38(
+        /* @__PURE__ */ jsx39(
           SegmentedControl,
           {
             "aria-label": "Raggruppa per",
@@ -5847,7 +5963,7 @@ function BarraFiltriPeriodo({
         )
       ] }),
       children,
-      /* @__PURE__ */ jsx38(
+      /* @__PURE__ */ jsx39(
         Button_default,
         {
           variant: "ghost",
@@ -5860,29 +5976,29 @@ function BarraFiltriPeriodo({
         }
       )
     ] }),
-    invertito && /* @__PURE__ */ jsx38("p", { role: "alert", className: "text-xs text-destructive", children: "La data iniziale \xE8 dopo quella finale." }),
-    chips.length > 0 && /* @__PURE__ */ jsx38(
+    invertito && /* @__PURE__ */ jsx39("p", { role: "alert", className: "text-xs text-destructive", children: "La data iniziale \xE8 dopo quella finale." }),
+    chips.length > 0 && /* @__PURE__ */ jsx39(
       "div",
       {
         className: "flex flex-wrap items-center gap-2",
         "aria-label": "Filtri attivi",
         role: "group",
-        children: chips.map((c) => /* @__PURE__ */ jsx38(ChipFiltro, { onRemove: c.onRemove, children: c.label }, c.id))
+        children: chips.map((c) => /* @__PURE__ */ jsx39(ChipFiltro, { onRemove: c.onRemove, children: c.label }, c.id))
       }
     )
   ] });
 }
 
 // src/atoms/DataOra.jsx
-import { jsx as jsx39, jsxs as jsxs33 } from "react/jsx-runtime";
-var VUOTO2 = /* @__PURE__ */ jsx39("span", { className: "text-muted-foreground", children: "\u2014" });
+import { jsx as jsx40, jsxs as jsxs34 } from "react/jsx-runtime";
+var VUOTO2 = /* @__PURE__ */ jsx40("span", { className: "text-muted-foreground", children: "\u2014" });
 function DataOra({ value, soloData = false }) {
   if (!value) return VUOTO2;
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return VUOTO2;
-  return /* @__PURE__ */ jsxs33("span", { className: "inline-block whitespace-nowrap tabular-nums leading-tight", children: [
-    /* @__PURE__ */ jsx39("span", { className: "block", children: d.toLocaleDateString("it-IT") }),
-    !soloData && /* @__PURE__ */ jsx39("span", { className: "block text-xs text-muted-foreground", children: d.toLocaleTimeString("it-IT", {
+  return /* @__PURE__ */ jsxs34("span", { className: "inline-block whitespace-nowrap tabular-nums leading-tight", children: [
+    /* @__PURE__ */ jsx40("span", { className: "block", children: d.toLocaleDateString("it-IT") }),
+    !soloData && /* @__PURE__ */ jsx40("span", { className: "block text-xs text-muted-foreground", children: d.toLocaleTimeString("it-IT", {
       hour: "2-digit",
       minute: "2-digit"
     }) })
@@ -5941,7 +6057,7 @@ function esportaCsv(nomeFile, rows, columns) {
 }
 
 // src/molecules/PulsanteEsportaCsv.jsx
-import { jsx as jsx40 } from "react/jsx-runtime";
+import { jsx as jsx41 } from "react/jsx-runtime";
 function PulsanteEsportaCsv({
   nomeFile = "esportazione",
   rows,
@@ -5953,7 +6069,7 @@ function PulsanteEsportaCsv({
   ...props
 }) {
   const vuoto2 = Array.isArray(rows) && rows.length === 0;
-  return /* @__PURE__ */ jsx40(
+  return /* @__PURE__ */ jsx41(
     Button_default,
     {
       variant,
@@ -5968,10 +6084,10 @@ function PulsanteEsportaCsv({
 }
 
 // src/organisms/Dialog.jsx
-import { useEffect as useEffect12, useId as useId9, useRef as useRef9 } from "react";
+import { useEffect as useEffect12, useId as useId10, useRef as useRef10 } from "react";
 import { createPortal as createPortal2 } from "react-dom";
 import { X as X3 } from "lucide-react";
-import { jsx as jsx41, jsxs as jsxs34 } from "react/jsx-runtime";
+import { jsx as jsx42, jsxs as jsxs35 } from "react/jsx-runtime";
 var SIZES = {
   sm: "max-w-sm",
   md: "max-w-md",
@@ -5999,10 +6115,10 @@ function Dialog({
   closeDisabled = false,
   className
 }) {
-  const titleId = useId9();
-  const descId = useId9();
-  const panelRef = useRef9(null);
-  const onCloseRef = useRef9(onClose);
+  const titleId = useId10();
+  const descId = useId10();
+  const panelRef = useRef10(null);
+  const onCloseRef = useRef10(onClose);
   onCloseRef.current = onClose;
   useEffect12(() => {
     if (!open) return void 0;
@@ -6056,8 +6172,8 @@ function Dialog({
   }, [open]);
   if (!open) return null;
   return createPortal2(
-    /* @__PURE__ */ jsxs34("div", { className: "fixed inset-0 z-50 overflow-y-auto", children: [
-      /* @__PURE__ */ jsx41(
+    /* @__PURE__ */ jsxs35("div", { className: "fixed inset-0 z-50 overflow-y-auto", children: [
+      /* @__PURE__ */ jsx42(
         "div",
         {
           "data-testid": "dialog-backdrop",
@@ -6065,7 +6181,7 @@ function Dialog({
           onClick: closeOnBackdrop ? () => onClose?.() : void 0
         }
       ),
-      /* @__PURE__ */ jsx41("div", { className: "flex min-h-full items-start justify-center p-3 sm:items-center sm:p-6", children: /* @__PURE__ */ jsxs34(
+      /* @__PURE__ */ jsx42("div", { className: "flex min-h-full items-start justify-center p-3 sm:items-center sm:p-6", children: /* @__PURE__ */ jsxs35(
         "div",
         {
           ref: panelRef,
@@ -6080,10 +6196,10 @@ function Dialog({
             className
           ),
           children: [
-            /* @__PURE__ */ jsxs34("div", { className: "flex items-start gap-3 border-b border-border px-6 py-4", children: [
-              Icon && /* @__PURE__ */ jsx41("div", { className: "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15", children: /* @__PURE__ */ jsx41(Icon, { className: "h-5 w-5 text-primary", "aria-hidden": true }) }),
-              /* @__PURE__ */ jsxs34("div", { className: "min-w-0 flex-1", children: [
-                /* @__PURE__ */ jsx41(
+            /* @__PURE__ */ jsxs35("div", { className: "flex items-start gap-3 border-b border-border px-6 py-4", children: [
+              Icon && /* @__PURE__ */ jsx42("div", { className: "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15", children: /* @__PURE__ */ jsx42(Icon, { className: "h-5 w-5 text-primary", "aria-hidden": true }) }),
+              /* @__PURE__ */ jsxs35("div", { className: "min-w-0 flex-1", children: [
+                /* @__PURE__ */ jsx42(
                   "h2",
                   {
                     id: titleId,
@@ -6091,9 +6207,9 @@ function Dialog({
                     children: title
                   }
                 ),
-                description && /* @__PURE__ */ jsx41("p", { id: descId, className: "mt-0.5 text-sm text-muted-foreground", children: description })
+                description && /* @__PURE__ */ jsx42("p", { id: descId, className: "mt-0.5 text-sm text-muted-foreground", children: description })
               ] }),
-              /* @__PURE__ */ jsx41(
+              /* @__PURE__ */ jsx42(
                 IconButton_default,
                 {
                   icon: X3,
@@ -6106,8 +6222,8 @@ function Dialog({
                 }
               )
             ] }),
-            /* @__PURE__ */ jsx41("div", { "data-dialog-body": true, className: "flex-1 overflow-y-auto px-6 py-5", children }),
-            footer && /* @__PURE__ */ jsx41(
+            /* @__PURE__ */ jsx42("div", { "data-dialog-body": true, className: "flex-1 overflow-y-auto px-6 py-5", children }),
+            footer && /* @__PURE__ */ jsx42(
               "div",
               {
                 "data-dialog-footer": true,
@@ -6124,8 +6240,8 @@ function Dialog({
 }
 
 // src/organisms/ConfirmDialog.jsx
-import { useEffect as useEffect13, useRef as useRef10, useState as useState14 } from "react";
-import { Fragment as Fragment6, jsx as jsx42, jsxs as jsxs35 } from "react/jsx-runtime";
+import { useEffect as useEffect13, useRef as useRef11, useState as useState15 } from "react";
+import { Fragment as Fragment6, jsx as jsx43, jsxs as jsxs36 } from "react/jsx-runtime";
 function ConfirmDialog({
   open,
   onClose,
@@ -6137,11 +6253,11 @@ function ConfirmDialog({
   tone = "primary",
   requireText
 }) {
-  const inCorso2 = useRef10(false);
-  const generazione = useRef10(0);
-  const [loading, setLoading] = useState14(false);
-  const [errore, setErrore] = useState14(null);
-  const [testo, setTesto] = useState14("");
+  const inCorso2 = useRef11(false);
+  const generazione = useRef11(0);
+  const [loading, setLoading] = useState15(false);
+  const [errore, setErrore] = useState15(null);
+  const [testo, setTesto] = useState15("");
   useEffect13(() => {
     if (!open) {
       generazione.current += 1;
@@ -6176,7 +6292,7 @@ function ConfirmDialog({
   const chiudi = () => {
     if (!inCorso2.current) onClose();
   };
-  return /* @__PURE__ */ jsx42(
+  return /* @__PURE__ */ jsx43(
     Dialog,
     {
       open,
@@ -6185,9 +6301,9 @@ function ConfirmDialog({
       size: "sm",
       closeOnBackdrop: !loading,
       closeDisabled: loading,
-      footer: /* @__PURE__ */ jsxs35(Fragment6, { children: [
-        /* @__PURE__ */ jsx42(Button_default, { variant: "outline", onClick: chiudi, disabled: loading, children: cancelLabel }),
-        /* @__PURE__ */ jsx42(
+      footer: /* @__PURE__ */ jsxs36(Fragment6, { children: [
+        /* @__PURE__ */ jsx43(Button_default, { variant: "outline", onClick: chiudi, disabled: loading, children: cancelLabel }),
+        /* @__PURE__ */ jsx43(
           Button_default,
           {
             variant: tone === "danger" ? "destructive" : "primary",
@@ -6198,9 +6314,9 @@ function ConfirmDialog({
           }
         )
       ] }),
-      children: /* @__PURE__ */ jsxs35("div", { className: "space-y-4 text-sm text-muted-foreground", children: [
+      children: /* @__PURE__ */ jsxs36("div", { className: "space-y-4 text-sm text-muted-foreground", children: [
         children,
-        requireText && /* @__PURE__ */ jsx42(Field, { label: `Scrivi ${requireText} per confermare`, children: /* @__PURE__ */ jsx42(
+        requireText && /* @__PURE__ */ jsx43(Field, { label: `Scrivi ${requireText} per confermare`, children: /* @__PURE__ */ jsx43(
           Input_default,
           {
             value: testo,
@@ -6210,7 +6326,7 @@ function ConfirmDialog({
             "data-autofocus": true
           }
         ) }),
-        errore && /* @__PURE__ */ jsx42(Alert, { tone: "danger", children: errore })
+        errore && /* @__PURE__ */ jsx43(Alert, { tone: "danger", children: errore })
       ] })
     }
   );
@@ -6223,11 +6339,11 @@ import {
   useContext,
   useEffect as useEffect14,
   useMemo as useMemo3,
-  useRef as useRef11,
-  useState as useState15
+  useRef as useRef12,
+  useState as useState16
 } from "react";
 import { AlertTriangle as AlertTriangle2, CheckCircle2 as CheckCircle22, Info as Info2, X as X4, XCircle as XCircle2 } from "lucide-react";
-import { jsx as jsx43, jsxs as jsxs36 } from "react/jsx-runtime";
+import { jsx as jsx44, jsxs as jsxs37 } from "react/jsx-runtime";
 var ToastContext = createContext(null);
 var TONI3 = {
   success: {
@@ -6249,7 +6365,7 @@ var TONI3 = {
 };
 function ToastItem({ t, onDismiss, onPause, onResume }) {
   const s = TONI3[t.tone] ?? TONI3.info;
-  return /* @__PURE__ */ jsxs36(
+  return /* @__PURE__ */ jsxs37(
     "div",
     {
       className: cn(
@@ -6263,12 +6379,12 @@ function ToastItem({ t, onDismiss, onPause, onResume }) {
         if (!e.currentTarget.contains(e.relatedTarget)) onResume(t.id);
       },
       children: [
-        /* @__PURE__ */ jsx43(s.Icona, { className: cn("mt-0.5 h-5 w-5 shrink-0", s.icon), "aria-hidden": true }),
-        /* @__PURE__ */ jsxs36("div", { className: "min-w-0 flex-1 text-sm", children: [
-          /* @__PURE__ */ jsx43("p", { className: "font-semibold", children: t.title }),
-          t.description && /* @__PURE__ */ jsx43("p", { className: "mt-0.5 text-muted-foreground", children: t.description })
+        /* @__PURE__ */ jsx44(s.Icona, { className: cn("mt-0.5 h-5 w-5 shrink-0", s.icon), "aria-hidden": true }),
+        /* @__PURE__ */ jsxs37("div", { className: "min-w-0 flex-1 text-sm", children: [
+          /* @__PURE__ */ jsx44("p", { className: "font-semibold", children: t.title }),
+          t.description && /* @__PURE__ */ jsx44("p", { className: "mt-0.5 text-muted-foreground", children: t.description })
         ] }),
-        /* @__PURE__ */ jsx43(
+        /* @__PURE__ */ jsx44(
           IconButton_default,
           {
             icon: X4,
@@ -6283,9 +6399,9 @@ function ToastItem({ t, onDismiss, onPause, onResume }) {
   );
 }
 function ToastProvider({ children }) {
-  const [toasts, setToasts] = useState15([]);
-  const timers = useRef11(/* @__PURE__ */ new Map());
-  const seq = useRef11(0);
+  const [toasts, setToasts] = useState16([]);
+  const timers = useRef12(/* @__PURE__ */ new Map());
+  const seq = useRef12(0);
   const dismiss = useCallback5((id) => {
     setToasts((l) => l.filter((t) => t.id !== id));
     clearTimeout(timers.current.get(id)?.timer);
@@ -6330,10 +6446,10 @@ function ToastProvider({ children }) {
   const value = useMemo3(() => ({ toast, dismiss }), [toast, dismiss]);
   const urgenti = toasts.filter((t) => t.tone === "danger");
   const altri = toasts.filter((t) => t.tone !== "danger");
-  return /* @__PURE__ */ jsxs36(ToastContext.Provider, { value, children: [
+  return /* @__PURE__ */ jsxs37(ToastContext.Provider, { value, children: [
     children,
-    /* @__PURE__ */ jsxs36("div", { className: "pointer-events-none fixed right-4 top-4 z-[60] flex flex-col", children: [
-      /* @__PURE__ */ jsx43("div", { "aria-live": "assertive", className: "flex flex-col gap-2", children: urgenti.map((t) => /* @__PURE__ */ jsx43(
+    /* @__PURE__ */ jsxs37("div", { className: "pointer-events-none fixed right-4 top-4 z-[60] flex flex-col", children: [
+      /* @__PURE__ */ jsx44("div", { "aria-live": "assertive", className: "flex flex-col gap-2", children: urgenti.map((t) => /* @__PURE__ */ jsx44(
         ToastItem,
         {
           t,
@@ -6343,7 +6459,7 @@ function ToastProvider({ children }) {
         },
         t.id
       )) }),
-      /* @__PURE__ */ jsx43(
+      /* @__PURE__ */ jsx44(
         "div",
         {
           "aria-live": "polite",
@@ -6351,7 +6467,7 @@ function ToastProvider({ children }) {
             "flex flex-col gap-2",
             urgenti.length > 0 && altri.length > 0 && "mt-2"
           ),
-          children: altri.map((t) => /* @__PURE__ */ jsx43(
+          children: altri.map((t) => /* @__PURE__ */ jsx44(
             ToastItem,
             {
               t,
@@ -6373,9 +6489,9 @@ function useToast() {
 }
 
 // src/organisms/VediCome.jsx
-import { useEffect as useEffect15, useId as useId10, useRef as useRef12, useState as useState16 } from "react";
+import { useEffect as useEffect15, useId as useId11, useRef as useRef13, useState as useState17 } from "react";
 import { Check as Check3, ChevronDown as ChevronDown4, Eye, RotateCcw as RotateCcw2 } from "lucide-react";
-import { jsx as jsx44, jsxs as jsxs37 } from "react/jsx-runtime";
+import { jsx as jsx45, jsxs as jsxs38 } from "react/jsx-runtime";
 function VediCome({
   viste = [],
   attiva = null,
@@ -6386,9 +6502,9 @@ function VediCome({
   titolo: titolo2 = "Vedi l'app come",
   className
 }) {
-  const [open, setOpen] = useState16(false);
-  const boxRef = useRef12(null);
-  const uid = useId10();
+  const [open, setOpen] = useState17(false);
+  const boxRef = useRef13(null);
+  const uid = useId11();
   useEffect15(() => {
     if (!open) return void 0;
     const fuori = (e) => {
@@ -6412,8 +6528,8 @@ function VediCome({
     setOpen(false);
     onSeleziona?.(key);
   };
-  return /* @__PURE__ */ jsxs37("div", { className: cn("relative", className), ref: boxRef, children: [
-    /* @__PURE__ */ jsxs37(
+  return /* @__PURE__ */ jsxs38("div", { className: cn("relative", className), ref: boxRef, children: [
+    /* @__PURE__ */ jsxs38(
       "button",
       {
         type: "button",
@@ -6427,9 +6543,9 @@ function VediCome({
           attivo ? "border-amber-300 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-500/[0.12] text-amber-800 dark:text-amber-300" : "border-transparent text-slate-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-white/[0.06]"
         ),
         children: [
-          /* @__PURE__ */ jsx44(Eye, { className: "w-4 h-4", "aria-hidden": "true" }),
-          /* @__PURE__ */ jsx44("span", { className: "hidden sm:inline", children: attivo ? `Vista: ${etichetta}` : "Vedi come" }),
-          /* @__PURE__ */ jsx44(
+          /* @__PURE__ */ jsx45(Eye, { className: "w-4 h-4", "aria-hidden": "true" }),
+          /* @__PURE__ */ jsx45("span", { className: "hidden sm:inline", children: attivo ? `Vista: ${etichetta}` : "Vedi come" }),
+          /* @__PURE__ */ jsx45(
             ChevronDown4,
             {
               "aria-hidden": "true",
@@ -6442,7 +6558,7 @@ function VediCome({
         ]
       }
     ),
-    open && /* @__PURE__ */ jsxs37(
+    open && /* @__PURE__ */ jsxs38(
       "div",
       {
         id: `${uid}-menu`,
@@ -6450,10 +6566,10 @@ function VediCome({
         "aria-label": titolo2,
         className: "absolute right-0 mt-2 w-72 z-30 bg-white dark:bg-slate-800 border border-gray-200 dark:border-white/10 rounded-lg shadow-xl py-1.5",
         children: [
-          /* @__PURE__ */ jsx44("div", { className: "px-3 py-1.5 text-[10px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500", children: titolo2 }),
+          /* @__PURE__ */ jsx45("div", { className: "px-3 py-1.5 text-[10px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500", children: titolo2 }),
           viste.map((v) => {
             const selected = v.key === attiva;
-            return /* @__PURE__ */ jsxs37(
+            return /* @__PURE__ */ jsxs38(
               "button",
               {
                 type: "button",
@@ -6465,7 +6581,7 @@ function VediCome({
                   selected ? "bg-brand-50 dark:bg-brand-500/[0.12]" : "hover:bg-gray-50 dark:hover:bg-white/[0.06]"
                 ),
                 children: [
-                  /* @__PURE__ */ jsx44(
+                  /* @__PURE__ */ jsx45(
                     Check3,
                     {
                       "aria-hidden": "true",
@@ -6475,8 +6591,8 @@ function VediCome({
                       )
                     }
                   ),
-                  /* @__PURE__ */ jsxs37("span", { className: "min-w-0", children: [
-                    /* @__PURE__ */ jsx44(
+                  /* @__PURE__ */ jsxs38("span", { className: "min-w-0", children: [
+                    /* @__PURE__ */ jsx45(
                       "span",
                       {
                         className: cn(
@@ -6486,15 +6602,15 @@ function VediCome({
                         children: v.label
                       }
                     ),
-                    v.descrizione && /* @__PURE__ */ jsx44("span", { className: "block text-[11px] text-slate-400 dark:text-slate-500 leading-snug", children: v.descrizione })
+                    v.descrizione && /* @__PURE__ */ jsx45("span", { className: "block text-[11px] text-slate-400 dark:text-slate-500 leading-snug", children: v.descrizione })
                   ] })
                 ]
               },
               v.key
             );
           }),
-          /* @__PURE__ */ jsx44("div", { className: "border-t border-gray-100 dark:border-white/[0.06] my-1" }),
-          /* @__PURE__ */ jsxs37(
+          /* @__PURE__ */ jsx45("div", { className: "border-t border-gray-100 dark:border-white/[0.06] my-1" }),
+          /* @__PURE__ */ jsxs38(
             "button",
             {
               type: "button",
@@ -6506,12 +6622,12 @@ function VediCome({
                 attivo ? "text-slate-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-white/[0.06]" : "text-slate-300 dark:text-slate-600 cursor-not-allowed"
               ),
               children: [
-                /* @__PURE__ */ jsx44(RotateCcw2, { className: "w-3.5 h-3.5", "aria-hidden": "true" }),
+                /* @__PURE__ */ jsx45(RotateCcw2, { className: "w-3.5 h-3.5", "aria-hidden": "true" }),
                 labelRipristino
               ]
             }
           ),
-          nota && /* @__PURE__ */ jsx44("p", { className: "px-3 pt-1 pb-1.5 text-[10px] text-slate-400 dark:text-slate-500 leading-snug", children: nota })
+          nota && /* @__PURE__ */ jsx45("p", { className: "px-3 pt-1 pb-1.5 text-[10px] text-slate-400 dark:text-slate-500 leading-snug", children: nota })
         ]
       }
     )
@@ -6523,14 +6639,14 @@ import {
   createContext as createContext2,
   useContext as useContext2,
   useEffect as useEffect16,
-  useId as useId11,
+  useId as useId12,
   useMemo as useMemo4,
-  useRef as useRef13,
-  useState as useState17
+  useRef as useRef14,
+  useState as useState18
 } from "react";
 import { useLocation as useLocation2 } from "react-router-dom";
 import { Menu } from "lucide-react";
-import { Fragment as Fragment7, jsx as jsx45, jsxs as jsxs38 } from "react/jsx-runtime";
+import { Fragment as Fragment7, jsx as jsx46, jsxs as jsxs39 } from "react/jsx-runtime";
 var STORAGE_KEY2 = "vuscom.sidebar.collapsed";
 var WIDTHS = { "7xl": "max-w-7xl", full: "max-w-none" };
 var NESSUNA_VOCE = [];
@@ -6582,9 +6698,9 @@ function AppShell({
   useFaviconVuscom(sidebar.iconaPortale);
   const mainTree = useMemo4(() => normalizeNavTree(nav), [nav]);
   const adminTree = useMemo4(() => normalizeNavTree(adminNav), [adminNav]);
-  const [collapsed, setCollapsed] = useState17(readCollapsed2);
-  const [richieste, setRichieste] = useState17(0);
-  const [compattaQui, setCompattaQui] = useState17(null);
+  const [collapsed, setCollapsed] = useState18(readCollapsed2);
+  const [richieste, setRichieste] = useState18(0);
+  const [compattaQui, setCompattaQui] = useState18(null);
   const forzata = richieste > 0;
   const richiediCompatta = useMemo4(
     () => () => {
@@ -6596,11 +6712,11 @@ function AppShell({
   useEffect16(() => {
     if (richieste === 0) setCompattaQui(null);
   }, [richieste]);
-  const [apertaQui, setApertaQui] = useState17(false);
-  const [isOpen, setIsOpen] = useState17(false);
-  const idPannelloMobile = useId11();
-  const burgerRef = useRef13(null);
-  const [expanded, setExpanded] = useState17(
+  const [apertaQui, setApertaQui] = useState18(false);
+  const [isOpen, setIsOpen] = useState18(false);
+  const idPannelloMobile = useId12();
+  const burgerRef = useRef14(null);
+  const [expanded, setExpanded] = useState18(
     () => new Set(activeGroupIds([...mainTree, ...adminTree], pathname))
   );
   useEffect16(() => {
@@ -6613,8 +6729,8 @@ function AppShell({
     document.addEventListener("keydown", chiudiConEsc);
     return () => document.removeEventListener("keydown", chiudiConEsc);
   }, [isOpen]);
-  const mainRef = useRef13(null);
-  const treesRef = useRef13(null);
+  const mainRef = useRef14(null);
+  const treesRef = useRef14(null);
   treesRef.current = [...mainTree, ...adminTree];
   useEffect16(() => {
     const attivi = activeGroupIds(treesRef.current, pathname);
@@ -6652,8 +6768,8 @@ function AppShell({
   });
   const compressa = compattaAdOgniPagina ? !apertaQui : forzata ? compattaQui !== false : collapsed;
   const azioni = typeof azioniSidebar === "function" ? azioniSidebar({ compressa }) : azioniSidebar;
-  return /* @__PURE__ */ jsx45(CompattaContext.Provider, { value: richiediCompatta, children: /* @__PURE__ */ jsxs38("div", { className: "flex h-screen bg-app", children: [
-    /* @__PURE__ */ jsx45(
+  return /* @__PURE__ */ jsx46(CompattaContext.Provider, { value: richiediCompatta, children: /* @__PURE__ */ jsxs39("div", { className: "flex h-screen bg-app", children: [
+    /* @__PURE__ */ jsx46(
       "a",
       {
         href: `#${idContenuto}`,
@@ -6661,7 +6777,7 @@ function AppShell({
         children: "Vai al contenuto"
       }
     ),
-    /* @__PURE__ */ jsx45(
+    /* @__PURE__ */ jsx46(
       AppSidebar,
       {
         ...sidebarProps,
@@ -6674,24 +6790,24 @@ function AppShell({
         idPannelloMobile,
         collapsed: compressa,
         onToggleCollapse: toggleCollapse,
-        footerSlot: azioni && !compressa ? /* @__PURE__ */ jsxs38(Fragment7, { children: [
+        footerSlot: azioni && !compressa ? /* @__PURE__ */ jsxs39(Fragment7, { children: [
           sidebarProps.footerSlot,
           azioni
         ] }) : sidebarProps.footerSlot,
         themeSlot: azioni && compressa ? (
           // Collapsed (60px): no footer rows, so it stacks over the toggle.
-          /* @__PURE__ */ jsxs38("div", { className: "flex flex-col items-center gap-1.5", children: [
+          /* @__PURE__ */ jsxs39("div", { className: "flex flex-col items-center gap-1.5", children: [
             azioni,
-            /* @__PURE__ */ jsx45(ThemeToggle, {})
+            /* @__PURE__ */ jsx46(ThemeToggle, {})
           ] })
-        ) : /* @__PURE__ */ jsx45(ThemeToggle, {}),
+        ) : /* @__PURE__ */ jsx46(ThemeToggle, {}),
         navClassName: "scrollbar-thin",
         portaliRichiudibili
       }
     ),
-    /* @__PURE__ */ jsxs38("div", { className: "flex min-w-0 flex-1 flex-col", children: [
-      /* @__PURE__ */ jsxs38("header", { className: "relative z-30 flex h-14 shrink-0 items-center justify-between gap-3 border-b bg-background/80 px-4 backdrop-blur", children: [
-        /* @__PURE__ */ jsx45(
+    /* @__PURE__ */ jsxs39("div", { className: "flex min-w-0 flex-1 flex-col", children: [
+      /* @__PURE__ */ jsxs39("header", { className: "relative z-30 flex h-14 shrink-0 items-center justify-between gap-3 border-b bg-background/80 px-4 backdrop-blur", children: [
+        /* @__PURE__ */ jsx46(
           IconButton_default,
           {
             icon: Menu,
@@ -6703,16 +6819,16 @@ function AppShell({
             onClick: () => setIsOpen(true)
           }
         ),
-        /* @__PURE__ */ jsx45("div", { className: "ml-auto flex items-center gap-2", children: topbarRight })
+        /* @__PURE__ */ jsx46("div", { className: "ml-auto flex items-center gap-2", children: topbarRight })
       ] }),
-      /* @__PURE__ */ jsx45(
+      /* @__PURE__ */ jsx46(
         "main",
         {
           ref: mainRef,
           id: idContenuto,
           tabIndex: -1,
           className: "flex-1 overflow-y-auto scrollbar-thin p-4 focus:outline-none md:p-6",
-          children: /* @__PURE__ */ jsx45("div", { className: cn("mx-auto", WIDTHS[maxWidth] ?? WIDTHS["7xl"]), children })
+          children: /* @__PURE__ */ jsx46("div", { className: cn("mx-auto", WIDTHS[maxWidth] ?? WIDTHS["7xl"]), children })
         }
       )
     ] })
@@ -6721,7 +6837,7 @@ function AppShell({
 
 // src/templates/PageHeader.jsx
 import { BookOpen as BookOpen2 } from "lucide-react";
-import { jsx as jsx46, jsxs as jsxs39 } from "react/jsx-runtime";
+import { jsx as jsx47, jsxs as jsxs40 } from "react/jsx-runtime";
 function PageHeader({
   title,
   description,
@@ -6732,35 +6848,35 @@ function PageHeader({
   tabs,
   className
 }) {
-  return /* @__PURE__ */ jsxs39("div", { className: cn("mb-6 space-y-4", className), children: [
-    /* @__PURE__ */ jsxs39("div", { className: "flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between", children: [
-      /* @__PURE__ */ jsxs39("div", { className: "min-w-0 space-y-1", children: [
-        /* @__PURE__ */ jsxs39("div", { className: "flex items-center gap-2", children: [
-          Icon && /* @__PURE__ */ jsx46(Icon, { className: "h-6 w-6 text-primary", "aria-hidden": true }),
-          /* @__PURE__ */ jsx46("h1", { className: "text-2xl font-bold tracking-tight", children: title }),
-          help && /* @__PURE__ */ jsx46(InfoTip, { children: help }),
-          helpHref && /* @__PURE__ */ jsxs39(
+  return /* @__PURE__ */ jsxs40("div", { className: cn("mb-6 space-y-4", className), children: [
+    /* @__PURE__ */ jsxs40("div", { className: "flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between", children: [
+      /* @__PURE__ */ jsxs40("div", { className: "min-w-0 space-y-1", children: [
+        /* @__PURE__ */ jsxs40("div", { className: "flex items-center gap-2", children: [
+          Icon && /* @__PURE__ */ jsx47(Icon, { className: "h-6 w-6 text-primary", "aria-hidden": true }),
+          /* @__PURE__ */ jsx47("h1", { className: "text-2xl font-bold tracking-tight", children: title }),
+          help && /* @__PURE__ */ jsx47(InfoTip, { children: help }),
+          helpHref && /* @__PURE__ */ jsxs40(
             "a",
             {
               href: helpHref,
               className: "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               children: [
-                /* @__PURE__ */ jsx46(BookOpen2, { className: "h-3.5 w-3.5", "aria-hidden": true }),
+                /* @__PURE__ */ jsx47(BookOpen2, { className: "h-3.5 w-3.5", "aria-hidden": true }),
                 "Guida"
               ]
             }
           )
         ] }),
-        description && /* @__PURE__ */ jsx46("p", { className: "text-muted-foreground", children: description })
+        description && /* @__PURE__ */ jsx47("p", { className: "text-muted-foreground", children: description })
       ] }),
-      actions && /* @__PURE__ */ jsx46("div", { className: "flex shrink-0 flex-wrap items-center gap-2", children: actions })
+      actions && /* @__PURE__ */ jsx47("div", { className: "flex shrink-0 flex-wrap items-center gap-2", children: actions })
     ] }),
     tabs
   ] });
 }
 
 // src/templates/Section.jsx
-import { jsx as jsx47, jsxs as jsxs40 } from "react/jsx-runtime";
+import { jsx as jsx48, jsxs as jsxs41 } from "react/jsx-runtime";
 function Section({
   title,
   description,
@@ -6768,24 +6884,24 @@ function Section({
   className,
   children
 }) {
-  return /* @__PURE__ */ jsxs40("section", { className: cn("space-y-3", className), children: [
-    (title || description || actions) && /* @__PURE__ */ jsxs40("div", { className: "flex flex-wrap items-start justify-between gap-3", children: [
-      /* @__PURE__ */ jsxs40("div", { className: "min-w-0", children: [
-        title && /* @__PURE__ */ jsx47("h2", { className: "text-lg font-semibold", children: title }),
-        description && /* @__PURE__ */ jsx47("p", { className: "text-sm text-muted-foreground", children: description })
+  return /* @__PURE__ */ jsxs41("section", { className: cn("space-y-3", className), children: [
+    (title || description || actions) && /* @__PURE__ */ jsxs41("div", { className: "flex flex-wrap items-start justify-between gap-3", children: [
+      /* @__PURE__ */ jsxs41("div", { className: "min-w-0", children: [
+        title && /* @__PURE__ */ jsx48("h2", { className: "text-lg font-semibold", children: title }),
+        description && /* @__PURE__ */ jsx48("p", { className: "text-sm text-muted-foreground", children: description })
       ] }),
-      actions && /* @__PURE__ */ jsx47("div", { className: "flex flex-wrap items-center gap-2", children: actions })
+      actions && /* @__PURE__ */ jsx48("div", { className: "flex flex-wrap items-center gap-2", children: actions })
     ] }),
     children
   ] });
 }
 
 // src/templates/LoginPage.jsx
-import { useId as useId12, useState as useState21 } from "react";
+import { useId as useId13, useState as useState22 } from "react";
 import { Eye as Eye2, EyeOff } from "lucide-react";
 
 // src/accesso/useAccessoMicrosoft.js
-import { useCallback as useCallback6, useEffect as useEffect17, useState as useState18 } from "react";
+import { useCallback as useCallback6, useEffect as useEffect17, useState as useState19 } from "react";
 var BASE_MICROSOFT = "/api/auth/microsoft";
 var MESSAGGI_ERRORE_MICROSOFT = {
   annullato: "Accesso con Microsoft annullato.",
@@ -6813,9 +6929,9 @@ function chiestoDaAltroPortale() {
   return true;
 }
 function useAccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso } = {}) {
-  const [disponibile, setDisponibile] = useState18(false);
-  const [inCorso2, setInCorso] = useState18(false);
-  const [errore, setErrore] = useState18("");
+  const [disponibile, setDisponibile] = useState19(false);
+  const [inCorso2, setInCorso] = useState19(false);
+  const [errore, setErrore] = useState19("");
   useEffect17(() => {
     let attivo = true;
     const automatico = chiestoDaAltroPortale();
@@ -6872,27 +6988,27 @@ function useAccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso } = {}) {
 }
 
 // src/accesso/AccessoMicrosoft.jsx
-import { Fragment as Fragment8, jsx as jsx48, jsxs as jsxs41 } from "react/jsx-runtime";
+import { Fragment as Fragment8, jsx as jsx49, jsxs as jsxs42 } from "react/jsx-runtime";
 function LogoMicrosoft() {
-  return /* @__PURE__ */ jsxs41("svg", { viewBox: "0 0 21 21", className: "h-4 w-4", "aria-hidden": "true", children: [
-    /* @__PURE__ */ jsx48("rect", { x: "1", y: "1", width: "9", height: "9", fill: "#f25022" }),
-    /* @__PURE__ */ jsx48("rect", { x: "11", y: "1", width: "9", height: "9", fill: "#7fba00" }),
-    /* @__PURE__ */ jsx48("rect", { x: "1", y: "11", width: "9", height: "9", fill: "#00a4ef" }),
-    /* @__PURE__ */ jsx48("rect", { x: "11", y: "11", width: "9", height: "9", fill: "#ffb900" })
+  return /* @__PURE__ */ jsxs42("svg", { viewBox: "0 0 21 21", className: "h-4 w-4", "aria-hidden": "true", children: [
+    /* @__PURE__ */ jsx49("rect", { x: "1", y: "1", width: "9", height: "9", fill: "#f25022" }),
+    /* @__PURE__ */ jsx49("rect", { x: "11", y: "1", width: "9", height: "9", fill: "#7fba00" }),
+    /* @__PURE__ */ jsx49("rect", { x: "1", y: "11", width: "9", height: "9", fill: "#00a4ef" }),
+    /* @__PURE__ */ jsx49("rect", { x: "11", y: "11", width: "9", height: "9", fill: "#ffb900" })
   ] });
 }
 function AccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso, className, separatore = true }) {
   const { disponibile, inCorso: inCorso2, errore, accedi } = useAccessoMicrosoft({ base, onAccesso });
   if (!disponibile && !errore && !inCorso2) return null;
-  return /* @__PURE__ */ jsxs41("div", { className: cn("space-y-4", className), children: [
-    errore && /* @__PURE__ */ jsx48(Alert, { tone: "danger", children: errore }),
-    (disponibile || inCorso2) && /* @__PURE__ */ jsxs41(Fragment8, { children: [
-      separatore && /* @__PURE__ */ jsxs41("div", { className: "flex items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground", children: [
-        /* @__PURE__ */ jsx48("span", { className: "h-px flex-1 bg-border" }),
+  return /* @__PURE__ */ jsxs42("div", { className: cn("space-y-4", className), children: [
+    errore && /* @__PURE__ */ jsx49(Alert, { tone: "danger", children: errore }),
+    (disponibile || inCorso2) && /* @__PURE__ */ jsxs42(Fragment8, { children: [
+      separatore && /* @__PURE__ */ jsxs42("div", { className: "flex items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground", children: [
+        /* @__PURE__ */ jsx49("span", { className: "h-px flex-1 bg-border" }),
         "oppure",
-        /* @__PURE__ */ jsx48("span", { className: "h-px flex-1 bg-border" })
+        /* @__PURE__ */ jsx49("span", { className: "h-px flex-1 bg-border" })
       ] }),
-      /* @__PURE__ */ jsx48(
+      /* @__PURE__ */ jsx49(
         Button_default,
         {
           type: "button",
@@ -6911,16 +7027,16 @@ function AccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso, className, separat
 
 // src/accesso/AltriPortali.jsx
 import { useMemo as useMemo5 } from "react";
-import { jsx as jsx49, jsxs as jsxs42 } from "react/jsx-runtime";
+import { jsx as jsx50, jsxs as jsxs43 } from "react/jsx-runtime";
 function AltriPortali({ corrente }) {
   const portali = useMemo5(
     () => altriPortali({ corrente, codici: portaliRicordati() }),
     [corrente]
   );
   if (!portali.length) return null;
-  return /* @__PURE__ */ jsxs42("div", { className: "space-y-3 border-t border-border pt-4 text-center", children: [
-    /* @__PURE__ */ jsx49("p", { className: "text-sm text-muted-foreground", children: "Accedi ad altri portali" }),
-    /* @__PURE__ */ jsx49("div", { className: "flex flex-wrap justify-center gap-2", children: portali.map((p) => /* @__PURE__ */ jsx49(
+  return /* @__PURE__ */ jsxs43("div", { className: "space-y-3 border-t border-border pt-4 text-center", children: [
+    /* @__PURE__ */ jsx50("p", { className: "text-sm text-muted-foreground", children: "Accedi ad altri portali" }),
+    /* @__PURE__ */ jsx50("div", { className: "flex flex-wrap justify-center gap-2", children: portali.map((p) => /* @__PURE__ */ jsx50(
       "a",
       {
         href: p.url,
@@ -6933,7 +7049,7 @@ function AltriPortali({ corrente }) {
 }
 
 // src/templates/LoginCornice.jsx
-import { jsx as jsx50, jsxs as jsxs43 } from "react/jsx-runtime";
+import { jsx as jsx51, jsxs as jsxs44 } from "react/jsx-runtime";
 function LoginCornice({
   title,
   subtitle,
@@ -6941,11 +7057,11 @@ function LoginCornice({
   logoDark = LOGHI_VUSCOM.marchioScuro,
   children
 }) {
-  return /* @__PURE__ */ jsxs43("div", { className: "relative flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-50 to-brand-100 px-4 dark:from-slate-900 dark:to-slate-800", children: [
-    /* @__PURE__ */ jsx50("div", { className: "absolute right-4 top-4", children: /* @__PURE__ */ jsx50(ThemeToggle, {}) }),
-    /* @__PURE__ */ jsxs43("div", { className: "w-full max-w-md space-y-8 rounded-xl bg-card p-8 shadow-2xl", children: [
-      /* @__PURE__ */ jsxs43("div", { className: "text-center", children: [
-        /* @__PURE__ */ jsx50(
+  return /* @__PURE__ */ jsxs44("div", { className: "relative flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-50 to-brand-100 px-4 dark:from-slate-900 dark:to-slate-800", children: [
+    /* @__PURE__ */ jsx51("div", { className: "absolute right-4 top-4", children: /* @__PURE__ */ jsx51(ThemeToggle, {}) }),
+    /* @__PURE__ */ jsxs44("div", { className: "w-full max-w-md space-y-8 rounded-xl bg-card p-8 shadow-2xl", children: [
+      /* @__PURE__ */ jsxs44("div", { className: "text-center", children: [
+        /* @__PURE__ */ jsx51(
           "img",
           {
             src: logoLight,
@@ -6953,7 +7069,7 @@ function LoginCornice({
             className: "mx-auto h-20 w-auto object-contain dark:hidden"
           }
         ),
-        /* @__PURE__ */ jsx50(
+        /* @__PURE__ */ jsx51(
           "img",
           {
             src: logoDark,
@@ -6961,8 +7077,8 @@ function LoginCornice({
             className: "mx-auto hidden h-20 w-auto object-contain dark:block"
           }
         ),
-        /* @__PURE__ */ jsx50("h1", { className: "mt-6 text-3xl font-bold text-foreground", children: title }),
-        /* @__PURE__ */ jsx50("p", { className: "mt-2 text-sm text-muted-foreground", children: subtitle })
+        /* @__PURE__ */ jsx51("h1", { className: "mt-6 text-3xl font-bold text-foreground", children: title }),
+        /* @__PURE__ */ jsx51("p", { className: "mt-2 text-sm text-muted-foreground", children: subtitle })
       ] }),
       children
     ] })
@@ -6970,12 +7086,12 @@ function LoginCornice({
 }
 
 // src/accesso/RecuperoPassword.jsx
-import { useState as useState20 } from "react";
+import { useState as useState21 } from "react";
 
 // src/theme/useTemaLogin.js
-import { useState as useState19 } from "react";
+import { useState as useState20 } from "react";
 function useTemaLogin() {
-  useState19(() => {
+  useState20(() => {
     if (typeof document === "undefined") return;
     let salvato = null;
     try {
@@ -6988,7 +7104,7 @@ function useTemaLogin() {
 }
 
 // src/accesso/RecuperoPassword.jsx
-import { Fragment as Fragment9, jsx as jsx51, jsxs as jsxs44 } from "react/jsx-runtime";
+import { Fragment as Fragment9, jsx as jsx52, jsxs as jsxs45 } from "react/jsx-runtime";
 var BASE_RECUPERO = "/api/auth";
 var MINIMO = 8;
 var GENERICO = "Se l'account esiste, ricever\xE0 un'email con le istruzioni per reimpostare la password.";
@@ -7005,10 +7121,10 @@ function RichiestaRecupero({
   onIndietro,
   ...cornice
 }) {
-  const [email, setEmail] = useState20("");
-  const [loading, setLoading] = useState20(false);
-  const [error, setError] = useState20("");
-  const [message, setMessage] = useState20("");
+  const [email, setEmail] = useState21("");
+  const [loading, setLoading] = useState21(false);
+  const [error, setError] = useState21("");
+  const [message, setMessage] = useState21("");
   async function invia(e) {
     e.preventDefault();
     setError("");
@@ -7022,15 +7138,15 @@ function RichiestaRecupero({
       setLoading(false);
     }
   }
-  return /* @__PURE__ */ jsx51(LoginCornice, { ...cornice, subtitle: "Recupera la tua password", children: /* @__PURE__ */ jsxs44("form", { className: "space-y-5", onSubmit: invia, children: [
-    error && /* @__PURE__ */ jsx51(Alert, { tone: "danger", children: error }),
-    message ? /* @__PURE__ */ jsx51(Alert, { tone: "success", children: message }) : /* @__PURE__ */ jsxs44(Fragment9, { children: [
-      /* @__PURE__ */ jsx51(
+  return /* @__PURE__ */ jsx52(LoginCornice, { ...cornice, subtitle: "Recupera la tua password", children: /* @__PURE__ */ jsxs45("form", { className: "space-y-5", onSubmit: invia, children: [
+    error && /* @__PURE__ */ jsx52(Alert, { tone: "danger", children: error }),
+    message ? /* @__PURE__ */ jsx52(Alert, { tone: "success", children: message }) : /* @__PURE__ */ jsxs45(Fragment9, { children: [
+      /* @__PURE__ */ jsx52(
         Field,
         {
           label: "Email o username",
           hint: "Ti invieremo un link, valido 60 minuti, per reimpostare la password.",
-          children: /* @__PURE__ */ jsx51(
+          children: /* @__PURE__ */ jsx52(
             Input_default,
             {
               name: "email",
@@ -7042,9 +7158,9 @@ function RichiestaRecupero({
           )
         }
       ),
-      /* @__PURE__ */ jsx51(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Invia link di reset" })
+      /* @__PURE__ */ jsx52(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Invia link di reset" })
     ] }),
-    /* @__PURE__ */ jsx51("div", { className: "text-center", children: /* @__PURE__ */ jsx51(Button_default, { variant: "link", onClick: onIndietro, children: "Torna al login" }) })
+    /* @__PURE__ */ jsx52("div", { className: "text-center", children: /* @__PURE__ */ jsx52(Button_default, { variant: "link", onClick: onIndietro, children: "Torna al login" }) })
   ] }) });
 }
 function ReimpostaPassword({
@@ -7056,11 +7172,11 @@ function ReimpostaPassword({
 }) {
   useTemaLogin();
   useFaviconVuscom(iconaPortale);
-  const [password, setPassword] = useState20("");
-  const [conferma, setConferma] = useState20("");
-  const [loading, setLoading] = useState20(false);
-  const [error, setError] = useState20("");
-  const [fatto, setFatto] = useState20(false);
+  const [password, setPassword] = useState21("");
+  const [conferma, setConferma] = useState21("");
+  const [loading, setLoading] = useState21(false);
+  const [error, setError] = useState21("");
+  const [fatto, setFatto] = useState21(false);
   async function invia(e) {
     e.preventDefault();
     setError("");
@@ -7085,12 +7201,12 @@ function ReimpostaPassword({
       setLoading(false);
     }
   }
-  return /* @__PURE__ */ jsx51(LoginCornice, { ...cornice, subtitle: "Reimposta la tua password", children: fatto ? /* @__PURE__ */ jsxs44("div", { className: "space-y-5", children: [
-    /* @__PURE__ */ jsx51(Alert, { tone: "success", children: "Password reimpostata. Per sicurezza le sessioni aperte su tutti i portali sono state chiuse." }),
-    /* @__PURE__ */ jsx51(Button_default, { size: "lg", fullWidth: true, onClick: onFatto, children: "Vai al login" })
-  ] }) : /* @__PURE__ */ jsxs44("form", { className: "space-y-5", onSubmit: invia, children: [
-    error && /* @__PURE__ */ jsx51(Alert, { tone: "danger", children: error }),
-    /* @__PURE__ */ jsx51(Field, { label: "Nuova password", children: /* @__PURE__ */ jsx51(
+  return /* @__PURE__ */ jsx52(LoginCornice, { ...cornice, subtitle: "Reimposta la tua password", children: fatto ? /* @__PURE__ */ jsxs45("div", { className: "space-y-5", children: [
+    /* @__PURE__ */ jsx52(Alert, { tone: "success", children: "Password reimpostata. Per sicurezza le sessioni aperte su tutti i portali sono state chiuse." }),
+    /* @__PURE__ */ jsx52(Button_default, { size: "lg", fullWidth: true, onClick: onFatto, children: "Vai al login" })
+  ] }) : /* @__PURE__ */ jsxs45("form", { className: "space-y-5", onSubmit: invia, children: [
+    error && /* @__PURE__ */ jsx52(Alert, { tone: "danger", children: error }),
+    /* @__PURE__ */ jsx52(Field, { label: "Nuova password", children: /* @__PURE__ */ jsx52(
       Input_default,
       {
         type: "password",
@@ -7101,7 +7217,7 @@ function ReimpostaPassword({
         required: true
       }
     ) }),
-    /* @__PURE__ */ jsx51(Field, { label: "Conferma nuova password", children: /* @__PURE__ */ jsx51(
+    /* @__PURE__ */ jsx52(Field, { label: "Conferma nuova password", children: /* @__PURE__ */ jsx52(
       Input_default,
       {
         type: "password",
@@ -7112,13 +7228,13 @@ function ReimpostaPassword({
         required: true
       }
     ) }),
-    /* @__PURE__ */ jsx51(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Reimposta password" }),
-    /* @__PURE__ */ jsx51("div", { className: "text-center", children: /* @__PURE__ */ jsx51(Button_default, { variant: "link", onClick: onFatto, children: "Torna al login" }) })
+    /* @__PURE__ */ jsx52(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Reimposta password" }),
+    /* @__PURE__ */ jsx52("div", { className: "text-center", children: /* @__PURE__ */ jsx52(Button_default, { variant: "link", onClick: onFatto, children: "Torna al login" }) })
   ] }) });
 }
 
 // src/templates/LoginPage.jsx
-import { jsx as jsx52, jsxs as jsxs45 } from "react/jsx-runtime";
+import { jsx as jsx53, jsxs as jsxs46 } from "react/jsx-runtime";
 function leggiRicordami() {
   try {
     return localStorage.getItem("rememberMe") === "true";
@@ -7140,15 +7256,15 @@ function LoginPage({
   ricordami = false,
   recupero
 }) {
-  const passwordId = useId12();
+  const passwordId = useId13();
   useFaviconVuscom(iconaPortale);
-  const [username, setUsername] = useState21("");
-  const [password, setPassword] = useState21("");
-  const [show, setShow] = useState21(false);
-  const [loading, setLoading] = useState21(false);
-  const [error, setError] = useState21("");
-  const [recuperoAperto, setRecuperoAperto] = useState21(false);
-  const [ricorda, setRicorda] = useState21(
+  const [username, setUsername] = useState22("");
+  const [password, setPassword] = useState22("");
+  const [show, setShow] = useState22(false);
+  const [loading, setLoading] = useState22(false);
+  const [error, setError] = useState22("");
+  const [recuperoAperto, setRecuperoAperto] = useState22(false);
+  const [ricorda, setRicorda] = useState22(
     () => typeof window !== "undefined" && leggiRicordami()
   );
   useTemaLogin();
@@ -7172,7 +7288,7 @@ function LoginPage({
     }
   }
   if (recupero && recuperoAperto)
-    return /* @__PURE__ */ jsx52(
+    return /* @__PURE__ */ jsx53(
       RichiestaRecupero,
       {
         base: recupero.base,
@@ -7182,7 +7298,7 @@ function LoginPage({
         onIndietro: () => setRecuperoAperto(false)
       }
     );
-  return /* @__PURE__ */ jsxs45(
+  return /* @__PURE__ */ jsxs46(
     LoginCornice,
     {
       title,
@@ -7190,9 +7306,9 @@ function LoginPage({
       logoLight,
       logoDark,
       children: [
-        /* @__PURE__ */ jsxs45("form", { className: "space-y-5", onSubmit: handleSubmit, children: [
-          error && /* @__PURE__ */ jsx52(Alert, { tone: "danger", children: error }),
-          /* @__PURE__ */ jsx52(Field, { label: usernameLabel, children: /* @__PURE__ */ jsx52(
+        /* @__PURE__ */ jsxs46("form", { className: "space-y-5", onSubmit: handleSubmit, children: [
+          error && /* @__PURE__ */ jsx53(Alert, { tone: "danger", children: error }),
+          /* @__PURE__ */ jsx53(Field, { label: usernameLabel, children: /* @__PURE__ */ jsx53(
             Input_default,
             {
               name: "username",
@@ -7202,8 +7318,8 @@ function LoginPage({
               required: true
             }
           ) }),
-          /* @__PURE__ */ jsxs45("div", { className: "flex flex-col gap-1.5", children: [
-            /* @__PURE__ */ jsx52(
+          /* @__PURE__ */ jsxs46("div", { className: "flex flex-col gap-1.5", children: [
+            /* @__PURE__ */ jsx53(
               "label",
               {
                 htmlFor: passwordId,
@@ -7211,8 +7327,8 @@ function LoginPage({
                 children: "Password"
               }
             ),
-            /* @__PURE__ */ jsxs45("div", { className: "relative", children: [
-              /* @__PURE__ */ jsx52(
+            /* @__PURE__ */ jsxs46("div", { className: "relative", children: [
+              /* @__PURE__ */ jsx53(
                 Input_default,
                 {
                   id: passwordId,
@@ -7225,7 +7341,7 @@ function LoginPage({
                   required: true
                 }
               ),
-              /* @__PURE__ */ jsx52(
+              /* @__PURE__ */ jsx53(
                 IconButton_default,
                 {
                   icon: show ? EyeOff : Eye2,
@@ -7237,16 +7353,16 @@ function LoginPage({
               )
             ] })
           ] }),
-          (ricordami || recupero) && /* @__PURE__ */ jsxs45("div", { className: "flex items-center justify-between gap-3", children: [
-            ricordami ? /* @__PURE__ */ jsx52(
+          (ricordami || recupero) && /* @__PURE__ */ jsxs46("div", { className: "flex items-center justify-between gap-3", children: [
+            ricordami ? /* @__PURE__ */ jsx53(
               Checkbox,
               {
                 checked: ricorda,
                 onChange: cambiaRicorda,
                 label: "Ricordami"
               }
-            ) : /* @__PURE__ */ jsx52("span", {}),
-            recupero && /* @__PURE__ */ jsx52(
+            ) : /* @__PURE__ */ jsx53("span", {}),
+            recupero && /* @__PURE__ */ jsx53(
               Button_default,
               {
                 variant: "link",
@@ -7256,18 +7372,18 @@ function LoginPage({
               }
             )
           ] }),
-          /* @__PURE__ */ jsx52(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Accedi" })
+          /* @__PURE__ */ jsx53(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Accedi" })
         ] }),
-        microsoft && /* @__PURE__ */ jsx52(AccessoMicrosoft, { ...microsoft }),
-        altriPortali2 && /* @__PURE__ */ jsx52(AltriPortali, { corrente: iconaPortale }),
-        footer && /* @__PURE__ */ jsx52("div", { className: "text-center text-xs text-muted-foreground", children: footer })
+        microsoft && /* @__PURE__ */ jsx53(AccessoMicrosoft, { ...microsoft }),
+        altriPortali2 && /* @__PURE__ */ jsx53(AltriPortali, { corrente: iconaPortale }),
+        footer && /* @__PURE__ */ jsx53("div", { className: "text-center text-xs text-muted-foreground", children: footer })
       ]
     }
   );
 }
 
 // src/accesso/sessioneVuscom.js
-import { useEffect as useEffect18, useState as useState22 } from "react";
+import { useEffect as useEffect18, useState as useState23 } from "react";
 var BASE_SSO = "/api/auth/sso";
 var inCorso = null;
 function scambiaSessioneVuscom({ base = BASE_SSO } = {}) {
@@ -7292,7 +7408,7 @@ async function esciSessioneVuscom({ base = BASE_SSO } = {}) {
   }
 }
 function useSessioneVuscom({ autenticato, onAccesso, base = BASE_SSO } = {}) {
-  const [verificando, setVerificando] = useState22(!autenticato);
+  const [verificando, setVerificando] = useState23(!autenticato);
   useEffect18(() => {
     if (autenticato) {
       setVerificando(false);
@@ -7339,6 +7455,7 @@ export {
   Dialog,
   EmptyState,
   Field,
+  FileDrop,
   GRANULARITA_REPORT,
   IconButton_default as IconButton,
   InfoTip,
