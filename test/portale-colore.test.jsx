@@ -147,7 +147,7 @@ test("tester: a malformed hex is blocking", () => {
 });
 
 test("tester: a colour too close to an existing portal or to navy is only a warning", () => {
-  const vicino = tester('"#2865e8"'); // ~ offerte
+  const vicino = tester('"#18a54c"'); // ~ offerte
   expect(vicino).toHaveLength(1);
   expect(vicino[0]).toMatchObject({ codice: "icona-portale-vicina", gravita: "avvisa" });
   expect(vicino[0].messaggio).toContain("offerte");

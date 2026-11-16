@@ -185,7 +185,7 @@ scheda, così i portali si distinguono a colpo d'occhio (`TESSERE_PORTALE`, imma
 
 | Portale | `iconaPortale` | Sfondo |
 |---|---|---|
-| Hub Offerte | `offerte` | blu `#2563eb` (il blu dei pulsanti) |
+| Hub Offerte | `offerte` | verde `#16a34a` (gestione) |
 | Cruscotto | `cruscotto` | verde petrolio `#0f5c55` |
 | Outbound | `outbound` | bordeaux `#7f1d1d` |
 | Configuratore | `configuratore` | navy `#1b3a69`, il riquadro originale |

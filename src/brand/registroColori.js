@@ -13,7 +13,8 @@
  * original navy tile (Configuratore, which serves clients too, uses navy).
  */
 export const COLORI_PORTALE = Object.freeze({
-  offerte: "#2563eb", // portal blue, lighter than the public navy
+  // families (Gabriele 16/11/2026): management green, production red/orange/yellow, communication blues
+  offerte: "#16a34a", // light green: management
   cruscotto: "#0f5c55", // petrol green
   outbound: "#7f1d1d", // bordeaux
   configuratore: "#1b3a69", // navy: it has public pages, and public is always the original navy

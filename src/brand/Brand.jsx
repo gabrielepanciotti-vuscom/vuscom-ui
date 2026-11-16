@@ -32,7 +32,7 @@ export const LOGHI_VUSCOM = Object.freeze({
  * portal needs no entry: its code gets an automatic colour (registroColori.js).
  * Public portals keep the original navy tile
  * (Portale Segnalazioni has no entry; Configuratore, which serves clients too,
- * uses navy), so a lighter blue marks the internal-only Hub Offerte.
+ * uses navy), and the internal-only Hub Offerte is green (management).
  */
 export const TESSERE_PORTALE = Object.freeze({
   offerte: tesseraOfferte,
