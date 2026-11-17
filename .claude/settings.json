@@ -12,7 +12,7 @@
       "Read(**/.remember/logs/**)",
       "Read(**/.ruff_cache/**)",
       "Read(**/.turbo/**)",
-      "Read(**/.venv/**)",
+      "Read(**/.venv/lib/**)",
       "Read(**/__pycache__/**)",
       "Read(**/build/**)",
       "Read(**/coverage/**)",
@@ -275,7 +275,6 @@
       "Read(**/node_modules/**)",
       "Read(**/dist/**)",
       "Read(**/build/**)",
-      "Read(**/.venv/**)",
       "Read(**/__pycache__/**)",
       "Read(**/.pytest_cache/**)",
       "Read(**/.ruff_cache/**)",
@@ -322,7 +321,8 @@
       "Agent(gsd-ui-checker)",
       "Agent(gsd-ui-researcher)",
       "Agent(gsd-user-profiler)",
-      "Agent(gsd-verifier)"
+      "Agent(gsd-verifier)",
+      "Read(**/.venv/lib/**)"
     ]
   },
   "skillOverrides": {
