@@ -29,3 +29,6 @@ frontend/vendor/*
 backend/vendor/*
 *.stackdump
 # <<< suite-managed <<<
+# Theme layer: generated per instance by prebuild/compose up, never tracked (Network#67).
+**/src/suite-theme.css
+**/src/suite-branding.json
