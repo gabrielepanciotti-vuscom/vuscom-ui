@@ -3075,7 +3075,7 @@ function urlPagina(href, maschera2) {
     return String(href).split(/[?#]/)[0];
   }
 }
-function componiInvio(bozza, { commento, video, maschera: maschera2 }) {
+function componiInvio(bozza, { commento, screenshot = true, video, maschera: maschera2 }) {
   const form = new FormData();
   form.append(
     "report",
@@ -3086,7 +3086,7 @@ function componiInvio(bozza, { commento, video, maschera: maschera2 }) {
       page_url: urlPagina(bozza.page_url ?? "", maschera2)
     })
   );
-  const schermata = bozza.catture ? maschera2 ? bozza.catture.mascherato : bozza.catture.privato : null;
+  const schermata = screenshot && bozza.catture ? maschera2 ? bozza.catture.mascherato : bozza.catture.privato : null;
   const azioni = jsonBlob(
     maschera2 ? mascheraAzioni(bozza.azioni) : bozza.azioni ?? []
   );
@@ -3563,7 +3563,8 @@ function ModaleSegnalazione({
 }) {
   const { toast } = useToast();
   const [commento, setCommento] = useState2("");
-  const [video, setVideo] = useState2(true);
+  const [screenshot, setScreenshot] = useState2(true);
+  const [video, setVideo] = useState2(false);
   const [maschera2, setMaschera] = useState2(mascheraDefault);
   const [esito, setEsito] = useState2({ stato: "pronto" });
   const inCorso = useRef4(false);
@@ -3578,7 +3579,7 @@ function ModaleSegnalazione({
     if (inCorso.current || vuoto || bloccato) return;
     inCorso.current = true;
     setEsito({ stato: "invio" });
-    const form = componiInvio(bozza, { commento, video, maschera: maschera2 });
+    const form = componiInvio(bozza, { commento, screenshot, video, maschera: maschera2 });
     const r2 = await inviaSegnalazione({ endpoint, fetchImpl, form });
     inCorso.current = false;
     if (r2.esito === "inviata") {
@@ -3624,7 +3625,7 @@ function ModaleSegnalazione({
       closeDisabled: invio,
       closeOnBackdrop: false,
       title: "Segnala un problema",
-      description: "Arriva a chi segue il portale, con le ultime azioni e uno screenshot della pagina.",
+      description: "Arriva a chi segue il portale, con le ultime azioni e, se vuoi, uno screenshot o il video della pagina.",
       icon: Bug,
       size: "lg",
       footer,
@@ -3674,6 +3675,14 @@ function ModaleSegnalazione({
           /* @__PURE__ */ jsx10(
             Checkbox,
             {
+              checked: screenshot,
+              onChange: setScreenshot,
+              label: "Allega lo screenshot della pagina"
+            }
+          ),
+          /* @__PURE__ */ jsx10(
+            Checkbox,
+            {
               checked: video,
               onChange: setVideo,
               label: "Allega il video delle ultime azioni"
@@ -3689,7 +3698,7 @@ function ModaleSegnalazione({
           ),
           /* @__PURE__ */ jsx10("p", { className: "pl-6 text-xs text-muted-foreground", children: "Password e campi riservati sono sempre nascosti, anche con la casella spenta." })
         ] }),
-        /* @__PURE__ */ jsxs8("figure", { className: "overflow-hidden rounded-lg border border-border bg-muted/30", children: [
+        screenshot && /* @__PURE__ */ jsxs8("figure", { className: "overflow-hidden rounded-lg border border-border bg-muted/30", children: [
           anteprima ? /* @__PURE__ */ jsx10(
             "img",
             {

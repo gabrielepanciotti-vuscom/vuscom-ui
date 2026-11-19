@@ -36,6 +36,18 @@ test("with the mask on, the picked element's free text is masked", () => {
   expect(reportDi(form).element).toEqual({ testo: M, selettore: "td" });
 });
 
+test("screenshot unticked: no screenshot part, the actions still go", () => {
+  const conCattura = {
+    ...bozza({ testo: "x" }),
+    catture: { privato: new Blob(["p"]), mascherato: new Blob(["m"]) },
+  };
+  const opzioni = { commento: "sbagliato", video: false, maschera: false };
+  expect(componiInvio(conCattura, opzioni).get("screenshot")).not.toBeNull();
+  const senza = componiInvio(conCattura, { ...opzioni, screenshot: false });
+  expect(senza.get("screenshot")).toBeNull();
+  expect(senza.get("azioni")).not.toBeNull();
+});
+
 test("with the mask on, data-segnala names stay readable", () => {
   const elemento = { tipo: "kpi", id: "kpi_x", nome: "Clienti attivi" };
   expect(mascheraElemento(elemento)).toEqual(elemento);

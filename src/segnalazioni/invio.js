@@ -52,9 +52,12 @@ export function urlPagina(href, maschera) {
 
 /**
  * The multipart body for a draft. The user's choices are applied here, at
- * send time: masking (private elements are always masked) and the video.
+ * send time: masking (private elements are always masked), screenshot and video.
  */
-export function componiInvio(bozza, { commento, video, maschera }) {
+export function componiInvio(
+  bozza,
+  { commento, screenshot = true, video, maschera },
+) {
   const form = new FormData();
   form.append(
     "report",
@@ -67,7 +70,7 @@ export function componiInvio(bozza, { commento, video, maschera }) {
       page_url: urlPagina(bozza.page_url ?? "", maschera),
     }),
   );
-  const schermata = bozza.catture
+  const schermata = screenshot && bozza.catture
     ? maschera
       ? bozza.catture.mascherato
       : bozza.catture.privato

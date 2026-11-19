@@ -50,7 +50,9 @@ export default function ModaleSegnalazione({
 }) {
   const { toast } = useToast();
   const [commento, setCommento] = useState("");
-  const [video, setVideo] = useState(true);
+  const [screenshot, setScreenshot] = useState(true);
+  // The video is only needed now and then: the user turns it on.
+  const [video, setVideo] = useState(false);
   const [maschera, setMaschera] = useState(mascheraDefault);
   // pronto · invio · riprova · non_disponibile · errore
   const [esito, setEsito] = useState({ stato: "pronto" });
@@ -73,7 +75,7 @@ export default function ModaleSegnalazione({
     if (inCorso.current || vuoto || bloccato) return;
     inCorso.current = true;
     setEsito({ stato: "invio" });
-    const form = componiInvio(bozza, { commento, video, maschera });
+    const form = componiInvio(bozza, { commento, screenshot, video, maschera });
     const r = await inviaSegnalazione({ endpoint, fetchImpl, form });
     inCorso.current = false;
     if (r.esito === "inviata") {
@@ -128,7 +130,7 @@ export default function ModaleSegnalazione({
       closeDisabled={invio}
       closeOnBackdrop={false}
       title="Segnala un problema"
-      description="Arriva a chi segue il portale, con le ultime azioni e uno screenshot della pagina."
+      description="Arriva a chi segue il portale, con le ultime azioni e, se vuoi, uno screenshot o il video della pagina."
       icon={Bug}
       size="lg"
       footer={footer}
@@ -175,6 +177,11 @@ export default function ModaleSegnalazione({
 
         <div className="space-y-2.5">
           <Checkbox
+            checked={screenshot}
+            onChange={setScreenshot}
+            label="Allega lo screenshot della pagina"
+          />
+          <Checkbox
             checked={video}
             onChange={setVideo}
             label="Allega il video delle ultime azioni"
@@ -189,26 +196,28 @@ export default function ModaleSegnalazione({
           </p>
         </div>
 
-        <figure className="overflow-hidden rounded-lg border border-border bg-muted/30">
-          {anteprima ? (
-            <img
-              src={anteprima}
-              alt="Anteprima dello screenshot"
-              className="max-h-56 w-full object-contain object-top"
-            />
-          ) : (
-            <div className="flex h-24 items-center justify-center gap-2 text-sm text-muted-foreground">
-              <ImageOff className="h-4 w-4" aria-hidden />
-              {bozza.catture
-                ? "Anteprima non disponibile"
-                : "Screenshot non disponibile"}
-            </div>
-          )}
-          <figcaption className="border-t border-border px-3 py-1.5 text-xs text-muted-foreground">
-            Screenshot{" "}
-            {maschera ? "con i dati mascherati" : "con i dati visibili"}
-          </figcaption>
-        </figure>
+        {screenshot && (
+          <figure className="overflow-hidden rounded-lg border border-border bg-muted/30">
+            {anteprima ? (
+              <img
+                src={anteprima}
+                alt="Anteprima dello screenshot"
+                className="max-h-56 w-full object-contain object-top"
+              />
+            ) : (
+              <div className="flex h-24 items-center justify-center gap-2 text-sm text-muted-foreground">
+                <ImageOff className="h-4 w-4" aria-hidden />
+                {bozza.catture
+                  ? "Anteprima non disponibile"
+                  : "Screenshot non disponibile"}
+              </div>
+            )}
+            <figcaption className="border-t border-border px-3 py-1.5 text-xs text-muted-foreground">
+              Screenshot{" "}
+              {maschera ? "con i dati mascherati" : "con i dati visibili"}
+            </figcaption>
+          </figure>
+        )}
 
         {(esito.stato === "riprova" ||
           esito.stato === "non_disponibile" ||

@@ -169,9 +169,11 @@ test("draft (comment, element, flags) survives a failed send", async () => {
 
   const video = screen.getByRole("checkbox", { name: /allega il video/i });
   const maschera = screen.getByRole("checkbox", { name: /maschera i dati/i });
-  expect(video).toHaveAttribute("aria-checked", "true");
+  const foto = screen.getByRole("checkbox", { name: /allega lo screenshot/i });
+  // Screenshot on by default; the video is off and the user turns it on.
+  expect(foto).toHaveAttribute("aria-checked", "true");
+  expect(video).toHaveAttribute("aria-checked", "false");
   expect(maschera).toHaveAttribute("aria-checked", "false");
-  await user.click(video);
   await user.click(maschera);
   await user.type(
     screen.getByRole("textbox", { name: /cosa non va/i }),
@@ -198,7 +200,7 @@ test("draft (comment, element, flags) survives a failed send", async () => {
     tipo: "kpi",
     id: "kpi_clienti",
   });
-  // Video unticked: no video part. Screenshot and actions always go.
+  // Video off by default: no video part. Screenshot and actions go.
   expect(invio.body.get("video")).toBeNull();
   expect(invio.body.get("screenshot")).not.toBeNull();
   expect(invio.body.get("azioni")).not.toBeNull();
