@@ -116,6 +116,19 @@
         "theme",
         "conformita"
       ]
+    },
+    {
+      "nome": "AreaClienti",
+      "agente": "outbound-vuscom-dev-linux",
+      "repo": "gabrielepanciotti-vuscom/AreaClienti",
+      "frontend": "AreaClienti/frontend",
+      "usa": [
+        "index",
+        "preset",
+        "theme",
+        "conformita",
+        "segnalazioni"
+      ]
     }
   ]
 }
