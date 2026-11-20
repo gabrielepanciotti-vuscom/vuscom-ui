@@ -70,7 +70,7 @@ export default function PortaliSidebar({
           href={p.url}
           title={p.nome}
           aria-label={`Apri ${p.nome}`}
-          className="rounded-[9px] transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="rounded-[9px] transition-transform hover:scale-105 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
         >
           <LogoV portale={p.codice} size={26} />
         </a>
@@ -88,7 +88,7 @@ export default function PortaliSidebar({
             aria-expanded={aperto}
             aria-label={aperto ? "Nascondi altri portali" : "Mostra altri portali"}
             title={aperto ? "Nascondi altri portali" : "Mostra altri portali"}
-            className="flex items-center justify-center rounded-md p-1 text-slate-400 dark:text-slate-500 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-slate-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex items-center justify-center rounded-md p-1 text-slate-400 dark:text-slate-500 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-slate-300 transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
           >
             <LayoutGrid className="w-4 h-4" />
           </button>
@@ -105,7 +105,7 @@ export default function PortaliSidebar({
           type="button"
           onClick={toggle}
           aria-expanded={aperto}
-          className="w-full mb-1.5 flex items-center justify-between gap-1 text-[10px] uppercase tracking-wide text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+          className="w-full mb-1.5 flex items-center justify-between gap-1 text-[10px] uppercase tracking-wide text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400 transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
         >
           <span>Altri portali</span>
           <ChevronDown

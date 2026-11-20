@@ -195,7 +195,7 @@ export default function Select({
             style={listStyle ?? { position: "fixed" }}
             // Keep focus on the trigger: keyboard handling and Dialog focus trap live there.
             onMouseDown={(e) => e.preventDefault()}
-            className="z-[70] max-h-64 overflow-y-auto rounded-lg border border-border bg-card py-1 shadow-lg"
+            className="z-70 max-h-64 overflow-y-auto rounded-lg border border-border bg-card py-1 shadow-lg"
           >
             {entries.map((o, i) => {
               const sel = !o.clear && o.value === value;

@@ -41,7 +41,7 @@ export default function Editable({
       contentEditable={!readOnly}
       suppressContentEditableWarning
       spellCheck={false}
-      className={cn("min-h-[1.4em] outline-none focus-visible:ring-2 focus-visible:ring-blue-500", className)}
+      className={cn("min-h-[1.4em] outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500", className)}
       onInput={() => onChange?.(read())}
       onKeyDown={(e) => {
         if (e.key !== "Enter") return;

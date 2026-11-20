@@ -124,7 +124,7 @@ export default function Dialog({
           aria-describedby={description ? descId : undefined}
           tabIndex={-1}
           className={cn(
-            "relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-xl bg-card text-card-foreground shadow-2xl ring-1 ring-black/5 animate-fade-in focus:outline-none dark:ring-white/10",
+            "relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-xl bg-card text-card-foreground shadow-2xl ring-1 ring-black/5 animate-fade-in focus:outline-hidden dark:ring-white/10",
             SIZES[size] ?? SIZES.sm,
             className,
           )}

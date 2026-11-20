@@ -3,13 +3,13 @@ import { Loader2 } from "lucide-react";
 import { cn } from "../lib/cn.js";
 
 const VARIANTI = {
-  primary: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm",
+  primary: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs",
   secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
   outline:
     "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
   ghost: "hover:bg-accent hover:text-accent-foreground",
   destructive:
-    "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm",
+    "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-xs",
   link: "text-primary underline-offset-4 hover:underline",
 };
 const TAGLIE = {
@@ -21,7 +21,7 @@ const TAGLIE = {
 export const buttonClasses = (variant = "primary", size = "md") =>
   cn(
     "inline-flex items-center justify-center rounded-lg font-medium transition-all duration-150",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+    "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
     "active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50",
     VARIANTI[variant],
     TAGLIE[size],

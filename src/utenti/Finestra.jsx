@@ -68,7 +68,7 @@ export default function Finestra({ titolo, onChiudi, children, piede, larghezza 
         aria-modal="true"
         aria-labelledby={idTitolo}
         tabIndex={-1}
-        className={`relative flex max-h-[90vh] w-full ${larghezza} flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl focus:outline-none dark:border-white/10 dark:bg-slate-900`}
+        className={`relative flex max-h-[90vh] w-full ${larghezza} flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl focus:outline-hidden dark:border-white/10 dark:bg-slate-900`}
       >
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3.5 dark:border-white/[0.06]">
           <h2 id={idTitolo} className="text-[15px] font-semibold text-slate-800 dark:text-slate-100">

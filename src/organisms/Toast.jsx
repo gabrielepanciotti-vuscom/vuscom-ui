@@ -126,7 +126,7 @@ export function ToastProvider({ children }) {
     <ToastContext.Provider value={value}>
       {children}
       {/* Live regions exist before any toast, or screen readers miss the first one. */}
-      <div className="pointer-events-none fixed right-4 top-4 z-[60] flex flex-col">
+      <div className="pointer-events-none fixed right-4 top-4 z-60 flex flex-col">
         <div aria-live="assertive" className="flex flex-col gap-2">
           {urgenti.map((t) => (
             <ToastItem

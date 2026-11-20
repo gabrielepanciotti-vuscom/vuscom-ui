@@ -137,7 +137,7 @@ describe("AppShell — salto al contenuto", () => {
     const main = screen.getByRole("main");
     expect(main).toHaveAttribute("id", "contenuto");
     expect(main).toHaveAttribute("tabindex", "-1");
-    expect(main).toHaveClass("focus:outline-none");
+    expect(main).toHaveClass("focus:outline-hidden");
     main.focus();
     expect(main).toHaveFocus();
   });

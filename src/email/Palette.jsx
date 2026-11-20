@@ -4,7 +4,7 @@ import { BASE_BLOCKS } from "./blocks.js";
 
 const TILE =
   "flex items-center gap-2 rounded-lg border border-border bg-card p-2 text-left text-[12.5px] font-medium " +
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring";
 
 const Titolo = ({ children }) => (
   <h3 className="mb-2 mt-1 text-[11.5px] font-semibold uppercase tracking-wider text-muted-foreground">{children}</h3>
@@ -60,7 +60,7 @@ export default function Palette({ catalog, onAdd, onInsertVariable }) {
                 // mousedown would move the caret out of the text before the click lands
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => onInsertVariable(v.name)}
-                className="rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs hover:border-primary hover:text-primary focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {v.label}
               </button>

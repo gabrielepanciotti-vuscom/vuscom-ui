@@ -51,7 +51,7 @@ export default function DataTableCards({
           className={cn(
             "p-4",
             onRowClick &&
-              "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+              "cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
           )}
         >
           <dl className="space-y-2">

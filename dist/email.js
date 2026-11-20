@@ -2489,11 +2489,11 @@ function cn(...inputs) {
 // src/atoms/Button.jsx
 import { jsx, jsxs } from "react/jsx-runtime";
 var VARIANTI = {
-  primary: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm",
+  primary: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs",
   secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
   outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
   ghost: "hover:bg-accent hover:text-accent-foreground",
-  destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm",
+  destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-xs",
   link: "text-primary underline-offset-4 hover:underline"
 };
 var TAGLIE = {
@@ -2503,7 +2503,7 @@ var TAGLIE = {
 };
 var buttonClasses = (variant = "primary", size = "md") => cn(
   "inline-flex items-center justify-center rounded-lg font-medium transition-all duration-150",
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+  "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   "active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50",
   VARIANTI[variant],
   TAGLIE[size]
@@ -2602,9 +2602,9 @@ function SegmentedControl({
             },
             className: cn(
               "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md font-medium transition-all",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
               SIZE[size] || SIZE.sm,
-              attivo ? "bg-background text-primary shadow" : "text-muted-foreground hover:text-foreground"
+              attivo ? "bg-background text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
             ),
             children: [
               Icon && /* @__PURE__ */ jsx2(Icon, { className: "h-3.5 w-3.5", "aria-hidden": true }),
@@ -2685,7 +2685,7 @@ var useEditorContext = () => useContext(EditorContext);
 var TONES = ["bad", "warn", "muted"];
 var SAFE_HREF = /^(https?:\/\/|mailto:)|^\{\{\s*\w+\s*\}\}$/i;
 var VAR_RE = /\{\{\s*(\w+)\s*\}\}/g;
-var CHIP_CLASS = "mx-0.5 inline-flex items-center rounded bg-blue-100 px-1.5 text-xs font-semibold text-blue-800 select-none";
+var CHIP_CLASS = "mx-0.5 inline-flex items-center rounded-sm bg-blue-100 px-1.5 text-xs font-semibold text-blue-800 select-none";
 var esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 var escAttr = (s) => esc(s).replace(/"/g, "&quot;");
 var chipHtml = (name, label) => `<span data-var="${escAttr(name)}" contenteditable="false" class="${CHIP_CLASS}">${esc(label || name)}</span>`;
@@ -2816,7 +2816,7 @@ function Editable({
       contentEditable: !readOnly,
       suppressContentEditableWarning: true,
       spellCheck: false,
-      className: cn("min-h-[1.4em] outline-none focus-visible:ring-2 focus-visible:ring-blue-500", className),
+      className: cn("min-h-[1.4em] outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500", className),
       onInput: () => onChange?.(read()),
       onKeyDown: (e) => {
         if (e.key !== "Enter") return;
@@ -2873,18 +2873,18 @@ function BlockBody({ block, onPatch, catalog, preview, sourceLabel }) {
       "div",
       {
         style: { width: block.width },
-        className: "flex h-11 max-w-full items-center justify-center rounded-md bg-gradient-to-r from-blue-900 to-blue-600 font-bold tracking-widest text-white",
+        className: "flex h-11 max-w-full items-center justify-center rounded-md bg-linear-to-r from-blue-900 to-blue-600 font-bold tracking-widest text-white",
         children: "VUS COM"
       }
     ) });
   if (type === "footer")
-    return /* @__PURE__ */ jsxs3("div", { className: "rounded border border-slate-200 bg-slate-50 p-2.5 text-xs text-slate-600", children: [
-      /* @__PURE__ */ jsx5("div", { className: "mb-1.5 inline-block rounded bg-gradient-to-r from-blue-900 to-blue-600 px-2 py-0.5 text-[10px] font-bold tracking-widest text-white", children: "VUS COM" }),
+    return /* @__PURE__ */ jsxs3("div", { className: "rounded-sm border border-slate-200 bg-slate-50 p-2.5 text-xs text-slate-600", children: [
+      /* @__PURE__ */ jsx5("div", { className: "mb-1.5 inline-block rounded-sm bg-linear-to-r from-blue-900 to-blue-600 px-2 py-0.5 text-[10px] font-bold tracking-widest text-white", children: "VUS COM" }),
       /* @__PURE__ */ jsx5(Editable, { rich: true, "aria-label": "Pi\xE8 di pagina", value: block.html, onChange: (html) => onPatch({ html }) }),
       block.style !== "short" && /* @__PURE__ */ jsx5("p", { className: "mt-1.5 border-t border-slate-200 pt-1.5 text-[10.5px] text-slate-500", children: "Banner e informativa privacy" })
     ] });
   if (type === "code")
-    return /* @__PURE__ */ jsx5("pre", { className: "my-1 whitespace-pre-wrap break-words rounded border border-slate-200 bg-slate-100 p-2.5 font-mono text-xs text-slate-800", children: block.text || "Dettaglio tecnico (errore, log)" });
+    return /* @__PURE__ */ jsx5("pre", { className: "my-1 whitespace-pre-wrap wrap-break-word rounded-sm border border-slate-200 bg-slate-100 p-2.5 font-mono text-xs text-slate-800", children: block.text || "Dettaglio tecnico (errore, log)" });
   if (type === "data") {
     const info = catalog?.dataBlocks?.find((d) => d.name === block.ref);
     const part = preview?.parts?.[block.id];
@@ -2902,7 +2902,7 @@ function BlockBody({ block, onPatch, catalog, preview, sourceLabel }) {
   if (type === "html")
     return /* @__PURE__ */ jsxs3("div", { children: [
       /* @__PURE__ */ jsx5("p", { className: "mb-1 text-xs text-amber-700", children: "Blocco HTML da un template vecchio" }),
-      /* @__PURE__ */ jsx5("iframe", { title: "Anteprima del blocco HTML", sandbox: "", srcDoc: block.html, className: "h-40 w-full rounded border border-slate-200 bg-white" })
+      /* @__PURE__ */ jsx5("iframe", { title: "Anteprima del blocco HTML", sandbox: "", srcDoc: block.html, className: "h-40 w-full rounded-sm border border-slate-200 bg-white" })
     ] });
   return /* @__PURE__ */ jsxs3("p", { className: "text-xs text-slate-500", children: [
     "Blocco sconosciuto (",
@@ -3035,7 +3035,7 @@ function BlockView({
       onDrop: (e) => drop(e, block.id),
       onDragEnd: dragEnd,
       className: cn(
-        "group relative -mx-1.5 my-0.5 rounded-md border px-1.5 py-1 outline-none",
+        "group relative -mx-1.5 my-0.5 rounded-md border px-1.5 py-1 outline-hidden",
         "focus-visible:ring-2 focus-visible:ring-blue-500",
         selected ? "border-blue-600 shadow-[0_0_0_3px_rgb(37_99_235/0.15)]" : "border-dashed border-transparent hover:border-slate-300",
         over && "border-t-4 border-t-blue-600"
@@ -3045,7 +3045,7 @@ function BlockView({
           "div",
           {
             className: cn(
-              "absolute -top-4 right-1 z-10 gap-0.5 rounded-md border border-border bg-card p-0.5 text-foreground shadow-sm",
+              "absolute -top-4 right-1 z-10 gap-0.5 rounded-md border border-border bg-card p-0.5 text-foreground shadow-xs",
               selected ? "flex" : "hidden group-focus-within:flex group-hover:flex"
             ),
             children: [
@@ -3151,7 +3151,7 @@ function Canvas({
 // src/email/Palette.jsx
 import { Database as Database2 } from "lucide-react";
 import { jsx as jsx8, jsxs as jsxs6 } from "react/jsx-runtime";
-var TILE = "flex items-center gap-2 rounded-lg border border-border bg-card p-2 text-left text-[12.5px] font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+var TILE = "flex items-center gap-2 rounded-lg border border-border bg-card p-2 text-left text-[12.5px] font-medium focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring";
 var Titolo = ({ children }) => /* @__PURE__ */ jsx8("h3", { className: "mb-2 mt-1 text-[11.5px] font-semibold uppercase tracking-wider text-muted-foreground", children });
 function Palette({ catalog, onAdd, onInsertVariable }) {
   const dataBlocks = catalog?.dataBlocks ?? [];
@@ -3192,7 +3192,7 @@ function Palette({ catalog, onAdd, onInsertVariable }) {
           title: `{{${v.name}}}`,
           onMouseDown: (e) => e.preventDefault(),
           onClick: () => onInsertVariable(v.name),
-          className: "rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          className: "rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs hover:border-primary hover:text-primary focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
           children: v.label
         },
         v.name
@@ -3208,7 +3208,7 @@ import { Plus as Plus2 } from "lucide-react";
 // src/atoms/Input.jsx
 import { forwardRef as forwardRef3 } from "react";
 import { jsx as jsx9, jsxs as jsxs7 } from "react/jsx-runtime";
-var CAMPO = "w-full rounded-lg border bg-background text-sm text-foreground placeholder:text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50";
+var CAMPO = "w-full rounded-lg border bg-background text-sm text-foreground placeholder:text-muted-foreground transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50";
 var campoClasses = (invalid) => cn(
   CAMPO,
   // Error wired from outside (Field sets aria-invalid) must look invalid without the prop.
@@ -3480,7 +3480,7 @@ function Select({
           "aria-label": ariaLabel,
           style: listStyle ?? { position: "fixed" },
           onMouseDown: (e) => e.preventDefault(),
-          className: "z-[70] max-h-64 overflow-y-auto rounded-lg border border-border bg-card py-1 shadow-lg",
+          className: "z-70 max-h-64 overflow-y-auto rounded-lg border border-border bg-card py-1 shadow-lg",
           children: entries.map((o, i) => {
             const sel = !o.clear && o.value === value;
             return /* @__PURE__ */ jsxs8(

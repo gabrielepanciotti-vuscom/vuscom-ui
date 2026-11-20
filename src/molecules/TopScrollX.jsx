@@ -70,7 +70,7 @@ export default function TopScrollX({
         role={overflow ? "region" : undefined}
         aria-label={overflow ? ariaLabel : undefined}
         className={cn(
-          "overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+          "overflow-x-auto focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
           className,
         )}
       >

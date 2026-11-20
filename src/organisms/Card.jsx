@@ -5,7 +5,7 @@ export function Card({ className, interactive = false, children, ...props }) {
     <div
       {...props}
       className={cn(
-        "rounded-xl border bg-card text-card-foreground shadow-sm",
+        "rounded-xl border bg-card text-card-foreground shadow-xs",
         interactive &&
           "transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md hover:border-primary/40",
         className,

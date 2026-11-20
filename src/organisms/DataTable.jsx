@@ -160,7 +160,7 @@ export default function DataTable({
                             type="button"
                             onClick={() => toggle(c.key)}
                             className={cn(
-                              "inline-flex items-center gap-1 rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                              "inline-flex items-center gap-1 rounded-sm transition-colors hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
                               JUSTIFY[c.align] || JUSTIFY.left,
                               active && "text-foreground",
                             )}
@@ -205,7 +205,7 @@ export default function DataTable({
                     className={cn(
                       "transition-colors hover:bg-muted/40",
                       onRowClick &&
-                        "cursor-pointer focus-visible:outline-none focus-visible:bg-muted/60 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+                        "cursor-pointer focus-visible:outline-hidden focus-visible:bg-muted/60 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
                     )}
                   >
                     {columns.map((c) => (

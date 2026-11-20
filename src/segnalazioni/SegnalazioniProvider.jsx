@@ -136,7 +136,7 @@ export default function SegnalazioniProvider({
             <div
               data-segnala-ignora
               role="status"
-              className="fixed bottom-6 left-1/2 z-[71] -translate-x-1/2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-muted-foreground shadow-2xl"
+              className="fixed bottom-6 left-1/2 z-71 -translate-x-1/2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-muted-foreground shadow-2xl"
             >
               Preparo lo screenshot…
             </div>

@@ -110,7 +110,7 @@ export default function VediCome({
                 <Check
                   aria-hidden="true"
                   className={cn(
-                    "w-3.5 h-3.5 mt-0.5 flex-shrink-0",
+                    "w-3.5 h-3.5 mt-0.5 shrink-0",
                     selected
                       ? "text-brand-600 dark:text-brand-400"
                       : "text-transparent",

@@ -168,7 +168,7 @@ export default function MatriceCalore({
                 }
                 className={cn(
                   onRigaClick &&
-                    "cursor-pointer hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+                    "cursor-pointer hover:bg-muted/40 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
                 )}
               >
                 <th

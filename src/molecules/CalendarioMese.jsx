@@ -115,10 +115,10 @@ export default function CalendarioMese({
                   onFocus={() => setFuoco(iso)}
                   className={cn(
                     "m-0.5 h-8 rounded-md text-sm tabular-nums transition-colors",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
                     "disabled:pointer-events-none disabled:opacity-30",
                     scelto
-                      ? "bg-primary font-semibold text-primary-foreground shadow-sm"
+                      ? "bg-primary font-semibold text-primary-foreground shadow-xs"
                       : "hover:bg-accent hover:text-accent-foreground",
                     !scelto && altroMese && "text-muted-foreground/60",
                     !scelto && iso === oggi && "font-semibold text-primary",

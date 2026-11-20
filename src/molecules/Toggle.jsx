@@ -35,7 +35,7 @@ export default function Toggle({
         onClick={cambia}
         className={cn(
           "relative mt-0.5 inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors after:absolute after:-inset-3 after:content-['']",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "active:scale-95 disabled:cursor-not-allowed disabled:opacity-50",
           checked
             ? "bg-primary hover:bg-primary/90"
@@ -45,7 +45,7 @@ export default function Toggle({
         <span
           aria-hidden
           className={cn(
-            "inline-block h-4 w-4 rounded-full bg-background shadow transition-transform",
+            "inline-block h-4 w-4 rounded-full bg-background shadow-sm transition-transform",
             checked ? "translate-x-[18px]" : "translate-x-0.5",
           )}
         />

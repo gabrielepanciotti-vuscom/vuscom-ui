@@ -142,3 +142,13 @@ body {
   background: hsl(var(--border));
   border-radius: 9999px;
 }
+/* Tailwind 4 dropped the border-color default (now currentColor): restore the token. Layered so utilities still win. */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: hsl(var(--border));
+  }
+}

@@ -210,7 +210,7 @@ export default function AppShell({
       <div className="flex h-screen bg-app">
         <a
           href={`#${idContenuto}`}
-          className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-[100] focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:ring-2 focus:ring-ring"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-100 focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:ring-2 focus:ring-ring"
         >
           Vai al contenuto
         </a>
@@ -250,10 +250,10 @@ export default function AppShell({
           portaliRichiudibili={portaliRichiudibili}
         />
         <div className="flex min-w-0 flex-1 flex-col">
-          {/* relative z-30: backdrop-blur makes the header a stacking context, so
+          {/* relative z-30: backdrop-blur-sm makes the header a stacking context, so
               its menus (Vedi come…) must sit above sticky z-20 content in main,
               below the mobile sidebar overlay (z-40) and dialogs (z-50). */}
-          <header className="relative z-30 flex h-14 shrink-0 items-center justify-between gap-3 border-b bg-background/80 px-4 backdrop-blur">
+          <header className="relative z-30 flex h-14 shrink-0 items-center justify-between gap-3 border-b bg-background/80 px-4 backdrop-blur-sm">
             <IconButton
               icon={Menu}
               label="Apri menu"
@@ -269,7 +269,7 @@ export default function AppShell({
             ref={mainRef}
             id={idContenuto}
             tabIndex={-1}
-            className="flex-1 overflow-y-auto scrollbar-thin p-4 focus:outline-none md:p-6"
+            className="flex-1 overflow-y-auto scrollbar-thin p-4 focus:outline-hidden md:p-6"
           >
             <div className={cn("mx-auto", WIDTHS[maxWidth] ?? WIDTHS["7xl"])}>
               {children}

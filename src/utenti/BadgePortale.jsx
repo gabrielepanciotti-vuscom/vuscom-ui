@@ -51,7 +51,7 @@ export function AltriPortali({ portali }) {
         type="button"
         aria-expanded={aperto}
         onClick={() => setAperto((a) => !a)}
-        className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600 ring-1 ring-inset ring-slate-200 hover:bg-slate-200/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:bg-white/[0.06] dark:text-slate-300 dark:ring-white/10 dark:hover:bg-white/10"
+        className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600 ring-1 ring-inset ring-slate-200 hover:bg-slate-200/70 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 dark:bg-white/[0.06] dark:text-slate-300 dark:ring-white/10 dark:hover:bg-white/10"
       >
         <Freccia className="h-3 w-3" aria-hidden="true" />
         {portali.length === 1 ? "1 portale" : `${portali.length} portali`}

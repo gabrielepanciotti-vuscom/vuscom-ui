@@ -2501,11 +2501,11 @@ import { forwardRef } from "react";
 import { Loader2 } from "lucide-react";
 import { jsx, jsxs } from "react/jsx-runtime";
 var VARIANTI = {
-  primary: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm",
+  primary: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs",
   secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
   outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
   ghost: "hover:bg-accent hover:text-accent-foreground",
-  destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm",
+  destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-xs",
   link: "text-primary underline-offset-4 hover:underline"
 };
 var TAGLIE = {
@@ -2515,7 +2515,7 @@ var TAGLIE = {
 };
 var buttonClasses = (variant = "primary", size = "md") => cn(
   "inline-flex items-center justify-center rounded-lg font-medium transition-all duration-150",
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+  "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   "active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50",
   VARIANTI[variant],
   TAGLIE[size]
@@ -2727,7 +2727,7 @@ function ToastProvider({ children }) {
   const altri = toasts.filter((t) => t.tone !== "danger");
   return /* @__PURE__ */ jsxs2(ToastContext.Provider, { value, children: [
     children,
-    /* @__PURE__ */ jsxs2("div", { className: "pointer-events-none fixed right-4 top-4 z-[60] flex flex-col", children: [
+    /* @__PURE__ */ jsxs2("div", { className: "pointer-events-none fixed right-4 top-4 z-60 flex flex-col", children: [
       /* @__PURE__ */ jsx3("div", { "aria-live": "assertive", className: "flex flex-col gap-2", children: urgenti.map((t) => /* @__PURE__ */ jsx3(
         ToastItem,
         {
@@ -3162,7 +3162,7 @@ import { forwardRef as forwardRef4 } from "react";
 // src/atoms/Input.jsx
 import { forwardRef as forwardRef3 } from "react";
 import { jsx as jsx4, jsxs as jsxs3 } from "react/jsx-runtime";
-var CAMPO = "w-full rounded-lg border bg-background text-sm text-foreground placeholder:text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50";
+var CAMPO = "w-full rounded-lg border bg-background text-sm text-foreground placeholder:text-muted-foreground transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50";
 var campoClasses = (invalid) => cn(
   CAMPO,
   // Error wired from outside (Field sets aria-invalid) must look invalid without the prop.
@@ -3249,8 +3249,8 @@ function Checkbox({
         disabled,
         onClick: cambia,
         className: cn(
-          "relative flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors after:absolute after:-inset-3 after:content-['']",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          "relative flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border transition-colors after:absolute after:-inset-3 after:content-['']",
+          "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "active:scale-90 disabled:cursor-not-allowed disabled:opacity-50",
           on ? "border-primary bg-primary text-primary-foreground hover:bg-primary/90" : "border-input bg-background hover:border-ring/60"
         ),
@@ -3331,9 +3331,9 @@ function SegmentedControl({
             },
             className: cn(
               "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md font-medium transition-all",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
               SIZE[size] || SIZE.sm,
-              attivo ? "bg-background text-primary shadow" : "text-muted-foreground hover:text-foreground"
+              attivo ? "bg-background text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
             ),
             children: [
               Icon && /* @__PURE__ */ jsx7(Icon, { className: "h-3.5 w-3.5", "aria-hidden": true }),
@@ -3560,7 +3560,7 @@ function Dialog({
           "aria-describedby": description ? descId : void 0,
           tabIndex: -1,
           className: cn(
-            "relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-xl bg-card text-card-foreground shadow-2xl ring-1 ring-black/5 animate-fade-in focus:outline-none dark:ring-white/10",
+            "relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-xl bg-card text-card-foreground shadow-2xl ring-1 ring-black/5 animate-fade-in focus:outline-hidden dark:ring-white/10",
             SIZES[size] ?? SIZES.sm,
             className
           ),
@@ -3854,7 +3854,7 @@ function Kbd({ children, className }) {
     "kbd",
     {
       className: cn(
-        "inline-flex h-5 min-w-[20px] items-center justify-center rounded border border-border bg-muted px-1.5",
+        "inline-flex h-5 min-w-[20px] items-center justify-center rounded-sm border border-border bg-muted px-1.5",
         "font-sans text-[11px] font-medium text-muted-foreground",
         className
       ),
@@ -4005,7 +4005,7 @@ function SelettoreElemento({ onScegli, onAnnulla }) {
         "div",
         {
           "aria-hidden": true,
-          className: "pointer-events-none fixed z-[70] rounded-md bg-primary/10 ring-2 ring-primary transition-all duration-75",
+          className: "pointer-events-none fixed z-70 rounded-md bg-primary/10 ring-2 ring-primary transition-all duration-75",
           style: {
             top: riquadro.top - 2,
             left: riquadro.left - 2,
@@ -4019,7 +4019,7 @@ function SelettoreElemento({ onScegli, onAnnulla }) {
         {
           role: "toolbar",
           "aria-label": "Scegli l'elemento da segnalare",
-          className: "fixed bottom-6 left-1/2 z-[71] flex max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-wrap items-center gap-3 rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-card-foreground shadow-2xl ring-1 ring-black/5 animate-fade-in dark:ring-white/10",
+          className: "fixed bottom-6 left-1/2 z-71 flex max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-wrap items-center gap-3 rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-card-foreground shadow-2xl ring-1 ring-black/5 animate-fade-in dark:ring-white/10",
           children: [
             /* @__PURE__ */ jsxs10("span", { className: "flex items-center gap-2 font-medium", children: [
               /* @__PURE__ */ jsx13(Crosshair, { className: "h-4 w-4 text-primary", "aria-hidden": true }),
@@ -4376,7 +4376,7 @@ function SegnalazioniProvider({
         {
           "data-segnala-ignora": true,
           role: "status",
-          className: "fixed bottom-6 left-1/2 z-[71] -translate-x-1/2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-muted-foreground shadow-2xl",
+          className: "fixed bottom-6 left-1/2 z-71 -translate-x-1/2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-muted-foreground shadow-2xl",
           children: "Preparo lo screenshot\u2026"
         }
       ),

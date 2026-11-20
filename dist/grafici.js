@@ -2528,7 +2528,7 @@ function Card({ className, interactive = false, children, ...props }) {
     {
       ...props,
       className: cn(
-        "rounded-xl border bg-card text-card-foreground shadow-sm",
+        "rounded-xl border bg-card text-card-foreground shadow-xs",
         interactive && "transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md hover:border-primary/40",
         className
       ),
@@ -2973,11 +2973,11 @@ import { forwardRef } from "react";
 import { Loader2 } from "lucide-react";
 import { jsx as jsx5, jsxs as jsxs5 } from "react/jsx-runtime";
 var VARIANTI = {
-  primary: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm",
+  primary: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs",
   secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
   outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
   ghost: "hover:bg-accent hover:text-accent-foreground",
-  destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm",
+  destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-xs",
   link: "text-primary underline-offset-4 hover:underline"
 };
 var TAGLIE = {
@@ -2987,7 +2987,7 @@ var TAGLIE = {
 };
 var buttonClasses = (variant = "primary", size = "md") => cn(
   "inline-flex items-center justify-center rounded-lg font-medium transition-all duration-150",
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+  "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   "active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50",
   VARIANTI[variant],
   TAGLIE[size]
@@ -3224,7 +3224,7 @@ var isoGiorno = (d) => `${d.getUTCFullYear()}-${due2(d.getUTCMonth() + 1)}-${due
 // src/atoms/Input.jsx
 import { forwardRef as forwardRef3 } from "react";
 import { jsx as jsx10, jsxs as jsxs9 } from "react/jsx-runtime";
-var CAMPO = "w-full rounded-lg border bg-background text-sm text-foreground placeholder:text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50";
+var CAMPO = "w-full rounded-lg border bg-background text-sm text-foreground placeholder:text-muted-foreground transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50";
 var campoClasses = (invalid) => cn(
   CAMPO,
   // Error wired from outside (Field sets aria-invalid) must look invalid without the prop.
@@ -3351,9 +3351,9 @@ function CalendarioMese({
             onFocus: () => setFuoco(iso),
             className: cn(
               "m-0.5 h-8 rounded-md text-sm tabular-nums transition-colors",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
               "disabled:pointer-events-none disabled:opacity-30",
-              scelto ? "bg-primary font-semibold text-primary-foreground shadow-sm" : "hover:bg-accent hover:text-accent-foreground",
+              scelto ? "bg-primary font-semibold text-primary-foreground shadow-xs" : "hover:bg-accent hover:text-accent-foreground",
               !scelto && altroMese && "text-muted-foreground/60",
               !scelto && iso === oggi && "font-semibold text-primary"
             ),
@@ -3555,9 +3555,9 @@ function SegmentedControl({
             },
             className: cn(
               "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md font-medium transition-all",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
               SIZE[size] || SIZE.sm,
-              attivo ? "bg-background text-primary shadow" : "text-muted-foreground hover:text-foreground"
+              attivo ? "bg-background text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
             ),
             children: [
               Icon && /* @__PURE__ */ jsx13(Icon, { className: "h-3.5 w-3.5", "aria-hidden": true }),
@@ -3694,7 +3694,7 @@ function Tabs({
       role: "tablist",
       "aria-label": ariaLabel,
       className: cn(
-        "flex gap-6 overflow-x-auto overflow-y-hidden border-b border-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        "flex gap-6 overflow-x-auto overflow-y-hidden border-b border-border scrollbar-none [&::-webkit-scrollbar]:hidden",
         className
       ),
       children: items.map((t, i) => {
@@ -3957,7 +3957,7 @@ function Toggle({
         onClick: cambia,
         className: cn(
           "relative mt-0.5 inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors after:absolute after:-inset-3 after:content-['']",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "active:scale-95 disabled:cursor-not-allowed disabled:opacity-50",
           checked ? "bg-primary hover:bg-primary/90" : "bg-muted-foreground/30 hover:bg-muted-foreground/40"
         ),
@@ -3966,7 +3966,7 @@ function Toggle({
           {
             "aria-hidden": true,
             className: cn(
-              "inline-block h-4 w-4 rounded-full bg-background shadow transition-transform",
+              "inline-block h-4 w-4 rounded-full bg-background shadow-sm transition-transform",
               checked ? "translate-x-[18px]" : "translate-x-0.5"
             )
           }
@@ -4062,7 +4062,7 @@ function TopScrollX({
         role: overflow ? "region" : void 0,
         "aria-label": overflow ? ariaLabel : void 0,
         className: cn(
-          "overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+          "overflow-x-auto focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
           className
         ),
         children
@@ -4257,7 +4257,7 @@ function DataTableCards({
       } : void 0,
       className: cn(
         "p-4",
-        onRowClick && "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        onRowClick && "cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       ),
       children: /* @__PURE__ */ jsx25("dl", { className: "space-y-2", children: columns.map((colonna) => /* @__PURE__ */ jsxs23("div", { className: "grid grid-cols-2 gap-3 text-sm", children: [
         /* @__PURE__ */ jsx25("dt", { className: "text-muted-foreground", children: colonna.header }),
@@ -4361,7 +4361,7 @@ function DataTable({
                       type: "button",
                       onClick: () => toggle(c.key),
                       className: cn(
-                        "inline-flex items-center gap-1 rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        "inline-flex items-center gap-1 rounded-sm transition-colors hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
                         JUSTIFY[c.align] || JUSTIFY.left,
                         active && "text-foreground"
                       ),
@@ -4390,7 +4390,7 @@ function DataTable({
                 } : void 0,
                 className: cn(
                   "transition-colors hover:bg-muted/40",
-                  onRowClick && "cursor-pointer focus-visible:outline-none focus-visible:bg-muted/60 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                  onRowClick && "cursor-pointer focus-visible:outline-hidden focus-visible:bg-muted/60 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                 ),
                 children: columns.map((c) => /* @__PURE__ */ jsx26(
                   "td",
@@ -4788,7 +4788,7 @@ function InfoTip({
     {
       type: "button",
       "aria-label": label,
-      className: "inline-flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+      className: "inline-flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
       children: /* @__PURE__ */ jsx29(HelpCircle, { className: "h-4 w-4", "aria-hidden": true })
     }
   ) });
@@ -4967,7 +4967,7 @@ function MatriceCalore({
             }
           } : void 0,
           className: cn(
-            onRigaClick && "cursor-pointer hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+            onRigaClick && "cursor-pointer hover:bg-muted/40 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
           ),
           children: [
             /* @__PURE__ */ jsx31(

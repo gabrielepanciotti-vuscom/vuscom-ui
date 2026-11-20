@@ -160,7 +160,7 @@ export default function AppSidebar({
       >
         {Icon && (
           <Icon
-            className={`w-4 h-4 flex-shrink-0 ${active ? "text-brand-600 dark:text-brand-400" : "text-slate-400 dark:text-slate-600"}`}
+            className={`w-4 h-4 shrink-0 ${active ? "text-brand-600 dark:text-brand-400" : "text-slate-400 dark:text-slate-600"}`}
           />
         )}
         {!isCollapsed && <span className="truncate">{item.label}</span>}
@@ -244,7 +244,7 @@ export default function AppSidebar({
         >
           {Icon && (
             <Icon
-              className={`w-4 h-4 flex-shrink-0 ${groupActive ? "text-brand-600 dark:text-brand-400" : "text-slate-400 dark:text-slate-600"}`}
+              className={`w-4 h-4 shrink-0 ${groupActive ? "text-brand-600 dark:text-brand-400" : "text-slate-400 dark:text-slate-600"}`}
             />
           )}
           <span className="flex-1 text-left truncate">{group.label}</span>
@@ -280,7 +280,7 @@ export default function AppSidebar({
 
   const buildSidebar = (isCollapsed, showCollapseButton) => (
     <div
-      className={`flex flex-col h-full bg-white dark:bg-gradient-to-b dark:from-slate-900 dark:to-slate-800 border-r border-gray-200 dark:border-white/[0.06] shadow-[2px_0_12px_rgba(0,0,0,0.04)] dark:shadow-none transition-[width] duration-200 ease-out ${
+      className={`flex flex-col h-full bg-white dark:bg-linear-to-b dark:from-slate-900 dark:to-slate-800 border-r border-gray-200 dark:border-white/[0.06] shadow-[2px_0_12px_rgba(0,0,0,0.04)] dark:shadow-none transition-[width] duration-200 ease-out ${
         isCollapsed ? "w-[60px]" : "w-60"
       }`}
     >
@@ -290,7 +290,7 @@ export default function AppSidebar({
         }`}
       >
         {/* No appIcon = the official V: a portal never shows a home-made logo. */}
-        <div className="flex-shrink-0">{appIcon ?? <LogoV portale={iconaPortale} />}</div>
+        <div className="shrink-0">{appIcon ?? <LogoV portale={iconaPortale} />}</div>
         {!isCollapsed && (
           <div className="flex-1 min-w-0">
             <div className="text-slate-900 dark:text-slate-100 text-[13px] font-bold leading-tight truncate">
@@ -312,7 +312,7 @@ export default function AppSidebar({
             // a filled primary button, not a grey icon lost in the header.
             className={
               isCollapsed
-                ? "flex items-center justify-center w-9 h-9 rounded-lg bg-primary text-primary-foreground shadow-md ring-2 ring-primary/25 hover:brightness-110 hover:shadow-lg active:scale-95 focus-visible:outline-none focus-visible:ring-4 transition-all"
+                ? "flex items-center justify-center w-9 h-9 rounded-lg bg-primary text-primary-foreground shadow-md ring-2 ring-primary/25 hover:brightness-110 hover:shadow-lg active:scale-95 focus-visible:outline-hidden focus-visible:ring-4 transition-all"
                 : "flex items-center justify-center w-7 h-7 rounded-md text-slate-400 dark:text-slate-500 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
             }
             title={isCollapsed ? "Espandi menu" : "Comprimi menu"}
@@ -384,7 +384,7 @@ export default function AppSidebar({
             }`}
             title={isCollapsed ? user?.username : undefined}
           >
-            <div className="w-[30px] h-[30px] bg-brand-50 dark:bg-brand-500/[0.15] rounded-full flex items-center justify-center flex-shrink-0">
+            <div className="w-[30px] h-[30px] bg-brand-50 dark:bg-brand-500/[0.15] rounded-full flex items-center justify-center shrink-0">
               <span className="text-brand-600 dark:text-brand-400 text-[11px] font-semibold">
                 {user?.initials ||
                   user?.username?.substring(0, 2).toUpperCase() ||
@@ -401,14 +401,14 @@ export default function AppSidebar({
                     {user?.ruolo}
                   </div>
                 </div>
-                <div className="w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0" />
+                <div className="w-1.5 h-1.5 bg-green-500 rounded-full shrink-0" />
               </>
             )}
           </button>
 
           {showUserMenu && (
             <div
-              className={`absolute bottom-full mb-2 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-gray-200 dark:border-white/10 z-[9999] py-1 ${
+              className={`absolute bottom-full mb-2 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-gray-200 dark:border-white/10 z-9999 py-1 ${
                 isCollapsed ? "left-full ml-2 w-48" : "left-0 w-full"
               }`}
             >
@@ -461,7 +461,7 @@ export default function AppSidebar({
 
   return (
     <>
-      <aside className="hidden md:flex flex-shrink-0">
+      <aside className="hidden md:flex shrink-0">
         {buildSidebar(collapsed, true)}
       </aside>
 

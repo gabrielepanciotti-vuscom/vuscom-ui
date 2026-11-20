@@ -17,13 +17,13 @@ export default function ThemeToggle({ className }) {
         "relative h-6 w-11 shrink-0 rounded-full transition-colors duration-200",
         "bg-slate-200 hover:bg-slate-300 active:bg-slate-400/70",
         "dark:bg-brand-600 dark:hover:bg-brand-500 dark:active:bg-brand-700",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        "focus:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         className,
       )}
     >
       <span
         className={cn(
-          "absolute top-0.5 flex h-5 w-5 items-center justify-center rounded-full shadow-sm transition-all duration-200",
+          "absolute top-0.5 flex h-5 w-5 items-center justify-center rounded-full shadow-xs transition-all duration-200",
           dark ? "left-[22px] bg-brand-950" : "left-0.5 bg-white",
         )}
       >

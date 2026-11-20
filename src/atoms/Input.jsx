@@ -3,7 +3,7 @@ import { cn } from "../lib/cn.js";
 
 export const CAMPO =
   "w-full rounded-lg border bg-background text-sm text-foreground placeholder:text-muted-foreground " +
-  "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 " +
+  "transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-0 " +
   "disabled:cursor-not-allowed disabled:opacity-50";
 
 export const campoClasses = (invalid) =>

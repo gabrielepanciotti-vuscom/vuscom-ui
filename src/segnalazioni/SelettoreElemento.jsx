@@ -156,7 +156,7 @@ export default function SelettoreElemento({ onScegli, onAnnulla }) {
       {riquadro && (
         <div
           aria-hidden
-          className="pointer-events-none fixed z-[70] rounded-md bg-primary/10 ring-2 ring-primary transition-all duration-75"
+          className="pointer-events-none fixed z-70 rounded-md bg-primary/10 ring-2 ring-primary transition-all duration-75"
           style={{
             top: riquadro.top - 2,
             left: riquadro.left - 2,
@@ -168,7 +168,7 @@ export default function SelettoreElemento({ onScegli, onAnnulla }) {
       <div
         role="toolbar"
         aria-label="Scegli l'elemento da segnalare"
-        className="fixed bottom-6 left-1/2 z-[71] flex max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-wrap items-center gap-3 rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-card-foreground shadow-2xl ring-1 ring-black/5 animate-fade-in dark:ring-white/10"
+        className="fixed bottom-6 left-1/2 z-71 flex max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-wrap items-center gap-3 rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-card-foreground shadow-2xl ring-1 ring-black/5 animate-fade-in dark:ring-white/10"
       >
         <span className="flex items-center gap-2 font-medium">
           <Crosshair className="h-4 w-4 text-primary" aria-hidden />

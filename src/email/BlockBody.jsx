@@ -70,7 +70,7 @@ export default function BlockBody({ block, onPatch, catalog, preview, sourceLabe
       <div className="py-1.5">
         <div
           style={{ width: block.width }}
-          className="flex h-11 max-w-full items-center justify-center rounded-md bg-gradient-to-r from-blue-900 to-blue-600 font-bold tracking-widest text-white"
+          className="flex h-11 max-w-full items-center justify-center rounded-md bg-linear-to-r from-blue-900 to-blue-600 font-bold tracking-widest text-white"
         >
           VUS COM
         </div>
@@ -79,8 +79,8 @@ export default function BlockBody({ block, onPatch, catalog, preview, sourceLabe
 
   if (type === "footer")
     return (
-      <div className="rounded border border-slate-200 bg-slate-50 p-2.5 text-xs text-slate-600">
-        <div className="mb-1.5 inline-block rounded bg-gradient-to-r from-blue-900 to-blue-600 px-2 py-0.5 text-[10px] font-bold tracking-widest text-white">
+      <div className="rounded-sm border border-slate-200 bg-slate-50 p-2.5 text-xs text-slate-600">
+        <div className="mb-1.5 inline-block rounded-sm bg-linear-to-r from-blue-900 to-blue-600 px-2 py-0.5 text-[10px] font-bold tracking-widest text-white">
           VUS COM
         </div>
         <Editable rich aria-label="Piè di pagina" value={block.html} onChange={(html) => onPatch({ html })} />
@@ -92,7 +92,7 @@ export default function BlockBody({ block, onPatch, catalog, preview, sourceLabe
 
   if (type === "code")
     return (
-      <pre className="my-1 whitespace-pre-wrap break-words rounded border border-slate-200 bg-slate-100 p-2.5 font-mono text-xs text-slate-800">
+      <pre className="my-1 whitespace-pre-wrap wrap-break-word rounded-sm border border-slate-200 bg-slate-100 p-2.5 font-mono text-xs text-slate-800">
         {block.text || "Dettaglio tecnico (errore, log)"}
       </pre>
     );
@@ -119,7 +119,7 @@ export default function BlockBody({ block, onPatch, catalog, preview, sourceLabe
     return (
       <div>
         <p className="mb-1 text-xs text-amber-700">Blocco HTML da un template vecchio</p>
-        <iframe title="Anteprima del blocco HTML" sandbox="" srcDoc={block.html} className="h-40 w-full rounded border border-slate-200 bg-white" />
+        <iframe title="Anteprima del blocco HTML" sandbox="" srcDoc={block.html} className="h-40 w-full rounded-sm border border-slate-200 bg-white" />
       </div>
     );
 

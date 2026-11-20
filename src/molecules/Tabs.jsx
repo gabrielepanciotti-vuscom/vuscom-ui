@@ -61,7 +61,7 @@ export default function Tabs({
       role="tablist"
       aria-label={ariaLabel}
       className={cn(
-        "flex gap-6 overflow-x-auto overflow-y-hidden border-b border-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        "flex gap-6 overflow-x-auto overflow-y-hidden border-b border-border scrollbar-none [&::-webkit-scrollbar]:hidden",
         className,
       )}
     >

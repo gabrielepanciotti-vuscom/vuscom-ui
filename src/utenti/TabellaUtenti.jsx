@@ -37,7 +37,7 @@ function RigaScheletro() {
     <tr className="animate-pulse">
       {COLONNE.map((c, i) => (
         <td key={i} className={CELLA}>
-          <div className="h-3.5 rounded bg-slate-100 dark:bg-white/[0.06]" style={{ width: `${50 + ((i * 17) % 40)}%` }} />
+          <div className="h-3.5 rounded-sm bg-slate-100 dark:bg-white/[0.06]" style={{ width: `${50 + ((i * 17) % 40)}%` }} />
         </td>
       ))}
     </tr>

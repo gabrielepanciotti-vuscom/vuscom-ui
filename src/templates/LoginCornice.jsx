@@ -10,7 +10,7 @@ export default function LoginCornice({
   children,
 }) {
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-50 to-brand-100 px-4 dark:from-slate-900 dark:to-slate-800">
+    <div className="relative flex min-h-screen items-center justify-center bg-linear-to-br from-brand-50 to-brand-100 px-4 dark:from-slate-900 dark:to-slate-800">
       <div className="absolute right-4 top-4">
         <ThemeToggle />
       </div>

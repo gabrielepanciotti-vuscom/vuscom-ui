@@ -31,8 +31,8 @@ export default function Checkbox({
         disabled={disabled}
         onClick={cambia}
         className={cn(
-          "relative flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors after:absolute after:-inset-3 after:content-['']",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          "relative flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border transition-colors after:absolute after:-inset-3 after:content-['']",
+          "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "active:scale-90 disabled:cursor-not-allowed disabled:opacity-50",
           on
             ? "border-primary bg-primary text-primary-foreground hover:bg-primary/90"

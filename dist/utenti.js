@@ -76,7 +76,7 @@ function AltriPortali({ portali }) {
         type: "button",
         "aria-expanded": aperto,
         onClick: () => setAperto((a) => !a),
-        className: "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600 ring-1 ring-inset ring-slate-200 hover:bg-slate-200/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:bg-white/[0.06] dark:text-slate-300 dark:ring-white/10 dark:hover:bg-white/10",
+        className: "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600 ring-1 ring-inset ring-slate-200 hover:bg-slate-200/70 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500 dark:bg-white/[0.06] dark:text-slate-300 dark:ring-white/10 dark:hover:bg-white/10",
         children: [
           /* @__PURE__ */ jsx(Freccia, { className: "h-3 w-3", "aria-hidden": "true" }),
           portali.length === 1 ? "1 portale" : `${portali.length} portali`
@@ -88,14 +88,14 @@ function AltriPortali({ portali }) {
 }
 
 // src/utenti/stili.js
-var base = "inline-flex items-center justify-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-medium transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]";
+var base = "inline-flex items-center justify-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-medium transition-all duration-150 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500/60 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]";
 var BOTTONE = {
-  primario: `${base} bg-brand-600 text-white shadow-sm hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400`,
+  primario: `${base} bg-brand-600 text-white shadow-xs hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400`,
   secondario: `${base} border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:bg-white/[0.08]`,
-  pericolo: `${base} bg-red-600 text-white shadow-sm hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-400`
+  pericolo: `${base} bg-red-600 text-white shadow-xs hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-400`
 };
-var ICONA_AZIONE = "inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 dark:text-slate-500 dark:hover:bg-white/[0.06] dark:hover:text-slate-200";
-var INPUT = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-[13px] text-slate-800 placeholder:text-slate-400 transition-colors focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-white/10 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-brand-400";
+var ICONA_AZIONE = "inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500/60 dark:text-slate-500 dark:hover:bg-white/[0.06] dark:hover:text-slate-200";
+var INPUT = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-[13px] text-slate-800 placeholder:text-slate-400 transition-colors focus:border-brand-500 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 dark:border-white/10 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-brand-400";
 var ETICHETTA = "mb-1 block text-[12px] font-medium text-slate-600 dark:text-slate-300";
 
 // src/utenti/formato.js
@@ -2681,7 +2681,7 @@ function TopScrollX({
         role: overflow ? "region" : void 0,
         "aria-label": overflow ? ariaLabel : void 0,
         className: cn(
-          "overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+          "overflow-x-auto focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
           className
         ),
         children
@@ -2714,7 +2714,7 @@ function Stato({ attivo }) {
   ] });
 }
 function RigaScheletro() {
-  return /* @__PURE__ */ jsx4("tr", { className: "animate-pulse", children: COLONNE.map((c, i) => /* @__PURE__ */ jsx4("td", { className: CELLA, children: /* @__PURE__ */ jsx4("div", { className: "h-3.5 rounded bg-slate-100 dark:bg-white/[0.06]", style: { width: `${50 + i * 17 % 40}%` } }) }, i)) });
+  return /* @__PURE__ */ jsx4("tr", { className: "animate-pulse", children: COLONNE.map((c, i) => /* @__PURE__ */ jsx4("td", { className: CELLA, children: /* @__PURE__ */ jsx4("div", { className: "h-3.5 rounded-sm bg-slate-100 dark:bg-white/[0.06]", style: { width: `${50 + i * 17 % 40}%` } }) }, i)) });
 }
 function TabellaUtenti({ utenti, caricando, attore, onAzione }) {
   const adminPlus = livello(attore?.ruolo) >= LIVELLO.admin;
@@ -2771,16 +2771,16 @@ function Interruttore({
       "aria-checked": attivo,
       disabled: disabilitato,
       onClick: () => onCambia(!attivo),
-      className: "group inline-flex items-center gap-2 text-[13px] text-slate-600 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-300",
+      className: "group inline-flex items-center gap-2 text-[13px] text-slate-600 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-300",
       children: [
         /* @__PURE__ */ jsx5(
           "span",
           {
-            className: `relative inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full transition-colors duration-200 group-focus-visible:ring-2 group-focus-visible:ring-brand-500/60 ${attivo ? "bg-brand-600 dark:bg-brand-500" : "bg-slate-300 dark:bg-white/15"}`,
+            className: `relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors duration-200 group-focus-visible:ring-2 group-focus-visible:ring-brand-500/60 ${attivo ? "bg-brand-600 dark:bg-brand-500" : "bg-slate-300 dark:bg-white/15"}`,
             children: /* @__PURE__ */ jsx5(
               "span",
               {
-                className: `inline-block h-4 w-4 rounded-full bg-white shadow transition-transform duration-200 ${attivo ? "translate-x-[18px]" : "translate-x-0.5"}`
+                className: `inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ${attivo ? "translate-x-[18px]" : "translate-x-0.5"}`
               }
             )
           }
@@ -2858,7 +2858,7 @@ function Finestra({ titolo, onChiudi, children, piede, larghezza = "max-w-lg", b
             "aria-modal": "true",
             "aria-labelledby": idTitolo,
             tabIndex: -1,
-            className: `relative flex max-h-[90vh] w-full ${larghezza} flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl focus:outline-none dark:border-white/10 dark:bg-slate-900`,
+            className: `relative flex max-h-[90vh] w-full ${larghezza} flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl focus:outline-hidden dark:border-white/10 dark:bg-slate-900`,
             children: [
               /* @__PURE__ */ jsxs6("div", { className: "flex items-center justify-between border-b border-slate-100 px-5 py-3.5 dark:border-white/[0.06]", children: [
                 /* @__PURE__ */ jsx6("h2", { id: idTitolo, className: "text-[15px] font-semibold text-slate-800 dark:text-slate-100", children: titolo }),
@@ -2916,7 +2916,7 @@ function SelettoreRuolo({ ruoli, valore, onCambia, etichetta = "Ruolo" }) {
               tabIndex: scelto || !valore && i === 0 ? 0 : -1,
               onClick: () => onCambia(r2),
               onKeyDown: (e) => tasto(e, i),
-              className: `rounded-md px-3 py-1.5 text-[12.5px] font-medium capitalize transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 ${scelto ? "bg-white text-brand-700 shadow-sm dark:bg-slate-800 dark:text-brand-300" : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"}`,
+              className: `rounded-md px-3 py-1.5 text-[12.5px] font-medium capitalize transition-all duration-150 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500/60 ${scelto ? "bg-white text-brand-700 shadow-xs dark:bg-slate-800 dark:text-brand-300" : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"}`,
               children: etichettaRuolo(r2)
             },
             r2
@@ -3034,7 +3034,7 @@ function MessaggioErrore({ children }) {
       role: "alert",
       className: "flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12.5px] text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300",
       children: [
-        /* @__PURE__ */ jsx9(AlertCircle, { className: "mt-0.5 h-4 w-4 flex-shrink-0" }),
+        /* @__PURE__ */ jsx9(AlertCircle, { className: "mt-0.5 h-4 w-4 shrink-0" }),
         /* @__PURE__ */ jsx9("span", { children })
       ]
     }
@@ -3042,7 +3042,7 @@ function MessaggioErrore({ children }) {
 }
 function Nota({ children }) {
   return /* @__PURE__ */ jsxs9("div", { className: "flex items-start gap-2 rounded-lg bg-slate-50 px-3 py-2 text-[12px] text-slate-600 dark:bg-white/[0.04] dark:text-slate-400", children: [
-    /* @__PURE__ */ jsx9(Info, { className: "mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-slate-400 dark:text-slate-500" }),
+    /* @__PURE__ */ jsx9(Info, { className: "mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-slate-500" }),
     /* @__PURE__ */ jsx9("span", { children })
   ] });
 }
@@ -3370,7 +3370,7 @@ function Risultato({ utente, scelto, onScegli }) {
       type: "button",
       "aria-pressed": scelto,
       onClick: onScegli,
-      className: `flex w-full items-start gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 ${scelto ? "border-brand-400 bg-brand-50 dark:border-brand-400/60 dark:bg-brand-500/10" : "border-slate-200 hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/[0.04]"}`,
+      className: `flex w-full items-start gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500/60 ${scelto ? "border-brand-400 bg-brand-50 dark:border-brand-400/60 dark:bg-brand-500/10" : "border-slate-200 hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/[0.04]"}`,
       children: [
         /* @__PURE__ */ jsxs12("span", { className: "min-w-0 flex-1 space-y-1", children: [
           /* @__PURE__ */ jsx12("span", { className: "block text-[13px] font-medium text-slate-800 dark:text-slate-100", children: nomeCompleto(utente) }),
@@ -3380,7 +3380,7 @@ function Risultato({ utente, scelto, onScegli }) {
           ] }),
           /* @__PURE__ */ jsx12(ElencoPortali, { portali: utente.altri_portali })
         ] }),
-        scelto && /* @__PURE__ */ jsx12(Check2, { className: "mt-0.5 h-4 w-4 flex-shrink-0 text-brand-600 dark:text-brand-400" })
+        scelto && /* @__PURE__ */ jsx12(Check2, { className: "mt-0.5 h-4 w-4 shrink-0 text-brand-600 dark:text-brand-400" })
       ]
     }
   ) });

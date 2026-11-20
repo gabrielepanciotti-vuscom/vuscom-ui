@@ -6,7 +6,7 @@ const TONES = ["bad", "warn", "muted"];
 const SAFE_HREF = /^(https?:\/\/|mailto:)|^\{\{\s*\w+\s*\}\}$/i;
 const VAR_RE = /\{\{\s*(\w+)\s*\}\}/g;
 const CHIP_CLASS =
-  "mx-0.5 inline-flex items-center rounded bg-blue-100 px-1.5 text-xs font-semibold text-blue-800 select-none";
+  "mx-0.5 inline-flex items-center rounded-sm bg-blue-100 px-1.5 text-xs font-semibold text-blue-800 select-none";
 
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const escAttr = (s) => esc(s).replace(/"/g, "&quot;");

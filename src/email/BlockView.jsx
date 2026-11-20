@@ -35,7 +35,7 @@ export default function BlockView({
       onDrop={(e) => drop(e, block.id)}
       onDragEnd={dragEnd}
       className={cn(
-        "group relative -mx-1.5 my-0.5 rounded-md border px-1.5 py-1 outline-none",
+        "group relative -mx-1.5 my-0.5 rounded-md border px-1.5 py-1 outline-hidden",
         "focus-visible:ring-2 focus-visible:ring-blue-500",
         selected ? "border-blue-600 shadow-[0_0_0_3px_rgb(37_99_235/0.15)]" : "border-dashed border-transparent hover:border-slate-300",
         over && "border-t-4 border-t-blue-600",
@@ -43,7 +43,7 @@ export default function BlockView({
     >
       <div
         className={cn(
-          "absolute -top-4 right-1 z-10 gap-0.5 rounded-md border border-border bg-card p-0.5 text-foreground shadow-sm",
+          "absolute -top-4 right-1 z-10 gap-0.5 rounded-md border border-border bg-card p-0.5 text-foreground shadow-xs",
           selected ? "flex" : "hidden group-focus-within:flex group-hover:flex",
         )}
       >

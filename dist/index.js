@@ -245,7 +245,7 @@ function PulsanteGuida({ guida, compressa = false }) {
   if (!guida) return null;
   const { href, label = "Guida" } = typeof guida === "string" ? { href: guida } : guida;
   const esterna = /^https?:\/\//.test(href);
-  const className = compressa ? "flex items-center justify-center w-9 h-9 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-800 dark:hover:text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors" : "flex items-center justify-center w-7 h-7 rounded-md text-slate-400 dark:text-slate-500 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors";
+  const className = compressa ? "flex items-center justify-center w-9 h-9 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-800 dark:hover:text-slate-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring transition-colors" : "flex items-center justify-center w-7 h-7 rounded-md text-slate-400 dark:text-slate-500 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-slate-300 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring transition-colors";
   const icona = /* @__PURE__ */ jsx2(BookOpen, { className: compressa ? "w-5 h-5" : "w-4 h-4", "aria-hidden": true });
   const comuni = { className, title: label, "aria-label": label };
   return esterna ? /* @__PURE__ */ jsx2("a", { href, target: "_blank", rel: "noreferrer", ...comuni, children: icona }) : /* @__PURE__ */ jsx2(Link, { to: href, ...comuni, children: icona });
@@ -366,7 +366,7 @@ function PortaliSidebar({
           href: p.url,
           title: p.nome,
           "aria-label": `Apri ${p.nome}`,
-          className: "rounded-[9px] transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          className: "rounded-[9px] transition-transform hover:scale-105 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
           children: /* @__PURE__ */ jsx3(LogoV, { portale: p.codice, size: 26 })
         },
         p.codice
@@ -383,7 +383,7 @@ function PortaliSidebar({
           "aria-expanded": aperto,
           "aria-label": aperto ? "Nascondi altri portali" : "Mostra altri portali",
           title: aperto ? "Nascondi altri portali" : "Mostra altri portali",
-          className: "flex items-center justify-center rounded-md p-1 text-slate-400 dark:text-slate-500 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-slate-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          className: "flex items-center justify-center rounded-md p-1 text-slate-400 dark:text-slate-500 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-slate-300 transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
           children: /* @__PURE__ */ jsx3(LayoutGrid, { className: "w-4 h-4" })
         }
       ),
@@ -397,7 +397,7 @@ function PortaliSidebar({
         type: "button",
         onClick: toggle,
         "aria-expanded": aperto,
-        className: "w-full mb-1.5 flex items-center justify-between gap-1 text-[10px] uppercase tracking-wide text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm",
+        className: "w-full mb-1.5 flex items-center justify-between gap-1 text-[10px] uppercase tracking-wide text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400 transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring rounded-sm",
         children: [
           /* @__PURE__ */ jsx3("span", { children: "Altri portali" }),
           /* @__PURE__ */ jsx3(
@@ -510,7 +510,7 @@ function AppSidebar({
           Icon && /* @__PURE__ */ jsx5(
             Icon,
             {
-              className: `w-4 h-4 flex-shrink-0 ${active ? "text-brand-600 dark:text-brand-400" : "text-slate-400 dark:text-slate-600"}`
+              className: `w-4 h-4 shrink-0 ${active ? "text-brand-600 dark:text-brand-400" : "text-slate-400 dark:text-slate-600"}`
             }
           ),
           !isCollapsed && /* @__PURE__ */ jsx5("span", { className: "truncate", children: item.label }),
@@ -584,7 +584,7 @@ function AppSidebar({
             Icon && /* @__PURE__ */ jsx5(
               Icon,
               {
-                className: `w-4 h-4 flex-shrink-0 ${groupActive ? "text-brand-600 dark:text-brand-400" : "text-slate-400 dark:text-slate-600"}`
+                className: `w-4 h-4 shrink-0 ${groupActive ? "text-brand-600 dark:text-brand-400" : "text-slate-400 dark:text-slate-600"}`
               }
             ),
             /* @__PURE__ */ jsx5("span", { className: "flex-1 text-left truncate", children: group.label }),
@@ -617,14 +617,14 @@ function AppSidebar({
   const buildSidebar = (isCollapsed, showCollapseButton) => /* @__PURE__ */ jsxs4(
     "div",
     {
-      className: `flex flex-col h-full bg-white dark:bg-gradient-to-b dark:from-slate-900 dark:to-slate-800 border-r border-gray-200 dark:border-white/[0.06] shadow-[2px_0_12px_rgba(0,0,0,0.04)] dark:shadow-none transition-[width] duration-200 ease-out ${isCollapsed ? "w-[60px]" : "w-60"}`,
+      className: `flex flex-col h-full bg-white dark:bg-linear-to-b dark:from-slate-900 dark:to-slate-800 border-r border-gray-200 dark:border-white/[0.06] shadow-[2px_0_12px_rgba(0,0,0,0.04)] dark:shadow-none transition-[width] duration-200 ease-out ${isCollapsed ? "w-[60px]" : "w-60"}`,
       children: [
         /* @__PURE__ */ jsxs4(
           "div",
           {
             className: `flex items-center border-b border-gray-100 dark:border-white/[0.06] ${isCollapsed ? "flex-col gap-2 py-3 px-2" : "gap-2.5 px-4 pt-5 pb-4"}`,
             children: [
-              /* @__PURE__ */ jsx5("div", { className: "flex-shrink-0", children: appIcon ?? /* @__PURE__ */ jsx5(LogoV, { portale: iconaPortale }) }),
+              /* @__PURE__ */ jsx5("div", { className: "shrink-0", children: appIcon ?? /* @__PURE__ */ jsx5(LogoV, { portale: iconaPortale }) }),
               !isCollapsed && /* @__PURE__ */ jsxs4("div", { className: "flex-1 min-w-0", children: [
                 /* @__PURE__ */ jsx5("div", { className: "text-slate-900 dark:text-slate-100 text-[13px] font-bold leading-tight truncate", children: appName }),
                 appSubtitle && /* @__PURE__ */ jsx5("div", { className: "text-slate-500 dark:text-slate-400 text-[11px] tracking-wide truncate", children: appSubtitle })
@@ -635,7 +635,7 @@ function AppSidebar({
                 {
                   onClick: onToggleCollapse,
                   "aria-label": isCollapsed ? "Espandi menu" : "Comprimi menu",
-                  className: isCollapsed ? "flex items-center justify-center w-9 h-9 rounded-lg bg-primary text-primary-foreground shadow-md ring-2 ring-primary/25 hover:brightness-110 hover:shadow-lg active:scale-95 focus-visible:outline-none focus-visible:ring-4 transition-all" : "flex items-center justify-center w-7 h-7 rounded-md text-slate-400 dark:text-slate-500 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-slate-300 transition-colors",
+                  className: isCollapsed ? "flex items-center justify-center w-9 h-9 rounded-lg bg-primary text-primary-foreground shadow-md ring-2 ring-primary/25 hover:brightness-110 hover:shadow-lg active:scale-95 focus-visible:outline-hidden focus-visible:ring-4 transition-all" : "flex items-center justify-center w-7 h-7 rounded-md text-slate-400 dark:text-slate-500 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-slate-300 transition-colors",
                   title: isCollapsed ? "Espandi menu" : "Comprimi menu",
                   children: isCollapsed ? /* @__PURE__ */ jsx5(PanelLeftOpen, { className: "w-5 h-5" }) : /* @__PURE__ */ jsx5(PanelLeftClose, { className: "w-4 h-4" })
                 }
@@ -695,13 +695,13 @@ function AppSidebar({
                     className: `w-full flex items-center hover:bg-gray-50 dark:hover:bg-white/[0.04] rounded-md transition-colors ${isCollapsed ? "justify-center p-1" : "gap-2.5 px-2 py-1.5"}`,
                     title: isCollapsed ? user?.username : void 0,
                     children: [
-                      /* @__PURE__ */ jsx5("div", { className: "w-[30px] h-[30px] bg-brand-50 dark:bg-brand-500/[0.15] rounded-full flex items-center justify-center flex-shrink-0", children: /* @__PURE__ */ jsx5("span", { className: "text-brand-600 dark:text-brand-400 text-[11px] font-semibold", children: user?.initials || user?.username?.substring(0, 2).toUpperCase() || "??" }) }),
+                      /* @__PURE__ */ jsx5("div", { className: "w-[30px] h-[30px] bg-brand-50 dark:bg-brand-500/[0.15] rounded-full flex items-center justify-center shrink-0", children: /* @__PURE__ */ jsx5("span", { className: "text-brand-600 dark:text-brand-400 text-[11px] font-semibold", children: user?.initials || user?.username?.substring(0, 2).toUpperCase() || "??" }) }),
                       !isCollapsed && /* @__PURE__ */ jsxs4(Fragment2, { children: [
                         /* @__PURE__ */ jsxs4("div", { className: "flex-1 min-w-0 text-left", children: [
                           /* @__PURE__ */ jsx5("div", { className: "text-slate-900 dark:text-slate-200 text-xs font-medium truncate", children: user?.username }),
                           /* @__PURE__ */ jsx5("div", { className: "text-slate-500 dark:text-slate-400 text-[11px]", children: user?.ruolo })
                         ] }),
-                        /* @__PURE__ */ jsx5("div", { className: "w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0" })
+                        /* @__PURE__ */ jsx5("div", { className: "w-1.5 h-1.5 bg-green-500 rounded-full shrink-0" })
                       ] })
                     ]
                   }
@@ -709,7 +709,7 @@ function AppSidebar({
                 showUserMenu && /* @__PURE__ */ jsxs4(
                   "div",
                   {
-                    className: `absolute bottom-full mb-2 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-gray-200 dark:border-white/10 z-[9999] py-1 ${isCollapsed ? "left-full ml-2 w-48" : "left-0 w-full"}`,
+                    className: `absolute bottom-full mb-2 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-gray-200 dark:border-white/10 z-9999 py-1 ${isCollapsed ? "left-full ml-2 w-48" : "left-0 w-full"}`,
                     children: [
                       /* @__PURE__ */ jsxs4(
                         "button",
@@ -772,7 +772,7 @@ function AppSidebar({
     }
   );
   return /* @__PURE__ */ jsxs4(Fragment2, { children: [
-    /* @__PURE__ */ jsx5("aside", { className: "hidden md:flex flex-shrink-0", children: buildSidebar(collapsed, true) }),
+    /* @__PURE__ */ jsx5("aside", { className: "hidden md:flex shrink-0", children: buildSidebar(collapsed, true) }),
     /* @__PURE__ */ jsxs4(
       "div",
       {
@@ -3413,14 +3413,14 @@ function ThemeToggle({ className }) {
         "relative h-6 w-11 shrink-0 rounded-full transition-colors duration-200",
         "bg-slate-200 hover:bg-slate-300 active:bg-slate-400/70",
         "dark:bg-brand-600 dark:hover:bg-brand-500 dark:active:bg-brand-700",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        "focus:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         className
       ),
       children: /* @__PURE__ */ jsx6(
         "span",
         {
           className: cn(
-            "absolute top-0.5 flex h-5 w-5 items-center justify-center rounded-full shadow-sm transition-all duration-200",
+            "absolute top-0.5 flex h-5 w-5 items-center justify-center rounded-full shadow-xs transition-all duration-200",
             dark ? "left-[22px] bg-brand-950" : "left-0.5 bg-white"
           ),
           children: dark ? /* @__PURE__ */ jsx6(Sun, { className: "h-3 w-3 text-amber-400" }) : /* @__PURE__ */ jsx6(Moon, { className: "h-3 w-3 text-slate-500" })
@@ -3438,11 +3438,11 @@ import { forwardRef } from "react";
 import { Loader2 } from "lucide-react";
 import { jsx as jsx7, jsxs as jsxs5 } from "react/jsx-runtime";
 var VARIANTI = {
-  primary: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm",
+  primary: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs",
   secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
   outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
   ghost: "hover:bg-accent hover:text-accent-foreground",
-  destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm",
+  destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-xs",
   link: "text-primary underline-offset-4 hover:underline"
 };
 var TAGLIE = {
@@ -3452,7 +3452,7 @@ var TAGLIE = {
 };
 var buttonClasses = (variant = "primary", size = "md") => cn(
   "inline-flex items-center justify-center rounded-lg font-medium transition-all duration-150",
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+  "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   "active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50",
   VARIANTI[variant],
   TAGLIE[size]
@@ -3541,7 +3541,7 @@ var IconButton_default = IconButton;
 // src/atoms/Input.jsx
 import { forwardRef as forwardRef3 } from "react";
 import { jsx as jsx9, jsxs as jsxs6 } from "react/jsx-runtime";
-var CAMPO = "w-full rounded-lg border bg-background text-sm text-foreground placeholder:text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50";
+var CAMPO = "w-full rounded-lg border bg-background text-sm text-foreground placeholder:text-muted-foreground transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50";
 var campoClasses = (invalid) => cn(
   CAMPO,
   // Error wired from outside (Field sets aria-invalid) must look invalid without the prop.
@@ -3774,7 +3774,7 @@ function Kbd({ children, className }) {
     "kbd",
     {
       className: cn(
-        "inline-flex h-5 min-w-[20px] items-center justify-center rounded border border-border bg-muted px-1.5",
+        "inline-flex h-5 min-w-[20px] items-center justify-center rounded-sm border border-border bg-muted px-1.5",
         "font-sans text-[11px] font-medium text-muted-foreground",
         className
       ),
@@ -4039,7 +4039,7 @@ function Select({
           "aria-label": ariaLabel,
           style: listStyle ?? { position: "fixed" },
           onMouseDown: (e) => e.preventDefault(),
-          className: "z-[70] max-h-64 overflow-y-auto rounded-lg border border-border bg-card py-1 shadow-lg",
+          className: "z-70 max-h-64 overflow-y-auto rounded-lg border border-border bg-card py-1 shadow-lg",
           children: entries.map((o, i) => {
             const sel = !o.clear && o.value === value;
             return /* @__PURE__ */ jsxs12(
@@ -4110,7 +4110,7 @@ function Toggle({
         onClick: cambia,
         className: cn(
           "relative mt-0.5 inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors after:absolute after:-inset-3 after:content-['']",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "active:scale-95 disabled:cursor-not-allowed disabled:opacity-50",
           checked ? "bg-primary hover:bg-primary/90" : "bg-muted-foreground/30 hover:bg-muted-foreground/40"
         ),
@@ -4119,7 +4119,7 @@ function Toggle({
           {
             "aria-hidden": true,
             className: cn(
-              "inline-block h-4 w-4 rounded-full bg-background shadow transition-transform",
+              "inline-block h-4 w-4 rounded-full bg-background shadow-sm transition-transform",
               checked ? "translate-x-[18px]" : "translate-x-0.5"
             )
           }
@@ -4365,8 +4365,8 @@ function Checkbox({
         disabled,
         onClick: cambia,
         className: cn(
-          "relative flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors after:absolute after:-inset-3 after:content-['']",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          "relative flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border transition-colors after:absolute after:-inset-3 after:content-['']",
+          "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "active:scale-90 disabled:cursor-not-allowed disabled:opacity-50",
           on ? "border-primary bg-primary text-primary-foreground hover:bg-primary/90" : "border-input bg-background hover:border-ring/60"
         ),
@@ -4434,7 +4434,7 @@ function Tabs({
       role: "tablist",
       "aria-label": ariaLabel,
       className: cn(
-        "flex gap-6 overflow-x-auto overflow-y-hidden border-b border-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        "flex gap-6 overflow-x-auto overflow-y-hidden border-b border-border scrollbar-none [&::-webkit-scrollbar]:hidden",
         className
       ),
       children: items.map((t, i) => {
@@ -4544,9 +4544,9 @@ function SegmentedControl({
             },
             className: cn(
               "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md font-medium transition-all",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
               SIZE[size] || SIZE.sm,
-              attivo ? "bg-background text-primary shadow" : "text-muted-foreground hover:text-foreground"
+              attivo ? "bg-background text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
             ),
             children: [
               Icon && /* @__PURE__ */ jsx23(Icon, { className: "h-3.5 w-3.5", "aria-hidden": true }),
@@ -4648,7 +4648,7 @@ function InfoTip({
     {
       type: "button",
       "aria-label": label,
-      className: "inline-flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+      className: "inline-flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
       children: /* @__PURE__ */ jsx25(HelpCircle, { className: "h-4 w-4", "aria-hidden": true })
     }
   ) });
@@ -4662,7 +4662,7 @@ function Card({ className, interactive = false, children, ...props }) {
     {
       ...props,
       className: cn(
-        "rounded-xl border bg-card text-card-foreground shadow-sm",
+        "rounded-xl border bg-card text-card-foreground shadow-xs",
         interactive && "transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md hover:border-primary/40",
         className
       ),
@@ -4753,7 +4753,7 @@ function SkeletonText({ lines = 3 }) {
   ] });
 }
 function SkeletonCard() {
-  return /* @__PURE__ */ jsxs21("div", { className: "rounded-xl border bg-card p-5 shadow-sm space-y-4", children: [
+  return /* @__PURE__ */ jsxs21("div", { className: "rounded-xl border bg-card p-5 shadow-xs space-y-4", children: [
     /* @__PURE__ */ jsx27(Skeleton, { className: "h-4 w-1/3" }),
     /* @__PURE__ */ jsx27(Skeleton, { className: "h-8 w-1/2" }),
     /* @__PURE__ */ jsx27(SkeletonText, { lines: 2 })
@@ -4998,7 +4998,7 @@ function TopScrollX({
         role: overflow ? "region" : void 0,
         "aria-label": overflow ? ariaLabel : void 0,
         className: cn(
-          "overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+          "overflow-x-auto focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
           className
         ),
         children
@@ -5110,7 +5110,7 @@ function DataTableCards({
       } : void 0,
       className: cn(
         "p-4",
-        onRowClick && "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        onRowClick && "cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       ),
       children: /* @__PURE__ */ jsx33("dl", { className: "space-y-2", children: columns.map((colonna) => /* @__PURE__ */ jsxs27("div", { className: "grid grid-cols-2 gap-3 text-sm", children: [
         /* @__PURE__ */ jsx33("dt", { className: "text-muted-foreground", children: colonna.header }),
@@ -5214,7 +5214,7 @@ function DataTable({
                       type: "button",
                       onClick: () => toggle(c.key),
                       className: cn(
-                        "inline-flex items-center gap-1 rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        "inline-flex items-center gap-1 rounded-sm transition-colors hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
                         JUSTIFY[c.align] || JUSTIFY.left,
                         active && "text-foreground"
                       ),
@@ -5243,7 +5243,7 @@ function DataTable({
                 } : void 0,
                 className: cn(
                   "transition-colors hover:bg-muted/40",
-                  onRowClick && "cursor-pointer focus-visible:outline-none focus-visible:bg-muted/60 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                  onRowClick && "cursor-pointer focus-visible:outline-hidden focus-visible:bg-muted/60 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                 ),
                 children: columns.map((c) => /* @__PURE__ */ jsx34(
                   "td",
@@ -5507,7 +5507,7 @@ function MatriceCalore({
             }
           } : void 0,
           className: cn(
-            onRigaClick && "cursor-pointer hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+            onRigaClick && "cursor-pointer hover:bg-muted/40 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
           ),
           children: [
             /* @__PURE__ */ jsx35(
@@ -5679,9 +5679,9 @@ function CalendarioMese({
             onFocus: () => setFuoco(iso),
             className: cn(
               "m-0.5 h-8 rounded-md text-sm tabular-nums transition-colors",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
               "disabled:pointer-events-none disabled:opacity-30",
-              scelto ? "bg-primary font-semibold text-primary-foreground shadow-sm" : "hover:bg-accent hover:text-accent-foreground",
+              scelto ? "bg-primary font-semibold text-primary-foreground shadow-xs" : "hover:bg-accent hover:text-accent-foreground",
               !scelto && altroMese && "text-muted-foreground/60",
               !scelto && iso === oggi && "font-semibold text-primary"
             ),
@@ -5851,7 +5851,7 @@ function ChipFiltro({
             type: "button",
             onClick: onRemove,
             "aria-label": etichettaRimuovi,
-            className: "relative inline-flex h-5 w-5 items-center justify-center rounded-full transition-colors after:absolute after:-inset-3 after:content-[''] hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            className: "relative inline-flex h-5 w-5 items-center justify-center rounded-full transition-colors after:absolute after:-inset-3 after:content-[''] hover:bg-primary/20 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
             children: /* @__PURE__ */ jsx38(X2, { className: "h-3 w-3", "aria-hidden": true })
           }
         )
@@ -6192,7 +6192,7 @@ function Dialog({
           "aria-describedby": description ? descId : void 0,
           tabIndex: -1,
           className: cn(
-            "relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-xl bg-card text-card-foreground shadow-2xl ring-1 ring-black/5 animate-fade-in focus:outline-none dark:ring-white/10",
+            "relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-xl bg-card text-card-foreground shadow-2xl ring-1 ring-black/5 animate-fade-in focus:outline-hidden dark:ring-white/10",
             SIZES[size] ?? SIZES.sm,
             className
           ),
@@ -6449,7 +6449,7 @@ function ToastProvider({ children }) {
   const altri = toasts.filter((t) => t.tone !== "danger");
   return /* @__PURE__ */ jsxs37(ToastContext.Provider, { value, children: [
     children,
-    /* @__PURE__ */ jsxs37("div", { className: "pointer-events-none fixed right-4 top-4 z-[60] flex flex-col", children: [
+    /* @__PURE__ */ jsxs37("div", { className: "pointer-events-none fixed right-4 top-4 z-60 flex flex-col", children: [
       /* @__PURE__ */ jsx44("div", { "aria-live": "assertive", className: "flex flex-col gap-2", children: urgenti.map((t) => /* @__PURE__ */ jsx44(
         ToastItem,
         {
@@ -6587,7 +6587,7 @@ function VediCome({
                     {
                       "aria-hidden": "true",
                       className: cn(
-                        "w-3.5 h-3.5 mt-0.5 flex-shrink-0",
+                        "w-3.5 h-3.5 mt-0.5 shrink-0",
                         selected ? "text-brand-600 dark:text-brand-400" : "text-transparent"
                       )
                     }
@@ -6774,7 +6774,7 @@ function AppShell({
       "a",
       {
         href: `#${idContenuto}`,
-        className: "sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-[100] focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:ring-2 focus:ring-ring",
+        className: "sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-100 focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:ring-2 focus:ring-ring",
         children: "Vai al contenuto"
       }
     ),
@@ -6807,7 +6807,7 @@ function AppShell({
       }
     ),
     /* @__PURE__ */ jsxs39("div", { className: "flex min-w-0 flex-1 flex-col", children: [
-      /* @__PURE__ */ jsxs39("header", { className: "relative z-30 flex h-14 shrink-0 items-center justify-between gap-3 border-b bg-background/80 px-4 backdrop-blur", children: [
+      /* @__PURE__ */ jsxs39("header", { className: "relative z-30 flex h-14 shrink-0 items-center justify-between gap-3 border-b bg-background/80 px-4 backdrop-blur-sm", children: [
         /* @__PURE__ */ jsx46(
           IconButton_default,
           {
@@ -6828,7 +6828,7 @@ function AppShell({
           ref: mainRef,
           id: idContenuto,
           tabIndex: -1,
-          className: "flex-1 overflow-y-auto scrollbar-thin p-4 focus:outline-none md:p-6",
+          className: "flex-1 overflow-y-auto scrollbar-thin p-4 focus:outline-hidden md:p-6",
           children: /* @__PURE__ */ jsx46("div", { className: cn("mx-auto", WIDTHS[maxWidth] ?? WIDTHS["7xl"]), children })
         }
       )
@@ -6860,7 +6860,7 @@ function PageHeader({
             "a",
             {
               href: helpHref,
-              className: "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              className: "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
               children: [
                 /* @__PURE__ */ jsx47(BookOpen2, { className: "h-3.5 w-3.5", "aria-hidden": true }),
                 "Guida"
@@ -7041,7 +7041,7 @@ function AltriPortali({ corrente }) {
       "a",
       {
         href: p.url,
-        className: "inline-flex items-center rounded-full bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        className: "inline-flex items-center rounded-full bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/20 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
         children: p.nome
       },
       p.codice
@@ -7058,7 +7058,7 @@ function LoginCornice({
   logoDark = LOGHI_VUSCOM.marchioScuro,
   children
 }) {
-  return /* @__PURE__ */ jsxs44("div", { className: "relative flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-50 to-brand-100 px-4 dark:from-slate-900 dark:to-slate-800", children: [
+  return /* @__PURE__ */ jsxs44("div", { className: "relative flex min-h-screen items-center justify-center bg-linear-to-br from-brand-50 to-brand-100 px-4 dark:from-slate-900 dark:to-slate-800", children: [
     /* @__PURE__ */ jsx51("div", { className: "absolute right-4 top-4", children: /* @__PURE__ */ jsx51(ThemeToggle, {}) }),
     /* @__PURE__ */ jsxs44("div", { className: "w-full max-w-md space-y-8 rounded-xl bg-card p-8 shadow-2xl", children: [
       /* @__PURE__ */ jsxs44("div", { className: "text-center", children: [
