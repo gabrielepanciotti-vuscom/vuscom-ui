@@ -324,3 +324,36 @@ test("mascheraDefault starts the box on and sends the masked screenshot", async 
   await screen.findByText("Segnalazione #2 inviata");
   expect(await testoDi(invii[0].body.get("screenshot"))).toBe("m");
 });
+
+test("Evolutiva changes the wording and sends natura; default is problema", async () => {
+  const user = userEvent.setup();
+  const { fetchImpl, invii } = portale({
+    risposte: [json(201, { ticket_id: 1, url: null, duplicato: false })],
+  });
+  render(<Pagina fetchImpl={fetchImpl} />);
+  await apriSenzaElemento(user);
+  expect(screen.getByRole("radio", { name: /problema/i })).toBeChecked();
+
+  await user.click(screen.getByRole("radio", { name: /evolutiva/i }));
+  expect(screen.getByText("Proponi un miglioramento")).toBeInTheDocument();
+  expect(screen.getByRole("checkbox", { name: /video/i })).not.toBeChecked();
+  await user.click(screen.getByRole("textbox", { name: /cosa vorresti/i }));
+  await user.paste("Esportare la tabella in Excel");
+  await user.click(screen.getByRole("button", { name: /^invia$/i }));
+  await waitFor(() => expect(invii).toHaveLength(1));
+  expect(reportDi(invii[0]).natura).toBe("evolutiva");
+});
+
+test("a plain report sends natura problema", async () => {
+  const user = userEvent.setup();
+  const { fetchImpl, invii } = portale({
+    risposte: [json(201, { ticket_id: 1, url: null, duplicato: false })],
+  });
+  render(<Pagina fetchImpl={fetchImpl} />);
+  await apriSenzaElemento(user);
+  await user.click(screen.getByRole("textbox", { name: /cosa non va/i }));
+  await user.paste("Il totale è sbagliato");
+  await user.click(screen.getByRole("button", { name: /^invia$/i }));
+  await waitFor(() => expect(invii).toHaveLength(1));
+  expect(reportDi(invii[0]).natura).toBe("problema");
+});

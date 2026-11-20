@@ -56,7 +56,7 @@ export function urlPagina(href, maschera) {
  */
 export function componiInvio(
   bozza,
-  { commento, screenshot = true, video, maschera },
+  { commento, screenshot = true, video, maschera, natura = "problema" },
 ) {
   const form = new FormData();
   form.append(
@@ -67,6 +67,7 @@ export function componiInvio(
         ? mascheraElemento(bozza.elemento)
         : (bozza.elemento ?? null),
       comment: commento.trim(),
+      natura,
       page_url: urlPagina(bozza.page_url ?? "", maschera),
     }),
   );

@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Bug, ImageOff, MousePointerClick, RotateCw, Send } from "lucide-react";
+import { Bug, ImageOff, Lightbulb, MousePointerClick, RotateCw, Send } from "lucide-react";
 import Button from "../atoms/Button.jsx";
 import Textarea from "../atoms/Textarea.jsx";
 import Checkbox from "../molecules/Checkbox.jsx";
+import SegmentedControl from "../molecules/SegmentedControl.jsx";
 import Field from "../molecules/Field.jsx";
 import Alert from "../organisms/Alert.jsx";
 import Dialog from "../organisms/Dialog.jsx";
@@ -13,6 +14,29 @@ import { componiInvio, inviaSegnalazione } from "./invio.js";
 // A bare "." woke an agent for nothing (ticket #59): require a real sentence.
 const MIN_COMMENTO = 10;
 const MAX_COMMENTO = 5000;
+
+// Problem is the default; an improvement request changes only the wording.
+const NATURE = {
+  problema: {
+    icon: Bug,
+    title: "Segnala un problema",
+    description:
+      "Arriva a chi segue il portale, con le ultime azioni e, se vuoi, uno screenshot o il video della pagina.",
+    label: "Cosa non va?",
+    hint: "cosa ti aspettavi e cosa vedi invece",
+    placeholder:
+      "Es. il totale dei clienti attivi non torna con l'estrazione di ieri",
+  },
+  evolutiva: {
+    icon: Lightbulb,
+    title: "Proponi un miglioramento",
+    description:
+      "Arriva a chi segue il portale, con lo screenshot della pagina e l'elemento che hai scelto.",
+    label: "Cosa vorresti cambiare?",
+    hint: "cosa vorresti e a cosa ti servirebbe",
+    placeholder: "Es. vorrei poter esportare questa tabella in Excel",
+  },
+};
 
 function nomeElemento(elemento) {
   if (!elemento) return null;
@@ -49,6 +73,8 @@ export default function ModaleSegnalazione({
   mascheraDefault = false,
 }) {
   const { toast } = useToast();
+  const [natura, setNatura] = useState("problema");
+  const testo = NATURE[natura];
   const [commento, setCommento] = useState("");
   const [screenshot, setScreenshot] = useState(true);
   // The video is only needed now and then: the user turns it on.
@@ -75,7 +101,13 @@ export default function ModaleSegnalazione({
     if (inCorso.current || vuoto || bloccato) return;
     inCorso.current = true;
     setEsito({ stato: "invio" });
-    const form = componiInvio(bozza, { commento, screenshot, video, maschera });
+    const form = componiInvio(bozza, {
+      commento,
+      screenshot,
+      video,
+      maschera,
+      natura,
+    });
     const r = await inviaSegnalazione({ endpoint, fetchImpl, form });
     inCorso.current = false;
     if (r.esito === "inviata") {
@@ -129,13 +161,23 @@ export default function ModaleSegnalazione({
       onClose={onChiudi}
       closeDisabled={invio}
       closeOnBackdrop={false}
-      title="Segnala un problema"
-      description="Arriva a chi segue il portale, con le ultime azioni e, se vuoi, uno screenshot o il video della pagina."
-      icon={Bug}
+      title={testo.title}
+      description={testo.description}
+      icon={testo.icon}
       size="lg"
       footer={footer}
     >
       <div className="space-y-5">
+        <SegmentedControl
+          aria-label="Tipo di segnalazione"
+          size="md"
+          value={natura}
+          onChange={setNatura}
+          options={[
+            { value: "problema", label: "Problema", icon: Bug },
+            { value: "evolutiva", label: "Evolutiva", icon: Lightbulb },
+          ]}
+        />
         <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/40 px-3 py-2.5">
           <MousePointerClick
             className="mt-0.5 h-4 w-4 shrink-0 text-primary"
@@ -157,13 +199,13 @@ export default function ModaleSegnalazione({
         </div>
 
         <Field
-          label="Cosa non va?"
+          label={testo.label}
           required
           hint={`${
             mancano > 0
               ? `ancora ${mancano} ${mancano === 1 ? "carattere" : "caratteri"}`
               : `${commento.length}/${MAX_COMMENTO}`
-          } · cosa ti aspettavi e cosa vedi invece`}
+          } · ${testo.hint}`}
         >
           <Textarea
             data-autofocus
@@ -171,7 +213,7 @@ export default function ModaleSegnalazione({
             maxLength={MAX_COMMENTO}
             value={commento}
             onChange={(e) => setCommento(e.target.value)}
-            placeholder="Es. il totale dei clienti attivi non torna con l'estrazione di ieri"
+            placeholder={testo.placeholder}
           />
         </Field>
 

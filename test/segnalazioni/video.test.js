@@ -79,6 +79,7 @@ test("componiInvio masks the video and the clicks when maschera is on", async ()
   expect(report).toEqual({
     report_id: bozza.segnalazione_id,
     element: null,
+    natura: "problema",
     comment: "Non va",
     page_url: "http://portale/clienti",
   });

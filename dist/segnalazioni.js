@@ -1,5 +1,5 @@
 // src/segnalazioni/SegnalazioniProvider.jsx
-import { useCallback as useCallback2, useEffect as useEffect8, useMemo as useMemo3, useRef as useRef6, useState as useState4 } from "react";
+import { useCallback as useCallback2, useEffect as useEffect8, useMemo as useMemo3, useRef as useRef7, useState as useState4 } from "react";
 
 // src/organisms/Toast.jsx
 import {
@@ -3075,7 +3075,7 @@ function urlPagina(href, maschera2) {
     return String(href).split(/[?#]/)[0];
   }
 }
-function componiInvio(bozza, { commento, screenshot = true, video, maschera: maschera2 }) {
+function componiInvio(bozza, { commento, screenshot = true, video, maschera: maschera2, natura = "problema" }) {
   const form = new FormData();
   form.append(
     "report",
@@ -3083,6 +3083,7 @@ function componiInvio(bozza, { commento, screenshot = true, video, maschera: mas
       report_id: bozza.segnalazione_id,
       element: maschera2 ? mascheraElemento(bozza.elemento) : bozza.elemento ?? null,
       comment: commento.trim(),
+      natura,
       page_url: urlPagina(bozza.page_url ?? "", maschera2)
     })
   );
@@ -3152,8 +3153,8 @@ async function inviaSegnalazione({ endpoint, fetchImpl, form }) {
 }
 
 // src/segnalazioni/ModaleSegnalazione.jsx
-import { useEffect as useEffect5, useMemo as useMemo2, useRef as useRef4, useState as useState2 } from "react";
-import { Bug, ImageOff, MousePointerClick, RotateCw, Send } from "lucide-react";
+import { useEffect as useEffect5, useMemo as useMemo2, useRef as useRef5, useState as useState2 } from "react";
+import { Bug, ImageOff, Lightbulb, MousePointerClick, RotateCw, Send } from "lucide-react";
 
 // src/atoms/Textarea.jsx
 import { forwardRef as forwardRef4 } from "react";
@@ -3272,9 +3273,83 @@ function Checkbox({
   ] });
 }
 
+// src/molecules/SegmentedControl.jsx
+import { useRef as useRef3 } from "react";
+import { jsx as jsx7, jsxs as jsxs5 } from "react/jsx-runtime";
+var SIZE = {
+  sm: "h-7 max-sm:min-h-11 px-3 text-xs",
+  md: "h-9 max-sm:min-h-11 px-4 text-sm"
+};
+function SegmentedControl({
+  value,
+  onChange,
+  options = [],
+  size = "sm",
+  "aria-label": ariaLabel,
+  className
+}) {
+  const refs = useRef3([]);
+  const vai = (i) => {
+    const n = (i + options.length) % options.length;
+    onChange?.(options[n].value);
+    refs.current[n]?.focus();
+  };
+  return /* @__PURE__ */ jsx7(
+    "div",
+    {
+      role: "radiogroup",
+      "aria-label": ariaLabel,
+      className: cn("inline-flex rounded-lg bg-muted p-1", className),
+      children: options.map((o, i) => {
+        const attivo = o.value === value;
+        const Icon = o.icon;
+        return /* @__PURE__ */ jsxs5(
+          "button",
+          {
+            ref: (el) => {
+              refs.current[i] = el;
+            },
+            type: "button",
+            role: "radio",
+            "aria-checked": attivo,
+            tabIndex: attivo ? 0 : -1,
+            onClick: () => onChange?.(o.value),
+            onKeyDown: (e) => {
+              if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+                e.preventDefault();
+                vai(i + 1);
+              } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+                e.preventDefault();
+                vai(i - 1);
+              } else if (e.key === "Home") {
+                e.preventDefault();
+                vai(0);
+              } else if (e.key === "End") {
+                e.preventDefault();
+                vai(options.length - 1);
+              }
+            },
+            className: cn(
+              "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md font-medium transition-all",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              SIZE[size] || SIZE.sm,
+              attivo ? "bg-background text-primary shadow" : "text-muted-foreground hover:text-foreground"
+            ),
+            children: [
+              Icon && /* @__PURE__ */ jsx7(Icon, { className: "h-3.5 w-3.5", "aria-hidden": true }),
+              o.label
+            ]
+          },
+          o.value
+        );
+      })
+    }
+  );
+}
+
 // src/molecules/Field.jsx
 import { Children, cloneElement, isValidElement, useId as useId2 } from "react";
-import { jsx as jsx7, jsxs as jsxs5 } from "react/jsx-runtime";
+import { jsx as jsx8, jsxs as jsxs6 } from "react/jsx-runtime";
 function Field({
   label,
   hint,
@@ -3295,27 +3370,27 @@ function Field({
     "aria-describedby": describedBy,
     ...error ? { "aria-invalid": "true" } : {}
   }) : child;
-  return /* @__PURE__ */ jsxs5("div", { className: cn("flex flex-col gap-1.5", className), children: [
-    label && /* @__PURE__ */ jsxs5(
+  return /* @__PURE__ */ jsxs6("div", { className: cn("flex flex-col gap-1.5", className), children: [
+    label && /* @__PURE__ */ jsxs6(
       "label",
       {
         htmlFor: fieldId,
         className: "text-sm font-medium text-foreground",
         children: [
           label,
-          required && /* @__PURE__ */ jsx7("span", { className: cn("ml-0.5", TESTO.danger), "aria-hidden": true, children: "*" })
+          required && /* @__PURE__ */ jsx8("span", { className: cn("ml-0.5", TESTO.danger), "aria-hidden": true, children: "*" })
         ]
       }
     ),
     control,
-    hint && !error && /* @__PURE__ */ jsx7("p", { id: hintId, className: "text-xs text-muted-foreground", children: hint }),
-    error && /* @__PURE__ */ jsx7("p", { id: errorId, role: "alert", className: cn("text-xs", TESTO.danger), children: error })
+    hint && !error && /* @__PURE__ */ jsx8("p", { id: hintId, className: "text-xs text-muted-foreground", children: hint }),
+    error && /* @__PURE__ */ jsx8("p", { id: errorId, role: "alert", className: cn("text-xs", TESTO.danger), children: error })
   ] });
 }
 
 // src/organisms/Alert.jsx
 import { AlertTriangle as AlertTriangle2, CheckCircle2 as CheckCircle22, Info as Info2, X as X2, XCircle as XCircle2 } from "lucide-react";
-import { jsx as jsx8, jsxs as jsxs6 } from "react/jsx-runtime";
+import { jsx as jsx9, jsxs as jsxs7 } from "react/jsx-runtime";
 var TONI2 = {
   info: {
     box: "border-info/30 bg-info/10 text-sky-900 dark:text-sky-100",
@@ -3347,7 +3422,7 @@ function Alert({
 }) {
   const t = TONI2[tone] ?? TONI2.info;
   const urgente = tone === "danger" || tone === "warning";
-  return /* @__PURE__ */ jsxs6(
+  return /* @__PURE__ */ jsxs7(
     "div",
     {
       role: urgente ? "alert" : "status",
@@ -3357,12 +3432,12 @@ function Alert({
         className
       ),
       children: [
-        /* @__PURE__ */ jsx8(t.Icona, { className: cn("mt-0.5 h-5 w-5 shrink-0", t.icon), "aria-hidden": true }),
-        /* @__PURE__ */ jsxs6("div", { className: "min-w-0 flex-1", children: [
-          title && /* @__PURE__ */ jsx8("p", { className: "font-semibold", children: title }),
-          children && /* @__PURE__ */ jsx8("div", { className: cn(title && "mt-0.5"), children })
+        /* @__PURE__ */ jsx9(t.Icona, { className: cn("mt-0.5 h-5 w-5 shrink-0", t.icon), "aria-hidden": true }),
+        /* @__PURE__ */ jsxs7("div", { className: "min-w-0 flex-1", children: [
+          title && /* @__PURE__ */ jsx9("p", { className: "font-semibold", children: title }),
+          children && /* @__PURE__ */ jsx9("div", { className: cn(title && "mt-0.5"), children })
         ] }),
-        onClose && /* @__PURE__ */ jsx8(
+        onClose && /* @__PURE__ */ jsx9(
           IconButton_default,
           {
             icon: X2,
@@ -3378,10 +3453,10 @@ function Alert({
 }
 
 // src/organisms/Dialog.jsx
-import { useEffect as useEffect4, useId as useId3, useRef as useRef3 } from "react";
+import { useEffect as useEffect4, useId as useId3, useRef as useRef4 } from "react";
 import { createPortal } from "react-dom";
 import { X as X3 } from "lucide-react";
-import { jsx as jsx9, jsxs as jsxs7 } from "react/jsx-runtime";
+import { jsx as jsx10, jsxs as jsxs8 } from "react/jsx-runtime";
 var SIZES = {
   sm: "max-w-sm",
   md: "max-w-md",
@@ -3411,8 +3486,8 @@ function Dialog({
 }) {
   const titleId = useId3();
   const descId = useId3();
-  const panelRef = useRef3(null);
-  const onCloseRef = useRef3(onClose);
+  const panelRef = useRef4(null);
+  const onCloseRef = useRef4(onClose);
   onCloseRef.current = onClose;
   useEffect4(() => {
     if (!open) return void 0;
@@ -3466,8 +3541,8 @@ function Dialog({
   }, [open]);
   if (!open) return null;
   return createPortal(
-    /* @__PURE__ */ jsxs7("div", { className: "fixed inset-0 z-50 overflow-y-auto", children: [
-      /* @__PURE__ */ jsx9(
+    /* @__PURE__ */ jsxs8("div", { className: "fixed inset-0 z-50 overflow-y-auto", children: [
+      /* @__PURE__ */ jsx10(
         "div",
         {
           "data-testid": "dialog-backdrop",
@@ -3475,7 +3550,7 @@ function Dialog({
           onClick: closeOnBackdrop ? () => onClose?.() : void 0
         }
       ),
-      /* @__PURE__ */ jsx9("div", { className: "flex min-h-full items-start justify-center p-3 sm:items-center sm:p-6", children: /* @__PURE__ */ jsxs7(
+      /* @__PURE__ */ jsx10("div", { className: "flex min-h-full items-start justify-center p-3 sm:items-center sm:p-6", children: /* @__PURE__ */ jsxs8(
         "div",
         {
           ref: panelRef,
@@ -3490,10 +3565,10 @@ function Dialog({
             className
           ),
           children: [
-            /* @__PURE__ */ jsxs7("div", { className: "flex items-start gap-3 border-b border-border px-6 py-4", children: [
-              Icon && /* @__PURE__ */ jsx9("div", { className: "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15", children: /* @__PURE__ */ jsx9(Icon, { className: "h-5 w-5 text-primary", "aria-hidden": true }) }),
-              /* @__PURE__ */ jsxs7("div", { className: "min-w-0 flex-1", children: [
-                /* @__PURE__ */ jsx9(
+            /* @__PURE__ */ jsxs8("div", { className: "flex items-start gap-3 border-b border-border px-6 py-4", children: [
+              Icon && /* @__PURE__ */ jsx10("div", { className: "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15", children: /* @__PURE__ */ jsx10(Icon, { className: "h-5 w-5 text-primary", "aria-hidden": true }) }),
+              /* @__PURE__ */ jsxs8("div", { className: "min-w-0 flex-1", children: [
+                /* @__PURE__ */ jsx10(
                   "h2",
                   {
                     id: titleId,
@@ -3501,9 +3576,9 @@ function Dialog({
                     children: title
                   }
                 ),
-                description && /* @__PURE__ */ jsx9("p", { id: descId, className: "mt-0.5 text-sm text-muted-foreground", children: description })
+                description && /* @__PURE__ */ jsx10("p", { id: descId, className: "mt-0.5 text-sm text-muted-foreground", children: description })
               ] }),
-              /* @__PURE__ */ jsx9(
+              /* @__PURE__ */ jsx10(
                 IconButton_default,
                 {
                   icon: X3,
@@ -3516,8 +3591,8 @@ function Dialog({
                 }
               )
             ] }),
-            /* @__PURE__ */ jsx9("div", { "data-dialog-body": true, className: "flex-1 overflow-y-auto px-6 py-5", children }),
-            footer && /* @__PURE__ */ jsx9(
+            /* @__PURE__ */ jsx10("div", { "data-dialog-body": true, className: "flex-1 overflow-y-auto px-6 py-5", children }),
+            footer && /* @__PURE__ */ jsx10(
               "div",
               {
                 "data-dialog-footer": true,
@@ -3534,9 +3609,27 @@ function Dialog({
 }
 
 // src/segnalazioni/ModaleSegnalazione.jsx
-import { Fragment, jsx as jsx10, jsxs as jsxs8 } from "react/jsx-runtime";
+import { Fragment, jsx as jsx11, jsxs as jsxs9 } from "react/jsx-runtime";
 var MIN_COMMENTO = 10;
 var MAX_COMMENTO = 5e3;
+var NATURE = {
+  problema: {
+    icon: Bug,
+    title: "Segnala un problema",
+    description: "Arriva a chi segue il portale, con le ultime azioni e, se vuoi, uno screenshot o il video della pagina.",
+    label: "Cosa non va?",
+    hint: "cosa ti aspettavi e cosa vedi invece",
+    placeholder: "Es. il totale dei clienti attivi non torna con l'estrazione di ieri"
+  },
+  evolutiva: {
+    icon: Lightbulb,
+    title: "Proponi un miglioramento",
+    description: "Arriva a chi segue il portale, con lo screenshot della pagina e l'elemento che hai scelto.",
+    label: "Cosa vorresti cambiare?",
+    hint: "cosa vorresti e a cosa ti servirebbe",
+    placeholder: "Es. vorrei poter esportare questa tabella in Excel"
+  }
+};
 function nomeElemento(elemento) {
   if (!elemento) return null;
   return elemento.nome || elemento.id || elemento.testo || elemento.selettore || null;
@@ -3562,12 +3655,14 @@ function ModaleSegnalazione({
   mascheraDefault = false
 }) {
   const { toast } = useToast();
+  const [natura, setNatura] = useState2("problema");
+  const testo = NATURE[natura];
   const [commento, setCommento] = useState2("");
   const [screenshot, setScreenshot] = useState2(true);
   const [video, setVideo] = useState2(false);
   const [maschera2, setMaschera] = useState2(mascheraDefault);
   const [esito, setEsito] = useState2({ stato: "pronto" });
-  const inCorso = useRef4(false);
+  const inCorso = useRef5(false);
   const anteprima = useAnteprima(
     bozza.catture ? maschera2 ? bozza.catture.mascherato : bozza.catture.privato : null
   );
@@ -3579,13 +3674,19 @@ function ModaleSegnalazione({
     if (inCorso.current || vuoto || bloccato) return;
     inCorso.current = true;
     setEsito({ stato: "invio" });
-    const form = componiInvio(bozza, { commento, screenshot, video, maschera: maschera2 });
+    const form = componiInvio(bozza, {
+      commento,
+      screenshot,
+      video,
+      maschera: maschera2,
+      natura
+    });
     const r2 = await inviaSegnalazione({ endpoint, fetchImpl, form });
     inCorso.current = false;
     if (r2.esito === "inviata") {
       toast({
         title: `Segnalazione #${r2.ticket_id} inviata`,
-        description: r2.url ? /* @__PURE__ */ jsx10(
+        description: r2.url ? /* @__PURE__ */ jsx11(
           "a",
           {
             href: r2.url,
@@ -3604,9 +3705,9 @@ function ModaleSegnalazione({
     setEsito({ stato: r2.esito, messaggio: r2.messaggio });
   };
   const invio = esito.stato === "invio";
-  const footer = /* @__PURE__ */ jsxs8(Fragment, { children: [
-    /* @__PURE__ */ jsx10(Button_default, { variant: "outline", onClick: onChiudi, disabled: invio, children: "Annulla" }),
-    esito.stato === "riprova" ? /* @__PURE__ */ jsx10(Button_default, { icon: RotateCw, onClick: invia, disabled: vuoto, children: "Riprova" }) : /* @__PURE__ */ jsx10(
+  const footer = /* @__PURE__ */ jsxs9(Fragment, { children: [
+    /* @__PURE__ */ jsx11(Button_default, { variant: "outline", onClick: onChiudi, disabled: invio, children: "Annulla" }),
+    esito.stato === "riprova" ? /* @__PURE__ */ jsx11(Button_default, { icon: RotateCw, onClick: invia, disabled: vuoto, children: "Riprova" }) : /* @__PURE__ */ jsx11(
       Button_default,
       {
         icon: Send,
@@ -3617,30 +3718,43 @@ function ModaleSegnalazione({
       }
     )
   ] });
-  return /* @__PURE__ */ jsx10(
+  return /* @__PURE__ */ jsx11(
     Dialog,
     {
       open: true,
       onClose: onChiudi,
       closeDisabled: invio,
       closeOnBackdrop: false,
-      title: "Segnala un problema",
-      description: "Arriva a chi segue il portale, con le ultime azioni e, se vuoi, uno screenshot o il video della pagina.",
-      icon: Bug,
+      title: testo.title,
+      description: testo.description,
+      icon: testo.icon,
       size: "lg",
       footer,
-      children: /* @__PURE__ */ jsxs8("div", { className: "space-y-5", children: [
-        /* @__PURE__ */ jsxs8("div", { className: "flex items-start gap-3 rounded-lg border border-border bg-muted/40 px-3 py-2.5", children: [
-          /* @__PURE__ */ jsx10(
+      children: /* @__PURE__ */ jsxs9("div", { className: "space-y-5", children: [
+        /* @__PURE__ */ jsx11(
+          SegmentedControl,
+          {
+            "aria-label": "Tipo di segnalazione",
+            size: "md",
+            value: natura,
+            onChange: setNatura,
+            options: [
+              { value: "problema", label: "Problema", icon: Bug },
+              { value: "evolutiva", label: "Evolutiva", icon: Lightbulb }
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxs9("div", { className: "flex items-start gap-3 rounded-lg border border-border bg-muted/40 px-3 py-2.5", children: [
+          /* @__PURE__ */ jsx11(
             MousePointerClick,
             {
               className: "mt-0.5 h-4 w-4 shrink-0 text-primary",
               "aria-hidden": true
             }
           ),
-          /* @__PURE__ */ jsxs8("div", { className: "min-w-0 text-sm", children: [
-            /* @__PURE__ */ jsx10("p", { className: "text-xs font-medium uppercase tracking-wide text-muted-foreground", children: "Elemento" }),
-            /* @__PURE__ */ jsx10(
+          /* @__PURE__ */ jsxs9("div", { className: "min-w-0 text-sm", children: [
+            /* @__PURE__ */ jsx11("p", { className: "text-xs font-medium uppercase tracking-wide text-muted-foreground", children: "Elemento" }),
+            /* @__PURE__ */ jsx11(
               "p",
               {
                 className: cn(
@@ -3652,13 +3766,13 @@ function ModaleSegnalazione({
             )
           ] })
         ] }),
-        /* @__PURE__ */ jsx10(
+        /* @__PURE__ */ jsx11(
           Field,
           {
-            label: "Cosa non va?",
+            label: testo.label,
             required: true,
-            hint: `${mancano > 0 ? `ancora ${mancano} ${mancano === 1 ? "carattere" : "caratteri"}` : `${commento.length}/${MAX_COMMENTO}`} \xB7 cosa ti aspettavi e cosa vedi invece`,
-            children: /* @__PURE__ */ jsx10(
+            hint: `${mancano > 0 ? `ancora ${mancano} ${mancano === 1 ? "carattere" : "caratteri"}` : `${commento.length}/${MAX_COMMENTO}`} \xB7 ${testo.hint}`,
+            children: /* @__PURE__ */ jsx11(
               Textarea_default,
               {
                 "data-autofocus": true,
@@ -3666,13 +3780,13 @@ function ModaleSegnalazione({
                 maxLength: MAX_COMMENTO,
                 value: commento,
                 onChange: (e) => setCommento(e.target.value),
-                placeholder: "Es. il totale dei clienti attivi non torna con l'estrazione di ieri"
+                placeholder: testo.placeholder
               }
             )
           }
         ),
-        /* @__PURE__ */ jsxs8("div", { className: "space-y-2.5", children: [
-          /* @__PURE__ */ jsx10(
+        /* @__PURE__ */ jsxs9("div", { className: "space-y-2.5", children: [
+          /* @__PURE__ */ jsx11(
             Checkbox,
             {
               checked: screenshot,
@@ -3680,7 +3794,7 @@ function ModaleSegnalazione({
               label: "Allega lo screenshot della pagina"
             }
           ),
-          /* @__PURE__ */ jsx10(
+          /* @__PURE__ */ jsx11(
             Checkbox,
             {
               checked: video,
@@ -3688,7 +3802,7 @@ function ModaleSegnalazione({
               label: "Allega il video delle ultime azioni"
             }
           ),
-          /* @__PURE__ */ jsx10(
+          /* @__PURE__ */ jsx11(
             Checkbox,
             {
               checked: maschera2,
@@ -3696,27 +3810,27 @@ function ModaleSegnalazione({
               label: "Maschera i dati"
             }
           ),
-          /* @__PURE__ */ jsx10("p", { className: "pl-6 text-xs text-muted-foreground", children: "Password e campi riservati sono sempre nascosti, anche con la casella spenta." })
+          /* @__PURE__ */ jsx11("p", { className: "pl-6 text-xs text-muted-foreground", children: "Password e campi riservati sono sempre nascosti, anche con la casella spenta." })
         ] }),
-        screenshot && /* @__PURE__ */ jsxs8("figure", { className: "overflow-hidden rounded-lg border border-border bg-muted/30", children: [
-          anteprima ? /* @__PURE__ */ jsx10(
+        screenshot && /* @__PURE__ */ jsxs9("figure", { className: "overflow-hidden rounded-lg border border-border bg-muted/30", children: [
+          anteprima ? /* @__PURE__ */ jsx11(
             "img",
             {
               src: anteprima,
               alt: "Anteprima dello screenshot",
               className: "max-h-56 w-full object-contain object-top"
             }
-          ) : /* @__PURE__ */ jsxs8("div", { className: "flex h-24 items-center justify-center gap-2 text-sm text-muted-foreground", children: [
-            /* @__PURE__ */ jsx10(ImageOff, { className: "h-4 w-4", "aria-hidden": true }),
+          ) : /* @__PURE__ */ jsxs9("div", { className: "flex h-24 items-center justify-center gap-2 text-sm text-muted-foreground", children: [
+            /* @__PURE__ */ jsx11(ImageOff, { className: "h-4 w-4", "aria-hidden": true }),
             bozza.catture ? "Anteprima non disponibile" : "Screenshot non disponibile"
           ] }),
-          /* @__PURE__ */ jsxs8("figcaption", { className: "border-t border-border px-3 py-1.5 text-xs text-muted-foreground", children: [
+          /* @__PURE__ */ jsxs9("figcaption", { className: "border-t border-border px-3 py-1.5 text-xs text-muted-foreground", children: [
             "Screenshot",
             " ",
             maschera2 ? "con i dati mascherati" : "con i dati visibili"
           ] })
         ] }),
-        (esito.stato === "riprova" || esito.stato === "non_disponibile" || esito.stato === "errore") && /* @__PURE__ */ jsx10(
+        (esito.stato === "riprova" || esito.stato === "non_disponibile" || esito.stato === "errore") && /* @__PURE__ */ jsx11(
           Alert,
           {
             tone: esito.stato === "non_disponibile" ? "warning" : "danger",
@@ -3734,9 +3848,9 @@ import { createPortal as createPortal2 } from "react-dom";
 import { Crosshair } from "lucide-react";
 
 // src/atoms/Kbd.jsx
-import { jsx as jsx11 } from "react/jsx-runtime";
+import { jsx as jsx12 } from "react/jsx-runtime";
 function Kbd({ children, className }) {
-  return /* @__PURE__ */ jsx11(
+  return /* @__PURE__ */ jsx12(
     "kbd",
     {
       className: cn(
@@ -3771,7 +3885,7 @@ function leggiSegnala(valore) {
 }
 
 // src/segnalazioni/SelettoreElemento.jsx
-import { jsx as jsx12, jsxs as jsxs9 } from "react/jsx-runtime";
+import { jsx as jsx13, jsxs as jsxs10 } from "react/jsx-runtime";
 var MAX_TESTO = 200;
 var MAX_LIVELLI = 8;
 var CLASSE_SEMPLICE = /^[a-zA-Z][\w-]*$/;
@@ -3886,8 +4000,8 @@ function SelettoreElemento({ onScegli, onAnnulla }) {
     };
   }, [onScegli, onAnnulla]);
   return createPortal2(
-    /* @__PURE__ */ jsxs9("div", { "data-segnala-ignora": true, children: [
-      riquadro && /* @__PURE__ */ jsx12(
+    /* @__PURE__ */ jsxs10("div", { "data-segnala-ignora": true, children: [
+      riquadro && /* @__PURE__ */ jsx13(
         "div",
         {
           "aria-hidden": true,
@@ -3900,24 +4014,24 @@ function SelettoreElemento({ onScegli, onAnnulla }) {
           }
         }
       ),
-      /* @__PURE__ */ jsxs9(
+      /* @__PURE__ */ jsxs10(
         "div",
         {
           role: "toolbar",
           "aria-label": "Scegli l'elemento da segnalare",
           className: "fixed bottom-6 left-1/2 z-[71] flex max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-wrap items-center gap-3 rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-card-foreground shadow-2xl ring-1 ring-black/5 animate-fade-in dark:ring-white/10",
           children: [
-            /* @__PURE__ */ jsxs9("span", { className: "flex items-center gap-2 font-medium", children: [
-              /* @__PURE__ */ jsx12(Crosshair, { className: "h-4 w-4 text-primary", "aria-hidden": true }),
+            /* @__PURE__ */ jsxs10("span", { className: "flex items-center gap-2 font-medium", children: [
+              /* @__PURE__ */ jsx13(Crosshair, { className: "h-4 w-4 text-primary", "aria-hidden": true }),
               "Clicca l'elemento che non va"
             ] }),
-            /* @__PURE__ */ jsxs9("span", { className: "hidden items-center gap-1 text-xs text-muted-foreground sm:flex", children: [
-              /* @__PURE__ */ jsx12(Kbd, { children: "Esc" }),
+            /* @__PURE__ */ jsxs10("span", { className: "hidden items-center gap-1 text-xs text-muted-foreground sm:flex", children: [
+              /* @__PURE__ */ jsx13(Kbd, { children: "Esc" }),
               " per annullare"
             ] }),
-            /* @__PURE__ */ jsxs9("div", { className: "flex items-center gap-2", children: [
-              /* @__PURE__ */ jsx12(Button_default, { variant: "secondary", size: "sm", onClick: () => onScegli(null), children: "Segnala senza elemento" }),
-              /* @__PURE__ */ jsx12(Button_default, { variant: "ghost", size: "sm", onClick: onAnnulla, children: "Annulla" })
+            /* @__PURE__ */ jsxs10("div", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsx13(Button_default, { variant: "secondary", size: "sm", onClick: () => onScegli(null), children: "Segnala senza elemento" }),
+              /* @__PURE__ */ jsx13(Button_default, { variant: "ghost", size: "sm", onClick: onAnnulla, children: "Annulla" })
             ] })
           ]
         }
@@ -3928,7 +4042,7 @@ function SelettoreElemento({ onScegli, onAnnulla }) {
 }
 
 // src/segnalazioni/useRegistroAzioni.js
-import { useEffect as useEffect7, useRef as useRef5 } from "react";
+import { useEffect as useEffect7, useRef as useRef6 } from "react";
 var MAX_AZIONI = 200;
 var MAX_MESSAGGIO = 500;
 var MAX_ETICHETTA = 80;
@@ -4143,7 +4257,7 @@ function creaRegistroAzioni(win, { max = MAX_AZIONI, ignoraUrl = [] } = {}) {
   };
 }
 function useRegistroAzioni(attivo, { ignoraUrl = [] } = {}) {
-  const registro = useRef5(null);
+  const registro = useRef6(null);
   const chiaveIgnora = ignoraUrl.join("|");
   useEffect7(() => {
     if (!attivo || typeof window === "undefined") return void 0;
@@ -4156,12 +4270,12 @@ function useRegistroAzioni(attivo, { ignoraUrl = [] } = {}) {
       registro.current = null;
     };
   }, [attivo, chiaveIgnora]);
-  const api = useRef5({ azioni: () => registro.current?.azioni() ?? [] });
+  const api = useRef6({ azioni: () => registro.current?.azioni() ?? [] });
   return api.current;
 }
 
 // src/segnalazioni/SegnalazioniProvider.jsx
-import { jsx as jsx13, jsxs as jsxs10 } from "react/jsx-runtime";
+import { jsx as jsx14, jsxs as jsxs11 } from "react/jsx-runtime";
 var fetchPredefinito = (...args) => globalThis.fetch(...args);
 function SegnalazioniProvider({
   endpoint = "/api/segnalazioni",
@@ -4175,11 +4289,11 @@ function SegnalazioniProvider({
   const [config, setConfig] = useState4(null);
   const [stato, setStato] = useState4("inattivo");
   const [bozza, setBozza] = useState4(null);
-  const baseRef = useRef6(fetchImpl);
+  const baseRef = useRef7(fetchImpl);
   baseRef.current = fetchImpl;
-  const tokenRef = useRef6(getToken);
+  const tokenRef = useRef7(getToken);
   tokenRef.current = getToken;
-  const fetchRef = useRef6((url, opzioni = {}) => {
+  const fetchRef = useRef7((url, opzioni = {}) => {
     const token = tokenRef.current?.();
     if (!token) return baseRef.current(url, opzioni);
     const headers = new Headers(opzioni.headers);
@@ -4253,11 +4367,11 @@ function SegnalazioniProvider({
     () => ({ abilitato, apri, stato }),
     [abilitato, apri, stato]
   );
-  return /* @__PURE__ */ jsxs10(SegnalazioniContext.Provider, { value: valore, children: [
+  return /* @__PURE__ */ jsxs11(SegnalazioniContext.Provider, { value: valore, children: [
     children,
-    abilitato && /* @__PURE__ */ jsxs10(ToastProvider, { children: [
-      stato === "mirino" && /* @__PURE__ */ jsx13(SelettoreElemento, { onScegli: scegli, onAnnulla: annulla }),
-      stato === "cattura" && /* @__PURE__ */ jsx13(
+    abilitato && /* @__PURE__ */ jsxs11(ToastProvider, { children: [
+      stato === "mirino" && /* @__PURE__ */ jsx14(SelettoreElemento, { onScegli: scegli, onAnnulla: annulla }),
+      stato === "cattura" && /* @__PURE__ */ jsx14(
         "div",
         {
           "data-segnala-ignora": true,
@@ -4266,7 +4380,7 @@ function SegnalazioniProvider({
           children: "Preparo lo screenshot\u2026"
         }
       ),
-      stato === "modale" && bozza && /* @__PURE__ */ jsx13(
+      stato === "modale" && bozza && /* @__PURE__ */ jsx14(
         ModaleSegnalazione,
         {
           bozza,
@@ -4282,7 +4396,7 @@ function SegnalazioniProvider({
 
 // src/segnalazioni/PulsanteSegnala.jsx
 import { Bug as Bug2 } from "lucide-react";
-import { jsx as jsx14, jsxs as jsxs11 } from "react/jsx-runtime";
+import { jsx as jsx15, jsxs as jsxs12 } from "react/jsx-runtime";
 var ETICHETTA = "Segnala un problema";
 function PulsanteSegnala({
   compatto = false,
@@ -4293,7 +4407,7 @@ function PulsanteSegnala({
   if (!abilitato) return null;
   const occupato = stato !== "inattivo";
   if (compatto)
-    return /* @__PURE__ */ jsx14("span", { "data-segnala-ignora": true, className: "inline-flex", children: /* @__PURE__ */ jsx14(
+    return /* @__PURE__ */ jsx15("span", { "data-segnala-ignora": true, className: "inline-flex", children: /* @__PURE__ */ jsx15(
       IconButton_default,
       {
         icon: Bug2,
@@ -4306,7 +4420,7 @@ function PulsanteSegnala({
       }
     ) });
   if (riga)
-    return /* @__PURE__ */ jsxs11(
+    return /* @__PURE__ */ jsxs12(
       "button",
       {
         type: "button",
@@ -4318,12 +4432,12 @@ function PulsanteSegnala({
           className
         ),
         children: [
-          /* @__PURE__ */ jsx14(Bug2, { className: "h-3.5 w-3.5", "aria-hidden": true }),
+          /* @__PURE__ */ jsx15(Bug2, { className: "h-3.5 w-3.5", "aria-hidden": true }),
           ETICHETTA
         ]
       }
     );
-  return /* @__PURE__ */ jsx14("span", { "data-segnala-ignora": true, className: "inline-flex", children: /* @__PURE__ */ jsx14(
+  return /* @__PURE__ */ jsx15("span", { "data-segnala-ignora": true, className: "inline-flex", children: /* @__PURE__ */ jsx15(
     Button_default,
     {
       variant: "ghost",
@@ -4337,7 +4451,7 @@ function PulsanteSegnala({
   ) });
 }
 function azioniSegnalazioni({ compressa }) {
-  return compressa ? /* @__PURE__ */ jsx14(PulsanteSegnala, { compatto: true }) : /* @__PURE__ */ jsx14(PulsanteSegnala, { riga: true });
+  return compressa ? /* @__PURE__ */ jsx15(PulsanteSegnala, { compatto: true }) : /* @__PURE__ */ jsx15(PulsanteSegnala, { riga: true });
 }
 export {
   PRIVATO,
