@@ -78,13 +78,14 @@ export function componiInvio(
       comment: commento.trim(),
       natura,
       page_url: urlPagina(bozza.page_url ?? "", maschera),
-      ...(anonimo && {
-        email: anonimo.email.trim(),
-        nome: anonimo.nome?.trim() || null,
-        website: anonimo.website ?? "", // honeypot: a human leaves it empty
-      }),
     }),
   );
+  if (anonimo) {
+    // separate multipart fields, as vuscom-auth /pubblica expects
+    form.append("email", anonimo.email.trim());
+    form.append("nome", anonimo.nome?.trim() ?? "");
+    form.append("sito_web", anonimo.website ?? ""); // honeypot: a human leaves it empty
+  }
   const schermata =
     screenshot && bozza.catture
       ? maschera

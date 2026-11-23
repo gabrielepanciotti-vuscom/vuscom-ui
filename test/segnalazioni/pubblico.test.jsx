@@ -63,12 +63,10 @@ describe("segnalazioni pubbliche", () => {
     expect(post.url).toBe("/api/segnalazioni/pubblica");
     expect(post.opzioni.headers).toBeUndefined();
     const report = JSON.parse(post.opzioni.body.get("report"));
-    expect(report).toMatchObject({
-      email: "mario@x.it",
-      nome: "Mario",
-      website: "",
-      natura: "problema",
-    });
+    expect(report).toMatchObject({ natura: "problema" });
+    expect(post.opzioni.body.get("email")).toBe("mario@x.it");
+    expect(post.opzioni.body.get("nome")).toBe("Mario");
+    expect(post.opzioni.body.get("sito_web")).toBe("");
     expect(post.opzioni.body.get("video")).toBeNull();
   });
 

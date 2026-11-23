@@ -3093,15 +3093,14 @@ function componiInvio(bozza, {
       element: maschera2 ? mascheraElemento(bozza.elemento) : bozza.elemento ?? null,
       comment: commento.trim(),
       natura,
-      page_url: urlPagina(bozza.page_url ?? "", maschera2),
-      ...anonimo && {
-        email: anonimo.email.trim(),
-        nome: anonimo.nome?.trim() || null,
-        website: anonimo.website ?? ""
-        // honeypot: a human leaves it empty
-      }
+      page_url: urlPagina(bozza.page_url ?? "", maschera2)
     })
   );
+  if (anonimo) {
+    form.append("email", anonimo.email.trim());
+    form.append("nome", anonimo.nome?.trim() ?? "");
+    form.append("sito_web", anonimo.website ?? "");
+  }
   const schermata = screenshot && bozza.catture ? maschera2 ? bozza.catture.mascherato : bozza.catture.privato : null;
   const azioni = jsonBlob(
     maschera2 ? mascheraAzioni(bozza.azioni) : bozza.azioni ?? []
