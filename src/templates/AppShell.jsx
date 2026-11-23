@@ -14,10 +14,8 @@ import { useFaviconVuscom } from "../brand/Brand.jsx";
 import { normalizeNavTree } from "../navTree.js";
 import ThemeToggle from "../theme/ThemeToggle.jsx";
 import IconButton from "../atoms/IconButton.jsx";
-import { cn } from "../lib/cn.js";
 
 const STORAGE_KEY = "vuscom.sidebar.collapsed";
-const WIDTHS = { "7xl": "max-w-7xl", full: "max-w-none" };
 // Stable defaults: a fresh `[]` per render would re-run every memo below.
 const NESSUNA_VOCE = [];
 
@@ -85,7 +83,6 @@ export default function AppShell({
   sidebar = {},
   topbarRight,
   azioniSidebar,
-  maxWidth = "7xl",
   compattaAdOgniPagina = false,
   portaliRichiudibili = true,
   idContenuto = "contenuto",
@@ -271,9 +268,8 @@ export default function AppShell({
             tabIndex={-1}
             className="flex-1 overflow-y-auto scrollbar-thin p-4 focus:outline-none md:p-6"
           >
-            <div className={cn("mx-auto", WIDTHS[maxWidth] ?? WIDTHS["7xl"])}>
-              {children}
-            </div>
+            {/* Full width on every portal: no centred column, no side margins (Gabriele, 23/11/2026). */}
+            {children}
           </main>
         </div>
       </div>

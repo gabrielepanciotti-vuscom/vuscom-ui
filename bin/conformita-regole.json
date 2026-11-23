@@ -1,5 +1,5 @@
 {
-  "versione": "2026-10-14.1",
+  "versione": "2026-11-23.1",
   "repo": "https://github.com/gabrielepanciotti-vuscom/vuscom-ui",
   "versione_minima": "1.7.0",
   "token_tema": [
@@ -124,6 +124,11 @@
       "codice": "tabella-larga",
       "gravita": "avvisa",
       "descrizione": "una tabella scritta a mano con 7+ colonne sta dentro TopScrollX (o è una DataTable) di @vuscom/ui: barra di scorrimento anche in alto"
+    },
+    {
+      "codice": "pagina-centrata",
+      "gravita": "avvisa",
+      "descrizione": "nessuna pagina in una colonna centrata (mx-auto + max-w-4xl o più largo): i portali usano tutta la larghezza, senza margini a destra e a sinistra"
     }
   ],
   "distanza_minima_colori": 60,

@@ -218,6 +218,15 @@ const tabelleLarghe = sorgenti.filter(({ p, testo }) => {
 });
 if (tabelleLarghe.length)
   segnala("tabella-larga", `tabella con ${COLONNE_TABELLA_LARGA}+ colonne senza TopScrollX: usare DataTable o avvolgerla in TopScrollX di @vuscom/ui (barra di scorrimento anche in alto)`, tabelleLarghe.map(({ p }) => rel(p)).join(", "));
+// Full width (Gabriele, 23/11/2026): a page wrapped in a centred column leaves
+// empty margins on both sides. Narrow caps (dialogs, a login card) are fine.
+const centrate = sorgenti.filter(
+  ({ p, testo }) =>
+    !/__tests__|\.test\./.test(p) &&
+    /className=["'`][^"'`]*(?:\bmx-auto\b[^"'`]*\bmax-w-(?:[4-7]xl|screen-\w+|\[\d{3,}px\])|\bmax-w-(?:[4-7]xl|screen-\w+|\[\d{3,}px\])[^"'`]*\bmx-auto\b)/.test(testo),
+);
+if (centrate.length)
+  segnala("pagina-centrata", `${centrate.length} file mettono la pagina in una colonna centrata (mx-auto + max-w-…): togliere il limite, la pagina usa tutta la larghezza`, centrate.slice(0, 5).map(({ p }) => rel(p)).join(", "));
 const icona = tutto(/\bappIcon\s*[:=]/);
 if (icona.length)
   segnala("logo-proprio", "la sidebar riceve un appIcon proprio: il logo VUS COM lo mette AppShell", icona.map(({ p }) => rel(p)).join(", "));
