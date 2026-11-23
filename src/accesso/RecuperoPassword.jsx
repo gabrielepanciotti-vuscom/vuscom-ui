@@ -12,7 +12,7 @@ const MINIMO = 8;
 const GENERICO =
   "Se l'account esiste, riceverà un'email con le istruzioni per reimpostare la password.";
 
-async function postJson(url, body) {
+export async function postJson(url, body) {
   const r = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json" },

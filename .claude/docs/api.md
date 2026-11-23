@@ -7,7 +7,8 @@ backend del portale deve fornire; i percorsi sono i default del codice e si poss
 | Modulo | Chiamate (default) |
 |---|---|
 | `segnalazioni` (`SegnalazioniProvider`) | `GET /api/segnalazioni/config` (il pulsante compare solo se il portale lo abilita), `POST /api/segnalazioni` (multipart, `credentials: include`) |
-| `utenti` (`useUtenti`, `GestioneUtenti`) | `GET /api/utenti?includi_disattivati=<bool>` tramite il `client` passato dal portale |
+| `utenti` (`useUtenti`, `GestioneUtenti`) | `GET /api/utenti?includi_disattivati=<bool>` e le azioni `/api/utenti/{id}/rimanda-invito`, `/{id}/password`, `/richieste`, `/richieste/{id}/rifiuta` tramite il `client` passato dal portale |
+| `accesso` (`RegistrazionePage`, `LoginPage registrazione`) | `GET {auth}/invito?token=`, `POST {auth}/registrazione`, `POST {auth}/registrati`, `POST {auth}/invito/rimanda` (`{auth}` = `/api/auth`) |
 | `accesso` (`useAccessoMicrosoft`) | `GET /api/auth/microsoft/disponibile`, `POST /api/auth/microsoft/scambia` (`{ biglietto }`), redirect a `/api/auth/microsoft/login` |
 
 Contratto della `POST /api/segnalazioni`, come lo legge `src/segnalazioni/invio.js`:

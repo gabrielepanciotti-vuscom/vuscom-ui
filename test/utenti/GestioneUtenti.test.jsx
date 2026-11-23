@@ -39,7 +39,9 @@ function httpError(status, body) {
 
 function makeClient(overrides = {}) {
   return {
-    get: vi.fn().mockResolvedValue([MARIO, IO]),
+    get: vi.fn((path) =>
+      Promise.resolve(path.includes("/richieste") ? [] : [MARIO, IO]),
+    ),
     post: vi.fn().mockResolvedValue({}),
     put: vi.fn().mockResolvedValue({}),
     del: vi.fn().mockResolvedValue(null),
@@ -110,16 +112,16 @@ describe("GestioneUtenti", () => {
     await screen.findByText("mario@example.com");
     await user.click(screen.getByRole("button", { name: "Nuovo utente" }));
     await user.type(screen.getByLabelText("Username"), "mrossi");
+    await user.type(screen.getByLabelText(/^Email/), "mrossi@example.com");
     await user.type(screen.getByLabelText(/^Nome/), "Mario");
     await user.type(screen.getByLabelText(/^Cognome/), "Rossi");
-    await user.click(screen.getByRole("button", { name: "Crea utente" }));
+    await user.click(screen.getByRole("button", { name: "Crea e invia invito" }));
     expect(client.post).toHaveBeenCalledWith("/api/utenti", {
       username: "mrossi",
-      email: null,
+      email: "mrossi@example.com",
       nome: "Mario",
       cognome: "Rossi",
       ruolo: "viewer",
-      password: null,
     });
     expect(
       await screen.findByText("Mario Rossi esiste già"),
@@ -136,7 +138,9 @@ describe("GestioneUtenti", () => {
         "Accesso concesso. Email inviata a mrossi@example.com.",
       ),
     ).toBeInTheDocument();
-    await waitFor(() => expect(client.get).toHaveBeenCalledTimes(2));
+    await waitFor(() =>
+      expect(client.get.mock.calls.filter(([p]) => !p.includes("/richieste"))).toHaveLength(2),
+    );
   });
 
   it("disables the avvisa switch when the existing person has no email", async () => {
@@ -168,9 +172,10 @@ describe("GestioneUtenti", () => {
     await screen.findByText("mario@example.com");
     await user.click(screen.getByRole("button", { name: "Nuovo utente" }));
     await user.type(screen.getByLabelText("Username"), "mrossi");
+    await user.type(screen.getByLabelText(/^Email/), "mrossi@example.com");
     await user.type(screen.getByLabelText(/^Nome/), "Mario");
     await user.type(screen.getByLabelText(/^Cognome/), "Rossi");
-    await user.click(screen.getByRole("button", { name: "Crea utente" }));
+    await user.click(screen.getByRole("button", { name: "Crea e invia invito" }));
     expect(
       await screen.findByText("Mario Rossi esiste già"),
     ).toBeInTheDocument();
@@ -199,8 +204,9 @@ describe("GestioneUtenti", () => {
     renderPage(makeClient());
     await screen.findByText("mario@example.com");
     await user.click(screen.getByRole("button", { name: "Nuovo utente" }));
-    const crea = screen.getByRole("button", { name: "Crea utente" });
+    const crea = screen.getByRole("button", { name: "Crea e invia invito" });
     await user.type(screen.getByLabelText("Username"), "mrossi");
+    await user.type(screen.getByLabelText(/^Email/), "mrossi@example.com");
     expect(crea).toBeDisabled();
     await user.type(screen.getByLabelText(/^Nome/), "Mario");
     expect(crea).toBeDisabled();
@@ -210,32 +216,11 @@ describe("GestioneUtenti", () => {
     expect(crea).toBeEnabled();
   });
 
-  it("shows the generated password once", async () => {
-    const user = userEvent.setup();
-    const client = makeClient({
-      post: vi.fn().mockResolvedValue({
-        utente: MARIO,
-        email_inviata: false,
-        password_generata: "abc123XYZ-secret",
-      }),
-    });
-    renderPage(client);
-    await screen.findByText("mario@example.com");
-    await user.click(screen.getByRole("button", { name: "Nuovo utente" }));
-    await user.type(screen.getByLabelText("Username"), "nuovo");
-    await user.type(screen.getByLabelText(/^Nome/), "Nuovo");
-    await user.type(screen.getByLabelText(/^Cognome/), "Utente");
-    await user.click(screen.getByRole("button", { name: "Crea utente" }));
-    expect(await screen.findByText("abc123XYZ-secret")).toBeInTheDocument();
-    expect(screen.getByText(/mostrata una sola volta/)).toBeInTheDocument();
-    await waitFor(() => expect(client.get).toHaveBeenCalledTimes(2));
-  });
-
   it("searches existing users with a 300 ms debounce", async () => {
     vi.useFakeTimers();
     const client = makeClient();
     client.get.mockImplementation((path) =>
-      Promise.resolve(path.includes("/cerca") ? [] : [MARIO, IO]),
+      Promise.resolve(path.includes("/richieste") ? [] : path.includes("/cerca") ? [] : [MARIO, IO]),
     );
     renderPage(client);
     await act(async () => {
@@ -277,7 +262,9 @@ describe("GestioneUtenti", () => {
       Promise.resolve(
         path.endsWith("/eliminazione")
           ? { esito: "anonimizzato", riferimenti: { "estrazione.user_id": 12 } }
-          : [MARIO, IO],
+          : path.includes("/richieste")
+            ? []
+            : [MARIO, IO],
       ),
     );
     renderPage(client);
@@ -431,45 +418,20 @@ describe("GestioneUtenti", () => {
       await screen.findByText("mario@example.com");
       await user.click(screen.getByRole("button", { name: "Nuovo utente" }));
       await user.type(screen.getByLabelText("Username"), "mrossi");
+      await user.type(screen.getByLabelText(/^Email/), "mrossi@example.com");
       await user.type(screen.getByLabelText(/^Nome/), "Mario");
       await user.type(screen.getByLabelText(/^Cognome/), "Rossi");
-      await user.click(screen.getByRole("button", { name: "Crea utente" }));
+      await user.click(screen.getByRole("button", { name: "Crea e invia invito" }));
       expect(await screen.findByText(testo)).toBeInTheDocument();
       expect(screen.queryByRole("button", { name: /Dai accesso/ })).toBeNull();
     },
   );
 
-  it("keeps the generated password dialog open on Esc, closes only with Chiudi", async () => {
-    const user = userEvent.setup();
-    const client = makeClient({
-      post: vi.fn().mockResolvedValue({
-        utente: MARIO,
-        email_inviata: false,
-        password_generata: "abc123XYZ-secret",
-      }),
-    });
-    renderPage(client);
-    await screen.findByText("mario@example.com");
-    await user.click(screen.getByRole("button", { name: "Nuovo utente" }));
-    await user.type(screen.getByLabelText("Username"), "nuovo");
-    await user.type(screen.getByLabelText(/^Nome/), "Nuovo");
-    await user.type(screen.getByLabelText(/^Cognome/), "Utente");
-    await user.click(screen.getByRole("button", { name: "Crea utente" }));
-    await screen.findByText("abc123XYZ-secret");
-    await user.keyboard("{Escape}");
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: "Chiudi finestra" }),
-    ).toBeNull();
-    await user.click(screen.getByRole("button", { name: "Chiudi" }));
-    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
-  });
-
   it("clears the chosen person when the search text changes", async () => {
     const user = userEvent.setup();
     const client = makeClient();
     client.get.mockImplementation((path) =>
-      Promise.resolve(path.includes("/cerca") ? [MARIO] : [MARIO, IO]),
+      Promise.resolve(path.includes("/richieste") ? [] : path.includes("/cerca") ? [MARIO] : [MARIO, IO]),
     );
     renderPage(client);
     await screen.findByText("mario@example.com");
@@ -499,7 +461,7 @@ describe("GestioneUtenti", () => {
       }),
     });
     client.get.mockImplementation((path) =>
-      Promise.resolve(path.includes("/cerca") ? [MARIO] : [MARIO, IO]),
+      Promise.resolve(path.includes("/richieste") ? [] : path.includes("/cerca") ? [MARIO] : [MARIO, IO]),
     );
     renderPage(client);
     await screen.findByText("mario@example.com");
@@ -539,7 +501,7 @@ describe("GestioneUtenti", () => {
       }),
     });
     client.get.mockImplementation((path) =>
-      Promise.resolve(path.includes("/cerca") ? [MARIO] : [MARIO, IO]),
+      Promise.resolve(path.includes("/richieste") ? [] : path.includes("/cerca") ? [MARIO] : [MARIO, IO]),
     );
     renderPage(client);
     await screen.findByText("mario@example.com");
@@ -576,7 +538,7 @@ describe("GestioneUtenti", () => {
       }),
     });
     client.get.mockImplementation((path) =>
-      Promise.resolve(path.includes("/cerca") ? [SENZA_EMAIL] : [MARIO, IO]),
+      Promise.resolve(path.includes("/richieste") ? [] : path.includes("/cerca") ? [SENZA_EMAIL] : [MARIO, IO]),
     );
     renderPage(client);
     await screen.findByText("mario@example.com");
@@ -617,5 +579,95 @@ describe("GestioneUtenti", () => {
     expect(screen.queryByRole("radio", { name: "manager" })).toBeNull();
     expect(screen.getByRole("radio", { name: "admin" })).toBeInTheDocument();
     expect(screen.getByText(/tuo account/)).toBeInTheDocument();
+  });
+
+  it("creates the user with no password and sends the invitation", async () => {
+    const user = userEvent.setup();
+    const client = makeClient({ post: vi.fn().mockResolvedValue({ utente: MARIO, email_inviata: true }) });
+    renderPage(client);
+    await screen.findByText("mario@example.com");
+    await user.click(screen.getByRole("button", { name: "Nuovo utente" }));
+    expect(document.querySelector('input[type="password"]')).toBeNull();
+    const crea = screen.getByRole("button", { name: "Crea e invia invito" });
+    await user.type(screen.getByLabelText("Username"), "nuovo");
+    await user.type(screen.getByLabelText(/^Nome/), "Nuovo");
+    await user.type(screen.getByLabelText(/^Cognome/), "Utente");
+    expect(crea).toBeDisabled(); // email is required
+    await user.type(screen.getByLabelText(/^Email/), "n@example.com");
+    await user.click(crea);
+    expect(client.post).toHaveBeenCalledWith("/api/utenti", {
+      username: "nuovo", email: "n@example.com", nome: "Nuovo", cognome: "Utente", ruolo: "viewer",
+    });
+    expect(await screen.findByText(/Invito inviato per email/)).toBeInTheDocument();
+  });
+
+  it("shows the status of each row and the invitation expiry", async () => {
+    const client = makeClient();
+    client.get.mockImplementation((path) =>
+      Promise.resolve(path.includes("/richieste") ? [] : [
+        { ...MARIO, id: 1, stato: "invito_inviato", invito_scade_il: "2026-12-05T10:00:00" },
+        { ...MARIO, id: 2, email: "b@x.it", stato: "invito_scaduto" },
+        { ...MARIO, id: 3, email: "c@x.it", stato: "creato" },
+        { ...MARIO, id: 4, email: "d@x.it", stato: "registrato" },
+        { ...MARIO, id: 5, email: "e@x.it", stato: "disattivato", is_active: false },
+      ]),
+    );
+    renderPage(client);
+    for (const t of ["Invito inviato", "Invito scaduto", "Creato", "Registrato", "Disattivato"])
+      expect(await screen.findByText(t)).toBeInTheDocument();
+    expect(screen.getByText("scade il 05/12/2026")).toBeInTheDocument();
+    expect(screen.getAllByTitle("Rimanda invito")).toHaveLength(3);
+  });
+
+  it("resends an invitation after confirmation", async () => {
+    const user = userEvent.setup();
+    const client = makeClient();
+    client.get.mockImplementation((path) =>
+      Promise.resolve(path.includes("/richieste") ? [] : [{ ...MARIO, stato: "invito_scaduto" }]),
+    );
+    renderPage(client);
+    await user.click(await screen.findByTitle("Rimanda invito"));
+    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Rimanda invito" }));
+    expect(client.post).toHaveBeenCalledWith("/api/utenti/7/rimanda-invito", {});
+  });
+
+  it("resets the password by link, without showing any password", async () => {
+    const user = userEvent.setup();
+    const client = makeClient({ put: vi.fn().mockResolvedValue({ email_inviata: true }) });
+    renderPage(client);
+    const riga = (await screen.findByText("mario@example.com")).closest("tr");
+    await user.click(within(riga).getByTitle("Reimposta password"));
+    expect(document.querySelector('input[type="password"]')).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Invia link" }));
+    expect(client.put).toHaveBeenCalledWith("/api/utenti/7/password", {});
+  });
+
+  it("lists access requests: create opens Nuovo utente prefilled, reject posts", async () => {
+    const user = userEvent.setup();
+    let richieste = [{ id: 3, email: "anna.verdi@example.com", created_at: "2026-11-20T09:00:00" }];
+    const client = makeClient();
+    client.get.mockImplementation((path) =>
+      Promise.resolve(path.includes("/richieste") ? richieste : [MARIO, IO]),
+    );
+    client.post.mockImplementation(async (path) => {
+      if (path.endsWith("/rifiuta")) richieste = [];
+      return null;
+    });
+    renderPage(client);
+    expect(await screen.findByText("anna.verdi@example.com")).toBeInTheDocument();
+    expect(client.get).toHaveBeenCalledWith("/api/utenti/richieste");
+    await user.click(screen.getByRole("button", { name: "Crea utente…" }));
+    expect(screen.getByLabelText("Username")).toHaveValue("anna.verdi");
+    expect(screen.getByLabelText(/^Email/)).toHaveValue("anna.verdi@example.com");
+    await user.click(screen.getByRole("button", { name: "Annulla" }));
+    await user.click(screen.getByRole("button", { name: "Rifiuta" }));
+    expect(client.post).toHaveBeenCalledWith("/api/utenti/richieste/3/rifiuta", {});
+    await waitFor(() => expect(screen.queryByText("anna.verdi@example.com")).toBeNull());
+  });
+
+  it("hides the requests box when there are none", async () => {
+    renderPage(makeClient());
+    await screen.findByText("mario@example.com");
+    expect(screen.queryByText("Richieste di accesso")).toBeNull();
   });
 });

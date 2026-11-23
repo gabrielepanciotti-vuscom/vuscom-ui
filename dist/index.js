@@ -6898,7 +6898,7 @@ function Section({
 }
 
 // src/templates/LoginPage.jsx
-import { useId as useId13, useState as useState22 } from "react";
+import { useId as useId13, useState as useState23 } from "react";
 import { Eye as Eye2, EyeOff } from "lucide-react";
 
 // src/accesso/useAccessoMicrosoft.js
@@ -7234,8 +7234,150 @@ function ReimpostaPassword({
   ] }) });
 }
 
+// src/accesso/Registrazione.jsx
+import { useEffect as useEffect18, useState as useState22 } from "react";
+import { Check as Check4, Circle } from "lucide-react";
+import { Fragment as Fragment10, jsx as jsx53, jsxs as jsxs46 } from "react/jsx-runtime";
+var MINIMO2 = 8;
+var SENZA_RETE = "Errore di connessione al server.";
+function messaggio(data, predefinito) {
+  const d = data?.detail;
+  if (typeof d === "string") return d;
+  return d?.messaggio || predefinito;
+}
+function RimandaInvito({ base = BASE_RECUPERO, login }) {
+  const [loading, setLoading] = useState22(false);
+  const [esito, setEsito] = useState22("");
+  async function rimanda() {
+    setLoading(true);
+    try {
+      const { data } = await postJson(`${base}/invito/rimanda`, { login });
+      setEsito(data.message || messaggio(data, "Se l'account esiste, riceverai una nuova email."));
+    } catch {
+      setEsito(SENZA_RETE);
+    } finally {
+      setLoading(false);
+    }
+  }
+  return /* @__PURE__ */ jsxs46("div", { className: "mt-3 space-y-2", children: [
+    esito && /* @__PURE__ */ jsx53("p", { children: esito }),
+    /* @__PURE__ */ jsx53(Button_default, { size: "sm", variant: "secondary", loading, disabled: Boolean(esito), onClick: rimanda, children: "Rimandami l'email di registrazione" })
+  ] });
+}
+function RichiestaRegistrazione({ base = BASE_RECUPERO, onIndietro, ...cornice }) {
+  const [email, setEmail] = useState22("");
+  const [loading, setLoading] = useState22(false);
+  const [error, setError] = useState22("");
+  const [message, setMessage] = useState22("");
+  async function invia(e) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const { data } = await postJson(`${base}/registrati`, { email });
+      setMessage(data.message || "Se l'indirizzo \xE8 abilitato, riceverai un'email per registrarti.");
+    } catch {
+      setError(SENZA_RETE);
+    } finally {
+      setLoading(false);
+    }
+  }
+  return /* @__PURE__ */ jsx53(LoginCornice, { ...cornice, subtitle: "Registrati", children: /* @__PURE__ */ jsxs46("form", { className: "space-y-5", onSubmit: invia, children: [
+    error && /* @__PURE__ */ jsx53(Alert, { tone: "danger", children: error }),
+    message ? /* @__PURE__ */ jsx53(Alert, { tone: "success", children: message }) : /* @__PURE__ */ jsxs46(Fragment10, { children: [
+      /* @__PURE__ */ jsx53(Field, { label: "Email", hint: "Ti invieremo un link per completare la registrazione.", children: /* @__PURE__ */ jsx53(Input_default, { type: "email", name: "email", autoComplete: "email", value: email, onChange: (e) => setEmail(e.target.value), required: true }) }),
+      /* @__PURE__ */ jsx53(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Invia" })
+    ] }),
+    /* @__PURE__ */ jsx53("div", { className: "text-center", children: /* @__PURE__ */ jsx53(Button_default, { variant: "link", onClick: onIndietro, children: "Torna al login" }) })
+  ] }) });
+}
+function Regola({ ok, children }) {
+  const Icona = ok ? Check4 : Circle;
+  return /* @__PURE__ */ jsxs46("li", { className: `flex items-center gap-2 ${ok ? "text-success" : "text-muted-foreground"}`, children: [
+    /* @__PURE__ */ jsx53(Icona, { className: "h-3.5 w-3.5", "aria-hidden": "true" }),
+    children
+  ] });
+}
+function RegistrazionePage({
+  base = BASE_RECUPERO,
+  token = typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("token") || "",
+  onAccesso,
+  onVaiAlLogin,
+  iconaPortale,
+  ...cornice
+}) {
+  useTemaLogin();
+  useFaviconVuscom(iconaPortale);
+  const [invito, setInvito] = useState22(null);
+  const [errore, setErrore] = useState22(token ? "" : "Link non valido: token mancante.");
+  const [nome, setNome] = useState22("");
+  const [cognome, setCognome] = useState22("");
+  const [password, setPassword] = useState22("");
+  const [conferma, setConferma] = useState22("");
+  const [loading, setLoading] = useState22(false);
+  useEffect18(() => {
+    if (!token) return;
+    let vivo = true;
+    fetch(`${base}/invito?token=${encodeURIComponent(token)}`, { headers: { Accept: "application/json" } }).then(async (r2) => ({ ok: r2.ok, data: await r2.json().catch(() => ({})) })).then(({ ok, data }) => {
+      if (!vivo) return;
+      if (!ok) return setErrore(messaggio(data, "Invito non valido."));
+      setInvito(data);
+      setNome(data.nome || "");
+      setCognome(data.cognome || "");
+    }).catch(() => vivo && setErrore(SENZA_RETE));
+    return () => {
+      vivo = false;
+    };
+  }, [base, token]);
+  const lungaAbbastanza = password.length >= MINIMO2;
+  const uguali = password !== "" && password === conferma;
+  const pronto = lungaAbbastanza && uguali && nome.trim() && cognome.trim();
+  async function invia(e) {
+    e.preventDefault();
+    setErrore("");
+    setLoading(true);
+    try {
+      const { ok, data } = await postJson(`${base}/registrazione`, {
+        token,
+        nome: nome.trim(),
+        cognome: cognome.trim(),
+        new_password: password,
+        confirm_password: conferma
+      });
+      if (!ok) return setErrore(messaggio(data, "Registrazione non riuscita."));
+      await onAccesso?.(data);
+    } catch {
+      setErrore(SENZA_RETE);
+    } finally {
+      setLoading(false);
+    }
+  }
+  return /* @__PURE__ */ jsx53(LoginCornice, { ...cornice, subtitle: "Completa la registrazione", children: !invito ? /* @__PURE__ */ jsxs46("div", { className: "space-y-5", children: [
+    errore ? /* @__PURE__ */ jsx53(Alert, { tone: "danger", children: errore }) : /* @__PURE__ */ jsx53("p", { className: "text-center text-sm text-muted-foreground", children: "Verifica dell'invito in corso\u2026" }),
+    errore && /* @__PURE__ */ jsx53("div", { className: "text-center", children: /* @__PURE__ */ jsx53(Button_default, { variant: "link", onClick: onVaiAlLogin, children: "Vai al login" }) })
+  ] }) : /* @__PURE__ */ jsxs46("form", { className: "space-y-5", onSubmit: invia, children: [
+    errore && /* @__PURE__ */ jsx53(Alert, { tone: "danger", children: errore }),
+    /* @__PURE__ */ jsx53(Field, { label: "Email", children: /* @__PURE__ */ jsx53(Input_default, { type: "email", value: invito.email || "", readOnly: true }) }),
+    /* @__PURE__ */ jsxs46("div", { className: "grid grid-cols-1 gap-4 sm:grid-cols-2", children: [
+      /* @__PURE__ */ jsx53(Field, { label: "Nome", children: /* @__PURE__ */ jsx53(Input_default, { value: nome, onChange: (e) => setNome(e.target.value), required: true }) }),
+      /* @__PURE__ */ jsx53(Field, { label: "Cognome", children: /* @__PURE__ */ jsx53(Input_default, { value: cognome, onChange: (e) => setCognome(e.target.value), required: true }) })
+    ] }),
+    /* @__PURE__ */ jsx53(Field, { label: "Password", children: /* @__PURE__ */ jsx53(Input_default, { type: "password", autoComplete: "new-password", value: password, onChange: (e) => setPassword(e.target.value), required: true }) }),
+    /* @__PURE__ */ jsx53(Field, { label: "Conferma password", children: /* @__PURE__ */ jsx53(Input_default, { type: "password", autoComplete: "new-password", value: conferma, onChange: (e) => setConferma(e.target.value), required: true }) }),
+    /* @__PURE__ */ jsxs46("ul", { className: "space-y-1 text-xs", "aria-label": "Regole della password", children: [
+      /* @__PURE__ */ jsxs46(Regola, { ok: lungaAbbastanza, children: [
+        "Almeno ",
+        MINIMO2,
+        " caratteri"
+      ] }),
+      /* @__PURE__ */ jsx53(Regola, { ok: uguali, children: "Le due password coincidono" })
+    ] }),
+    /* @__PURE__ */ jsx53(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, disabled: !pronto, children: "Registrati ed entra" })
+  ] }) });
+}
+
 // src/templates/LoginPage.jsx
-import { jsx as jsx53, jsxs as jsxs46 } from "react/jsx-runtime";
+import { jsx as jsx54, jsxs as jsxs47 } from "react/jsx-runtime";
 function leggiRicordami() {
   try {
     return localStorage.getItem("rememberMe") === "true";
@@ -7255,17 +7397,20 @@ function LoginPage({
   iconaPortale,
   altriPortali: altriPortali2 = true,
   ricordami = false,
-  recupero
+  recupero,
+  registrazione
 }) {
   const passwordId = useId13();
   useFaviconVuscom(iconaPortale);
-  const [username, setUsername] = useState22("");
-  const [password, setPassword] = useState22("");
-  const [show, setShow] = useState22(false);
-  const [loading, setLoading] = useState22(false);
-  const [error, setError] = useState22("");
-  const [recuperoAperto, setRecuperoAperto] = useState22(false);
-  const [ricorda, setRicorda] = useState22(
+  const [username, setUsername] = useState23("");
+  const [password, setPassword] = useState23("");
+  const [show, setShow] = useState23(false);
+  const [loading, setLoading] = useState23(false);
+  const [error, setError] = useState23("");
+  const [recuperoAperto, setRecuperoAperto] = useState23(false);
+  const [registrazioneAperta, setRegistrazioneAperta] = useState23(false);
+  const [nonRegistrato, setNonRegistrato] = useState23(null);
+  const [ricorda, setRicorda] = useState23(
     () => typeof window !== "undefined" && leggiRicordami()
   );
   useTemaLogin();
@@ -7279,17 +7424,23 @@ function LoginPage({
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
+    setNonRegistrato(null);
     setLoading(true);
     try {
       await (ricordami ? onSubmit(username, password, ricorda) : onSubmit(username, password));
     } catch (err) {
+      const d = err?.detail ?? err?.body?.detail;
+      if (registrazione && d?.codice === "non_registrato") {
+        setNonRegistrato({ messaggio: d.messaggio, login: d.login || username });
+        return;
+      }
       setError(err?.message || "Accesso non riuscito");
     } finally {
       setLoading(false);
     }
   }
   if (recupero && recuperoAperto)
-    return /* @__PURE__ */ jsx53(
+    return /* @__PURE__ */ jsx54(
       RichiestaRecupero,
       {
         base: recupero.base,
@@ -7299,7 +7450,18 @@ function LoginPage({
         onIndietro: () => setRecuperoAperto(false)
       }
     );
-  return /* @__PURE__ */ jsxs46(
+  if (registrazione && registrazioneAperta)
+    return /* @__PURE__ */ jsx54(
+      RichiestaRegistrazione,
+      {
+        base: registrazione.base,
+        title,
+        logoLight,
+        logoDark,
+        onIndietro: () => setRegistrazioneAperta(false)
+      }
+    );
+  return /* @__PURE__ */ jsxs47(
     LoginCornice,
     {
       title,
@@ -7307,9 +7469,13 @@ function LoginPage({
       logoLight,
       logoDark,
       children: [
-        /* @__PURE__ */ jsxs46("form", { className: "space-y-5", onSubmit: handleSubmit, children: [
-          error && /* @__PURE__ */ jsx53(Alert, { tone: "danger", children: error }),
-          /* @__PURE__ */ jsx53(Field, { label: usernameLabel, children: /* @__PURE__ */ jsx53(
+        /* @__PURE__ */ jsxs47("form", { className: "space-y-5", onSubmit: handleSubmit, children: [
+          error && /* @__PURE__ */ jsx54(Alert, { tone: "danger", children: error }),
+          nonRegistrato && /* @__PURE__ */ jsxs47(Alert, { tone: "warning", children: [
+            nonRegistrato.messaggio,
+            /* @__PURE__ */ jsx54(RimandaInvito, { base: registrazione.base, login: nonRegistrato.login })
+          ] }),
+          /* @__PURE__ */ jsx54(Field, { label: usernameLabel, children: /* @__PURE__ */ jsx54(
             Input_default,
             {
               name: "username",
@@ -7319,8 +7485,8 @@ function LoginPage({
               required: true
             }
           ) }),
-          /* @__PURE__ */ jsxs46("div", { className: "flex flex-col gap-1.5", children: [
-            /* @__PURE__ */ jsx53(
+          /* @__PURE__ */ jsxs47("div", { className: "flex flex-col gap-1.5", children: [
+            /* @__PURE__ */ jsx54(
               "label",
               {
                 htmlFor: passwordId,
@@ -7328,8 +7494,8 @@ function LoginPage({
                 children: "Password"
               }
             ),
-            /* @__PURE__ */ jsxs46("div", { className: "relative", children: [
-              /* @__PURE__ */ jsx53(
+            /* @__PURE__ */ jsxs47("div", { className: "relative", children: [
+              /* @__PURE__ */ jsx54(
                 Input_default,
                 {
                   id: passwordId,
@@ -7342,7 +7508,7 @@ function LoginPage({
                   required: true
                 }
               ),
-              /* @__PURE__ */ jsx53(
+              /* @__PURE__ */ jsx54(
                 IconButton_default,
                 {
                   icon: show ? EyeOff : Eye2,
@@ -7354,16 +7520,20 @@ function LoginPage({
               )
             ] })
           ] }),
-          (ricordami || recupero) && /* @__PURE__ */ jsxs46("div", { className: "flex items-center justify-between gap-3", children: [
-            ricordami ? /* @__PURE__ */ jsx53(
+          registrazione && /* @__PURE__ */ jsxs47("div", { className: "flex items-center justify-between gap-3", children: [
+            /* @__PURE__ */ jsx54(Button_default, { variant: "link", size: "sm", onClick: () => setRegistrazioneAperta(true), children: "Registrati" }),
+            recupero && /* @__PURE__ */ jsx54(Button_default, { variant: "link", size: "sm", onClick: () => setRecuperoAperto(true), children: "Password dimenticata?" })
+          ] }),
+          (ricordami || recupero && !registrazione) && /* @__PURE__ */ jsxs47("div", { className: "flex items-center justify-between gap-3", children: [
+            ricordami ? /* @__PURE__ */ jsx54(
               Checkbox,
               {
                 checked: ricorda,
                 onChange: cambiaRicorda,
                 label: "Ricordami"
               }
-            ) : /* @__PURE__ */ jsx53("span", {}),
-            recupero && /* @__PURE__ */ jsx53(
+            ) : /* @__PURE__ */ jsx54("span", {}),
+            recupero && !registrazione && /* @__PURE__ */ jsx54(
               Button_default,
               {
                 variant: "link",
@@ -7373,18 +7543,18 @@ function LoginPage({
               }
             )
           ] }),
-          /* @__PURE__ */ jsx53(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Accedi" })
+          /* @__PURE__ */ jsx54(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Accedi" })
         ] }),
-        microsoft && /* @__PURE__ */ jsx53(AccessoMicrosoft, { ...microsoft }),
-        altriPortali2 && /* @__PURE__ */ jsx53(AltriPortali, { corrente: iconaPortale }),
-        footer && /* @__PURE__ */ jsx53("div", { className: "text-center text-xs text-muted-foreground", children: footer })
+        microsoft && /* @__PURE__ */ jsx54(AccessoMicrosoft, { ...microsoft }),
+        altriPortali2 && /* @__PURE__ */ jsx54(AltriPortali, { corrente: iconaPortale }),
+        footer && /* @__PURE__ */ jsx54("div", { className: "text-center text-xs text-muted-foreground", children: footer })
       ]
     }
   );
 }
 
 // src/accesso/sessioneVuscom.js
-import { useEffect as useEffect18, useState as useState23 } from "react";
+import { useEffect as useEffect19, useState as useState24 } from "react";
 var BASE_SSO = "/api/auth/sso";
 var inCorso = null;
 function scambiaSessioneVuscom({ base = BASE_SSO } = {}) {
@@ -7409,8 +7579,8 @@ async function esciSessioneVuscom({ base = BASE_SSO } = {}) {
   }
 }
 function useSessioneVuscom({ autenticato, onAccesso, base = BASE_SSO } = {}) {
-  const [verificando, setVerificando] = useState23(!autenticato);
-  useEffect18(() => {
+  const [verificando, setVerificando] = useState24(!autenticato);
+  useEffect19(() => {
     if (autenticato) {
       setVerificando(false);
       return void 0;
@@ -7476,6 +7646,7 @@ export {
   PortaliSidebar,
   ProgressBar,
   PulsanteEsportaCsv,
+  RegistrazionePage,
   ReimpostaPassword,
   SOGLIA_TESTO_CHIARO,
   Section,

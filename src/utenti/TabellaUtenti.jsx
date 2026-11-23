@@ -1,4 +1,4 @@
-import { KeyRound, Pencil, RotateCcw, Trash2, UserMinus, UserX } from "lucide-react";
+import { KeyRound, Pencil, Send, RotateCcw, Trash2, UserMinus, UserX } from "lucide-react";
 import { AltriPortali, BadgeRuolo } from "./BadgePortale.jsx";
 import { ICONA_AZIONE } from "./stili.js";
 import { LIVELLO, livello } from "./ruoli.js";
@@ -23,11 +23,34 @@ function Azione({ titolo, icona: Icona, onClick, pericolo }) {
   );
 }
 
-function Stato({ attivo }) {
+const STATI = {
+  creato: ["Creato", "bg-slate-400"],
+  invito_inviato: ["Invito inviato", "bg-amber-500"],
+  invito_scaduto: ["Invito scaduto", "bg-red-500"],
+  registrato: ["Registrato", "bg-emerald-500"],
+  disattivato: ["Disattivato", "bg-slate-300 dark:bg-slate-600"],
+};
+const CON_INVITO = ["creato", "invito_inviato", "invito_scaduto"];
+
+// Falls back to is_active when the backend does not send `stato` yet.
+function statoDi(u) {
+  return u.stato || (u.is_active ? "registrato" : "disattivato");
+}
+
+function Stato({ utente }) {
+  const stato = statoDi(utente);
+  const [etichetta, colore] = STATI[stato] || [stato, "bg-slate-300"];
   return (
-    <span className="inline-flex items-center gap-1.5 text-[12px] text-slate-600 dark:text-slate-300">
-      <span className={`h-1.5 w-1.5 rounded-full ${attivo ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600"}`} />
-      {attivo ? "Attivo" : "Disattivato"}
+    <span className="inline-flex flex-col text-[12px] text-slate-600 dark:text-slate-300">
+      <span className="inline-flex items-center gap-1.5">
+        <span className={`h-1.5 w-1.5 rounded-full ${colore}`} />
+        {etichetta}
+      </span>
+      {stato === "invito_inviato" && utente.invito_scade_il && (
+        <span className="pl-3 text-[11px] text-slate-500 dark:text-slate-400">
+          {`scade il ${new Date(utente.invito_scade_il).toLocaleDateString("it-IT")}`}
+        </span>
+      )}
     </span>
   );
 }
@@ -82,11 +105,14 @@ export default function TabellaUtenti({ utenti, caricando, attore, onAzione }) {
                 <td className={CELLA}><BadgeRuolo ruolo={u.ruolo} /></td>
                 <td className={CELLA}><AltriPortali portali={u.altri_portali} /></td>
                 <td className={`${CELLA} text-slate-500 dark:text-slate-400`}>{u.last_login ? <DataOra value={u.last_login} /> : "mai"}</td>
-                <td className={CELLA}><Stato attivo={u.is_active} /></td>
+                <td className={CELLA}><Stato utente={u} /></td>
                 <td className={`${CELLA} whitespace-nowrap text-right`}>
                   <div className="inline-flex gap-0.5">
                     <Azione titolo="Modifica" icona={Pencil} onClick={() => onAzione("modifica", u)} />
-                    <Azione titolo="Password" icona={KeyRound} onClick={() => onAzione("password", u)} />
+                    {CON_INVITO.includes(statoDi(u)) && (
+                      <Azione titolo="Rimanda invito" icona={Send} onClick={() => onAzione("rimanda", u)} />
+                    )}
+                    <Azione titolo="Reimposta password" icona={KeyRound} onClick={() => onAzione("password", u)} />
                     {!io && <Azione titolo="Togli accesso" icona={UserMinus} onClick={() => onAzione("togli", u)} />}
                     {!io && adminPlus && u.is_active && (
                       <Azione titolo="Disattiva" icona={UserX} onClick={() => onAzione("disattiva", u)} />

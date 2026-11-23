@@ -97,7 +97,8 @@ Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 | `PageHeader` | `title`, `description`, `icon`, `help`, `helpHref`, `actions`, `tabs`, `className` |
 | `Section` | `title`, `description`, `actions`, `className` |
 | `ReimpostaPassword` | schermata «nuova password» aperta dal link email: `token` (default `?token=`), `onFatto()` (torna al login), `base`, `title`, `iconaPortale` |
-| `LoginPage` | `title`, `subtitle`, `logoLight`, `logoDark`, `onSubmit`, `usernameLabel`, `footer`, `microsoft` (`{ onAccesso, base? }`: aggiunge «Accedi con Microsoft»), `ricordami` (checkbox «Ricordami»; `onSubmit(user, pw, ricorda)`, scelta in `localStorage.rememberMe`), `recupero` (`true` o `{ base? }`, default `/api/auth`: «Password dimenticata?» + schermata, `vuscom_auth.recupero`) |
+| `RegistrazionePage` | schermata dell'invito (rotta `/registrazione?token=…`): `token` (default `?token=`), `onAccesso(rispostaDiLogin)` (stessa callback di successo del login), `onVaiAlLogin()`, `base` (default `/api/auth`), `title`, `iconaPortale`. Chiama `GET {base}/invito?token=` e `POST {base}/registrazione` |
+| `LoginPage` | `title`, `subtitle`, `logoLight`, `logoDark`, `onSubmit`, `usernameLabel`, `footer`, `microsoft` (`{ onAccesso, base? }`: aggiunge «Accedi con Microsoft»), `ricordami` (checkbox «Ricordami»; `onSubmit(user, pw, ricorda)`, scelta in `localStorage.rememberMe`), `registrazione` (`true` o `{ base? }`, default `/api/auth`: riga «Registrati» / «Password dimenticata?» sotto la password; «Registrati» chiede la sola email → `POST {base}/registrati`; se `onSubmit` rifiuta con `err.detail` (o `err.body.detail`) `{codice:"non_registrato", messaggio, login}` mostra un avviso giallo con «Rimandami l'email di registrazione» → `POST {base}/invito/rimanda` `{login}`), `recupero` (`true` o `{ base? }`, default `/api/auth`: «Password dimenticata?» + schermata, `vuscom_auth.recupero`) |
 
 Una pagina larga chiede la sidebar compatta direttamente nel proprio componente:
 
@@ -351,6 +352,15 @@ ricerca e nei titoli delle finestre), «Altri portali» è un solo chip «N port
 si apre con un click sul dettaglio portale → ruolo, «Ultimo accesso» va su due righe
 (data sopra, ora sotto) e una barra di scorrimento sta anche in alto (`TopScrollX`),
 così le azioni a fine riga si vedono senza scorrere.
+
+Dalla 1.32.0 gli utenti si registrano per invito: «Nuovo utente» non ha password (email obbligatoria,
+«Crea e invia invito»), la colonna Stato mostra `utente.stato` (Creato, Invito inviato con «scade il …»
+da `invito_scade_il`, Invito scaduto, Registrato, Disattivato), «Rimanda invito» fa
+`POST {basePath}/{id}/rimanda-invito`, «Reimposta password» fa `PUT {basePath}/{id}/password` (`{}`, il
+backend manda un link) e nessuna password passa più dalla UI. In cima, se presenti, «Richieste di accesso»:
+`GET {basePath}/richieste` → `[{id,email,created_at}]`, «Crea utente…» (Nuovo utente precompilato, username =
+parte locale dell'email) e «Rifiuta» (`POST {basePath}/richieste/{id}/rifiuta`). La pagina non fa gating per
+ruolo: «solo admin» lo decide il portale (rotta/menu), come prima.
 
 Le regole di permesso le applica il backend; la pagina nasconde solo ciò che
 l'attore non potrebbe mai fare (Disattiva/Riattiva/Elimina sotto admin, le

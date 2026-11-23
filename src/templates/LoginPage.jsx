@@ -6,6 +6,7 @@ import Alert from "../organisms/Alert.jsx";
 import Checkbox from "../molecules/Checkbox.jsx";
 import LoginCornice from "./LoginCornice.jsx";
 import { RichiestaRecupero } from "../accesso/RecuperoPassword.jsx";
+import { RichiestaRegistrazione, RimandaInvito } from "../accesso/Registrazione.jsx";
 import useTemaLogin from "../theme/useTemaLogin.js";
 import Button from "../atoms/Button.jsx";
 import IconButton from "../atoms/IconButton.jsx";
@@ -23,7 +24,10 @@ import { LOGHI_VUSCOM, useFaviconVuscom } from "../brand/Brand.jsx";
  * as the third argument of `onSubmit`; `microsoft.onAccesso` is not touched, read it with
  * `localStorage.getItem("rememberMe") === "true"`. `recupero` (`true` or `{ base? }`, default
  * base `/api/auth`) adds «Password dimenticata?» and its screen (`vuscom_auth.recupero`); the
- * emailed link opens `ReimpostaPassword`. The saved/system theme is applied by the page itself.
+ * emailed link opens `ReimpostaPassword`. `registrazione` (`true` or `{ base? }`, default base
+ * `/api/auth`) adds «Registrati» (email-only request) and, when `onSubmit` rejects with an error
+ * carrying `detail = { codice: "non_registrato", messaggio, login }` (on `err.detail` or `err.body.detail`),
+ * a yellow notice with «Rimandami l'email di registrazione»; the invitation link opens `RegistrazionePage`. The saved/system theme is applied by the page itself.
  */
 function leggiRicordami() {
   try {
@@ -46,6 +50,7 @@ export default function LoginPage({
   altriPortali = true,
   ricordami = false,
   recupero,
+  registrazione,
 }) {
   const passwordId = useId();
   useFaviconVuscom(iconaPortale);
@@ -55,6 +60,8 @@ export default function LoginPage({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [recuperoAperto, setRecuperoAperto] = useState(false);
+  const [registrazioneAperta, setRegistrazioneAperta] = useState(false);
+  const [nonRegistrato, setNonRegistrato] = useState(null);
   const [ricorda, setRicorda] = useState(
     () => typeof window !== "undefined" && leggiRicordami(),
   );
@@ -72,12 +79,18 @@ export default function LoginPage({
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
+    setNonRegistrato(null);
     setLoading(true);
     try {
       await (ricordami
         ? onSubmit(username, password, ricorda)
         : onSubmit(username, password));
     } catch (err) {
+      const d = err?.detail ?? err?.body?.detail;
+      if (registrazione && d?.codice === "non_registrato") {
+        setNonRegistrato({ messaggio: d.messaggio, login: d.login || username });
+        return;
+      }
       setError(err?.message || "Accesso non riuscito");
     } finally {
       setLoading(false);
@@ -95,6 +108,17 @@ export default function LoginPage({
       />
     );
 
+  if (registrazione && registrazioneAperta)
+    return (
+      <RichiestaRegistrazione
+        base={registrazione.base}
+        title={title}
+        logoLight={logoLight}
+        logoDark={logoDark}
+        onIndietro={() => setRegistrazioneAperta(false)}
+      />
+    );
+
   return (
     <LoginCornice
       title={title}
@@ -104,6 +128,12 @@ export default function LoginPage({
     >
       <form className="space-y-5" onSubmit={handleSubmit}>
         {error && <Alert tone="danger">{error}</Alert>}
+        {nonRegistrato && (
+          <Alert tone="warning">
+            {nonRegistrato.messaggio}
+            <RimandaInvito base={registrazione.base} login={nonRegistrato.login} />
+          </Alert>
+        )}
         <Field label={usernameLabel}>
           <Input
             name="username"
@@ -140,7 +170,19 @@ export default function LoginPage({
             />
           </div>
         </div>
-        {(ricordami || recupero) && (
+        {registrazione && (
+          <div className="flex items-center justify-between gap-3">
+            <Button variant="link" size="sm" onClick={() => setRegistrazioneAperta(true)}>
+              Registrati
+            </Button>
+            {recupero && (
+              <Button variant="link" size="sm" onClick={() => setRecuperoAperto(true)}>
+                Password dimenticata?
+              </Button>
+            )}
+          </div>
+        )}
+        {(ricordami || (recupero && !registrazione)) && (
           <div className="flex items-center justify-between gap-3">
             {ricordami ? (
               <Checkbox
@@ -151,7 +193,7 @@ export default function LoginPage({
             ) : (
               <span />
             )}
-            {recupero && (
+            {recupero && !registrazione && (
               <Button
                 variant="link"
                 size="sm"

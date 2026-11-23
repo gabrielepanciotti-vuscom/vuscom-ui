@@ -2,7 +2,6 @@ import { useState } from "react";
 import { UserCheck } from "lucide-react";
 import Finestra from "./Finestra.jsx";
 import SelettoreRuolo from "./SelettoreRuolo.jsx";
-import PasswordMostrata from "./PasswordMostrata.jsx";
 import InterruttoreAvvisa from "./InterruttoreAvvisa.jsx";
 import { ElencoPortali } from "./BadgePortale.jsx";
 import { Campo, MessaggioErrore, Nota } from "./Campo.jsx";
@@ -74,19 +73,19 @@ export default function FinestraNuovoUtente({
   attore,
   onChiudi,
   onFatto,
+  iniziale,
 }) {
   const ruoli = ruoliAssegnabili(attore?.ruolo);
   const [campi, setCampi] = useState({
-    username: "",
-    email: "",
+    username: iniziale?.username || "",
+    email: iniziale?.email || "",
     nome: "",
     cognome: "",
-    password: "",
   });
   const [ruolo, setRuolo] = useState("viewer");
   const [esistente, setEsistente] = useState(null);
   const [avvisa, setAvvisa] = useState(true);
-  const [esito, setEsito] = useState(null); // { password_generata, email_inviata } | { accesso: true, testo }
+  const [esito, setEsito] = useState(null); // { email_inviata } | { accesso: true, testo }
   const { inCorso, errore, esegui } = useAzione();
   const imposta = (k) => (v) => setCampi((c) => ({ ...c, [k]: v }));
   const nomeIncompleto = vuoto(campi.nome) || vuoto(campi.cognome);
@@ -99,7 +98,6 @@ export default function FinestraNuovoUtente({
       nome: campi.nome.trim(),
       cognome: campi.cognome.trim(),
       ruolo,
-      password: campi.password ? campi.password : null,
     };
     const r = await esegui(
       () => client.post(basePath, corpo),
@@ -114,10 +112,7 @@ export default function FinestraNuovoUtente({
     );
     if (!r.ok) return;
     onFatto?.();
-    setEsito({
-      password_generata: r.valore?.password_generata,
-      email_inviata: r.valore?.email_inviata,
-    });
+    setEsito({ email_inviata: r.valore?.email_inviata });
   }
 
   async function daiAccesso() {
@@ -144,7 +139,6 @@ export default function FinestraNuovoUtente({
         titolo="Nuovo utente"
         onChiudi={onChiudi}
         piede={chiudi}
-        bloccata={Boolean(esito.password_generata)}
       >
         {esito.accesso && (
           <p className="text-[13px] text-slate-700 dark:text-slate-300">
@@ -153,15 +147,9 @@ export default function FinestraNuovoUtente({
         )}
         {!esito.accesso && (
           <p className="text-[13px] text-slate-700 dark:text-slate-300">
-            Utente creato.
-          </p>
-        )}
-        {esito.password_generata && (
-          <PasswordMostrata password={esito.password_generata} />
-        )}
-        {!esito.password_generata && esito.email_inviata && (
-          <p className="text-[13px] text-slate-600 dark:text-slate-400">
-            Le credenziali sono state inviate per email.
+            {esito.email_inviata
+              ? "Utente creato. Invito inviato per email."
+              : "Utente creato. Invito non inviato: usa «Rimanda invito» dalla tabella."}
           </p>
         )}
       </Finestra>
@@ -204,11 +192,14 @@ export default function FinestraNuovoUtente({
             type="submit"
             form="vuscom-nuovo-utente"
             disabled={
-              inCorso || campi.username.trim().length < 3 || nomeIncompleto
+              inCorso ||
+              campi.username.trim().length < 3 ||
+              vuoto(campi.email) ||
+              nomeIncompleto
             }
             className={BOTTONE.primario}
           >
-            Crea utente
+            Crea e invia invito
           </button>
         </>
       }
@@ -227,6 +218,8 @@ export default function FinestraNuovoUtente({
           valore={campi.email}
           onCambia={imposta("email")}
           autoComplete="off"
+          obbligatorio
+          nota="Riceverà un invito per scegliere la propria password."
         />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Campo
@@ -243,14 +236,6 @@ export default function FinestraNuovoUtente({
           />
         </div>
         <SelettoreRuolo ruoli={ruoli} valore={ruolo} onCambia={setRuolo} />
-        <Campo
-          etichetta="Password (facoltativa)"
-          tipo="password"
-          valore={campi.password}
-          onCambia={imposta("password")}
-          autoComplete="new-password"
-          nota="Se vuota viene generata e inviata per email. Almeno 8 caratteri."
-        />
         <MessaggioErrore>{errore}</MessaggioErrore>
       </form>
     </Finestra>

@@ -5,7 +5,7 @@ import Interruttore from "./Interruttore.jsx";
 import FinestraNuovoUtente from "./FinestraNuovoUtente.jsx";
 import FinestraAggiungiEsistente from "./FinestraAggiungiEsistente.jsx";
 import FinestraModifica from "./FinestraModifica.jsx";
-import FinestraPassword from "./FinestraPassword.jsx";
+import RichiesteAccesso from "./RichiesteAccesso.jsx";
 import FinestraElimina from "./FinestraElimina.jsx";
 import FinestraConferma from "./FinestraConferma.jsx";
 import { BOTTONE, INPUT } from "./stili.js";
@@ -38,6 +38,19 @@ function conferme({ client, basePath, nomePortale }) {
       etichettaConferma: "Disattiva",
       pericolo: true,
       azione: () => client.post(`${basePath}/${u.id}/disattiva`, {}),
+    }),
+    rimanda: (u) => ({
+      titolo: "Rimanda invito",
+      messaggio: `Verrà inviato a ${u.email || nomeCompleto(u)} un nuovo invito per registrarsi a ${nomePortale}. Il precedente smette di valere.`,
+      etichettaConferma: "Rimanda invito",
+      azione: () => client.post(`${basePath}/${u.id}/rimanda-invito`, {}),
+    }),
+    password: (u) => ({
+      titolo: "Reimposta password",
+      messaggio: `${nomeCompleto(u)} (${u.username}) riceverà per email un link per scegliere una nuova password.`,
+      nota: NOTA_SESSIONI,
+      etichettaConferma: "Invia link",
+      azione: () => client.put(`${basePath}/${u.id}/password`, {}),
     }),
     riattiva: (u) => ({
       titolo: "Riattiva account",
@@ -111,6 +124,13 @@ export default function GestioneUtenti({
         <Interruttore attivo={mostraDisattivati} onCambia={setMostraDisattivati} etichetta="Mostra disattivati" />
       </div>
 
+      <RichiesteAccesso
+        client={client}
+        basePath={basePath}
+        versione={utenti}
+        onCrea={(r) => setFinestra({ tipo: "nuovo", iniziale: { email: r.email, username: r.email.split("@")[0] } })}
+      />
+
       {errore && (
         <div role="alert" className="flex items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
           <span className="flex items-center gap-2"><AlertCircle className="h-4 w-4" />{errore}</span>
@@ -127,10 +147,9 @@ export default function GestioneUtenti({
         </p>
       )}
 
-      {finestra?.tipo === "nuovo" && <FinestraNuovoUtente {...comuni} />}
+      {finestra?.tipo === "nuovo" && <FinestraNuovoUtente {...comuni} iniziale={finestra.iniziale} />}
       {finestra?.tipo === "aggiungi" && <FinestraAggiungiEsistente {...comuni} />}
       {finestra?.tipo === "modifica" && <FinestraModifica {...comuni} utente={finestra.utente} SezioneExtra={SezioneExtra} />}
-      {finestra?.tipo === "password" && <FinestraPassword {...comuni} utente={finestra.utente} />}
       {finestra?.tipo === "elimina" && <FinestraElimina {...comuni} utente={finestra.utente} />}
       {conferma && <FinestraConferma {...conferma(finestra.utente)} onChiudi={chiudi} onFatto={ricarica} />}
     </div>
