@@ -15,6 +15,11 @@ const fetchPredefinito = (...args) => globalThis.fetch(...args);
  * they are, keeps the action log and the rolling rrweb recording, and owns
  * the crosshair → screenshot → modal flow. When they are off it mounts
  * nothing and records nothing.
+ *
+ * `pubblico`: anonymous mode for the login page. No token, no cookies, no
+ * crosshair, no action log or video: the button shows only when the config
+ * (read without auth) says `abilitato && pubblico`, and the report goes to
+ * `POST {endpoint}/pubblica` with the reporter's email.
  */
 export default function SegnalazioniProvider({
   endpoint = "/api/segnalazioni",
@@ -22,6 +27,7 @@ export default function SegnalazioniProvider({
   durataVideoSec = 30,
   mascheraDefault = false,
   getToken,
+  pubblico = false,
   fetchImpl = fetchPredefinito,
   children,
 }) {
@@ -35,7 +41,7 @@ export default function SegnalazioniProvider({
   // Portals that authenticate with a Bearer header (not only the session
   // cookie) pass `getToken`: every call of the widget then carries it.
   const fetchRef = useRef((url, opzioni = {}) => {
-    const token = tokenRef.current?.();
+    const token = pubblico ? null : tokenRef.current?.();
     if (!token) return baseRef.current(url, opzioni);
     const headers = new Headers(opzioni.headers);
     headers.set("Authorization", `Bearer ${token}`);
@@ -47,9 +53,9 @@ export default function SegnalazioniProvider({
     (async () => {
       try {
         const r = await fetchRef.current(configEndpoint, {
-          credentials: "include",
+          credentials: pubblico ? "omit" : "include",
         });
-        if (r.status === 401 || r.status === 403)
+        if (!pubblico && (r.status === 401 || r.status === 403))
           // Otherwise the button would just vanish: say why, for whoever wires a portal.
           console.warn(
             `[segnalazioni] ${configEndpoint} ha risposto ${r.status}: il pulsante resta nascosto. ` +
@@ -58,7 +64,9 @@ export default function SegnalazioniProvider({
         const corpo = r.ok ? await r.json() : {};
         if (!annullato)
           setConfig({
-            abilitato: corpo.abilitato === true,
+            abilitato:
+              corpo.abilitato === true &&
+              (!pubblico || corpo.pubblico === true),
             durata:
               Number(corpo.durata_video_sec) > 0
                 ? Number(corpo.durata_video_sec)
@@ -72,19 +80,14 @@ export default function SegnalazioniProvider({
     return () => {
       annullato = true;
     };
-  }, [configEndpoint]);
+  }, [configEndpoint, pubblico]);
 
   const abilitato = config?.abilitato === true;
   const durata = config?.durata ?? durataVideoSec;
-  const registro = useRegistroAzioni(abilitato, {
+  const registro = useRegistroAzioni(abilitato && !pubblico, {
     ignoraUrl: [endpoint, configEndpoint],
   });
-  const registrazione = useRegistrazione(abilitato, durata);
-
-  const apri = useCallback(() => {
-    if (!abilitato) return;
-    setStato((s) => (s === "inattivo" ? "mirino" : s));
-  }, [abilitato]);
+  const registrazione = useRegistrazione(abilitato && !pubblico, durata);
 
   const annulla = useCallback(() => setStato("inattivo"), []);
 
@@ -113,6 +116,13 @@ export default function SegnalazioniProvider({
     },
     [registro, registrazione],
   );
+
+  const apri = useCallback(() => {
+    if (!abilitato) return;
+    // Login page: nothing to point at, straight to the screenshot and the form.
+    if (pubblico) scegli(null);
+    else setStato((s) => (s === "inattivo" ? "mirino" : s));
+  }, [abilitato, pubblico, scegli]);
 
   const chiudi = useCallback(() => {
     setBozza(null);
@@ -147,6 +157,7 @@ export default function SegnalazioniProvider({
               endpoint={endpoint}
               fetchImpl={fetchRef.current}
               onChiudi={chiudi}
+              pubblico={pubblico}
               mascheraDefault={mascheraDefault}
             />
           )}

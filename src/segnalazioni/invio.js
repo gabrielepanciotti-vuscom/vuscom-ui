@@ -17,6 +17,8 @@ export const MESSAGGI = {
     "Gli allegati sono troppo grandi: togli il video e invia di nuovo.",
   sessione: "La sessione è scaduta: accedi di nuovo e invia la segnalazione.",
   non_valida: "Segnalazione non valida",
+  troppe:
+    "Troppe segnalazioni in poco tempo: attendi qualche minuto e riprova.",
 };
 
 /**
@@ -56,7 +58,14 @@ export function urlPagina(href, maschera) {
  */
 export function componiInvio(
   bozza,
-  { commento, screenshot = true, video, maschera, natura = "problema" },
+  {
+    commento,
+    screenshot = true,
+    video,
+    maschera,
+    natura = "problema",
+    anonimo = null, // { email, nome, website }: anonymous report from the login page
+  },
 ) {
   const form = new FormData();
   form.append(
@@ -69,13 +78,19 @@ export function componiInvio(
       comment: commento.trim(),
       natura,
       page_url: urlPagina(bozza.page_url ?? "", maschera),
+      ...(anonimo && {
+        email: anonimo.email.trim(),
+        nome: anonimo.nome?.trim() || null,
+        website: anonimo.website ?? "", // honeypot: a human leaves it empty
+      }),
     }),
   );
-  const schermata = screenshot && bozza.catture
-    ? maschera
-      ? bozza.catture.mascherato
-      : bozza.catture.privato
-    : null;
+  const schermata =
+    screenshot && bozza.catture
+      ? maschera
+        ? bozza.catture.mascherato
+        : bozza.catture.privato
+      : null;
   const azioni = jsonBlob(
     maschera ? mascheraAzioni(bozza.azioni) : (bozza.azioni ?? []),
   );
@@ -114,13 +129,18 @@ async function leggiJson(risposta) {
  * (503 not configured) · `{ esito: "errore", messaggio }` (413, 422, 401/403).
  * Never throws.
  */
-export async function inviaSegnalazione({ endpoint, fetchImpl, form }) {
+export async function inviaSegnalazione({
+  endpoint,
+  fetchImpl,
+  form,
+  credentials = "include",
+}) {
   let risposta;
   try {
     risposta = await fetchImpl(endpoint, {
       method: "POST",
       body: form,
-      credentials: "include",
+      credentials,
     });
   } catch {
     return { esito: "riprova", messaggio: MESSAGGI.riprova };
@@ -136,6 +156,7 @@ export async function inviaSegnalazione({ endpoint, fetchImpl, form }) {
     };
   if (s === 503 && corpo.riprova === false)
     return { esito: "non_disponibile", messaggio: MESSAGGI.non_disponibile };
+  if (s === 429) return { esito: "errore", messaggio: MESSAGGI.troppe };
   if (s === 413) return { esito: "errore", messaggio: MESSAGGI.troppo_grande };
   if (s === 401 || s === 403)
     return { esito: "errore", messaggio: MESSAGGI.sessione };

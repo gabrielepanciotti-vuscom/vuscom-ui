@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Bug, ImageOff, Lightbulb, MousePointerClick, RotateCw, Send } from "lucide-react";
+import {
+  Bug,
+  ImageOff,
+  Lightbulb,
+  MousePointerClick,
+  RotateCw,
+  Send,
+} from "lucide-react";
 import Button from "../atoms/Button.jsx";
 import Textarea from "../atoms/Textarea.jsx";
 import Checkbox from "../molecules/Checkbox.jsx";
@@ -9,41 +16,13 @@ import Alert from "../organisms/Alert.jsx";
 import Dialog from "../organisms/Dialog.jsx";
 import { useToast } from "../organisms/Toast.jsx";
 import { cn } from "../lib/cn.js";
+import CampiAnonimi, { EMAIL_VALIDA } from "./CampiAnonimi.jsx";
+import { NATURE, nomeElemento } from "./testiModale.js";
 import { componiInvio, inviaSegnalazione } from "./invio.js";
 
 // A bare "." woke an agent for nothing (ticket #59): require a real sentence.
 const MIN_COMMENTO = 10;
 const MAX_COMMENTO = 5000;
-
-// Problem is the default; an improvement request changes only the wording.
-const NATURE = {
-  problema: {
-    icon: Bug,
-    title: "Segnala un problema",
-    description:
-      "Arriva a chi segue il portale, con le ultime azioni e, se vuoi, uno screenshot o il video della pagina.",
-    label: "Cosa non va?",
-    hint: "cosa ti aspettavi e cosa vedi invece",
-    placeholder:
-      "Es. il totale dei clienti attivi non torna con l'estrazione di ieri",
-  },
-  evolutiva: {
-    icon: Lightbulb,
-    title: "Proponi un miglioramento",
-    description:
-      "Arriva a chi segue il portale, con lo screenshot della pagina e l'elemento che hai scelto.",
-    label: "Cosa vorresti cambiare?",
-    hint: "cosa vorresti e a cosa ti servirebbe",
-    placeholder: "Es. vorrei poter esportare questa tabella in Excel",
-  },
-};
-
-function nomeElemento(elemento) {
-  if (!elemento) return null;
-  return (
-    elemento.nome || elemento.id || elemento.testo || elemento.selettore || null
-  );
-}
 
 // Object URL for the preview, revoked when it changes or the modal closes.
 function useAnteprima(blob) {
@@ -71,9 +50,15 @@ export default function ModaleSegnalazione({
   fetchImpl,
   onChiudi,
   mascheraDefault = false,
+  pubblico = false,
 }) {
   const { toast } = useToast();
   const [natura, setNatura] = useState("problema");
+  // Anonymous mode (login page): who writes, and the honeypot bots fill in.
+  const [email, setEmail] = useState("");
+  const [nomeUtente, setNomeUtente] = useState("");
+  const [website, setWebsite] = useState("");
+  const emailOk = EMAIL_VALIDA.test(email.trim());
   const testo = NATURE[natura];
   const [commento, setCommento] = useState("");
   const [screenshot, setScreenshot] = useState(true);
@@ -93,7 +78,7 @@ export default function ModaleSegnalazione({
   );
   const nome = nomeElemento(bozza.elemento);
   const mancano = Math.max(0, MIN_COMMENTO - commento.trim().length);
-  const vuoto = mancano > 0;
+  const vuoto = mancano > 0 || (pubblico && !emailOk);
   const bloccato = esito.stato === "non_disponibile";
 
   const invia = async () => {
@@ -107,8 +92,14 @@ export default function ModaleSegnalazione({
       video,
       maschera,
       natura,
+      anonimo: pubblico ? { email, nome: nomeUtente, website } : null,
     });
-    const r = await inviaSegnalazione({ endpoint, fetchImpl, form });
+    const r = await inviaSegnalazione({
+      endpoint: pubblico ? `${endpoint}/pubblica` : endpoint,
+      fetchImpl,
+      form,
+      credentials: pubblico ? "omit" : "include",
+    });
     inCorso.current = false;
     if (r.esito === "inviata") {
       toast({
@@ -168,35 +159,53 @@ export default function ModaleSegnalazione({
       footer={footer}
     >
       <div className="space-y-5">
-        <SegmentedControl
-          aria-label="Tipo di segnalazione"
-          size="md"
-          value={natura}
-          onChange={setNatura}
-          options={[
-            { value: "problema", label: "Problema", icon: Bug },
-            { value: "evolutiva", label: "Evolutiva", icon: Lightbulb },
-          ]}
-        />
-        <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/40 px-3 py-2.5">
-          <MousePointerClick
-            className="mt-0.5 h-4 w-4 shrink-0 text-primary"
-            aria-hidden
+        {pubblico ? (
+          <>
+            <CampiAnonimi
+              email={email}
+              onEmail={setEmail}
+              emailOk={emailOk}
+              nome={nomeUtente}
+              onNome={setNomeUtente}
+              website={website}
+              onWebsite={setWebsite}
+            />
+          </>
+        ) : (
+          <SegmentedControl
+            aria-label="Tipo di segnalazione"
+            size="md"
+            value={natura}
+            onChange={setNatura}
+            options={[
+              { value: "problema", label: "Problema", icon: Bug },
+              { value: "evolutiva", label: "Evolutiva", icon: Lightbulb },
+            ]}
           />
-          <div className="min-w-0 text-sm">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Elemento
-            </p>
-            <p
-              className={cn(
-                "truncate",
-                nome ? "font-medium text-foreground" : "text-muted-foreground",
-              )}
-            >
-              {nome ?? "Altro (nessun elemento scelto)"}
-            </p>
+        )}
+        {!pubblico && (
+          <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/40 px-3 py-2.5">
+            <MousePointerClick
+              className="mt-0.5 h-4 w-4 shrink-0 text-primary"
+              aria-hidden
+            />
+            <div className="min-w-0 text-sm">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Elemento
+              </p>
+              <p
+                className={cn(
+                  "truncate",
+                  nome
+                    ? "font-medium text-foreground"
+                    : "text-muted-foreground",
+                )}
+              >
+                {nome ?? "Altro (nessun elemento scelto)"}
+              </p>
+            </div>
           </div>
-        </div>
+        )}
 
         <Field
           label={testo.label}
@@ -208,7 +217,7 @@ export default function ModaleSegnalazione({
           } · ${testo.hint}`}
         >
           <Textarea
-            data-autofocus
+            data-autofocus={pubblico ? undefined : true}
             rows={4}
             maxLength={MAX_COMMENTO}
             value={commento}
@@ -223,18 +232,23 @@ export default function ModaleSegnalazione({
             onChange={setScreenshot}
             label="Allega lo screenshot della pagina"
           />
-          <Checkbox
-            checked={video}
-            onChange={setVideo}
-            label="Allega il video delle ultime azioni"
-          />
-          <Checkbox
-            checked={maschera}
-            onChange={setMaschera}
-            label="Maschera i dati"
-          />
+          {!pubblico && (
+            <>
+              <Checkbox
+                checked={video}
+                onChange={setVideo}
+                label="Allega il video delle ultime azioni"
+              />
+              <Checkbox
+                checked={maschera}
+                onChange={setMaschera}
+                label="Maschera i dati"
+              />
+            </>
+          )}
           <p className="pl-6 text-xs text-muted-foreground">
-            Password e campi riservati sono sempre nascosti, anche con la casella spenta.
+            Password e campi riservati sono sempre nascosti, anche con la
+            casella spenta.
           </p>
         </div>
 
