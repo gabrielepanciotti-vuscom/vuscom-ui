@@ -6649,7 +6649,6 @@ import { useLocation as useLocation2 } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { Fragment as Fragment7, jsx as jsx46, jsxs as jsxs39 } from "react/jsx-runtime";
 var STORAGE_KEY2 = "vuscom.sidebar.collapsed";
-var WIDTHS = { "7xl": "max-w-7xl", full: "max-w-none" };
 var NESSUNA_VOCE = [];
 var CompattaContext = createContext2(null);
 function useSidebarCompatta(attiva = true) {
@@ -6684,7 +6683,6 @@ function AppShell({
   sidebar = {},
   topbarRight,
   azioniSidebar,
-  maxWidth = "7xl",
   compattaAdOgniPagina = false,
   portaliRichiudibili = true,
   idContenuto = "contenuto",
@@ -6829,7 +6827,7 @@ function AppShell({
           id: idContenuto,
           tabIndex: -1,
           className: "flex-1 overflow-y-auto scrollbar-thin p-4 focus:outline-none md:p-6",
-          children: /* @__PURE__ */ jsx46("div", { className: cn("mx-auto", WIDTHS[maxWidth] ?? WIDTHS["7xl"]), children })
+          children
         }
       )
     ] })

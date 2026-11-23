@@ -59,7 +59,17 @@ export default function ModaleSegnalazione({
   const [nomeUtente, setNomeUtente] = useState("");
   const [website, setWebsite] = useState("");
   const emailOk = EMAIL_VALIDA.test(email.trim());
-  const testo = NATURE[natura];
+  const base = NATURE[natura];
+  // public mode sends no actions/video and is used from the login page
+  const testo =
+    pubblico && natura === "problema"
+      ? {
+          ...base,
+          description:
+            "Arriva a chi segue il portale, con uno screenshot della pagina se vuoi.",
+          placeholder: "Es. non mi arriva il codice di accesso via email",
+        }
+      : base;
   const [commento, setCommento] = useState("");
   const [screenshot, setScreenshot] = useState(true);
   // The video is only needed now and then: the user turns it on.

@@ -3759,7 +3759,12 @@ function ModaleSegnalazione({
   const [nomeUtente, setNomeUtente] = useState2("");
   const [website, setWebsite] = useState2("");
   const emailOk = EMAIL_VALIDA.test(email.trim());
-  const testo = NATURE[natura];
+  const base = NATURE[natura];
+  const testo = pubblico && natura === "problema" ? {
+    ...base,
+    description: "Arriva a chi segue il portale, con uno screenshot della pagina se vuoi.",
+    placeholder: "Es. non mi arriva il codice di accesso via email"
+  } : base;
   const [commento, setCommento] = useState2("");
   const [screenshot, setScreenshot] = useState2(true);
   const [video, setVideo] = useState2(false);

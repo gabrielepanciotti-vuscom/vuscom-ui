@@ -40,6 +40,14 @@ describe("segnalazioni pubbliche", () => {
     expect(screen.queryByRole("button", { name: /segnala/i })).toBeNull();
   });
 
+  it("usa testi da pagina di accesso, senza azioni né video", async () => {
+    monta({ abilitato: true, pubblico: true }, json(200, {}));
+    const u = userEvent.setup();
+    await u.click(await screen.findByRole("button", { name: /segnala/i }));
+    expect(screen.queryByText(/ultime azioni/)).toBeNull();
+    expect(screen.getByPlaceholderText(/codice di accesso/)).toBeTruthy();
+  });
+
   it("invia senza Authorization a /pubblica, con email e nome", async () => {
     const c = monta(
       { abilitato: true, pubblico: true },
