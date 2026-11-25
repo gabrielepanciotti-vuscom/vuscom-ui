@@ -139,7 +139,7 @@ describe("GestioneUtenti", () => {
       ),
     ).toBeInTheDocument();
     await waitFor(() =>
-      expect(client.get.mock.calls.filter(([p]) => !p.includes("/richieste"))).toHaveLength(2),
+      expect(client.get.mock.calls.filter(([p]) => !p.includes("/richieste") && !p.includes("/gestore"))).toHaveLength(2),
     );
   });
 
@@ -644,7 +644,7 @@ describe("GestioneUtenti", () => {
 
   it("lists access requests: create opens Nuovo utente prefilled, reject posts", async () => {
     const user = userEvent.setup();
-    let richieste = [{ id: 3, email: "anna.verdi@example.com", created_at: "2026-11-20T09:00:00" }];
+    let richieste = [{ id: 3, email: "anna.verdi@example.com", nome: "Anna", cognome: "Verdi", created_at: "2026-11-20T09:00:00" }];
     const client = makeClient();
     client.get.mockImplementation((path) =>
       Promise.resolve(path.includes("/richieste") ? richieste : [MARIO, IO]),
@@ -659,6 +659,8 @@ describe("GestioneUtenti", () => {
     await user.click(screen.getByRole("button", { name: "Crea utente…" }));
     expect(screen.getByLabelText("Username")).toHaveValue("anna.verdi");
     expect(screen.getByLabelText(/^Email/)).toHaveValue("anna.verdi@example.com");
+    expect(screen.getByLabelText(/^Nome/)).toHaveValue("Anna");
+    expect(screen.getByLabelText(/^Cognome/)).toHaveValue("Verdi");
     await user.click(screen.getByRole("button", { name: "Annulla" }));
     await user.click(screen.getByRole("button", { name: "Rifiuta" }));
     expect(client.post).toHaveBeenCalledWith("/api/utenti/richieste/3/rifiuta", {});
@@ -669,5 +671,37 @@ describe("GestioneUtenti", () => {
     renderPage(makeClient());
     await screen.findByText("mario@example.com");
     expect(screen.queryByText("Richieste di accesso")).toBeNull();
+  });
+
+  it("shows the portal manager and lets an admin change it", async () => {
+    const user = userEvent.setup();
+    let gestore = MARIO;
+    const client = makeClient();
+    client.get.mockImplementation((path) =>
+      Promise.resolve(path.includes("/richieste") ? [] : path.endsWith("/gestore") ? { gestore } : [MARIO, IO]),
+    );
+    client.put.mockImplementation(async (path, corpo) => {
+      gestore = corpo.user_id === IO.id ? IO : MARIO;
+      return { gestore };
+    });
+    renderPage(client);
+    const riga = (await screen.findByText(/Gestore del portale:/)).closest("p");
+    expect(within(riga).getByText("Mario Bianchi")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Cambia" }));
+    expect(screen.getByRole("radio", { name: /Io Admin/ })).toBeInTheDocument();
+    await user.click(screen.getByRole("radio", { name: /Io Admin/ }));
+    await user.click(screen.getByRole("button", { name: "Imposta gestore" }));
+    expect(client.put).toHaveBeenCalledWith("/api/utenti/gestore", { user_id: 21 });
+    await waitFor(() => expect(within(riga).getByText("Io Admin")).toBeInTheDocument());
+  });
+
+  it("hides the manager line when the endpoint refuses and «Cambia» from non-admins", async () => {
+    const client = makeClient();
+    client.get.mockImplementation((path) =>
+      path.endsWith("/gestore") ? Promise.reject(httpError(403, "no")) : Promise.resolve(path.includes("/richieste") ? [] : [MARIO, IO]),
+    );
+    renderPage(client);
+    await screen.findByText("mario@example.com");
+    expect(screen.queryByText(/Gestore del portale/)).toBeNull();
   });
 });

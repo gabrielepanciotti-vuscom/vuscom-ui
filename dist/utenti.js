@@ -1,5 +1,5 @@
 // src/utenti/GestioneUtenti.jsx
-import { useMemo, useState as useState12 } from "react";
+import { useCallback as useCallback4, useEffect as useEffect8, useMemo, useState as useState13 } from "react";
 import { AlertCircle as AlertCircle2, Search as Search2, UserPlus, Users } from "lucide-react";
 
 // src/utenti/TabellaUtenti.jsx
@@ -3104,8 +3104,8 @@ function FinestraNuovoUtente({
   const [campi, setCampi] = useState5({
     username: iniziale?.username || "",
     email: iniziale?.email || "",
-    nome: "",
-    cognome: ""
+    nome: iniziale?.nome || "",
+    cognome: iniziale?.cognome || ""
   });
   const [ruolo, setRuolo] = useState5("viewer");
   const [esistente, setEsistente] = useState5(null);
@@ -3619,6 +3619,7 @@ function RichiesteAccesso({ client, basePath, versione, onCrea }) {
         /* @__PURE__ */ jsx13("h2", { className: "text-[13px] font-semibold text-slate-800 dark:text-slate-100", children: "Richieste di accesso" }),
         /* @__PURE__ */ jsx13("ul", { className: "divide-y divide-amber-200/70 dark:divide-amber-500/20", children: richieste.map((r2) => /* @__PURE__ */ jsxs13("li", { className: "flex flex-wrap items-center justify-between gap-2 py-2 text-[13px]", children: [
           /* @__PURE__ */ jsxs13("span", { className: "text-slate-700 dark:text-slate-200", children: [
+            [r2.nome, r2.cognome].filter(Boolean).length > 0 && /* @__PURE__ */ jsx13("strong", { className: "mr-1 font-semibold", children: [r2.nome, r2.cognome].filter(Boolean).join(" ") }),
             r2.email,
             r2.created_at && /* @__PURE__ */ jsx13("span", { className: "ml-2 text-[11px] text-slate-500 dark:text-slate-400", children: /* @__PURE__ */ jsx13(DataOra, { value: r2.created_at }) })
           ] }),
@@ -3744,12 +3745,57 @@ function FinestraConferma({
   );
 }
 
+// src/utenti/FinestraGestore.jsx
+import { useState as useState11 } from "react";
+import { Fragment as Fragment7, jsx as jsx16, jsxs as jsxs16 } from "react/jsx-runtime";
+function FinestraGestore({ client, basePath, utenti, gestore, nomePortale, onChiudi, onFatto }) {
+  const candidati = utenti.filter((u) => u.is_active && ["admin", "superadmin"].includes(u.ruolo));
+  const [scelto, setScelto] = useState11(gestore?.id ?? null);
+  const { inCorso, errore, esegui } = useAzione();
+  async function salva() {
+    const esito = await esegui(() => client.put(`${basePath}/gestore`, { user_id: scelto }));
+    if (esito.ok) {
+      onFatto?.();
+      onChiudi();
+    }
+  }
+  return /* @__PURE__ */ jsxs16(
+    Finestra,
+    {
+      titolo: "Gestore del portale",
+      onChiudi,
+      piede: /* @__PURE__ */ jsxs16(Fragment7, { children: [
+        /* @__PURE__ */ jsx16("button", { type: "button", onClick: onChiudi, className: BOTTONE.secondario, children: "Annulla" }),
+        /* @__PURE__ */ jsx16("button", { type: "button", onClick: salva, disabled: inCorso || scelto == null || scelto === gestore?.id, className: BOTTONE.primario, children: "Imposta gestore" })
+      ] }),
+      children: [
+        /* @__PURE__ */ jsx16(Nota, { children: `Il gestore riceve le richieste di accesso a ${nomePortale}. Le vedono comunque tutti gli admin.` }),
+        /* @__PURE__ */ jsx16("ul", { role: "radiogroup", "aria-label": "Admin del portale", className: "space-y-1", children: candidati.map((u) => /* @__PURE__ */ jsx16("li", { children: /* @__PURE__ */ jsxs16(
+          "button",
+          {
+            type: "button",
+            role: "radio",
+            "aria-checked": scelto === u.id,
+            onClick: () => setScelto(u.id),
+            className: `flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left text-[13px] ${scelto === u.id ? "border-brand-500 bg-brand-50 text-slate-900 dark:border-brand-400 dark:bg-brand-500/10 dark:text-slate-100" : "border-slate-200 text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/[0.04]"}`,
+            children: [
+              /* @__PURE__ */ jsx16("span", { children: nomeCompleto(u) === "\u2014" ? u.username : nomeCompleto(u) }),
+              /* @__PURE__ */ jsx16("span", { className: "text-[11px] text-slate-500 dark:text-slate-400", children: u.email })
+            ]
+          }
+        ) }, u.id)) }),
+        /* @__PURE__ */ jsx16(MessaggioErrore, { children: errore })
+      ]
+    }
+  );
+}
+
 // src/utenti/useUtenti.js
-import { useCallback as useCallback3, useEffect as useEffect7, useRef as useRef5, useState as useState11 } from "react";
+import { useCallback as useCallback3, useEffect as useEffect7, useRef as useRef5, useState as useState12 } from "react";
 function useUtenti({ client, basePath = "/api/utenti", includiDisattivati = false }) {
-  const [utenti, setUtenti] = useState11([]);
-  const [caricando, setCaricando] = useState11(true);
-  const [errore, setErrore] = useState11(null);
+  const [utenti, setUtenti] = useState12([]);
+  const [caricando, setCaricando] = useState12(true);
+  const [errore, setErrore] = useState12(null);
   const ultima = useRef5(0);
   const ricarica = useCallback3(async () => {
     const numero = ++ultima.current;
@@ -3773,7 +3819,7 @@ function useUtenti({ client, basePath = "/api/utenti", includiDisattivati = fals
 }
 
 // src/utenti/GestioneUtenti.jsx
-import { jsx as jsx16, jsxs as jsxs16 } from "react/jsx-runtime";
+import { jsx as jsx17, jsxs as jsxs17 } from "react/jsx-runtime";
 var NOTA_SESSIONI2 = "La persona verr\xE0 disconnessa da tutti i portali e dovr\xE0 rifare il login.";
 function corrisponde(u, filtro) {
   if (!filtro) return true;
@@ -3827,39 +3873,59 @@ function GestioneUtenti({
   basePath = "/api/utenti",
   SezioneExtra
 }) {
-  const [mostraDisattivati, setMostraDisattivati] = useState12(false);
-  const [filtro, setFiltro] = useState12("");
-  const [finestra, setFinestra] = useState12(null);
+  const [mostraDisattivati, setMostraDisattivati] = useState13(false);
+  const [filtro, setFiltro] = useState13("");
+  const [finestra, setFinestra] = useState13(null);
   const { utenti, caricando, errore, ricarica } = useUtenti({ client, basePath, includiDisattivati: mostraDisattivati });
   const visibili = useMemo(() => {
     const f = filtro.trim().toLowerCase();
     return utenti.filter((u) => corrisponde(u, f));
   }, [utenti, filtro]);
+  const [gestore, setGestore] = useState13({ caricato: false, utente: null });
+  const caricaGestore = useCallback4(async () => {
+    try {
+      const dati = await client.get(`${basePath}/gestore`);
+      setGestore({ caricato: true, utente: dati?.gestore ?? null });
+    } catch {
+      setGestore({ caricato: false, utente: null });
+    }
+  }, [client, basePath]);
+  useEffect8(() => {
+    caricaGestore();
+  }, [caricaGestore]);
   const nome = nomePortale || portale;
   const chiudi = () => setFinestra(null);
   const comuni = { client, basePath, attore, nomePortale: nome, onChiudi: chiudi, onFatto: ricarica };
   const conferma = finestra && conferme({ client, basePath, nomePortale: nome })[finestra.tipo];
-  return /* @__PURE__ */ jsxs16("div", { className: "space-y-4", children: [
-    /* @__PURE__ */ jsxs16("div", { className: "flex flex-wrap items-center justify-between gap-3", children: [
-      /* @__PURE__ */ jsxs16("h1", { className: "flex items-center gap-2 text-[18px] font-semibold text-slate-800 dark:text-slate-100", children: [
-        /* @__PURE__ */ jsx16(Users, { className: "h-5 w-5 text-brand-600 dark:text-brand-400" }),
+  return /* @__PURE__ */ jsxs17("div", { className: "space-y-4", children: [
+    /* @__PURE__ */ jsxs17("div", { className: "flex flex-wrap items-center justify-between gap-3", children: [
+      /* @__PURE__ */ jsxs17("h1", { className: "flex items-center gap-2 text-[18px] font-semibold text-slate-800 dark:text-slate-100", children: [
+        /* @__PURE__ */ jsx17(Users, { className: "h-5 w-5 text-brand-600 dark:text-brand-400" }),
         `Utenti \u2014 ${nome}`
       ] }),
-      /* @__PURE__ */ jsxs16("div", { className: "flex flex-wrap gap-2", children: [
-        /* @__PURE__ */ jsxs16("button", { type: "button", onClick: () => setFinestra({ tipo: "aggiungi" }), className: BOTTONE.secondario, children: [
-          /* @__PURE__ */ jsx16(Search2, { className: "h-4 w-4" }),
+      /* @__PURE__ */ jsxs17("div", { className: "flex flex-wrap gap-2", children: [
+        /* @__PURE__ */ jsxs17("button", { type: "button", onClick: () => setFinestra({ tipo: "aggiungi" }), className: BOTTONE.secondario, children: [
+          /* @__PURE__ */ jsx17(Search2, { className: "h-4 w-4" }),
           "Aggiungi utente esistente"
         ] }),
-        /* @__PURE__ */ jsxs16("button", { type: "button", onClick: () => setFinestra({ tipo: "nuovo" }), className: BOTTONE.primario, children: [
-          /* @__PURE__ */ jsx16(UserPlus, { className: "h-4 w-4" }),
+        /* @__PURE__ */ jsxs17("button", { type: "button", onClick: () => setFinestra({ tipo: "nuovo" }), className: BOTTONE.primario, children: [
+          /* @__PURE__ */ jsx17(UserPlus, { className: "h-4 w-4" }),
           "Nuovo utente"
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ jsxs16("div", { className: "flex flex-wrap items-center gap-4", children: [
-      /* @__PURE__ */ jsxs16("div", { className: "relative w-full max-w-xs", children: [
-        /* @__PURE__ */ jsx16(Search2, { className: "pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" }),
-        /* @__PURE__ */ jsx16(
+    gestore.caricato && /* @__PURE__ */ jsxs17("p", { className: "flex flex-wrap items-center gap-2 text-[13px] text-slate-600 dark:text-slate-300", children: [
+      /* @__PURE__ */ jsxs17("span", { children: [
+        "Gestore del portale:",
+        " ",
+        /* @__PURE__ */ jsx17("strong", { className: "font-semibold text-slate-800 dark:text-slate-100", children: gestore.utente ? nomeCompleto(gestore.utente) : "nessuno (le richieste vanno a tutti gli admin)" })
+      ] }),
+      ["admin", "superadmin"].includes(attore?.ruolo) && /* @__PURE__ */ jsx17("button", { type: "button", onClick: () => setFinestra({ tipo: "gestore" }), className: "text-brand-600 underline-offset-2 hover:underline dark:text-brand-400", children: "Cambia" })
+    ] }),
+    /* @__PURE__ */ jsxs17("div", { className: "flex flex-wrap items-center gap-4", children: [
+      /* @__PURE__ */ jsxs17("div", { className: "relative w-full max-w-xs", children: [
+        /* @__PURE__ */ jsx17(Search2, { className: "pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" }),
+        /* @__PURE__ */ jsx17(
           "input",
           {
             type: "search",
@@ -3871,31 +3937,32 @@ function GestioneUtenti({
           }
         )
       ] }),
-      /* @__PURE__ */ jsx16(Interruttore, { attivo: mostraDisattivati, onCambia: setMostraDisattivati, etichetta: "Mostra disattivati" })
+      /* @__PURE__ */ jsx17(Interruttore, { attivo: mostraDisattivati, onCambia: setMostraDisattivati, etichetta: "Mostra disattivati" })
     ] }),
-    /* @__PURE__ */ jsx16(
+    /* @__PURE__ */ jsx17(
       RichiesteAccesso,
       {
         client,
         basePath,
         versione: utenti,
-        onCrea: (r2) => setFinestra({ tipo: "nuovo", iniziale: { email: r2.email, username: r2.email.split("@")[0] } })
+        onCrea: (r2) => setFinestra({ tipo: "nuovo", iniziale: { email: r2.email, username: r2.email.split("@")[0], nome: r2.nome, cognome: r2.cognome } })
       }
     ),
-    errore && /* @__PURE__ */ jsxs16("div", { role: "alert", className: "flex items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300", children: [
-      /* @__PURE__ */ jsxs16("span", { className: "flex items-center gap-2", children: [
-        /* @__PURE__ */ jsx16(AlertCircle2, { className: "h-4 w-4" }),
+    errore && /* @__PURE__ */ jsxs17("div", { role: "alert", className: "flex items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300", children: [
+      /* @__PURE__ */ jsxs17("span", { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsx17(AlertCircle2, { className: "h-4 w-4" }),
         errore
       ] }),
-      /* @__PURE__ */ jsx16("button", { type: "button", onClick: ricarica, className: BOTTONE.secondario, children: "Riprova" })
+      /* @__PURE__ */ jsx17("button", { type: "button", onClick: ricarica, className: BOTTONE.secondario, children: "Riprova" })
     ] }),
-    !errore && /* @__PURE__ */ jsx16(TabellaUtenti, { utenti: visibili, caricando, attore, onAzione: (tipo, utente) => setFinestra({ tipo, utente }) }),
-    !errore && !caricando && visibili.length === 0 && /* @__PURE__ */ jsx16("p", { className: "py-8 text-center text-[13px] text-slate-500 dark:text-slate-400", children: filtro.trim() ? "Nessun utente corrisponde al filtro." : `Nessun utente ha accesso a ${nome}.` }),
-    finestra?.tipo === "nuovo" && /* @__PURE__ */ jsx16(FinestraNuovoUtente, { ...comuni, iniziale: finestra.iniziale }),
-    finestra?.tipo === "aggiungi" && /* @__PURE__ */ jsx16(FinestraAggiungiEsistente, { ...comuni }),
-    finestra?.tipo === "modifica" && /* @__PURE__ */ jsx16(FinestraModifica, { ...comuni, utente: finestra.utente, SezioneExtra }),
-    finestra?.tipo === "elimina" && /* @__PURE__ */ jsx16(FinestraElimina, { ...comuni, utente: finestra.utente }),
-    conferma && /* @__PURE__ */ jsx16(FinestraConferma, { ...conferma(finestra.utente), onChiudi: chiudi, onFatto: ricarica })
+    !errore && /* @__PURE__ */ jsx17(TabellaUtenti, { utenti: visibili, caricando, attore, onAzione: (tipo, utente) => setFinestra({ tipo, utente }) }),
+    !errore && !caricando && visibili.length === 0 && /* @__PURE__ */ jsx17("p", { className: "py-8 text-center text-[13px] text-slate-500 dark:text-slate-400", children: filtro.trim() ? "Nessun utente corrisponde al filtro." : `Nessun utente ha accesso a ${nome}.` }),
+    finestra?.tipo === "nuovo" && /* @__PURE__ */ jsx17(FinestraNuovoUtente, { ...comuni, iniziale: finestra.iniziale }),
+    finestra?.tipo === "gestore" && /* @__PURE__ */ jsx17(FinestraGestore, { ...comuni, utenti, gestore: gestore.utente, onFatto: caricaGestore }),
+    finestra?.tipo === "aggiungi" && /* @__PURE__ */ jsx17(FinestraAggiungiEsistente, { ...comuni }),
+    finestra?.tipo === "modifica" && /* @__PURE__ */ jsx17(FinestraModifica, { ...comuni, utente: finestra.utente, SezioneExtra }),
+    finestra?.tipo === "elimina" && /* @__PURE__ */ jsx17(FinestraElimina, { ...comuni, utente: finestra.utente }),
+    conferma && /* @__PURE__ */ jsx17(FinestraConferma, { ...conferma(finestra.utente), onChiudi: chiudi, onFatto: ricarica })
   ] });
 }
 export {

@@ -7,6 +7,7 @@ import Checkbox from "../molecules/Checkbox.jsx";
 import LoginCornice from "./LoginCornice.jsx";
 import { RichiestaRecupero } from "../accesso/RecuperoPassword.jsx";
 import { RichiestaRegistrazione, RimandaInvito } from "../accesso/Registrazione.jsx";
+import { leggiStatoLogin } from "../accesso/statoLogin.js";
 import useTemaLogin from "../theme/useTemaLogin.js";
 import Button from "../atoms/Button.jsx";
 import IconButton from "../atoms/IconButton.jsx";
@@ -27,7 +28,7 @@ import { LOGHI_VUSCOM, useFaviconVuscom } from "../brand/Brand.jsx";
  * emailed link opens `ReimpostaPassword`. `registrazione` (`true` or `{ base? }`, default base
  * `/api/auth`) adds «Registrati» (email-only request) and, when `onSubmit` rejects with an error
  * carrying `detail = { codice: "non_registrato", messaggio, login }` (on `err.detail` or `err.body.detail`),
- * a yellow notice with «Rimandami l'email di registrazione»; the invitation link opens `RegistrazionePage`. The saved/system theme is applied by the page itself.
+ * a yellow notice with «Rimandami l'email di registrazione»; the invitation link opens `RegistrazionePage`, which for a dead link sends the person back here with the email in the field and the notice («Non hai ancora completato la registrazione», or «Registrazione già completata…» for a used link) through `accesso/statoLogin.js`: no portal code. The saved/system theme is applied by the page itself.
  */
 function leggiRicordami() {
   try {
@@ -54,14 +55,21 @@ export default function LoginPage({
 }) {
   const passwordId = useId();
   useFaviconVuscom(iconaPortale);
-  const [username, setUsername] = useState("");
+  // Dead invitation link: the registration page left the email and the reason (accesso/statoLogin.js).
+  const [arrivo] = useState(() => (registrazione ? leggiStatoLogin() : null));
+  const [username, setUsername] = useState(arrivo?.email || "");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [recuperoAperto, setRecuperoAperto] = useState(false);
   const [registrazioneAperta, setRegistrazioneAperta] = useState(false);
-  const [nonRegistrato, setNonRegistrato] = useState(null);
+  const [nonRegistrato, setNonRegistrato] = useState(
+    arrivo?.avviso === "scaduto" && arrivo.email
+      ? { messaggio: "Non hai ancora completato la registrazione.", login: arrivo.email }
+      : null,
+  );
+  const giaRegistrato = arrivo?.avviso === "registrato" && !error;
   const [ricorda, setRicorda] = useState(
     () => typeof window !== "undefined" && leggiRicordami(),
   );
@@ -128,10 +136,13 @@ export default function LoginPage({
     >
       <form className="space-y-5" onSubmit={handleSubmit}>
         {error && <Alert tone="danger">{error}</Alert>}
+        {giaRegistrato && !nonRegistrato && (
+          <Alert tone="info">Registrazione già completata: accedi con la tua password.</Alert>
+        )}
         {nonRegistrato && (
           <Alert tone="warning">
             {nonRegistrato.messaggio}
-            <RimandaInvito base={registrazione.base} login={nonRegistrato.login} />
+            <RimandaInvito base={registrazione?.base} login={nonRegistrato.login} />
           </Alert>
         )}
         <Field label={usernameLabel}>

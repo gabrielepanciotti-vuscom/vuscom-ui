@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Check, Circle } from "lucide-react";
 import Alert from "../organisms/Alert.jsx";
 import Button from "../atoms/Button.jsx";
@@ -8,6 +8,7 @@ import LoginCornice from "../templates/LoginCornice.jsx";
 import useTemaLogin from "../theme/useTemaLogin.js";
 import { useFaviconVuscom } from "../brand/Brand.jsx";
 import { BASE_RECUPERO, postJson } from "./RecuperoPassword.jsx";
+import { salvaStatoLogin } from "./statoLogin.js";
 
 const MINIMO = 8;
 const SENZA_RETE = "Errore di connessione al server.";
@@ -46,8 +47,10 @@ export function RimandaInvito({ base = BASE_RECUPERO, login }) {
   );
 }
 
-/** «Registrati» from the login: asks only the email; the answer is always the same sentence. */
+/** «Registrati» from the login: asks name, surname and email; the answer is always the same sentence. */
 export function RichiestaRegistrazione({ base = BASE_RECUPERO, onIndietro, ...cornice }) {
+  const [nome, setNome] = useState("");
+  const [cognome, setCognome] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -58,7 +61,7 @@ export function RichiestaRegistrazione({ base = BASE_RECUPERO, onIndietro, ...co
     setError("");
     setLoading(true);
     try {
-      const { data } = await postJson(`${base}/registrati`, { email });
+      const { data } = await postJson(`${base}/registrati`, { nome: nome.trim(), cognome: cognome.trim(), email });
       setMessage(data.message || "Se l'indirizzo è abilitato, riceverai un'email per registrarti.");
     } catch {
       setError(SENZA_RETE);
@@ -75,6 +78,14 @@ export function RichiestaRegistrazione({ base = BASE_RECUPERO, onIndietro, ...co
           <Alert tone="success">{message}</Alert>
         ) : (
           <>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Field label="Nome">
+                <Input name="nome" autoComplete="given-name" value={nome} onChange={(e) => setNome(e.target.value)} required />
+              </Field>
+              <Field label="Cognome">
+                <Input name="cognome" autoComplete="family-name" value={cognome} onChange={(e) => setCognome(e.target.value)} required />
+              </Field>
+            </div>
             <Field label="Email" hint="Ti invieremo un link per completare la registrazione.">
               <Input type="email" name="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </Field>
@@ -106,7 +117,9 @@ function Regola({ ok, children }) {
 /**
  * Registration screen the invitation link opens (`/registrazione?token=…`).
  * `token` defaults to `?token=`; `onAccesso(rispostaDiLogin)` is the portal's login-success
- * callback; `onVaiAlLogin()` is the way back to the login (router-agnostic).
+ * callback; `onVaiAlLogin()` is the way to the login (router-agnostic). A link that is expired,
+ * replaced, already used or invalid shows no page: it hands the email (never in a URL, see
+ * statoLogin.js) to the login and calls `onVaiAlLogin()` at once; `LoginPage` shows the notice.
  */
 export default function RegistrazionePage({
   base = BASE_RECUPERO,
@@ -119,21 +132,36 @@ export default function RegistrazionePage({
   useTemaLogin();
   useFaviconVuscom(iconaPortale);
   const [invito, setInvito] = useState(null);
-  const [errore, setErrore] = useState(token ? "" : "Link non valido: token mancante.");
+  const [errore, setErrore] = useState("");
   const [nome, setNome] = useState("");
   const [cognome, setCognome] = useState("");
   const [password, setPassword] = useState("");
   const [conferma, setConferma] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Dead link → straight to the login. Without `onVaiAlLogin` the old message stays as a fallback.
+  const alLogin = useCallback(
+    (stato, messaggioFallback) => {
+      if (!onVaiAlLogin) return setErrore(messaggioFallback);
+      if (stato) salvaStatoLogin(stato);
+      onVaiAlLogin();
+    },
+    [onVaiAlLogin],
+  );
+
   useEffect(() => {
-    if (!token) return;
+    if (!token) return alLogin(null, "Link non valido: token mancante.");
     let vivo = true;
     fetch(`${base}/invito?token=${encodeURIComponent(token)}`, { headers: { Accept: "application/json" } })
       .then(async (r) => ({ ok: r.ok, data: await r.json().catch(() => ({})) }))
       .then(({ ok, data }) => {
         if (!vivo) return;
-        if (!ok) return setErrore(messaggio(data, "Invito non valido."));
+        if (!ok) {
+          const d = data?.detail;
+          const email = d?.email || "";
+          const avviso = d?.codice === "registrato" ? "registrato" : d?.codice === "non_valido" ? null : "scaduto";
+          return alLogin(avviso && email ? { email, avviso } : null, messaggio(data, "Invito non valido."));
+        }
         setInvito(data);
         setNome(data.nome || "");
         setCognome(data.cognome || "");
@@ -142,7 +170,7 @@ export default function RegistrazionePage({
     return () => {
       vivo = false;
     };
-  }, [base, token]);
+  }, [base, token, alLogin]);
 
   const lungaAbbastanza = password.length >= MINIMO;
   const uguali = password !== "" && password === conferma;

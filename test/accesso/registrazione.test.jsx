@@ -5,6 +5,7 @@ import { LoginPage, RegistrazionePage } from "../../src/index.js";
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  sessionStorage.clear();
   localStorage.clear();
   document.documentElement.classList.remove("dark");
 });
@@ -39,18 +40,20 @@ test("a plain login error still shows the message", async () => {
   expect(await screen.findByText("Credenziali errate")).toBeInTheDocument();
 });
 
-test("Registrati asks only the email and shows the generic message", async () => {
+test("Registrati asks name, surname and email and shows the generic message", async () => {
   const fetchMock = vi.fn().mockResolvedValue(risposta(true, { message: "Controlla la posta" }));
   vi.stubGlobal("fetch", fetchMock);
   render(<LoginPage title="X" onSubmit={vi.fn()} registrazione recupero />);
   expect(screen.getByRole("button", { name: "Registrati" })).toBeInTheDocument();
   expect(screen.getAllByRole("button", { name: "Password dimenticata?" })).toHaveLength(1);
   await userEvent.click(screen.getByRole("button", { name: "Registrati" }));
+  await userEvent.type(screen.getByLabelText("Nome"), "Nina");
+  await userEvent.type(screen.getByLabelText("Cognome"), "Verdi");
   await userEvent.type(screen.getByLabelText("Email"), "a@b.it");
   await userEvent.click(screen.getByRole("button", { name: "Invia" }));
   expect(await screen.findByText("Controlla la posta")).toBeInTheDocument();
   expect(fetchMock.mock.calls[0][0]).toBe("/api/auth/registrati");
-  expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ email: "a@b.it" });
+  expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ nome: "Nina", cognome: "Verdi", email: "a@b.it" });
 });
 
 test("no Registrati link without the prop", () => {
@@ -93,11 +96,54 @@ test("RegistrazionePage prefills, validates the rules and logs in", async () => 
   });
 });
 
-test.each(["scaduto", "sostituito", "registrato", "non_valido"])("invitation %s shows its message", async (codice) => {
-  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(risposta(false, { detail: { codice, messaggio: `Invito di Anna: ${codice}`, invitato_da: "Anna" } })));
-  render(<RegistrazionePage token="abc" onAccesso={vi.fn()} />);
-  expect(await screen.findByText(`Invito di Anna: ${codice}`)).toBeInTheDocument();
-  expect(screen.queryByRole("button", { name: "Registrati ed entra" })).toBeNull();
+test.each([
+  ["scaduto", "scaduto"],
+  ["sostituito", "scaduto"],
+  ["registrato", "registrato"],
+])("dead link %s: no page, straight to the login with the email in memory only", async (codice, avviso) => {
+  sessionStorage.clear();
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(risposta(false, { detail: { codice, messaggio: "x", email: "mario@x.it" } })));
+  const onVaiAlLogin = vi.fn();
+  render(<RegistrazionePage token="abc" onAccesso={vi.fn()} onVaiAlLogin={onVaiAlLogin} />);
+  await waitFor(() => expect(onVaiAlLogin).toHaveBeenCalledTimes(1));
+  expect(JSON.parse(sessionStorage.getItem("vuscomLoginStato"))).toEqual({ email: "mario@x.it", avviso });
+  expect(screen.queryByRole("alert")).toBeNull();
+  expect(window.location.href).not.toContain("mario");
+});
+
+test("an invalid or missing token goes to a plain login", async () => {
+  sessionStorage.clear();
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(risposta(false, { detail: { codice: "non_valido", messaggio: "x", email: null } })));
+  const onVaiAlLogin = vi.fn();
+  render(<RegistrazionePage token="abc" onVaiAlLogin={onVaiAlLogin} />);
+  await waitFor(() => expect(onVaiAlLogin).toHaveBeenCalled());
+  expect(sessionStorage.getItem("vuscomLoginStato")).toBeNull();
+  const senzaToken = vi.fn();
+  render(<RegistrazionePage token="" onVaiAlLogin={senzaToken} />);
+  await waitFor(() => expect(senzaToken).toHaveBeenCalled());
+});
+
+test("without onVaiAlLogin a dead link keeps the old message", async () => {
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(risposta(false, { detail: { codice: "scaduto", messaggio: "Invito scaduto", email: "m@x.it" } })));
+  render(<RegistrazionePage token="abc" />);
+  expect(await screen.findByText("Invito scaduto")).toBeInTheDocument();
+});
+
+test("login after an expired link: email filled in and the yellow notice open", async () => {
+  sessionStorage.setItem("vuscomLoginStato", JSON.stringify({ email: "mario@x.it", avviso: "scaduto" }));
+  render(<LoginPage title="X" onSubmit={vi.fn()} registrazione recupero />);
+  expect(screen.getByLabelText(/username/i)).toHaveValue("mario@x.it");
+  expect(screen.getByText("Non hai ancora completato la registrazione.")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Rimandami l'email di registrazione" })).toBeInTheDocument();
+  expect(sessionStorage.getItem("vuscomLoginStato")).toBeNull(); // shown once
+});
+
+test("login after a used link: email filled in and the «già completata» line", async () => {
+  sessionStorage.setItem("vuscomLoginStato", JSON.stringify({ email: "mario@x.it", avviso: "registrato" }));
+  render(<LoginPage title="X" onSubmit={vi.fn()} registrazione recupero />);
+  expect(screen.getByLabelText(/username/i)).toHaveValue("mario@x.it");
+  expect(screen.getByText("Registrazione già completata: accedi con la tua password.")).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Rimandami l'email di registrazione" })).toBeNull();
 });
 
 test("an error on submit shows the message", async () => {

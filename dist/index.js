@@ -7233,8 +7233,28 @@ function ReimpostaPassword({
 }
 
 // src/accesso/Registrazione.jsx
-import { useEffect as useEffect18, useState as useState22 } from "react";
+import { useCallback as useCallback7, useEffect as useEffect18, useState as useState22 } from "react";
 import { Check as Check4, Circle } from "lucide-react";
+
+// src/accesso/statoLogin.js
+var CHIAVE = "vuscomLoginStato";
+function salvaStatoLogin(stato) {
+  try {
+    sessionStorage.setItem(CHIAVE, JSON.stringify(stato));
+  } catch {
+  }
+}
+function leggiStatoLogin() {
+  try {
+    const grezzo = sessionStorage.getItem(CHIAVE);
+    sessionStorage.removeItem(CHIAVE);
+    return grezzo ? JSON.parse(grezzo) : null;
+  } catch {
+    return null;
+  }
+}
+
+// src/accesso/Registrazione.jsx
 import { Fragment as Fragment10, jsx as jsx53, jsxs as jsxs46 } from "react/jsx-runtime";
 var MINIMO2 = 8;
 var SENZA_RETE = "Errore di connessione al server.";
@@ -7263,6 +7283,8 @@ function RimandaInvito({ base = BASE_RECUPERO, login }) {
   ] });
 }
 function RichiestaRegistrazione({ base = BASE_RECUPERO, onIndietro, ...cornice }) {
+  const [nome, setNome] = useState22("");
+  const [cognome, setCognome] = useState22("");
   const [email, setEmail] = useState22("");
   const [loading, setLoading] = useState22(false);
   const [error, setError] = useState22("");
@@ -7272,7 +7294,7 @@ function RichiestaRegistrazione({ base = BASE_RECUPERO, onIndietro, ...cornice }
     setError("");
     setLoading(true);
     try {
-      const { data } = await postJson(`${base}/registrati`, { email });
+      const { data } = await postJson(`${base}/registrati`, { nome: nome.trim(), cognome: cognome.trim(), email });
       setMessage(data.message || "Se l'indirizzo \xE8 abilitato, riceverai un'email per registrarti.");
     } catch {
       setError(SENZA_RETE);
@@ -7283,6 +7305,10 @@ function RichiestaRegistrazione({ base = BASE_RECUPERO, onIndietro, ...cornice }
   return /* @__PURE__ */ jsx53(LoginCornice, { ...cornice, subtitle: "Registrati", children: /* @__PURE__ */ jsxs46("form", { className: "space-y-5", onSubmit: invia, children: [
     error && /* @__PURE__ */ jsx53(Alert, { tone: "danger", children: error }),
     message ? /* @__PURE__ */ jsx53(Alert, { tone: "success", children: message }) : /* @__PURE__ */ jsxs46(Fragment10, { children: [
+      /* @__PURE__ */ jsxs46("div", { className: "grid grid-cols-1 gap-4 sm:grid-cols-2", children: [
+        /* @__PURE__ */ jsx53(Field, { label: "Nome", children: /* @__PURE__ */ jsx53(Input_default, { name: "nome", autoComplete: "given-name", value: nome, onChange: (e) => setNome(e.target.value), required: true }) }),
+        /* @__PURE__ */ jsx53(Field, { label: "Cognome", children: /* @__PURE__ */ jsx53(Input_default, { name: "cognome", autoComplete: "family-name", value: cognome, onChange: (e) => setCognome(e.target.value), required: true }) })
+      ] }),
       /* @__PURE__ */ jsx53(Field, { label: "Email", hint: "Ti invieremo un link per completare la registrazione.", children: /* @__PURE__ */ jsx53(Input_default, { type: "email", name: "email", autoComplete: "email", value: email, onChange: (e) => setEmail(e.target.value), required: true }) }),
       /* @__PURE__ */ jsx53(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Invia" })
     ] }),
@@ -7307,18 +7333,31 @@ function RegistrazionePage({
   useTemaLogin();
   useFaviconVuscom(iconaPortale);
   const [invito, setInvito] = useState22(null);
-  const [errore, setErrore] = useState22(token ? "" : "Link non valido: token mancante.");
+  const [errore, setErrore] = useState22("");
   const [nome, setNome] = useState22("");
   const [cognome, setCognome] = useState22("");
   const [password, setPassword] = useState22("");
   const [conferma, setConferma] = useState22("");
   const [loading, setLoading] = useState22(false);
+  const alLogin = useCallback7(
+    (stato, messaggioFallback) => {
+      if (!onVaiAlLogin) return setErrore(messaggioFallback);
+      if (stato) salvaStatoLogin(stato);
+      onVaiAlLogin();
+    },
+    [onVaiAlLogin]
+  );
   useEffect18(() => {
-    if (!token) return;
+    if (!token) return alLogin(null, "Link non valido: token mancante.");
     let vivo = true;
     fetch(`${base}/invito?token=${encodeURIComponent(token)}`, { headers: { Accept: "application/json" } }).then(async (r2) => ({ ok: r2.ok, data: await r2.json().catch(() => ({})) })).then(({ ok, data }) => {
       if (!vivo) return;
-      if (!ok) return setErrore(messaggio(data, "Invito non valido."));
+      if (!ok) {
+        const d = data?.detail;
+        const email = d?.email || "";
+        const avviso = d?.codice === "registrato" ? "registrato" : d?.codice === "non_valido" ? null : "scaduto";
+        return alLogin(avviso && email ? { email, avviso } : null, messaggio(data, "Invito non valido."));
+      }
       setInvito(data);
       setNome(data.nome || "");
       setCognome(data.cognome || "");
@@ -7326,7 +7365,7 @@ function RegistrazionePage({
     return () => {
       vivo = false;
     };
-  }, [base, token]);
+  }, [base, token, alLogin]);
   const lungaAbbastanza = password.length >= MINIMO2;
   const uguali = password !== "" && password === conferma;
   const pronto = lungaAbbastanza && uguali && nome.trim() && cognome.trim();
@@ -7400,14 +7439,18 @@ function LoginPage({
 }) {
   const passwordId = useId13();
   useFaviconVuscom(iconaPortale);
-  const [username, setUsername] = useState23("");
+  const [arrivo] = useState23(() => registrazione ? leggiStatoLogin() : null);
+  const [username, setUsername] = useState23(arrivo?.email || "");
   const [password, setPassword] = useState23("");
   const [show, setShow] = useState23(false);
   const [loading, setLoading] = useState23(false);
   const [error, setError] = useState23("");
   const [recuperoAperto, setRecuperoAperto] = useState23(false);
   const [registrazioneAperta, setRegistrazioneAperta] = useState23(false);
-  const [nonRegistrato, setNonRegistrato] = useState23(null);
+  const [nonRegistrato, setNonRegistrato] = useState23(
+    arrivo?.avviso === "scaduto" && arrivo.email ? { messaggio: "Non hai ancora completato la registrazione.", login: arrivo.email } : null
+  );
+  const giaRegistrato = arrivo?.avviso === "registrato" && !error;
   const [ricorda, setRicorda] = useState23(
     () => typeof window !== "undefined" && leggiRicordami()
   );
@@ -7469,9 +7512,10 @@ function LoginPage({
       children: [
         /* @__PURE__ */ jsxs47("form", { className: "space-y-5", onSubmit: handleSubmit, children: [
           error && /* @__PURE__ */ jsx54(Alert, { tone: "danger", children: error }),
+          giaRegistrato && !nonRegistrato && /* @__PURE__ */ jsx54(Alert, { tone: "info", children: "Registrazione gi\xE0 completata: accedi con la tua password." }),
           nonRegistrato && /* @__PURE__ */ jsxs47(Alert, { tone: "warning", children: [
             nonRegistrato.messaggio,
-            /* @__PURE__ */ jsx54(RimandaInvito, { base: registrazione.base, login: nonRegistrato.login })
+            /* @__PURE__ */ jsx54(RimandaInvito, { base: registrazione?.base, login: nonRegistrato.login })
           ] }),
           /* @__PURE__ */ jsx54(Field, { label: usernameLabel, children: /* @__PURE__ */ jsx54(
             Input_default,

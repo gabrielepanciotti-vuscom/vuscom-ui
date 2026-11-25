@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AlertCircle, Search, UserPlus, Users } from "lucide-react";
 import TabellaUtenti from "./TabellaUtenti.jsx";
 import Interruttore from "./Interruttore.jsx";
@@ -8,6 +8,7 @@ import FinestraModifica from "./FinestraModifica.jsx";
 import RichiesteAccesso from "./RichiesteAccesso.jsx";
 import FinestraElimina from "./FinestraElimina.jsx";
 import FinestraConferma from "./FinestraConferma.jsx";
+import FinestraGestore from "./FinestraGestore.jsx";
 import { BOTTONE, INPUT } from "./stili.js";
 import { nomeCompleto } from "./formato.js";
 import { useUtenti } from "./useUtenti.js";
@@ -85,6 +86,21 @@ export default function GestioneUtenti({
     return utenti.filter((u) => corrisponde(u, f));
   }, [utenti, filtro]);
 
+  // Portal manager: null when there is none (requests then go to every admin). Admins only: the
+  // endpoint answers 403 to anyone else and the line stays hidden.
+  const [gestore, setGestore] = useState({ caricato: false, utente: null });
+  const caricaGestore = useCallback(async () => {
+    try {
+      const dati = await client.get(`${basePath}/gestore`);
+      setGestore({ caricato: true, utente: dati?.gestore ?? null });
+    } catch {
+      setGestore({ caricato: false, utente: null });
+    }
+  }, [client, basePath]);
+  useEffect(() => {
+    caricaGestore();
+  }, [caricaGestore]);
+
   const nome = nomePortale || portale;
   const chiudi = () => setFinestra(null);
   const comuni = { client, basePath, attore, nomePortale: nome, onChiudi: chiudi, onFatto: ricarica };
@@ -109,6 +125,22 @@ export default function GestioneUtenti({
         </div>
       </div>
 
+      {gestore.caricato && (
+        <p className="flex flex-wrap items-center gap-2 text-[13px] text-slate-600 dark:text-slate-300">
+          <span>
+            Gestore del portale:{" "}
+            <strong className="font-semibold text-slate-800 dark:text-slate-100">
+              {gestore.utente ? nomeCompleto(gestore.utente) : "nessuno (le richieste vanno a tutti gli admin)"}
+            </strong>
+          </span>
+          {["admin", "superadmin"].includes(attore?.ruolo) && (
+            <button type="button" onClick={() => setFinestra({ tipo: "gestore" })} className="text-brand-600 underline-offset-2 hover:underline dark:text-brand-400">
+              Cambia
+            </button>
+          )}
+        </p>
+      )}
+
       <div className="flex flex-wrap items-center gap-4">
         <div className="relative w-full max-w-xs">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -128,7 +160,9 @@ export default function GestioneUtenti({
         client={client}
         basePath={basePath}
         versione={utenti}
-        onCrea={(r) => setFinestra({ tipo: "nuovo", iniziale: { email: r.email, username: r.email.split("@")[0] } })}
+        onCrea={(r) =>
+          setFinestra({ tipo: "nuovo", iniziale: { email: r.email, username: r.email.split("@")[0], nome: r.nome, cognome: r.cognome } })
+        }
       />
 
       {errore && (
@@ -148,6 +182,9 @@ export default function GestioneUtenti({
       )}
 
       {finestra?.tipo === "nuovo" && <FinestraNuovoUtente {...comuni} iniziale={finestra.iniziale} />}
+      {finestra?.tipo === "gestore" && (
+        <FinestraGestore {...comuni} utenti={utenti} gestore={gestore.utente} onFatto={caricaGestore} />
+      )}
       {finestra?.tipo === "aggiungi" && <FinestraAggiungiEsistente {...comuni} />}
       {finestra?.tipo === "modifica" && <FinestraModifica {...comuni} utente={finestra.utente} SezioneExtra={SezioneExtra} />}
       {finestra?.tipo === "elimina" && <FinestraElimina {...comuni} utente={finestra.utente} />}

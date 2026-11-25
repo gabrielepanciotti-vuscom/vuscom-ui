@@ -79,8 +79,8 @@ export default function FinestraNuovoUtente({
   const [campi, setCampi] = useState({
     username: iniziale?.username || "",
     email: iniziale?.email || "",
-    nome: "",
-    cognome: "",
+    nome: iniziale?.nome || "",
+    cognome: iniziale?.cognome || "",
   });
   const [ruolo, setRuolo] = useState("viewer");
   const [esistente, setEsistente] = useState(null);

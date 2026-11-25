@@ -46,6 +46,9 @@ export default function RichiesteAccesso({ client, basePath, versione, onCrea })
         {richieste.map((r) => (
           <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-[13px]">
             <span className="text-slate-700 dark:text-slate-200">
+              {[r.nome, r.cognome].filter(Boolean).length > 0 && (
+                <strong className="mr-1 font-semibold">{[r.nome, r.cognome].filter(Boolean).join(" ")}</strong>
+              )}
               {r.email}
               {r.created_at && <span className="ml-2 text-[11px] text-slate-500 dark:text-slate-400"><DataOra value={r.created_at} /></span>}
             </span>
