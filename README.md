@@ -67,6 +67,7 @@ Tutto in italiano nei testi, `dark:` su ogni componente, niente elementi nativi
 | `CampoData` | `value`/`onChange` in ISO (`"YYYY-MM-DD"`, `null` = vuoto), `min`, `max`, `invalid` — si scrive `gg/mm/aaaa` o si sceglie dal calendario; mai `input type=date`. `aria-describedby`, `aria-invalid` e gli altri attributi vanno all'input; con testo non valido un messaggio sr-only «Data non valida, usa il formato gg/mm/aaaa» si aggiunge a `aria-describedby` |
 | `CalendarioMese` | `value`, `onChange`, `min`, `max`, `oggi` — lunedì primo, frecce/PagSu/PagGiù da tastiera |
 | `ChipFiltro` | `children`, `onRemove`, `removeLabel` (etichetta accessibile del pulsante di rimozione; senza, usa il testo del chip se è una stringa) |
+| `TagCombinazione` | `servizio` ("luce"/"gas" o array), `prezzo` ("Fisso" o etichetta variabile), `cliente` (Domestico, Business, Non domestico, Condominio, Altri usi; stringa o array), `placet` (bool), `className`: classificazione di offerte e documenti come tag con icona |
 | `PulsanteEsportaCsv` | `nomeFile`, `rows` (array o funzione letta al clic), `columns` (di `DataTable`) |
 
 ### Organismi

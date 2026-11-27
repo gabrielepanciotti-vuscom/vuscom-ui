@@ -97,9 +97,9 @@ function ricolora(dati, nuovo, base = NAVY_ORIGINALE) {
 }
 var cache = /* @__PURE__ */ new Map();
 function tesseraDaColore(hex) {
-  const chiave = hex.toLowerCase();
-  if (!cache.has(chiave)) cache.set(chiave, genera(chiave));
-  return cache.get(chiave);
+  const chiave2 = hex.toLowerCase();
+  if (!cache.has(chiave2)) cache.set(chiave2, genera(chiave2));
+  return cache.get(chiave2);
 }
 async function genera(hex) {
   try {
@@ -246,9 +246,9 @@ function PulsanteGuida({ guida, compressa = false }) {
   const { href, label = "Guida" } = typeof guida === "string" ? { href: guida } : guida;
   const esterna = /^https?:\/\//.test(href);
   const className = compressa ? "flex items-center justify-center w-9 h-9 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-800 dark:hover:text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors" : "flex items-center justify-center w-7 h-7 rounded-md text-slate-400 dark:text-slate-500 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors";
-  const icona = /* @__PURE__ */ jsx2(BookOpen, { className: compressa ? "w-5 h-5" : "w-4 h-4", "aria-hidden": true });
+  const icona2 = /* @__PURE__ */ jsx2(BookOpen, { className: compressa ? "w-5 h-5" : "w-4 h-4", "aria-hidden": true });
   const comuni = { className, title: label, "aria-label": label };
-  return esterna ? /* @__PURE__ */ jsx2("a", { href, target: "_blank", rel: "noreferrer", ...comuni, children: icona }) : /* @__PURE__ */ jsx2(Link, { to: href, ...comuni, children: icona });
+  return esterna ? /* @__PURE__ */ jsx2("a", { href, target: "_blank", rel: "noreferrer", ...comuni, children: icona2 }) : /* @__PURE__ */ jsx2(Link, { to: href, ...comuni, children: icona2 });
 }
 
 // src/accesso/PortaliSidebar.jsx
@@ -830,7 +830,7 @@ function collectGroupIds(nodes = []) {
   return ids;
 }
 
-// node_modules/clsx/dist/clsx.mjs
+// ../../../work/vuscom-ui/node_modules/clsx/dist/clsx.mjs
 function r(e) {
   var t, f, n = "";
   if ("string" == typeof e || "number" == typeof e) n += e;
@@ -845,7 +845,7 @@ function clsx() {
   return n;
 }
 
-// node_modules/tailwind-merge/dist/bundle-mjs.mjs
+// ../../../work/vuscom-ui/node_modules/tailwind-merge/dist/bundle-mjs.mjs
 var CLASS_PART_SEPARATOR = "-";
 var createClassGroupUtils = (config) => {
   const classMap = createClassMap(config);
@@ -4252,8 +4252,8 @@ function FileDrop({
   const [sopra, setSopra] = useState7(false);
   const [scartati, setScartati] = useState7([]);
   const bloccato = disabled || loading;
-  const gestisci = (lista) => {
-    let files = Array.from(lista || []);
+  const gestisci = (lista2) => {
+    let files = Array.from(lista2 || []);
     if (!files.length) return;
     if (!multiple) files = files.slice(0, 1);
     const validi = [];
@@ -6006,6 +6006,66 @@ function DataOra({ value, soloData = false }) {
   ] });
 }
 
+// src/molecules/TagCombinazione.jsx
+import {
+  BadgeCheck,
+  Building,
+  Building2,
+  Factory,
+  Flame,
+  House,
+  Lock,
+  TrendingUp,
+  Zap
+} from "lucide-react";
+import { jsx as jsx41, jsxs as jsxs35 } from "react/jsx-runtime";
+var icona = "h-3 w-3";
+var SERVIZI = {
+  luce: { label: "Luce", Icona: Zap },
+  gas: { label: "Gas", Icona: Flame }
+};
+var CLIENTI = {
+  domestico: House,
+  business: Building2,
+  "non domestico": Building2,
+  condominio: Building,
+  "altri usi": Factory
+};
+var lista = (v) => Array.isArray(v) ? v : v ? [v] : [];
+var chiave = (v) => String(v).trim().toLowerCase();
+function TagCombinazione({
+  servizio,
+  cliente,
+  prezzo,
+  placet = false,
+  className
+}) {
+  return /* @__PURE__ */ jsxs35("div", { className: cn("flex flex-wrap items-center gap-1.5", className), children: [
+    lista(servizio).map((s) => {
+      const def = SERVIZI[chiave(s)] ?? { label: s, Icona: Zap };
+      return /* @__PURE__ */ jsxs35(Badge, { tone: "info", children: [
+        /* @__PURE__ */ jsx41(def.Icona, { className: icona, "aria-hidden": true }),
+        def.label
+      ] }, `s-${s}`);
+    }),
+    prezzo && /* @__PURE__ */ jsxs35(Badge, { tone: "neutral", children: [
+      chiave(prezzo) === "fisso" ? /* @__PURE__ */ jsx41(Lock, { className: icona, "aria-hidden": true }) : /* @__PURE__ */ jsx41(TrendingUp, { className: icona, "aria-hidden": true }),
+      prezzo
+    ] }),
+    lista(cliente).map((c) => {
+      const Icona = CLIENTI[chiave(c)] ?? House;
+      return /* @__PURE__ */ jsxs35(Badge, { tone: "neutral", children: [
+        /* @__PURE__ */ jsx41(Icona, { className: icona, "aria-hidden": true }),
+        c
+      ] }, `c-${c}`);
+    }),
+    placet && /* @__PURE__ */ jsxs35(Badge, { tone: "primary", children: [
+      /* @__PURE__ */ jsx41(BadgeCheck, { className: icona, "aria-hidden": true }),
+      "PLACET"
+    ] })
+  ] });
+}
+
 // src/molecules/PulsanteEsportaCsv.jsx
 import { Download } from "lucide-react";
 
@@ -6058,7 +6118,7 @@ function esportaCsv(nomeFile, rows, columns) {
 }
 
 // src/molecules/PulsanteEsportaCsv.jsx
-import { jsx as jsx41 } from "react/jsx-runtime";
+import { jsx as jsx42 } from "react/jsx-runtime";
 function PulsanteEsportaCsv({
   nomeFile = "esportazione",
   rows,
@@ -6070,7 +6130,7 @@ function PulsanteEsportaCsv({
   ...props
 }) {
   const vuoto2 = Array.isArray(rows) && rows.length === 0;
-  return /* @__PURE__ */ jsx41(
+  return /* @__PURE__ */ jsx42(
     Button_default,
     {
       variant,
@@ -6088,7 +6148,7 @@ function PulsanteEsportaCsv({
 import { useEffect as useEffect12, useId as useId10, useRef as useRef10 } from "react";
 import { createPortal as createPortal2 } from "react-dom";
 import { X as X3 } from "lucide-react";
-import { jsx as jsx42, jsxs as jsxs35 } from "react/jsx-runtime";
+import { jsx as jsx43, jsxs as jsxs36 } from "react/jsx-runtime";
 var SIZES = {
   sm: "max-w-sm",
   md: "max-w-md",
@@ -6141,14 +6201,14 @@ function Dialog({
         return;
       }
       if (e.key !== "Tab") return;
-      const lista = focusables(panel);
-      if (lista.length === 0) {
+      const lista2 = focusables(panel);
+      if (lista2.length === 0) {
         e.preventDefault();
         panel.focus();
         return;
       }
-      const primo = lista[0];
-      const ultimo = lista[lista.length - 1];
+      const primo = lista2[0];
+      const ultimo = lista2[lista2.length - 1];
       const attivo = document.activeElement;
       if (!panel.contains(attivo)) {
         e.preventDefault();
@@ -6173,8 +6233,8 @@ function Dialog({
   }, [open]);
   if (!open) return null;
   return createPortal2(
-    /* @__PURE__ */ jsxs35("div", { className: "fixed inset-0 z-50 overflow-y-auto", children: [
-      /* @__PURE__ */ jsx42(
+    /* @__PURE__ */ jsxs36("div", { className: "fixed inset-0 z-50 overflow-y-auto", children: [
+      /* @__PURE__ */ jsx43(
         "div",
         {
           "data-testid": "dialog-backdrop",
@@ -6182,7 +6242,7 @@ function Dialog({
           onClick: closeOnBackdrop ? () => onClose?.() : void 0
         }
       ),
-      /* @__PURE__ */ jsx42("div", { className: "flex min-h-full items-start justify-center p-3 sm:items-center sm:p-6", children: /* @__PURE__ */ jsxs35(
+      /* @__PURE__ */ jsx43("div", { className: "flex min-h-full items-start justify-center p-3 sm:items-center sm:p-6", children: /* @__PURE__ */ jsxs36(
         "div",
         {
           ref: panelRef,
@@ -6197,10 +6257,10 @@ function Dialog({
             className
           ),
           children: [
-            /* @__PURE__ */ jsxs35("div", { className: "flex items-start gap-3 border-b border-border px-6 py-4", children: [
-              Icon && /* @__PURE__ */ jsx42("div", { className: "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15", children: /* @__PURE__ */ jsx42(Icon, { className: "h-5 w-5 text-primary", "aria-hidden": true }) }),
-              /* @__PURE__ */ jsxs35("div", { className: "min-w-0 flex-1", children: [
-                /* @__PURE__ */ jsx42(
+            /* @__PURE__ */ jsxs36("div", { className: "flex items-start gap-3 border-b border-border px-6 py-4", children: [
+              Icon && /* @__PURE__ */ jsx43("div", { className: "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15", children: /* @__PURE__ */ jsx43(Icon, { className: "h-5 w-5 text-primary", "aria-hidden": true }) }),
+              /* @__PURE__ */ jsxs36("div", { className: "min-w-0 flex-1", children: [
+                /* @__PURE__ */ jsx43(
                   "h2",
                   {
                     id: titleId,
@@ -6208,9 +6268,9 @@ function Dialog({
                     children: title
                   }
                 ),
-                description && /* @__PURE__ */ jsx42("p", { id: descId, className: "mt-0.5 text-sm text-muted-foreground", children: description })
+                description && /* @__PURE__ */ jsx43("p", { id: descId, className: "mt-0.5 text-sm text-muted-foreground", children: description })
               ] }),
-              /* @__PURE__ */ jsx42(
+              /* @__PURE__ */ jsx43(
                 IconButton_default,
                 {
                   icon: X3,
@@ -6223,8 +6283,8 @@ function Dialog({
                 }
               )
             ] }),
-            /* @__PURE__ */ jsx42("div", { "data-dialog-body": true, className: "flex-1 overflow-y-auto px-6 py-5", children }),
-            footer && /* @__PURE__ */ jsx42(
+            /* @__PURE__ */ jsx43("div", { "data-dialog-body": true, className: "flex-1 overflow-y-auto px-6 py-5", children }),
+            footer && /* @__PURE__ */ jsx43(
               "div",
               {
                 "data-dialog-footer": true,
@@ -6242,7 +6302,7 @@ function Dialog({
 
 // src/organisms/ConfirmDialog.jsx
 import { useEffect as useEffect13, useRef as useRef11, useState as useState15 } from "react";
-import { Fragment as Fragment6, jsx as jsx43, jsxs as jsxs36 } from "react/jsx-runtime";
+import { Fragment as Fragment6, jsx as jsx44, jsxs as jsxs37 } from "react/jsx-runtime";
 function ConfirmDialog({
   open,
   onClose,
@@ -6293,7 +6353,7 @@ function ConfirmDialog({
   const chiudi = () => {
     if (!inCorso2.current) onClose();
   };
-  return /* @__PURE__ */ jsx43(
+  return /* @__PURE__ */ jsx44(
     Dialog,
     {
       open,
@@ -6302,9 +6362,9 @@ function ConfirmDialog({
       size: "sm",
       closeOnBackdrop: !loading,
       closeDisabled: loading,
-      footer: /* @__PURE__ */ jsxs36(Fragment6, { children: [
-        /* @__PURE__ */ jsx43(Button_default, { variant: "outline", onClick: chiudi, disabled: loading, children: cancelLabel }),
-        /* @__PURE__ */ jsx43(
+      footer: /* @__PURE__ */ jsxs37(Fragment6, { children: [
+        /* @__PURE__ */ jsx44(Button_default, { variant: "outline", onClick: chiudi, disabled: loading, children: cancelLabel }),
+        /* @__PURE__ */ jsx44(
           Button_default,
           {
             variant: tone === "danger" ? "destructive" : "primary",
@@ -6315,9 +6375,9 @@ function ConfirmDialog({
           }
         )
       ] }),
-      children: /* @__PURE__ */ jsxs36("div", { className: "space-y-4 text-sm text-muted-foreground", children: [
+      children: /* @__PURE__ */ jsxs37("div", { className: "space-y-4 text-sm text-muted-foreground", children: [
         children,
-        requireText && /* @__PURE__ */ jsx43(Field, { label: `Scrivi ${requireText} per confermare`, children: /* @__PURE__ */ jsx43(
+        requireText && /* @__PURE__ */ jsx44(Field, { label: `Scrivi ${requireText} per confermare`, children: /* @__PURE__ */ jsx44(
           Input_default,
           {
             value: testo,
@@ -6327,7 +6387,7 @@ function ConfirmDialog({
             "data-autofocus": true
           }
         ) }),
-        errore && /* @__PURE__ */ jsx43(Alert, { tone: "danger", children: errore })
+        errore && /* @__PURE__ */ jsx44(Alert, { tone: "danger", children: errore })
       ] })
     }
   );
@@ -6344,7 +6404,7 @@ import {
   useState as useState16
 } from "react";
 import { AlertTriangle as AlertTriangle2, CheckCircle2 as CheckCircle22, Info as Info2, X as X4, XCircle as XCircle2 } from "lucide-react";
-import { jsx as jsx44, jsxs as jsxs37 } from "react/jsx-runtime";
+import { jsx as jsx45, jsxs as jsxs38 } from "react/jsx-runtime";
 var ToastContext = createContext(null);
 var TONI3 = {
   success: {
@@ -6366,7 +6426,7 @@ var TONI3 = {
 };
 function ToastItem({ t, onDismiss, onPause, onResume }) {
   const s = TONI3[t.tone] ?? TONI3.info;
-  return /* @__PURE__ */ jsxs37(
+  return /* @__PURE__ */ jsxs38(
     "div",
     {
       className: cn(
@@ -6380,12 +6440,12 @@ function ToastItem({ t, onDismiss, onPause, onResume }) {
         if (!e.currentTarget.contains(e.relatedTarget)) onResume(t.id);
       },
       children: [
-        /* @__PURE__ */ jsx44(s.Icona, { className: cn("mt-0.5 h-5 w-5 shrink-0", s.icon), "aria-hidden": true }),
-        /* @__PURE__ */ jsxs37("div", { className: "min-w-0 flex-1 text-sm", children: [
-          /* @__PURE__ */ jsx44("p", { className: "font-semibold", children: t.title }),
-          t.description && /* @__PURE__ */ jsx44("p", { className: "mt-0.5 text-muted-foreground", children: t.description })
+        /* @__PURE__ */ jsx45(s.Icona, { className: cn("mt-0.5 h-5 w-5 shrink-0", s.icon), "aria-hidden": true }),
+        /* @__PURE__ */ jsxs38("div", { className: "min-w-0 flex-1 text-sm", children: [
+          /* @__PURE__ */ jsx45("p", { className: "font-semibold", children: t.title }),
+          t.description && /* @__PURE__ */ jsx45("p", { className: "mt-0.5 text-muted-foreground", children: t.description })
         ] }),
-        /* @__PURE__ */ jsx44(
+        /* @__PURE__ */ jsx45(
           IconButton_default,
           {
             icon: X4,
@@ -6447,10 +6507,10 @@ function ToastProvider({ children }) {
   const value = useMemo3(() => ({ toast, dismiss }), [toast, dismiss]);
   const urgenti = toasts.filter((t) => t.tone === "danger");
   const altri = toasts.filter((t) => t.tone !== "danger");
-  return /* @__PURE__ */ jsxs37(ToastContext.Provider, { value, children: [
+  return /* @__PURE__ */ jsxs38(ToastContext.Provider, { value, children: [
     children,
-    /* @__PURE__ */ jsxs37("div", { className: "pointer-events-none fixed right-4 top-4 z-[60] flex flex-col", children: [
-      /* @__PURE__ */ jsx44("div", { "aria-live": "assertive", className: "flex flex-col gap-2", children: urgenti.map((t) => /* @__PURE__ */ jsx44(
+    /* @__PURE__ */ jsxs38("div", { className: "pointer-events-none fixed right-4 top-4 z-[60] flex flex-col", children: [
+      /* @__PURE__ */ jsx45("div", { "aria-live": "assertive", className: "flex flex-col gap-2", children: urgenti.map((t) => /* @__PURE__ */ jsx45(
         ToastItem,
         {
           t,
@@ -6460,7 +6520,7 @@ function ToastProvider({ children }) {
         },
         t.id
       )) }),
-      /* @__PURE__ */ jsx44(
+      /* @__PURE__ */ jsx45(
         "div",
         {
           "aria-live": "polite",
@@ -6468,7 +6528,7 @@ function ToastProvider({ children }) {
             "flex flex-col gap-2",
             urgenti.length > 0 && altri.length > 0 && "mt-2"
           ),
-          children: altri.map((t) => /* @__PURE__ */ jsx44(
+          children: altri.map((t) => /* @__PURE__ */ jsx45(
             ToastItem,
             {
               t,
@@ -6492,7 +6552,7 @@ function useToast() {
 // src/organisms/VediCome.jsx
 import { useEffect as useEffect15, useId as useId11, useRef as useRef13, useState as useState17 } from "react";
 import { Check as Check3, ChevronDown as ChevronDown4, Eye, RotateCcw as RotateCcw2 } from "lucide-react";
-import { jsx as jsx45, jsxs as jsxs38 } from "react/jsx-runtime";
+import { jsx as jsx46, jsxs as jsxs39 } from "react/jsx-runtime";
 function VediCome({
   viste = [],
   attiva = null,
@@ -6529,8 +6589,8 @@ function VediCome({
     setOpen(false);
     onSeleziona?.(key);
   };
-  return /* @__PURE__ */ jsxs38("div", { className: cn("relative", className), ref: boxRef, children: [
-    /* @__PURE__ */ jsxs38(
+  return /* @__PURE__ */ jsxs39("div", { className: cn("relative", className), ref: boxRef, children: [
+    /* @__PURE__ */ jsxs39(
       "button",
       {
         type: "button",
@@ -6544,9 +6604,9 @@ function VediCome({
           attivo ? "border-amber-300 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-500/[0.12] text-amber-800 dark:text-amber-300" : "border-transparent text-slate-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-white/[0.06]"
         ),
         children: [
-          /* @__PURE__ */ jsx45(Eye, { className: "w-4 h-4", "aria-hidden": "true" }),
-          /* @__PURE__ */ jsx45("span", { className: "hidden sm:inline", children: attivo ? `Vista: ${etichetta}` : "Vedi come" }),
-          /* @__PURE__ */ jsx45(
+          /* @__PURE__ */ jsx46(Eye, { className: "w-4 h-4", "aria-hidden": "true" }),
+          /* @__PURE__ */ jsx46("span", { className: "hidden sm:inline", children: attivo ? `Vista: ${etichetta}` : "Vedi come" }),
+          /* @__PURE__ */ jsx46(
             ChevronDown4,
             {
               "aria-hidden": "true",
@@ -6559,7 +6619,7 @@ function VediCome({
         ]
       }
     ),
-    open && /* @__PURE__ */ jsxs38(
+    open && /* @__PURE__ */ jsxs39(
       "div",
       {
         id: `${uid}-menu`,
@@ -6567,10 +6627,10 @@ function VediCome({
         "aria-label": titolo2,
         className: "absolute right-0 mt-2 w-72 z-30 bg-white dark:bg-slate-800 border border-gray-200 dark:border-white/10 rounded-lg shadow-xl py-1.5",
         children: [
-          /* @__PURE__ */ jsx45("div", { className: "px-3 py-1.5 text-[10px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500", children: titolo2 }),
+          /* @__PURE__ */ jsx46("div", { className: "px-3 py-1.5 text-[10px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500", children: titolo2 }),
           viste.map((v) => {
             const selected = v.key === attiva;
-            return /* @__PURE__ */ jsxs38(
+            return /* @__PURE__ */ jsxs39(
               "button",
               {
                 type: "button",
@@ -6582,7 +6642,7 @@ function VediCome({
                   selected ? "bg-brand-50 dark:bg-brand-500/[0.12]" : "hover:bg-gray-50 dark:hover:bg-white/[0.06]"
                 ),
                 children: [
-                  /* @__PURE__ */ jsx45(
+                  /* @__PURE__ */ jsx46(
                     Check3,
                     {
                       "aria-hidden": "true",
@@ -6592,8 +6652,8 @@ function VediCome({
                       )
                     }
                   ),
-                  /* @__PURE__ */ jsxs38("span", { className: "min-w-0", children: [
-                    /* @__PURE__ */ jsx45(
+                  /* @__PURE__ */ jsxs39("span", { className: "min-w-0", children: [
+                    /* @__PURE__ */ jsx46(
                       "span",
                       {
                         className: cn(
@@ -6603,15 +6663,15 @@ function VediCome({
                         children: v.label
                       }
                     ),
-                    v.descrizione && /* @__PURE__ */ jsx45("span", { className: "block text-[11px] text-slate-400 dark:text-slate-500 leading-snug", children: v.descrizione })
+                    v.descrizione && /* @__PURE__ */ jsx46("span", { className: "block text-[11px] text-slate-400 dark:text-slate-500 leading-snug", children: v.descrizione })
                   ] })
                 ]
               },
               v.key
             );
           }),
-          /* @__PURE__ */ jsx45("div", { className: "border-t border-gray-100 dark:border-white/[0.06] my-1" }),
-          /* @__PURE__ */ jsxs38(
+          /* @__PURE__ */ jsx46("div", { className: "border-t border-gray-100 dark:border-white/[0.06] my-1" }),
+          /* @__PURE__ */ jsxs39(
             "button",
             {
               type: "button",
@@ -6623,12 +6683,12 @@ function VediCome({
                 attivo ? "text-slate-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-white/[0.06]" : "text-slate-300 dark:text-slate-600 cursor-not-allowed"
               ),
               children: [
-                /* @__PURE__ */ jsx45(RotateCcw2, { className: "w-3.5 h-3.5", "aria-hidden": "true" }),
+                /* @__PURE__ */ jsx46(RotateCcw2, { className: "w-3.5 h-3.5", "aria-hidden": "true" }),
                 labelRipristino
               ]
             }
           ),
-          nota && /* @__PURE__ */ jsx45("p", { className: "px-3 pt-1 pb-1.5 text-[10px] text-slate-400 dark:text-slate-500 leading-snug", children: nota })
+          nota && /* @__PURE__ */ jsx46("p", { className: "px-3 pt-1 pb-1.5 text-[10px] text-slate-400 dark:text-slate-500 leading-snug", children: nota })
         ]
       }
     )
@@ -6647,7 +6707,7 @@ import {
 } from "react";
 import { useLocation as useLocation2 } from "react-router-dom";
 import { Menu } from "lucide-react";
-import { Fragment as Fragment7, jsx as jsx46, jsxs as jsxs39 } from "react/jsx-runtime";
+import { Fragment as Fragment7, jsx as jsx47, jsxs as jsxs40 } from "react/jsx-runtime";
 var STORAGE_KEY2 = "vuscom.sidebar.collapsed";
 var NESSUNA_VOCE = [];
 var CompattaContext = createContext2(null);
@@ -6767,8 +6827,8 @@ function AppShell({
   });
   const compressa = compattaAdOgniPagina ? !apertaQui : forzata ? compattaQui !== false : collapsed;
   const azioni = typeof azioniSidebar === "function" ? azioniSidebar({ compressa }) : azioniSidebar;
-  return /* @__PURE__ */ jsx46(CompattaContext.Provider, { value: richiediCompatta, children: /* @__PURE__ */ jsxs39("div", { className: "flex h-screen bg-app", children: [
-    /* @__PURE__ */ jsx46(
+  return /* @__PURE__ */ jsx47(CompattaContext.Provider, { value: richiediCompatta, children: /* @__PURE__ */ jsxs40("div", { className: "flex h-screen bg-app", children: [
+    /* @__PURE__ */ jsx47(
       "a",
       {
         href: `#${idContenuto}`,
@@ -6776,7 +6836,7 @@ function AppShell({
         children: "Vai al contenuto"
       }
     ),
-    /* @__PURE__ */ jsx46(
+    /* @__PURE__ */ jsx47(
       AppSidebar,
       {
         ...sidebarProps,
@@ -6789,24 +6849,24 @@ function AppShell({
         idPannelloMobile,
         collapsed: compressa,
         onToggleCollapse: toggleCollapse,
-        footerSlot: azioni && !compressa ? /* @__PURE__ */ jsxs39(Fragment7, { children: [
+        footerSlot: azioni && !compressa ? /* @__PURE__ */ jsxs40(Fragment7, { children: [
           sidebarProps.footerSlot,
           azioni
         ] }) : sidebarProps.footerSlot,
         themeSlot: azioni && compressa ? (
           // Collapsed (60px): no footer rows, so it stacks over the toggle.
-          /* @__PURE__ */ jsxs39("div", { className: "flex flex-col items-center gap-1.5", children: [
+          /* @__PURE__ */ jsxs40("div", { className: "flex flex-col items-center gap-1.5", children: [
             azioni,
-            /* @__PURE__ */ jsx46(ThemeToggle, {})
+            /* @__PURE__ */ jsx47(ThemeToggle, {})
           ] })
-        ) : /* @__PURE__ */ jsx46(ThemeToggle, {}),
+        ) : /* @__PURE__ */ jsx47(ThemeToggle, {}),
         navClassName: "scrollbar-thin",
         portaliRichiudibili
       }
     ),
-    /* @__PURE__ */ jsxs39("div", { className: "flex min-w-0 flex-1 flex-col", children: [
-      /* @__PURE__ */ jsxs39("header", { className: "relative z-30 flex h-14 shrink-0 items-center justify-between gap-3 border-b bg-background/80 px-4 backdrop-blur", children: [
-        /* @__PURE__ */ jsx46(
+    /* @__PURE__ */ jsxs40("div", { className: "flex min-w-0 flex-1 flex-col", children: [
+      /* @__PURE__ */ jsxs40("header", { className: "relative z-30 flex h-14 shrink-0 items-center justify-between gap-3 border-b bg-background/80 px-4 backdrop-blur", children: [
+        /* @__PURE__ */ jsx47(
           IconButton_default,
           {
             icon: Menu,
@@ -6818,9 +6878,9 @@ function AppShell({
             onClick: () => setIsOpen(true)
           }
         ),
-        /* @__PURE__ */ jsx46("div", { className: "ml-auto flex items-center gap-2", children: topbarRight })
+        /* @__PURE__ */ jsx47("div", { className: "ml-auto flex items-center gap-2", children: topbarRight })
       ] }),
-      /* @__PURE__ */ jsx46(
+      /* @__PURE__ */ jsx47(
         "main",
         {
           ref: mainRef,
@@ -6836,7 +6896,7 @@ function AppShell({
 
 // src/templates/PageHeader.jsx
 import { BookOpen as BookOpen2 } from "lucide-react";
-import { jsx as jsx47, jsxs as jsxs40 } from "react/jsx-runtime";
+import { jsx as jsx48, jsxs as jsxs41 } from "react/jsx-runtime";
 function PageHeader({
   title,
   description,
@@ -6847,35 +6907,35 @@ function PageHeader({
   tabs,
   className
 }) {
-  return /* @__PURE__ */ jsxs40("div", { className: cn("mb-6 space-y-4", className), children: [
-    /* @__PURE__ */ jsxs40("div", { className: "flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between", children: [
-      /* @__PURE__ */ jsxs40("div", { className: "min-w-0 space-y-1", children: [
-        /* @__PURE__ */ jsxs40("div", { className: "flex items-center gap-2", children: [
-          Icon && /* @__PURE__ */ jsx47(Icon, { className: "h-6 w-6 text-primary", "aria-hidden": true }),
-          /* @__PURE__ */ jsx47("h1", { className: "text-2xl font-bold tracking-tight", children: title }),
-          help && /* @__PURE__ */ jsx47(InfoTip, { children: help }),
-          helpHref && /* @__PURE__ */ jsxs40(
+  return /* @__PURE__ */ jsxs41("div", { className: cn("mb-6 space-y-4", className), children: [
+    /* @__PURE__ */ jsxs41("div", { className: "flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between", children: [
+      /* @__PURE__ */ jsxs41("div", { className: "min-w-0 space-y-1", children: [
+        /* @__PURE__ */ jsxs41("div", { className: "flex items-center gap-2", children: [
+          Icon && /* @__PURE__ */ jsx48(Icon, { className: "h-6 w-6 text-primary", "aria-hidden": true }),
+          /* @__PURE__ */ jsx48("h1", { className: "text-2xl font-bold tracking-tight", children: title }),
+          help && /* @__PURE__ */ jsx48(InfoTip, { children: help }),
+          helpHref && /* @__PURE__ */ jsxs41(
             "a",
             {
               href: helpHref,
               className: "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               children: [
-                /* @__PURE__ */ jsx47(BookOpen2, { className: "h-3.5 w-3.5", "aria-hidden": true }),
+                /* @__PURE__ */ jsx48(BookOpen2, { className: "h-3.5 w-3.5", "aria-hidden": true }),
                 "Guida"
               ]
             }
           )
         ] }),
-        description && /* @__PURE__ */ jsx47("p", { className: "text-muted-foreground", children: description })
+        description && /* @__PURE__ */ jsx48("p", { className: "text-muted-foreground", children: description })
       ] }),
-      actions && /* @__PURE__ */ jsx47("div", { className: "flex shrink-0 flex-wrap items-center gap-2", children: actions })
+      actions && /* @__PURE__ */ jsx48("div", { className: "flex shrink-0 flex-wrap items-center gap-2", children: actions })
     ] }),
     tabs
   ] });
 }
 
 // src/templates/Section.jsx
-import { jsx as jsx48, jsxs as jsxs41 } from "react/jsx-runtime";
+import { jsx as jsx49, jsxs as jsxs42 } from "react/jsx-runtime";
 function Section({
   title,
   description,
@@ -6883,13 +6943,13 @@ function Section({
   className,
   children
 }) {
-  return /* @__PURE__ */ jsxs41("section", { className: cn("space-y-3", className), children: [
-    (title || description || actions) && /* @__PURE__ */ jsxs41("div", { className: "flex flex-wrap items-start justify-between gap-3", children: [
-      /* @__PURE__ */ jsxs41("div", { className: "min-w-0", children: [
-        title && /* @__PURE__ */ jsx48("h2", { className: "text-lg font-semibold", children: title }),
-        description && /* @__PURE__ */ jsx48("p", { className: "text-sm text-muted-foreground", children: description })
+  return /* @__PURE__ */ jsxs42("section", { className: cn("space-y-3", className), children: [
+    (title || description || actions) && /* @__PURE__ */ jsxs42("div", { className: "flex flex-wrap items-start justify-between gap-3", children: [
+      /* @__PURE__ */ jsxs42("div", { className: "min-w-0", children: [
+        title && /* @__PURE__ */ jsx49("h2", { className: "text-lg font-semibold", children: title }),
+        description && /* @__PURE__ */ jsx49("p", { className: "text-sm text-muted-foreground", children: description })
       ] }),
-      actions && /* @__PURE__ */ jsx48("div", { className: "flex flex-wrap items-center gap-2", children: actions })
+      actions && /* @__PURE__ */ jsx49("div", { className: "flex flex-wrap items-center gap-2", children: actions })
     ] }),
     children
   ] });
@@ -6987,27 +7047,27 @@ function useAccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso } = {}) {
 }
 
 // src/accesso/AccessoMicrosoft.jsx
-import { Fragment as Fragment8, jsx as jsx49, jsxs as jsxs42 } from "react/jsx-runtime";
+import { Fragment as Fragment8, jsx as jsx50, jsxs as jsxs43 } from "react/jsx-runtime";
 function LogoMicrosoft() {
-  return /* @__PURE__ */ jsxs42("svg", { viewBox: "0 0 21 21", className: "h-4 w-4", "aria-hidden": "true", children: [
-    /* @__PURE__ */ jsx49("rect", { x: "1", y: "1", width: "9", height: "9", fill: "#f25022" }),
-    /* @__PURE__ */ jsx49("rect", { x: "11", y: "1", width: "9", height: "9", fill: "#7fba00" }),
-    /* @__PURE__ */ jsx49("rect", { x: "1", y: "11", width: "9", height: "9", fill: "#00a4ef" }),
-    /* @__PURE__ */ jsx49("rect", { x: "11", y: "11", width: "9", height: "9", fill: "#ffb900" })
+  return /* @__PURE__ */ jsxs43("svg", { viewBox: "0 0 21 21", className: "h-4 w-4", "aria-hidden": "true", children: [
+    /* @__PURE__ */ jsx50("rect", { x: "1", y: "1", width: "9", height: "9", fill: "#f25022" }),
+    /* @__PURE__ */ jsx50("rect", { x: "11", y: "1", width: "9", height: "9", fill: "#7fba00" }),
+    /* @__PURE__ */ jsx50("rect", { x: "1", y: "11", width: "9", height: "9", fill: "#00a4ef" }),
+    /* @__PURE__ */ jsx50("rect", { x: "11", y: "11", width: "9", height: "9", fill: "#ffb900" })
   ] });
 }
 function AccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso, className, separatore = true }) {
   const { disponibile, inCorso: inCorso2, errore, accedi } = useAccessoMicrosoft({ base, onAccesso });
   if (!disponibile && !errore && !inCorso2) return null;
-  return /* @__PURE__ */ jsxs42("div", { className: cn("space-y-4", className), children: [
-    errore && /* @__PURE__ */ jsx49(Alert, { tone: "danger", children: errore }),
-    (disponibile || inCorso2) && /* @__PURE__ */ jsxs42(Fragment8, { children: [
-      separatore && /* @__PURE__ */ jsxs42("div", { className: "flex items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground", children: [
-        /* @__PURE__ */ jsx49("span", { className: "h-px flex-1 bg-border" }),
+  return /* @__PURE__ */ jsxs43("div", { className: cn("space-y-4", className), children: [
+    errore && /* @__PURE__ */ jsx50(Alert, { tone: "danger", children: errore }),
+    (disponibile || inCorso2) && /* @__PURE__ */ jsxs43(Fragment8, { children: [
+      separatore && /* @__PURE__ */ jsxs43("div", { className: "flex items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground", children: [
+        /* @__PURE__ */ jsx50("span", { className: "h-px flex-1 bg-border" }),
         "oppure",
-        /* @__PURE__ */ jsx49("span", { className: "h-px flex-1 bg-border" })
+        /* @__PURE__ */ jsx50("span", { className: "h-px flex-1 bg-border" })
       ] }),
-      /* @__PURE__ */ jsx49(
+      /* @__PURE__ */ jsx50(
         Button_default,
         {
           type: "button",
@@ -7026,16 +7086,16 @@ function AccessoMicrosoft({ base = BASE_MICROSOFT, onAccesso, className, separat
 
 // src/accesso/AltriPortali.jsx
 import { useMemo as useMemo5 } from "react";
-import { jsx as jsx50, jsxs as jsxs43 } from "react/jsx-runtime";
+import { jsx as jsx51, jsxs as jsxs44 } from "react/jsx-runtime";
 function AltriPortali({ corrente }) {
   const portali = useMemo5(
     () => altriPortali({ corrente, codici: portaliRicordati() }),
     [corrente]
   );
   if (!portali.length) return null;
-  return /* @__PURE__ */ jsxs43("div", { className: "space-y-3 border-t border-border pt-4 text-center", children: [
-    /* @__PURE__ */ jsx50("p", { className: "text-sm text-muted-foreground", children: "Accedi ad altri portali" }),
-    /* @__PURE__ */ jsx50("div", { className: "flex flex-wrap justify-center gap-2", children: portali.map((p) => /* @__PURE__ */ jsx50(
+  return /* @__PURE__ */ jsxs44("div", { className: "space-y-3 border-t border-border pt-4 text-center", children: [
+    /* @__PURE__ */ jsx51("p", { className: "text-sm text-muted-foreground", children: "Accedi ad altri portali" }),
+    /* @__PURE__ */ jsx51("div", { className: "flex flex-wrap justify-center gap-2", children: portali.map((p) => /* @__PURE__ */ jsx51(
       "a",
       {
         href: p.url,
@@ -7048,7 +7108,7 @@ function AltriPortali({ corrente }) {
 }
 
 // src/templates/LoginCornice.jsx
-import { jsx as jsx51, jsxs as jsxs44 } from "react/jsx-runtime";
+import { jsx as jsx52, jsxs as jsxs45 } from "react/jsx-runtime";
 function LoginCornice({
   title,
   subtitle,
@@ -7056,11 +7116,11 @@ function LoginCornice({
   logoDark = LOGHI_VUSCOM.marchioScuro,
   children
 }) {
-  return /* @__PURE__ */ jsxs44("div", { className: "relative flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-50 to-brand-100 px-4 dark:from-slate-900 dark:to-slate-800", children: [
-    /* @__PURE__ */ jsx51("div", { className: "absolute right-4 top-4", children: /* @__PURE__ */ jsx51(ThemeToggle, {}) }),
-    /* @__PURE__ */ jsxs44("div", { className: "w-full max-w-md space-y-8 rounded-xl bg-card p-8 shadow-2xl", children: [
-      /* @__PURE__ */ jsxs44("div", { className: "text-center", children: [
-        /* @__PURE__ */ jsx51(
+  return /* @__PURE__ */ jsxs45("div", { className: "relative flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-50 to-brand-100 px-4 dark:from-slate-900 dark:to-slate-800", children: [
+    /* @__PURE__ */ jsx52("div", { className: "absolute right-4 top-4", children: /* @__PURE__ */ jsx52(ThemeToggle, {}) }),
+    /* @__PURE__ */ jsxs45("div", { className: "w-full max-w-md space-y-8 rounded-xl bg-card p-8 shadow-2xl", children: [
+      /* @__PURE__ */ jsxs45("div", { className: "text-center", children: [
+        /* @__PURE__ */ jsx52(
           "img",
           {
             src: logoLight,
@@ -7068,7 +7128,7 @@ function LoginCornice({
             className: "mx-auto h-20 w-auto object-contain dark:hidden"
           }
         ),
-        /* @__PURE__ */ jsx51(
+        /* @__PURE__ */ jsx52(
           "img",
           {
             src: logoDark,
@@ -7076,8 +7136,8 @@ function LoginCornice({
             className: "mx-auto hidden h-20 w-auto object-contain dark:block"
           }
         ),
-        /* @__PURE__ */ jsx51("h1", { className: "mt-6 text-3xl font-bold text-foreground", children: title }),
-        /* @__PURE__ */ jsx51("p", { className: "mt-2 text-sm text-muted-foreground", children: subtitle })
+        /* @__PURE__ */ jsx52("h1", { className: "mt-6 text-3xl font-bold text-foreground", children: title }),
+        /* @__PURE__ */ jsx52("p", { className: "mt-2 text-sm text-muted-foreground", children: subtitle })
       ] }),
       children
     ] })
@@ -7103,7 +7163,7 @@ function useTemaLogin() {
 }
 
 // src/accesso/RecuperoPassword.jsx
-import { Fragment as Fragment9, jsx as jsx52, jsxs as jsxs45 } from "react/jsx-runtime";
+import { Fragment as Fragment9, jsx as jsx53, jsxs as jsxs46 } from "react/jsx-runtime";
 var BASE_RECUPERO = "/api/auth";
 var MINIMO = 8;
 var GENERICO = "Se l'account esiste, ricever\xE0 un'email con le istruzioni per reimpostare la password.";
@@ -7137,15 +7197,15 @@ function RichiestaRecupero({
       setLoading(false);
     }
   }
-  return /* @__PURE__ */ jsx52(LoginCornice, { ...cornice, subtitle: "Recupera la tua password", children: /* @__PURE__ */ jsxs45("form", { className: "space-y-5", onSubmit: invia, children: [
-    error && /* @__PURE__ */ jsx52(Alert, { tone: "danger", children: error }),
-    message ? /* @__PURE__ */ jsx52(Alert, { tone: "success", children: message }) : /* @__PURE__ */ jsxs45(Fragment9, { children: [
-      /* @__PURE__ */ jsx52(
+  return /* @__PURE__ */ jsx53(LoginCornice, { ...cornice, subtitle: "Recupera la tua password", children: /* @__PURE__ */ jsxs46("form", { className: "space-y-5", onSubmit: invia, children: [
+    error && /* @__PURE__ */ jsx53(Alert, { tone: "danger", children: error }),
+    message ? /* @__PURE__ */ jsx53(Alert, { tone: "success", children: message }) : /* @__PURE__ */ jsxs46(Fragment9, { children: [
+      /* @__PURE__ */ jsx53(
         Field,
         {
           label: "Email o username",
           hint: "Ti invieremo un link, valido 60 minuti, per reimpostare la password.",
-          children: /* @__PURE__ */ jsx52(
+          children: /* @__PURE__ */ jsx53(
             Input_default,
             {
               name: "email",
@@ -7157,9 +7217,9 @@ function RichiestaRecupero({
           )
         }
       ),
-      /* @__PURE__ */ jsx52(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Invia link di reset" })
+      /* @__PURE__ */ jsx53(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Invia link di reset" })
     ] }),
-    /* @__PURE__ */ jsx52("div", { className: "text-center", children: /* @__PURE__ */ jsx52(Button_default, { variant: "link", onClick: onIndietro, children: "Torna al login" }) })
+    /* @__PURE__ */ jsx53("div", { className: "text-center", children: /* @__PURE__ */ jsx53(Button_default, { variant: "link", onClick: onIndietro, children: "Torna al login" }) })
   ] }) });
 }
 function ReimpostaPassword({
@@ -7200,12 +7260,12 @@ function ReimpostaPassword({
       setLoading(false);
     }
   }
-  return /* @__PURE__ */ jsx52(LoginCornice, { ...cornice, subtitle: "Reimposta la tua password", children: fatto ? /* @__PURE__ */ jsxs45("div", { className: "space-y-5", children: [
-    /* @__PURE__ */ jsx52(Alert, { tone: "success", children: "Password reimpostata. Per sicurezza le sessioni aperte su tutti i portali sono state chiuse." }),
-    /* @__PURE__ */ jsx52(Button_default, { size: "lg", fullWidth: true, onClick: onFatto, children: "Vai al login" })
-  ] }) : /* @__PURE__ */ jsxs45("form", { className: "space-y-5", onSubmit: invia, children: [
-    error && /* @__PURE__ */ jsx52(Alert, { tone: "danger", children: error }),
-    /* @__PURE__ */ jsx52(Field, { label: "Nuova password", children: /* @__PURE__ */ jsx52(
+  return /* @__PURE__ */ jsx53(LoginCornice, { ...cornice, subtitle: "Reimposta la tua password", children: fatto ? /* @__PURE__ */ jsxs46("div", { className: "space-y-5", children: [
+    /* @__PURE__ */ jsx53(Alert, { tone: "success", children: "Password reimpostata. Per sicurezza le sessioni aperte su tutti i portali sono state chiuse." }),
+    /* @__PURE__ */ jsx53(Button_default, { size: "lg", fullWidth: true, onClick: onFatto, children: "Vai al login" })
+  ] }) : /* @__PURE__ */ jsxs46("form", { className: "space-y-5", onSubmit: invia, children: [
+    error && /* @__PURE__ */ jsx53(Alert, { tone: "danger", children: error }),
+    /* @__PURE__ */ jsx53(Field, { label: "Nuova password", children: /* @__PURE__ */ jsx53(
       Input_default,
       {
         type: "password",
@@ -7216,7 +7276,7 @@ function ReimpostaPassword({
         required: true
       }
     ) }),
-    /* @__PURE__ */ jsx52(Field, { label: "Conferma nuova password", children: /* @__PURE__ */ jsx52(
+    /* @__PURE__ */ jsx53(Field, { label: "Conferma nuova password", children: /* @__PURE__ */ jsx53(
       Input_default,
       {
         type: "password",
@@ -7227,8 +7287,8 @@ function ReimpostaPassword({
         required: true
       }
     ) }),
-    /* @__PURE__ */ jsx52(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Reimposta password" }),
-    /* @__PURE__ */ jsx52("div", { className: "text-center", children: /* @__PURE__ */ jsx52(Button_default, { variant: "link", onClick: onFatto, children: "Torna al login" }) })
+    /* @__PURE__ */ jsx53(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Reimposta password" }),
+    /* @__PURE__ */ jsx53("div", { className: "text-center", children: /* @__PURE__ */ jsx53(Button_default, { variant: "link", onClick: onFatto, children: "Torna al login" }) })
   ] }) });
 }
 
@@ -7255,7 +7315,7 @@ function leggiStatoLogin() {
 }
 
 // src/accesso/Registrazione.jsx
-import { Fragment as Fragment10, jsx as jsx53, jsxs as jsxs46 } from "react/jsx-runtime";
+import { Fragment as Fragment10, jsx as jsx54, jsxs as jsxs47 } from "react/jsx-runtime";
 var MINIMO2 = 8;
 var SENZA_RETE = "Errore di connessione al server.";
 function messaggio(data, predefinito) {
@@ -7277,9 +7337,9 @@ function RimandaInvito({ base = BASE_RECUPERO, login }) {
       setLoading(false);
     }
   }
-  return /* @__PURE__ */ jsxs46("div", { className: "mt-3 space-y-2", children: [
-    esito && /* @__PURE__ */ jsx53("p", { children: esito }),
-    /* @__PURE__ */ jsx53(Button_default, { size: "sm", variant: "secondary", loading, disabled: Boolean(esito), onClick: rimanda, children: "Rimandami l'email di registrazione" })
+  return /* @__PURE__ */ jsxs47("div", { className: "mt-3 space-y-2", children: [
+    esito && /* @__PURE__ */ jsx54("p", { children: esito }),
+    /* @__PURE__ */ jsx54(Button_default, { size: "sm", variant: "secondary", loading, disabled: Boolean(esito), onClick: rimanda, children: "Rimandami l'email di registrazione" })
   ] });
 }
 function RichiestaRegistrazione({ base = BASE_RECUPERO, onIndietro, ...cornice }) {
@@ -7302,23 +7362,23 @@ function RichiestaRegistrazione({ base = BASE_RECUPERO, onIndietro, ...cornice }
       setLoading(false);
     }
   }
-  return /* @__PURE__ */ jsx53(LoginCornice, { ...cornice, subtitle: "Registrati", children: /* @__PURE__ */ jsxs46("form", { className: "space-y-5", onSubmit: invia, children: [
-    error && /* @__PURE__ */ jsx53(Alert, { tone: "danger", children: error }),
-    message ? /* @__PURE__ */ jsx53(Alert, { tone: "success", children: message }) : /* @__PURE__ */ jsxs46(Fragment10, { children: [
-      /* @__PURE__ */ jsxs46("div", { className: "grid grid-cols-1 gap-4 sm:grid-cols-2", children: [
-        /* @__PURE__ */ jsx53(Field, { label: "Nome", children: /* @__PURE__ */ jsx53(Input_default, { name: "nome", autoComplete: "given-name", value: nome, onChange: (e) => setNome(e.target.value), required: true }) }),
-        /* @__PURE__ */ jsx53(Field, { label: "Cognome", children: /* @__PURE__ */ jsx53(Input_default, { name: "cognome", autoComplete: "family-name", value: cognome, onChange: (e) => setCognome(e.target.value), required: true }) })
+  return /* @__PURE__ */ jsx54(LoginCornice, { ...cornice, subtitle: "Registrati", children: /* @__PURE__ */ jsxs47("form", { className: "space-y-5", onSubmit: invia, children: [
+    error && /* @__PURE__ */ jsx54(Alert, { tone: "danger", children: error }),
+    message ? /* @__PURE__ */ jsx54(Alert, { tone: "success", children: message }) : /* @__PURE__ */ jsxs47(Fragment10, { children: [
+      /* @__PURE__ */ jsxs47("div", { className: "grid grid-cols-1 gap-4 sm:grid-cols-2", children: [
+        /* @__PURE__ */ jsx54(Field, { label: "Nome", children: /* @__PURE__ */ jsx54(Input_default, { name: "nome", autoComplete: "given-name", value: nome, onChange: (e) => setNome(e.target.value), required: true }) }),
+        /* @__PURE__ */ jsx54(Field, { label: "Cognome", children: /* @__PURE__ */ jsx54(Input_default, { name: "cognome", autoComplete: "family-name", value: cognome, onChange: (e) => setCognome(e.target.value), required: true }) })
       ] }),
-      /* @__PURE__ */ jsx53(Field, { label: "Email", hint: "Ti invieremo un link per completare la registrazione.", children: /* @__PURE__ */ jsx53(Input_default, { type: "email", name: "email", autoComplete: "email", value: email, onChange: (e) => setEmail(e.target.value), required: true }) }),
-      /* @__PURE__ */ jsx53(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Invia" })
+      /* @__PURE__ */ jsx54(Field, { label: "Email", hint: "Ti invieremo un link per completare la registrazione.", children: /* @__PURE__ */ jsx54(Input_default, { type: "email", name: "email", autoComplete: "email", value: email, onChange: (e) => setEmail(e.target.value), required: true }) }),
+      /* @__PURE__ */ jsx54(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Invia" })
     ] }),
-    /* @__PURE__ */ jsx53("div", { className: "text-center", children: /* @__PURE__ */ jsx53(Button_default, { variant: "link", onClick: onIndietro, children: "Torna al login" }) })
+    /* @__PURE__ */ jsx54("div", { className: "text-center", children: /* @__PURE__ */ jsx54(Button_default, { variant: "link", onClick: onIndietro, children: "Torna al login" }) })
   ] }) });
 }
 function Regola({ ok, children }) {
   const Icona = ok ? Check4 : Circle;
-  return /* @__PURE__ */ jsxs46("li", { className: `flex items-center gap-2 ${ok ? "text-success" : "text-muted-foreground"}`, children: [
-    /* @__PURE__ */ jsx53(Icona, { className: "h-3.5 w-3.5", "aria-hidden": "true" }),
+  return /* @__PURE__ */ jsxs47("li", { className: `flex items-center gap-2 ${ok ? "text-success" : "text-muted-foreground"}`, children: [
+    /* @__PURE__ */ jsx54(Icona, { className: "h-3.5 w-3.5", "aria-hidden": "true" }),
     children
   ] });
 }
@@ -7389,32 +7449,32 @@ function RegistrazionePage({
       setLoading(false);
     }
   }
-  return /* @__PURE__ */ jsx53(LoginCornice, { ...cornice, subtitle: "Completa la registrazione", children: !invito ? /* @__PURE__ */ jsxs46("div", { className: "space-y-5", children: [
-    errore ? /* @__PURE__ */ jsx53(Alert, { tone: "danger", children: errore }) : /* @__PURE__ */ jsx53("p", { className: "text-center text-sm text-muted-foreground", children: "Verifica dell'invito in corso\u2026" }),
-    errore && /* @__PURE__ */ jsx53("div", { className: "text-center", children: /* @__PURE__ */ jsx53(Button_default, { variant: "link", onClick: onVaiAlLogin, children: "Vai al login" }) })
-  ] }) : /* @__PURE__ */ jsxs46("form", { className: "space-y-5", onSubmit: invia, children: [
-    errore && /* @__PURE__ */ jsx53(Alert, { tone: "danger", children: errore }),
-    /* @__PURE__ */ jsx53(Field, { label: "Email", children: /* @__PURE__ */ jsx53(Input_default, { type: "email", value: invito.email || "", readOnly: true }) }),
-    /* @__PURE__ */ jsxs46("div", { className: "grid grid-cols-1 gap-4 sm:grid-cols-2", children: [
-      /* @__PURE__ */ jsx53(Field, { label: "Nome", children: /* @__PURE__ */ jsx53(Input_default, { value: nome, onChange: (e) => setNome(e.target.value), required: true }) }),
-      /* @__PURE__ */ jsx53(Field, { label: "Cognome", children: /* @__PURE__ */ jsx53(Input_default, { value: cognome, onChange: (e) => setCognome(e.target.value), required: true }) })
+  return /* @__PURE__ */ jsx54(LoginCornice, { ...cornice, subtitle: "Completa la registrazione", children: !invito ? /* @__PURE__ */ jsxs47("div", { className: "space-y-5", children: [
+    errore ? /* @__PURE__ */ jsx54(Alert, { tone: "danger", children: errore }) : /* @__PURE__ */ jsx54("p", { className: "text-center text-sm text-muted-foreground", children: "Verifica dell'invito in corso\u2026" }),
+    errore && /* @__PURE__ */ jsx54("div", { className: "text-center", children: /* @__PURE__ */ jsx54(Button_default, { variant: "link", onClick: onVaiAlLogin, children: "Vai al login" }) })
+  ] }) : /* @__PURE__ */ jsxs47("form", { className: "space-y-5", onSubmit: invia, children: [
+    errore && /* @__PURE__ */ jsx54(Alert, { tone: "danger", children: errore }),
+    /* @__PURE__ */ jsx54(Field, { label: "Email", children: /* @__PURE__ */ jsx54(Input_default, { type: "email", value: invito.email || "", readOnly: true }) }),
+    /* @__PURE__ */ jsxs47("div", { className: "grid grid-cols-1 gap-4 sm:grid-cols-2", children: [
+      /* @__PURE__ */ jsx54(Field, { label: "Nome", children: /* @__PURE__ */ jsx54(Input_default, { value: nome, onChange: (e) => setNome(e.target.value), required: true }) }),
+      /* @__PURE__ */ jsx54(Field, { label: "Cognome", children: /* @__PURE__ */ jsx54(Input_default, { value: cognome, onChange: (e) => setCognome(e.target.value), required: true }) })
     ] }),
-    /* @__PURE__ */ jsx53(Field, { label: "Password", children: /* @__PURE__ */ jsx53(Input_default, { type: "password", autoComplete: "new-password", value: password, onChange: (e) => setPassword(e.target.value), required: true }) }),
-    /* @__PURE__ */ jsx53(Field, { label: "Conferma password", children: /* @__PURE__ */ jsx53(Input_default, { type: "password", autoComplete: "new-password", value: conferma, onChange: (e) => setConferma(e.target.value), required: true }) }),
-    /* @__PURE__ */ jsxs46("ul", { className: "space-y-1 text-xs", "aria-label": "Regole della password", children: [
-      /* @__PURE__ */ jsxs46(Regola, { ok: lungaAbbastanza, children: [
+    /* @__PURE__ */ jsx54(Field, { label: "Password", children: /* @__PURE__ */ jsx54(Input_default, { type: "password", autoComplete: "new-password", value: password, onChange: (e) => setPassword(e.target.value), required: true }) }),
+    /* @__PURE__ */ jsx54(Field, { label: "Conferma password", children: /* @__PURE__ */ jsx54(Input_default, { type: "password", autoComplete: "new-password", value: conferma, onChange: (e) => setConferma(e.target.value), required: true }) }),
+    /* @__PURE__ */ jsxs47("ul", { className: "space-y-1 text-xs", "aria-label": "Regole della password", children: [
+      /* @__PURE__ */ jsxs47(Regola, { ok: lungaAbbastanza, children: [
         "Almeno ",
         MINIMO2,
         " caratteri"
       ] }),
-      /* @__PURE__ */ jsx53(Regola, { ok: uguali, children: "Le due password coincidono" })
+      /* @__PURE__ */ jsx54(Regola, { ok: uguali, children: "Le due password coincidono" })
     ] }),
-    /* @__PURE__ */ jsx53(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, disabled: !pronto, children: "Registrati ed entra" })
+    /* @__PURE__ */ jsx54(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, disabled: !pronto, children: "Registrati ed entra" })
   ] }) });
 }
 
 // src/templates/LoginPage.jsx
-import { jsx as jsx54, jsxs as jsxs47 } from "react/jsx-runtime";
+import { jsx as jsx55, jsxs as jsxs48 } from "react/jsx-runtime";
 function leggiRicordami() {
   try {
     return localStorage.getItem("rememberMe") === "true";
@@ -7481,7 +7541,7 @@ function LoginPage({
     }
   }
   if (recupero && recuperoAperto)
-    return /* @__PURE__ */ jsx54(
+    return /* @__PURE__ */ jsx55(
       RichiestaRecupero,
       {
         base: recupero.base,
@@ -7492,7 +7552,7 @@ function LoginPage({
       }
     );
   if (registrazione && registrazioneAperta)
-    return /* @__PURE__ */ jsx54(
+    return /* @__PURE__ */ jsx55(
       RichiestaRegistrazione,
       {
         base: registrazione.base,
@@ -7502,7 +7562,7 @@ function LoginPage({
         onIndietro: () => setRegistrazioneAperta(false)
       }
     );
-  return /* @__PURE__ */ jsxs47(
+  return /* @__PURE__ */ jsxs48(
     LoginCornice,
     {
       title,
@@ -7510,14 +7570,14 @@ function LoginPage({
       logoLight,
       logoDark,
       children: [
-        /* @__PURE__ */ jsxs47("form", { className: "space-y-5", onSubmit: handleSubmit, children: [
-          error && /* @__PURE__ */ jsx54(Alert, { tone: "danger", children: error }),
-          giaRegistrato && !nonRegistrato && /* @__PURE__ */ jsx54(Alert, { tone: "info", children: "Registrazione gi\xE0 completata: accedi con la tua password." }),
-          nonRegistrato && /* @__PURE__ */ jsxs47(Alert, { tone: "warning", children: [
+        /* @__PURE__ */ jsxs48("form", { className: "space-y-5", onSubmit: handleSubmit, children: [
+          error && /* @__PURE__ */ jsx55(Alert, { tone: "danger", children: error }),
+          giaRegistrato && !nonRegistrato && /* @__PURE__ */ jsx55(Alert, { tone: "info", children: "Registrazione gi\xE0 completata: accedi con la tua password." }),
+          nonRegistrato && /* @__PURE__ */ jsxs48(Alert, { tone: "warning", children: [
             nonRegistrato.messaggio,
-            /* @__PURE__ */ jsx54(RimandaInvito, { base: registrazione?.base, login: nonRegistrato.login })
+            /* @__PURE__ */ jsx55(RimandaInvito, { base: registrazione?.base, login: nonRegistrato.login })
           ] }),
-          /* @__PURE__ */ jsx54(Field, { label: usernameLabel, children: /* @__PURE__ */ jsx54(
+          /* @__PURE__ */ jsx55(Field, { label: usernameLabel, children: /* @__PURE__ */ jsx55(
             Input_default,
             {
               name: "username",
@@ -7527,8 +7587,8 @@ function LoginPage({
               required: true
             }
           ) }),
-          /* @__PURE__ */ jsxs47("div", { className: "flex flex-col gap-1.5", children: [
-            /* @__PURE__ */ jsx54(
+          /* @__PURE__ */ jsxs48("div", { className: "flex flex-col gap-1.5", children: [
+            /* @__PURE__ */ jsx55(
               "label",
               {
                 htmlFor: passwordId,
@@ -7536,8 +7596,8 @@ function LoginPage({
                 children: "Password"
               }
             ),
-            /* @__PURE__ */ jsxs47("div", { className: "relative", children: [
-              /* @__PURE__ */ jsx54(
+            /* @__PURE__ */ jsxs48("div", { className: "relative", children: [
+              /* @__PURE__ */ jsx55(
                 Input_default,
                 {
                   id: passwordId,
@@ -7550,7 +7610,7 @@ function LoginPage({
                   required: true
                 }
               ),
-              /* @__PURE__ */ jsx54(
+              /* @__PURE__ */ jsx55(
                 IconButton_default,
                 {
                   icon: show ? EyeOff : Eye2,
@@ -7562,20 +7622,20 @@ function LoginPage({
               )
             ] })
           ] }),
-          registrazione && /* @__PURE__ */ jsxs47("div", { className: "flex items-center justify-between gap-3", children: [
-            /* @__PURE__ */ jsx54(Button_default, { variant: "link", size: "sm", onClick: () => setRegistrazioneAperta(true), children: "Registrati" }),
-            recupero && /* @__PURE__ */ jsx54(Button_default, { variant: "link", size: "sm", onClick: () => setRecuperoAperto(true), children: "Password dimenticata?" })
+          registrazione && /* @__PURE__ */ jsxs48("div", { className: "flex items-center justify-between gap-3", children: [
+            /* @__PURE__ */ jsx55(Button_default, { variant: "link", size: "sm", onClick: () => setRegistrazioneAperta(true), children: "Registrati" }),
+            recupero && /* @__PURE__ */ jsx55(Button_default, { variant: "link", size: "sm", onClick: () => setRecuperoAperto(true), children: "Password dimenticata?" })
           ] }),
-          (ricordami || recupero && !registrazione) && /* @__PURE__ */ jsxs47("div", { className: "flex items-center justify-between gap-3", children: [
-            ricordami ? /* @__PURE__ */ jsx54(
+          (ricordami || recupero && !registrazione) && /* @__PURE__ */ jsxs48("div", { className: "flex items-center justify-between gap-3", children: [
+            ricordami ? /* @__PURE__ */ jsx55(
               Checkbox,
               {
                 checked: ricorda,
                 onChange: cambiaRicorda,
                 label: "Ricordami"
               }
-            ) : /* @__PURE__ */ jsx54("span", {}),
-            recupero && !registrazione && /* @__PURE__ */ jsx54(
+            ) : /* @__PURE__ */ jsx55("span", {}),
+            recupero && !registrazione && /* @__PURE__ */ jsx55(
               Button_default,
               {
                 variant: "link",
@@ -7585,11 +7645,11 @@ function LoginPage({
               }
             )
           ] }),
-          /* @__PURE__ */ jsx54(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Accedi" })
+          /* @__PURE__ */ jsx55(Button_default, { type: "submit", size: "lg", fullWidth: true, loading, children: "Accedi" })
         ] }),
-        microsoft && /* @__PURE__ */ jsx54(AccessoMicrosoft, { ...microsoft }),
-        altriPortali2 && /* @__PURE__ */ jsx54(AltriPortali, { corrente: iconaPortale }),
-        footer && /* @__PURE__ */ jsx54("div", { className: "text-center text-xs text-muted-foreground", children: footer })
+        microsoft && /* @__PURE__ */ jsx55(AccessoMicrosoft, { ...microsoft }),
+        altriPortali2 && /* @__PURE__ */ jsx55(AltriPortali, { corrente: iconaPortale }),
+        footer && /* @__PURE__ */ jsx55("div", { className: "text-center text-xs text-muted-foreground", children: footer })
       ]
     }
   );
@@ -7703,6 +7763,7 @@ export {
   TESSERE_PORTALE,
   THEME_INIT_SCRIPT,
   Tabs,
+  TagCombinazione,
   Textarea_default as Textarea,
   ThemeToggle,
   ToastProvider,

@@ -8,6 +8,7 @@ import {
   periodsBetween,
   PulsanteEsportaCsv,
   Section,
+  TagCombinazione,
   useToast,
 } from "../../src/index.js";
 import { GraficoBarre, PaginaReportCampagna } from "../../src/grafici/index.js";
@@ -105,6 +106,13 @@ export default function Report() {
         />
         <div className="flex gap-2">
           <ChipFiltro>ChipFiltro senza rimozione</ChipFiltro>
+        </div>
+      </Section>
+      <Section title="TagCombinazione">
+        <div className="space-y-2">
+          <TagCombinazione servizio="luce" prezzo="Fisso" cliente="Domestico" />
+          <TagCombinazione servizio="gas" cliente="Business" placet />
+          <TagCombinazione servizio={["luce", "gas"]} cliente={["Condominio", "Altri usi"]} />
         </div>
       </Section>
       <Section title="GraficoBarre (@vuscom/ui/grafici)">

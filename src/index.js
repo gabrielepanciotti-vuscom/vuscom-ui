@@ -53,6 +53,7 @@ export { default as DataOra } from "./atoms/DataOra.jsx";
 export { default as CampoData } from "./molecules/CampoData.jsx";
 export { default as CalendarioMese } from "./molecules/CalendarioMese.jsx";
 export { default as ChipFiltro } from "./molecules/ChipFiltro.jsx";
+export { default as TagCombinazione } from "./molecules/TagCombinazione.jsx";
 export { default as PulsanteEsportaCsv } from "./molecules/PulsanteEsportaCsv.jsx";
 export {
   periodOf,
